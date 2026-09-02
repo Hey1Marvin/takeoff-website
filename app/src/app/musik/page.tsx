@@ -4,8 +4,14 @@ import Link from "next/link";
 import { artists, upcoming, settings, pageContent } from "@/lib/data";
 import { artistHref, eventHref, pageHref } from "@/lib/site";
 import type { Artist, TakeoffEvent } from "@/lib/types";
-import MusikAmbient from "@/components/pages/MusikAmbient";
-import MusikTaktgeber, { type MusikGenreVM, type MusikWayfindLink } from "@/components/pages/MusikTaktgeber";
+import MusikTaktgeber, {
+  type MusikGenreVM,
+  type MusikGuestsCopy,
+  type MusikScaleCopy,
+  type MusikTapCopy,
+  type MusikWayfindCopy,
+  type MusikWayfindLink,
+} from "@/components/pages/MusikTaktgeber";
 import MusikSetCard from "@/components/pages/MusikSetCard";
 import MusikShareButton from "@/components/pages/MusikShareButton";
 import "@/styles/pages/musik.css";
@@ -15,29 +21,22 @@ export const metadata: Metadata = {
   description: "Trance, Hard Trance, Bounce — was das ist und wie es klingt.",
 };
 
-/* Spiegelt src/data/pages/musik.json (siehe prototype/assets/js/pages/
-   musik.js für die 1:1-Referenz der Render-Logik: renderListen(),
-   renderWayfind(), renderNightGuide(), renderGlossary(), renderFaq(),
-   wireTap()). Quelle der Wahrheit für die Feldnamen ist hier die
-   tatsächlich eingecheckte JSON, wie von AGENTS.md vorgegeben. */
+/* Spiegelt src/data/pages/musik.json. Quelle der Wahrheit für die Feldnamen
+   ist die tatsächlich eingecheckte JSON, wie von AGENTS.md vorgegeben —
+   ALLE deutschen Fliess- und Überschriftentexte dieser Seite stehen dort,
+   im JSX steht keiner mehr. */
 interface MusikPageContent {
   hero: { eyebrow: string; titleHtml: string; intro: string };
-  scale: { min: number; max: number; caption: string };
+  scale: MusikScaleCopy;
   genres: { id: string; label: string; shortLabel: string; bpm: number | null; text: string }[];
-  tapTempo: {
-    instruction: string;
-    button: string;
-    reset: string;
-    resultTemplate: string;
-    tooFastText: string;
-    tooSlowText: string;
-    flavor: Record<string, string>;
-  };
-  listen: { eyebrow: string; intro: string; consentNote: string; emptyText: string; teaser: string };
-  nightGuide: { eyebrow: string; phases: { time: string; label: string; genreIds: string[]; text: string }[] };
-  glossary: { term: string; def: string }[];
+  wayfind: MusikWayfindCopy;
+  guests: MusikGuestsCopy;
+  tapTempo: MusikTapCopy;
+  listen: { eyebrow: string; titleHtml: string; intro: string; consentNote: string; emptyText: string; teaser: string };
+  nightGuide: { eyebrow: string; titleHtml: string; phases: { time: string; label: string; genreIds: string[]; text: string }[] };
+  glossary: { eyebrow: string; titleHtml: string; terms: { term: string; def: string }[] };
   trackId: { eyebrow: string; title: string; text: string; buttonLabel: string; mailSubject: string; mailBody: string };
-  faq: { q: string; a: string }[];
+  faq: { eyebrow: string; titleHtml: string; items: { q: string; a: string }[] };
   share: { label: string; text: string; copiedToast: string };
   transmission: { label: string; text: string };
 }
@@ -52,7 +51,14 @@ const DEFAULT_CONTENT: MusikPageContent = {
     titleHtml: 'Was läuft hier <span class="glow">eigentlich</span>?',
     intro: "Nie von Hard Bounce gehört? Macht nichts — dafür gibt's diese Seite. Drei Minuten Lesezeit, dann weißt du, was dich auf dem Floor erwartet.",
   },
-  scale: { min: 60, max: 180, caption: "So nah liegen unsere Kern-Tempi beieinander — und so deutlich hört man den Unterschied trotzdem." },
+  scale: {
+    min: 60,
+    max: 180,
+    label: "Taktskala",
+    caption: "So nah liegen unsere Kern-Tempi beieinander — und so deutlich hört man den Unterschied trotzdem.",
+    coreLabel: "Kern-Tempi",
+    youLabel: "Du",
+  },
   genres: [
     { id: "trance", label: "Trance", shortLabel: "Trance", bpm: 138, text: "Hypnotische Melodien, lange Spannungsbögen, Gänsehaut-Momente. ~{bpm} BPM · das Herz von takeoff." },
     { id: "hard-trance", label: "Hard Trance", shortLabel: "Hard Trance", bpm: 145, text: "Trance mit Schub: härtere Kicks, treibender, euphorischer. ~{bpm} BPM." },
@@ -60,17 +66,28 @@ const DEFAULT_CONTENT: MusikPageContent = {
     { id: "techno", label: "Techno", shortLabel: "Techno", bpm: null, text: "Der gerade, dunkle Puls — bei uns als Gastgeschenk befreundeter Kollektive." },
     { id: "psytrance", label: "Psytrance", shortLabel: "Psytrance", bpm: null, text: "Wenn's spät wird und die Muster tanzen. Gelegentlich, mit Liebe." },
   ],
+  wayfind: { artistsLabel: "Live gespielt von", eventsLabel: "Nächste Termine" },
+  guests: {
+    label: "Gelegentlich zu Gast",
+    note: "Kein fester Takt, kein fester Platz im Abend — deshalb stehen sie hier unten und nicht auf der Skala.",
+  },
   tapTempo: {
+    label: "Tipp mit",
     instruction: "Tippe im eigenen Takt — mindestens 4×, dann rechnen wir. Klick, Tap oder Leertaste.",
     button: "Tipp mit!",
     reset: "Zurücksetzen",
+    againText: "Nochmal — beim zweiten Tipp erkennen wir den Takt.",
     resultTemplate: "Du tippst ~{bpm} BPM — das ist fast {genre}.",
+    nearTemplate: "Nah an {genre} ({bpm} BPM) — eine Idee {richtung}.",
+    fasterWord: "schneller",
+    slowerWord: "langsamer",
     tooFastText: "Ordentlich Tempo drauf — schneller als alles, was bei uns läuft.",
     tooSlowText: "Eher gemütlich — bei uns geht's meist flotter zur Sache.",
     flavor: { trance: "genau unser Herzschlag.", "hard-trance": "mit ordentlich Schub.", bounce: "mit Wumms und Feder." },
   },
   listen: {
     eyebrow: "Reinhören",
+    titleHtml: 'Sound of <span class="glow">takeoff</span>',
     intro: "Alle Sets & Podcast-Folgen an einem Ort — aus echten takeoff-Nächten.",
     consentNote: "Demo: Hier würde jetzt der SoundCloud-/YouTube-Player laden (Zwei-Klick, DSGVO-freundlich).",
     emptyText: "Noch keine Sets hinterlegt — die aktuelle Liste steht auf der Artists-Seite.",
@@ -78,18 +95,23 @@ const DEFAULT_CONTENT: MusikPageContent = {
   },
   nightGuide: {
     eyebrow: "Für Neulinge",
+    titleHtml: 'Der Ablauf <span class="glow">einer Nacht</span>',
     phases: [
       { time: "Einlass – Mitternacht", label: "Warm-up", genreIds: ["trance"], text: "Ruhiger Einstieg, Zeit anzukommen." },
       { time: "Mitternacht – 3 Uhr", label: "Peak-Time", genreIds: ["hard-trance", "bounce"], text: "Der Floor ist voll, das Tempo zieht an." },
       { time: "ab 3 Uhr", label: "Afterhour", genreIds: ["psytrance", "techno"], text: "Für alle, die bleiben — gelegentlich, mit Liebe." },
     ],
   },
-  glossary: [
-    { term: "B2B", def: "„Back to Back“ — zwei DJs legen abwechselnd im selben Set auf." },
-    { term: "Warm-up", def: "Der ruhigere musikalische Einstieg zu Beginn des Abends." },
-    { term: "Peak-Time", def: "Der Höhepunkt der Nacht, wenn der Floor am vollsten ist." },
-    { term: "Liveset", def: "Mitschnitt eines echten Auftritts, nicht extra fürs Studio produziert." },
-  ],
+  glossary: {
+    eyebrow: "Vokabular",
+    titleHtml: 'Szene-<span class="glow">Jargon</span>',
+    terms: [
+      { term: "B2B", def: "„Back to Back“ — zwei DJs legen abwechselnd im selben Set auf." },
+      { term: "Warm-up", def: "Der ruhigere musikalische Einstieg zu Beginn des Abends." },
+      { term: "Peak-Time", def: "Der Höhepunkt der Nacht, wenn der Floor am vollsten ist." },
+      { term: "Liveset", def: "Mitschnitt eines echten Auftritts, nicht extra fürs Studio produziert." },
+    ],
+  },
   trackId: {
     eyebrow: "Ohrwurm ohne Namen?",
     title: "Track-ID gesucht",
@@ -98,11 +120,15 @@ const DEFAULT_CONTENT: MusikPageContent = {
     mailSubject: "Track-ID gesucht",
     mailBody: "Event:\nUngefähre Uhrzeit:\nWas ich noch weiß (Text, Melodie, Drop):",
   },
-  faq: [
-    { q: "Muss ich tanzen können?", a: "Nein. Bei uns tanzt jede*r so, wie es sich gut anfühlt." },
-    { q: "Ist das laut?", a: "Ja, wie auf jedem Rave — Ohrstöpsel gibt's am Awareness-Point." },
-    { q: "Gibt's auch Techno?", a: "Gelegentlich, meist als Gastgeschenk befreundeter Kollektive — der Kern bleibt Trance." },
-  ],
+  faq: {
+    eyebrow: "Bevor es losgeht",
+    titleHtml: 'Kurz <span class="glow">gefragt</span>',
+    items: [
+      { q: "Muss ich tanzen können?", a: "Nein. Bei uns tanzt jede*r so, wie es sich gut anfühlt." },
+      { q: "Ist das laut?", a: "Ja, wie auf jedem Rave — Ohrstöpsel gibt's am Awareness-Point." },
+      { q: "Gibt's auch Techno?", a: "Gelegentlich, meist als Gastgeschenk befreundeter Kollektive — der Kern bleibt Trance." },
+    ],
+  },
   share: { label: "Genre-Guide teilen", text: "Was bei takeoff läuft: Trance, Hard Trance, Bounce erklärt.", copiedToast: "Link kopiert ✓" },
   transmission: { label: "Transmission incoming", text: "Echte 30-Sekunden-Hörproben pro Genre — sobald die Rechte mit den DJs geklärt sind." },
 };
@@ -130,7 +156,7 @@ function primaryGenreRank(genresStr: string): number {
   return idx === -1 ? GENRE_ORDER.length : idx;
 }
 
-/* Wegweiser-Chips je Genre-Zeile: welche Artists spielen das (irgendein
+/* Wegweiser-Chips je Genre-Spalte: welche Artists spielen das (irgendein
    Genre-Token passt), welche kommenden Events führen es im Line-up. Nur
    upcoming() — vergangene Events sind für "wohin als Nächstes" irrelevant
    (Portierung von renderWayfind() aus musik.js). */
@@ -157,7 +183,7 @@ function renderTeaser(text: string): ReactNode {
   return (
     <>
       {text.slice(0, idx)}
-      <Link href={pageHref("artists")} style={{ color: "var(--acc-3-tint)" }}>{marker}</Link>
+      <Link className="tg-inline-link" href={pageHref("artists")}>{marker}</Link>
       {text.slice(idx + marker.length)}
     </>
   );
@@ -200,8 +226,6 @@ export default async function MusikPage() {
 
   return (
     <>
-      <MusikAmbient />
-
       <section className="phero">
         <div className="wrap">
           <p className="eyebrow">{content.hero.eyebrow}</p>
@@ -210,28 +234,30 @@ export default async function MusikPage() {
         </div>
       </section>
 
-      <section className="section" style={{ paddingTop: "clamp(24px, 4vh, 40px)" }}>
-        <div className="wrap" style={{ maxWidth: 800 }}>
+      {/* Das Instrument. Volle Spaltenbreite, weil es die Aussage der Seite
+          TRÄGT — nicht illustriert. */}
+      <section className="section tg-sec tg-sec--console">
+        <div className="wrap">
           <MusikTaktgeber
-            scaleMin={content.scale.min}
-            scaleMax={content.scale.max}
-            scaleCaption={content.scale.caption}
+            scale={content.scale}
             genres={genreVMs}
             tap={content.tapTempo}
+            wayfind={content.wayfind}
+            guests={content.guests}
           />
-          <p className="section-intro" style={{ marginTop: 22 }}>{renderTeaser(content.listen.teaser)}</p>
+          <p className="section-intro tg-teaser">{renderTeaser(content.listen.teaser)}</p>
         </div>
       </section>
 
-      <section className="section" id="hoerprobe" style={{ paddingTop: 0 }}>
+      <section className="section tg-sec tg-sec--flow" id="hoerprobe">
         <div className="wrap">
           <header className="section-head">
             <p className="eyebrow">{content.listen.eyebrow}</p>
-            <h2 className="h2">Sound of <span className="glow">takeoff</span></h2>
+            <h2 className="h2" dangerouslySetInnerHTML={{ __html: content.listen.titleHtml }} />
             <p className="section-intro">{content.listen.intro}</p>
           </header>
           {setItems.length > 0 ? (
-            <div className="setgrid" id="tg-setgrid">
+            <div className="setgrid">
               {setItems.map(({ artist, set, key }) => {
                 const isPodcast = /podcast/i.test(`${set.title} ${set.meta}`);
                 const metaBits = [set.meta, artist.genres].filter(Boolean).join(" · ");
@@ -251,18 +277,18 @@ export default async function MusikPage() {
           ) : (
             <p className="lu-note">{content.listen.emptyText}</p>
           )}
-          <div className="transmission" style={{ marginTop: 28 }}>
+          <div className="transmission tg-transmission">
             <span className="tx-label">{content.transmission.label}</span>
             <p>{content.transmission.text}</p>
           </div>
         </div>
       </section>
 
-      <section className="section" id="ablauf" style={{ paddingTop: 0 }}>
-        <div className="wrap" style={{ maxWidth: 760 }}>
+      <section className="section tg-sec tg-sec--flow" id="ablauf">
+        <div className="wrap">
           <header className="section-head">
             <p className="eyebrow">{content.nightGuide.eyebrow}</p>
-            <h2 className="h2">Der Ablauf <span className="glow">einer Nacht</span></h2>
+            <h2 className="h2" dangerouslySetInnerHTML={{ __html: content.nightGuide.titleHtml }} />
           </header>
           <ol className="tg-night">
             {content.nightGuide.phases.map(p => (
@@ -286,48 +312,52 @@ export default async function MusikPage() {
         </div>
       </section>
 
-      <section className="section" id="glossar" style={{ paddingTop: 0 }}>
-        <div className="wrap" style={{ maxWidth: 700 }}>
-          <header className="section-head">
-            <p className="eyebrow">Vokabular</p>
-            <h2 className="h2">Szene-<span className="glow">Jargon</span></h2>
-          </header>
-          <dl className="m-rows">
-            {content.glossary.map(item => (
-              <div className="m-row" key={item.term}>
-                <dt translate={NO_TRANSLATE_TERMS.has(item.term) ? "no" : undefined}>{item.term}</dt>
-                <dd>{item.def}</dd>
+      {/* Nachschlagteil: Jargon und FAQ stehen nebeneinander statt
+          untereinander — beides ist Referenz, beides kurz, und zwei halbe
+          Spalten füllen die Breite, die vorher rechts leer stand. */}
+      <section className="section tg-sec tg-sec--flow">
+        <div className="wrap">
+          <div className="tg-ref">
+            <div className="tg-ref-col" id="glossar">
+              <header className="section-head tg-ref-head">
+                <p className="eyebrow">{content.glossary.eyebrow}</p>
+                <h2 className="tg-ref-title" dangerouslySetInnerHTML={{ __html: content.glossary.titleHtml }} />
+              </header>
+              <dl className="m-rows tg-glossary">
+                {content.glossary.terms.map(item => (
+                  <div className="m-row" key={item.term}>
+                    <dt translate={NO_TRANSLATE_TERMS.has(item.term) ? "no" : undefined}>{item.term}</dt>
+                    <dd>{item.def}</dd>
+                  </div>
+                ))}
+              </dl>
+            </div>
+
+            <div className="tg-ref-col" id="faq">
+              <header className="section-head tg-ref-head">
+                <p className="eyebrow">{content.faq.eyebrow}</p>
+                <h2 className="tg-ref-title" dangerouslySetInnerHTML={{ __html: content.faq.titleHtml }} />
+              </header>
+              <div className="tg-faqlist">
+                {content.faq.items.map(item => (
+                  <details className="faq" key={item.q}>
+                    <summary>{item.q}</summary>
+                    <div className="faq-body">{item.a}</div>
+                  </details>
+                ))}
               </div>
-            ))}
-          </dl>
-        </div>
-      </section>
+            </div>
+          </div>
 
-      <section className="section" style={{ paddingTop: 0 }}>
-        <div className="wrap" style={{ maxWidth: 640 }}>
           <div className="tg-trackid">
-            <p className="tg-trackid-eyebrow">{content.trackId.eyebrow}</p>
-            <h3>{content.trackId.title}</h3>
-            <p>{content.trackId.text}</p>
-            <a className="btn btn-primary" href={trackIdHref}>{content.trackId.buttonLabel}</a>
+            <div className="tg-trackid-text">
+              <p className="tg-trackid-eyebrow">{content.trackId.eyebrow}</p>
+              <h2 className="tg-trackid-title">{content.trackId.title}</h2>
+              <p className="tg-trackid-body">{content.trackId.text}</p>
+            </div>
+            <a className="btn btn-primary tg-trackid-btn" href={trackIdHref}>{content.trackId.buttonLabel}</a>
           </div>
-        </div>
-      </section>
 
-      <section className="section" id="faq" style={{ paddingTop: 0 }}>
-        <div className="wrap" style={{ maxWidth: 700 }}>
-          <header className="section-head">
-            <p className="eyebrow">Bevor es losgeht</p>
-            <h2 className="h2">Kurz <span className="glow">gefragt</span></h2>
-          </header>
-          <div className="tg-faqlist">
-            {content.faq.map(item => (
-              <details className="faq" key={item.q}>
-                <summary>{item.q}</summary>
-                <div className="faq-body">{item.a}</div>
-              </details>
-            ))}
-          </div>
           <div className="tg-share-row">
             <MusikShareButton text={content.share.text} url="/musik" label={content.share.label} copiedToast={content.share.copiedToast} />
           </div>

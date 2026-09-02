@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { artists, event, events, guests, settings, pageContent, fmtDate } from "@/lib/data";
 import type { TakeoffEvent } from "@/lib/types";
-import ArtistsWaveCanvas from "@/components/pages/ArtistsWaveCanvas";
+import ArtistsFreqBand from "@/components/pages/ArtistsFreqBand";
+import ArtistsSectionHead from "@/components/pages/ArtistsSectionHead";
 import ArtistsResidents, { type ResidentVM } from "@/components/pages/ArtistsResidents";
 import ArtistsSetsSection from "@/components/pages/ArtistsSetsSection";
 import ArtistsGuestLog, { type GuestVM } from "@/components/pages/ArtistsGuestLog";
@@ -14,23 +15,50 @@ export const metadata: Metadata = {
 
 /* Seiten-Texte kommen aus pageContent("artists") (src/data/pages/artists.json);
    dieser DEFAULT ist nur der Sicherheitsnetz-Fallback, falls die Datei mal
-   fehlt oder nicht lesbar ist (gleiche Werte wie in der JSON-Datei). */
-interface ArtistsPageContent {
-  hero: { eyebrow: string; intro: string };
-  residents: { eyebrow: string; filterAllLabel: string; filterAria: string };
-  sets: { eyebrow: string; randomLabel: string; randomHint: string; randomEmpty: string; consentText: string };
-  gaeste: { eyebrow: string; intro: string; appearanceLabel: string; appearanceEmpty: string };
-  opendecks: { label: string; title: string; text: string; checklist: string[]; mailSubject: string; ctaLabel: string };
+   fehlt oder nicht lesbar ist (gleiche Werte wie in der JSON-Datei).
+   Seit It. 14 stehen dort AUCH die Ueberschriften — vorher standen vier
+   davon als deutscher Text direkt im JSX. */
+export interface ArtistsPageContent {
+  hero: {
+    eyebrow: string; title: string; titleGlow: string; intro: string;
+    registerLabel: string; countArtists: string; countSets: string; countGuests: string;
+    bandCaption: string;
+  };
+  residents: { eyebrow: string; title: string; filterAllLabel: string; filterAria: string };
+  sets: {
+    eyebrow: string; title: string; titleGlow: string;
+    randomLabel: string; randomHint: string; randomEmpty: string; consentText: string;
+  };
+  gaeste: {
+    eyebrow: string; title: string; titleGlow: string; intro: string;
+    appearanceLabel: string; appearanceEmpty: string;
+  };
+  opendecks: {
+    label: string; title: string; text: string; checklistLabel: string;
+    checklist: string[]; mailSubject: string; ctaLabel: string;
+  };
 }
 
 const DEFAULT_CONTENT: ArtistsPageContent = {
   hero: {
     eyebrow: "Frequenzen",
+    title: "Artists &",
+    titleGlow: "Sets",
     intro: "Die Menschen hinterm Pult — Residents, Gäste und der takeoff-Podcast. Bei uns gibt's keine Headliner-Hierarchie, nur gute Musik.",
+    registerLabel: "Archiv",
+    countArtists: "Kanäle",
+    countSets: "Aufzeichnungen",
+    countGuests: "Gäste",
+    bandCaption: "Eine Zacke je Aufzeichnung — das ist das Archiv, von der ersten Nacht bis heute.",
   },
-  residents: { eyebrow: "Crew Select", filterAllLabel: "Alle", filterAria: "Nach Genre filtern" },
+  residents: {
+    eyebrow: "Crew Select", title: "Residents",
+    filterAllLabel: "Alle", filterAria: "Nach Genre filtern",
+  },
   sets: {
     eyebrow: "Aufzeichnungen",
+    title: "Sets &",
+    titleGlow: "Podcast",
     randomLabel: "Random Transmission",
     randomHint: "Ein Klick, ein zufälliges Set aus dem Archiv.",
     randomEmpty: "Noch keine Sets im Archiv — check bald wieder rein.",
@@ -38,6 +66,8 @@ const DEFAULT_CONTENT: ArtistsPageContent = {
   },
   gaeste: {
     eyebrow: "Gäste-Log",
+    title: "Schon bei uns",
+    titleGlow: "gefunkt",
     intro: "Danke an alle, die unsere Nächte mitgeprägt haben — ein Klick zeigt, wann wir zusammen gefunkt haben.",
     appearanceLabel: "Aufgetreten bei",
     appearanceEmpty: "Termin wird noch zugeordnet.",
@@ -46,6 +76,7 @@ const DEFAULT_CONTENT: ArtistsPageContent = {
     label: "Open Decks",
     title: "Du willst bei uns auflegen?",
     text: "Schick uns dein Demo — wir hören uns alles an.",
+    checklistLabel: "Was wir brauchen",
     checklist: [
       "Set-Link (SoundCloud/Mixcloud, 20–30 Min)",
       "2–3 Termine, an denen du Zeit hättest",
@@ -57,6 +88,9 @@ const DEFAULT_CONTENT: ArtistsPageContent = {
 };
 
 const isPastEvent = (e: TakeoffEvent, todayStr: string) => e.state === "past" || e.date < todayStr;
+
+/* Zweistellig, wie auf einem Instrumentenbrett: "04 Kanäle", nicht "4". */
+const readout = (n: number, label: string) => `${String(n).padStart(2, "0")} ${label}`;
 
 /* Artists & Sets — komplett aus dem Gateway gerendert: neue Artists (auch
    ohne eigene Sets/Auftritte, z. B. Blaulicht) erscheinen automatisch bei
@@ -104,7 +138,8 @@ export default async function ArtistsPage() {
   );
 
   /* Sets & Podcast: alle Sets aller sichtbaren Artists geflacht — Grundlage
-     fuer Grid + "Random Transmission". */
+     fuer Grid, "Random Transmission" UND die Form des Archivbands (eine
+     Keule je Aufzeichnung). */
   const flatSets = artistList.flatMap(a =>
     a.sets.map((set, i) => ({
       id: `${a.slug}-${i}`, title: set.title, meta: set.meta,
@@ -127,22 +162,50 @@ export default async function ArtistsPage() {
 
   return (
     <>
-      <ArtistsWaveCanvas />
+      {/* Kopf: links der Text, rechts das Register (wie gross ist das Archiv?),
+          darunter ueber die volle Satzbreite das Archivband. Vorher war der
+          Kopf eine 520px-Spalte mit 900px Schwarz daneben. */}
+      <section className="phero ar-sec ar-sec--hero">
+        <div className="wrap ar-hero">
+          <div className="ar-hero-text">
+            <p className="eyebrow">{content.hero.eyebrow}</p>
+            <h1 className="txplate">
+              {content.hero.title} <span className="glow">{content.hero.titleGlow}</span>
+            </h1>
+            <div className="ar-lead"><p className="txplate">{content.hero.intro}</p></div>
+          </div>
 
-      <section className="phero">
+          <aside className="ar-register" aria-label={content.hero.registerLabel}>
+            <p className="ar-kicker txfit">{content.hero.registerLabel}</p>
+            <dl className="m-rows">
+              <div className="m-row">
+                <dt>{content.hero.countArtists}</dt>
+                <dd><b>{String(artistList.length).padStart(2, "0")}</b></dd>
+              </div>
+              <div className="m-row">
+                <dt>{content.hero.countSets}</dt>
+                <dd><b>{String(flatSets.length).padStart(2, "0")}</b></dd>
+              </div>
+              <div className="m-row">
+                <dt>{content.hero.countGuests}</dt>
+                <dd><b>{String(guestsVM.length).padStart(2, "0")}</b></dd>
+              </div>
+            </dl>
+          </aside>
+        </div>
+
         <div className="wrap">
-          <p className="eyebrow">{content.hero.eyebrow}</p>
-          <h1>Artists &amp; <span className="glow">Sets</span></h1>
-          <p className="section-intro">{content.hero.intro}</p>
+          <ArtistsFreqBand segments={flatSets.length} caption={content.hero.bandCaption} />
         </div>
       </section>
 
-      <section className="section" id="residents" style={{ paddingTop: "clamp(30px, 5vh, 50px)" }}>
+      <section className="section ar-sec ar-sec--first" id="residents">
         <div className="wrap">
-          <header className="section-head reveal">
-            <p className="eyebrow">{content.residents.eyebrow}</p>
-            <h2 className="h2">Residents</h2>
-          </header>
+          <ArtistsSectionHead
+            eyebrow={content.residents.eyebrow}
+            title={content.residents.title}
+            note={readout(artistList.length, content.hero.countArtists)}
+          />
           <ArtistsResidents
             artists={residentsVM}
             soundcloud={s.soundcloud}
@@ -152,14 +215,14 @@ export default async function ArtistsPage() {
         </div>
       </section>
 
-      <section className="section" id="sets" style={{ paddingTop: 0 }}>
+      <section className="section ar-sec" id="sets">
         <div className="wrap">
-          <header className="section-head reveal">
-            <p className="eyebrow">{content.sets.eyebrow}</p>
-            <h2 className="h2">Sets &amp; <span className="glow">Podcast</span></h2>
-          </header>
           <ArtistsSetsSection
             sets={flatSets}
+            eyebrow={content.sets.eyebrow}
+            title={content.sets.title}
+            titleGlow={content.sets.titleGlow}
+            note={readout(flatSets.length, content.hero.countSets)}
             randomLabel={content.sets.randomLabel}
             randomHint={content.sets.randomHint}
             randomEmpty={content.sets.randomEmpty}
@@ -168,13 +231,16 @@ export default async function ArtistsPage() {
         </div>
       </section>
 
-      <section className="section" id="gaeste" style={{ paddingTop: 0 }}>
+      <section className="section ar-sec" id="gaeste">
         <div className="wrap">
-          <header className="section-head reveal">
-            <p className="eyebrow">{content.gaeste.eyebrow}</p>
-            <h2 className="h2">Schon bei uns <span className="glow">gefunkt</span></h2>
-            <p className="section-intro">{content.gaeste.intro}</p>
-          </header>
+          <ArtistsSectionHead
+            eyebrow={content.gaeste.eyebrow}
+            title={content.gaeste.title}
+            glow={content.gaeste.titleGlow}
+            note={readout(guestsVM.length, content.hero.countGuests)}
+          >
+            <div className="ar-lead ar-lead--aside"><p className="txplate">{content.gaeste.intro}</p></div>
+          </ArtistsSectionHead>
           <ArtistsGuestLog
             guests={guestsVM}
             appearanceLabel={content.gaeste.appearanceLabel}
@@ -183,17 +249,22 @@ export default async function ArtistsPage() {
         </div>
       </section>
 
-      <section className="section" style={{ paddingTop: 0 }}>
+      <section className="section ar-sec ar-sec--last">
         <div className="wrap">
-          <div className="transmission">
-            <span className="tx-label">{content.opendecks.label}</span>
-            <h3 className="odl-title">{content.opendecks.title}</h3>
-            <p>{content.opendecks.text}</p>
-            <ul className="odl-checklist">
-              {content.opendecks.checklist.map(item => <li key={item}>{item}</li>)}
-            </ul>
-            <div className="cta-row" style={{ justifyContent: "center", marginTop: 20 }}>
-              <a className="btn btn-primary" href={mailtoHref}>{content.opendecks.ctaLabel}</a>
+          <div className="transmission ar-odl">
+            <div className="ar-odl-main">
+              <span className="tx-label">{content.opendecks.label}</span>
+              <h3 className="ar-odl-title">{content.opendecks.title}</h3>
+              <p>{content.opendecks.text}</p>
+              <div className="cta-row">
+                <a className="btn btn-primary" href={mailtoHref}>{content.opendecks.ctaLabel}</a>
+              </div>
+            </div>
+            <div className="ar-odl-aside">
+              <p className="ar-kicker">{content.opendecks.checklistLabel}</p>
+              <ul className="ar-odl-list">
+                {content.opendecks.checklist.map(item => <li key={item}>{item}</li>)}
+              </ul>
             </div>
           </div>
         </div>

@@ -1,196 +1,437 @@
 /* ============================================================
-   kalender.css — Signatur-Motiv "Bordchronometer"
+   kalender.css — Signatur-Motiv "Mission Clock"
 
-   /kalender wird zum Chronographen-Instrument des Schiffs: Hauptzifferblatt
-   (Bordzeit) + zwei Subdials (T-Minus/T-Plus) im Hero, dazu Manifest-Zeilen
-   (Zeitleiste), Monatsgitter und Landeplatz-Kacheln. Kein neuer Ort (kein
-   "Set" wie Mars-Boden/Strand-Horizont) — ein Instrument, wie awareness.css'
-   "ZUSTAND desselben Himmels" fürs Leuchtfeuer-Motiv: hier ein Bauteil des
-   Schiffs statt eines Orts.
+   /kalender ist das Chronometer der Seite: in der Mitte des Kopfes steht
+   ein rundes Instrument (Bordzeit, Tickkranz, Fortschrittsbogen,
+   Sekundenzeiger), links davon T–Plus (seit dem letzten Launch), rechts
+   T–Minus (bis zum naechsten). Die Kopfzeile liest sich damit selbst als
+   Zeitachse: Vergangenheit — Jetzt — Zukunft.
 
-   Farbrolle wie im Tokenkommentar von takeoff.css: --acc-3 (kühler
-   Gegenpol) trägt alles Ambiente/Strukturelle (Dial-Ring, T-Plus,
-   Monatsgitter-Marker), --acc-1 (Leitfarbe/Signal) ist reserviert für
-   "jetzt lebt gerade"-Momente (Sweep, Heute-Marker, T-Minus). Keine dritte
-   gleichberechtigte Akzentfarbe, keine neuen Hex-Werte — nur bestehende
-   Tokens. Chrome-Rampe für die grossen Ziffern (wie .wordmark/.stats b).
+   KOMPOSITION (It. 14)
+   Diese Seite ist als EINZIGE der Site um eine senkrechte Mittelachse
+   gebaut. Das ist kein Geschmack, sondern die Form des Gegenstands: ein
+   Chronometer ist ein rundes, zentrales Objekt, und ein rundes Objekt in
+   einer linksbuendigen 760px-Spalte sieht aus wie ein Widget, das jemand
+   abgelegt hat. Unter dem Kopf kippt die Seite bewusst ins Gegenteil und
+   wird streng editorial: Rubrik links (Eyebrow, mittelgrosse Ueberschrift,
+   Lead — mitlaufend/sticky), Inhalt rechts ueber die volle Restbreite.
+   Vorher lief alles in einer 520–760px-Saeule, rechts blieben auf 1440px
+   ueber die Haelfte der Flaeche leer.
 
-   Portierungshinweis: Aus dem Prototyp bewusst NICHT übernommen —
-   die edge-to-edge SVG-"Bordskala" (reine Deko-Brücke ohne Informations-
-   wert) und die Sekunden-genauen Delta-Chips je Zeile (T–5T/LIVE). Beides
-   ist Zusatz-Politur ohne Funktionswert; die Kern-Uhr (Bordzeit + T-Minus/
-   T-Plus) und die dynamische Zeitleiste bleiben vollständig. `.day-mode`-
-   Regeln des Prototyps fehlen ebenfalls — Tag/Nacht-Umschaltung ist app-weit
-   noch nicht implementiert (kein `.day-mode` irgendwo im Stack), macht
-   hier also noch keinen Unterschied.
+   Farbrolle wie im Tokenkommentar von takeoff.css: --acc-3 (kuehler
+   Gegenpol) traegt alles Strukturelle (Tickkranz, Monatsgitter-Marker,
+   Kalenderlinks), --acc-1 (Leitfarbe/Signal) ist reserviert fuer "jetzt
+   lebt gerade" (Zeiger, Fortschrittsbogen, Sekunden, Heute-Marker,
+   T–Minus). Keine dritte gleichberechtigte Akzentfarbe, keine neuen
+   Hex-Werte — nur bestehende Tokens. Chrome-Rampe fuer die grossen
+   Ziffern (wie .wordmark/.stats b).
+
+   BEWEGUNG — genau EINE
+   Der Sekundenzeiger. Sonst steht die Seite still: kein Reveal-Streusel,
+   keine zweite Ebene, kein Puls — auch der geerbte am Heute-Punkt und am
+   Transmissions-Label ist auf dieser Seite abgestellt (Abschnitt 6/8). Der
+   Zeiger laeuft als 60s-CSS-Animation; Grundzustand im Blatt ist
+   `paused`, gestartet wird er allein von KalenderChrono.tsx, und zwar nur
+   bei data-fx m/l ohne prefers-reduced-motion.
+
+   ---------------------------------------------------------------
+   KORREKTUR DES ALTEN PORTIERUNGSHINWEISES (It. 14)
+
+   Hier stand bis It. 13 sinngemaess, `.day-mode`-Regeln fehlten, weil die
+   Tag/Nacht-Umschaltung app-weit nicht implementiert sei ("kein
+   `.day-mode` irgendwo im Stack"). Das war schlicht falsch: der Tagmodus
+   liegt vollstaendig in src/styles/scene-day.css (rund 860 Zeilen), wird
+   in layout.tsx nach takeoff.css und scene-night.css importiert, das
+   Boot-Skript stempelt `day-mode` vor dem ersten Paint aus localStorage
+   (`takeoff-day`), und in der Kopfleiste sitzt der Umschalter.
+   Die Seite war deshalb nie im hellen Modus geprueft. Was das kostete —
+   alles nachgemessen an .design-audit/_kalender__tag__*.png:
+
+   1. `.bc-dial` und `.bc-sweep` lagen als fixierte Vollbildebenen mit
+      `mix-blend-mode: screen` hinter allem. "Screen" ueber hellem Grund
+      ist rechnerisch fast wirkungslos — Zifferring und Zeiger waren tags
+      unsichtbar. Beide Ebenen sind ersatzlos entfallen: sie waren
+      ausserdem genau der Trick, den fuenf andere Seiten auch benutzen
+      (fixiert, schwach deckend, radial maskiert). Das Instrument ist
+      jetzt ein echtes, begrenztes Objekt im Fluss.
+   2. `.bc-face::before` (der Luenettenring) stand auf `z-index: -1` in
+      einem Elternteil mit `position: relative`, aber `z-index: auto` —
+      das ist KEIN Stapelkontext. Der Ring fiel bis in den Wurzelkontext
+      durch und wurde dort VOR dem Sektionsgrund gemalt; im Tagmodus ist
+      dieser Grund fast deckend (rgb(--bg-void-rgb / .975) im
+      Space-Theme), der Ring lag also darunter. Das Instrument traegt
+      jetzt `isolation: isolate` — dieselbe Korrektur, die scene-day.css
+      fuer `.missions::before` schon kennt.
+   3. `.bc-face` clippt einen Verlauf in Text (`background-clip: text`)
+      und stand dabei auf `line-height: 1` bei bis zu 128px Schriftgrad —
+      die engste geclippte Textstelle des Projekts. Sichtbar geclippt war
+      bei reinen Ziffern nichts (nachgeprueft am Screenshot), aber das war
+      Zufall: Ziffern haben in Space Mono weder Ober- noch Unterlaengen.
+      Faellt die Schrift auf `ui-monospace` zurueck (font-display: swap!)
+      oder steht spaeter Text statt einer Uhrzeit darin, schneidet die
+      Padding-Box zu. Deshalb jetzt das Polster-Rezept der `.wordmark`:
+      Polster raus, gleicher Betrag als negativer Rand zurueck — die
+      gemalte Flaeche waechst, der Layoutkasten bleibt.
+   4. Das Statistikband hing als nacktes `div.wrap` direkt unter <main>.
+      Die Tagmodus-Platte haengt an den DIREKTEN Kindern von <main>; ein
+      1120px-Kasten bekommt seine helle Platte also nur auf 1120px, und
+      links und rechts stand ein harter schwarzer Riegel quer im Bild.
+      Es ist jetzt eine fensterbreite <section> (page.tsx).
+
+   Aus dem Prototyp bewusst NICHT uebernommen: die edge-to-edge
+   SVG-"Bordskala" (reine Deko-Bruecke ohne Informationswert) und die
+   sekundengenauen Delta-Chips je Zeile (T–5T/LIVE).
    ============================================================ */
 
 /* ============================================================
-   1 · Dial-Ring (.bc-dial) — riesiger, angeschnittener Zifferring hinter
-   dem Hero. Technik wie .missions::before (takeoff.css): SVG-Data-URI,
-   Farbe fest verdrahtet statt var() — Data-URIs können keine Custom
-   Properties lesen, faerbt deshalb bewusst nicht mit den Themes. Liegt auf
-   demselben z-index wie #stars (-2), aber spaeter im DOM: überlagert den
-   Himmel, ohne Grain/Vignette (z-index -1) zu verdecken.
+   1 · Kopf — zentrierte Achse
    ============================================================ */
-.bc-dial {
-  position: fixed; inset: 0; z-index: -2; pointer-events: none;
-  mix-blend-mode: screen;
-  background-repeat: no-repeat;
-  background-position: 50% -30vh;
-  background-size: 1500px 1500px;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 400'%3E%3Ccircle cx='200' cy='200' r='188' fill='none' stroke='%2352b1e0' stroke-opacity='0.16'/%3E%3Cpath d='M200.0 34.0 L200.0 12.0 M218.6 23.0 L219.7 13.0 M237.0 25.9 L239.1 16.1 M255.0 30.7 L258.1 21.2 M272.4 37.4 L276.5 28.3 M283.0 56.2 L294.0 37.2 M304.6 56.0 L310.5 47.9 M319.1 67.7 L325.8 60.3 M332.3 80.9 L339.7 74.2 M344.0 95.4 L352.1 89.5 M343.8 117.0 L362.8 106.0 M362.6 127.6 L371.7 123.5 M369.3 145.0 L378.8 141.9 M374.1 163.0 L383.9 160.9 M377.0 181.4 L387.0 180.3 M366.0 200.0 L388.0 200.0 M377.0 218.6 L387.0 219.7 M374.1 237.0 L383.9 239.1 M369.3 255.0 L378.8 258.1 M362.6 272.4 L371.7 276.5 M343.8 283.0 L362.8 294.0 M344.0 304.6 L352.1 310.5 M332.3 319.1 L339.7 325.8 M319.1 332.3 L325.8 339.7 M304.6 344.0 L310.5 352.1 M283.0 343.8 L294.0 362.8 M272.4 362.6 L276.5 371.7 M255.0 369.3 L258.1 378.8 M237.0 374.1 L239.1 383.9 M218.6 377.0 L219.7 387.0 M200.0 366.0 L200.0 388.0 M181.4 377.0 L180.3 387.0 M163.0 374.1 L160.9 383.9 M145.0 369.3 L141.9 378.8 M127.6 362.6 L123.5 371.7 M117.0 343.8 L106.0 362.8 M95.4 344.0 L89.5 352.1 M80.9 332.3 L74.2 339.7 M67.7 319.1 L60.3 325.8 M56.0 304.6 L47.9 310.5 M56.2 283.0 L37.2 294.0 M37.4 272.4 L28.3 276.5 M30.7 255.0 L21.2 258.1 M25.9 237.0 L16.1 239.1 M23.0 218.6 L13.0 219.7 M34.0 200.0 L12.0 200.0 M23.0 181.4 L13.0 180.3 M25.9 163.0 L16.1 160.9 M30.7 145.0 L21.2 141.9 M37.4 127.6 L28.3 123.5 M56.2 117.0 L37.2 106.0 M56.0 95.4 L47.9 89.5 M67.7 80.9 L60.3 74.2 M80.9 67.7 L74.2 60.3 M95.4 56.0 L89.5 47.9 M117.0 56.2 L106.0 37.2 M127.6 37.4 L123.5 28.3 M145.0 30.7 L141.9 21.2 M163.0 25.9 L160.9 16.1 M181.4 23.0 L180.3 13.0' fill='none' stroke='%2352b1e0' stroke-opacity='0.10'/%3E%3C/svg%3E");
-  mask-image: radial-gradient(closest-side, #000 55%, transparent 100%);
+.bc-phero {
+  padding-bottom: var(--sp-6);
 }
-@media (max-width: 640px) {
-  .bc-dial { background-position: 50% -18vh; background-size: 900px 900px; }
+.bc-hero { text-align: center; }
+/* .eyebrow ist ein Flex mit fuehrendem Strich. Zentriert braucht er einen
+   zweiten am Ende, sonst haengt die Zeile sichtbar nach links. */
+.bc-hero .eyebrow { justify-content: center; }
+.bc-hero .eyebrow::after {
+  content: ""; width: 26px; height: 1px; background: var(--acc-3);
+}
+.bc-hero .bc-intro {
+  margin-inline: auto;
+  max-width: 60ch;
+}
+.bc-phero .cta-row { justify-content: center; margin-top: var(--sp-5); }
+.bc-subnote {
+  margin: var(--sp-3) auto 0; max-width: 46ch;
+  text-align: center; color: var(--ink-faint); font-size: 13px;
 }
 
 /* ============================================================
-   2 · Sweep (.bc-sweep) — leiser, phasensynchroner Sekundenzeiger-Schein
-   ueber dem Dial. Reines CSS (conic-gradient), kein Canvas, kein rAF —
-   Tier s friert ihn ueber die globale animation-duration-Regel automatisch
-   ein, wird hier zusaetzlich explizit ausgeblendet. conic-gradient statt
-   Data-URI heisst: theme-faehig ueber --acc-1-rgb.
-   ============================================================ */
-.bc-sweep {
-  position: fixed; inset: -20vmax; z-index: -2; pointer-events: none;
-  mix-blend-mode: screen;
-  background: conic-gradient(from 0deg at 50% 50%,
-      transparent 0deg, rgb(var(--acc-1-rgb) / .07) 4deg, transparent 13deg, transparent 360deg);
-  animation: bc-spin 60s linear infinite;
-  animation-play-state: paused;   /* Client-Komponente startet erst nach Phasen-Sync */
-}
-@keyframes bc-spin { to { transform: rotate(360deg); } }
-:root[data-fx="s"] .bc-sweep { display: none; }
-:root[data-fx="m"] .bc-sweep { opacity: .55; }   /* dezent: gleiche Bewegung, leiser */
+   2 · Das Instrument
 
-/* ============================================================
-   3 · Zifferblatt & Subdials (Hero-Cluster)
-   .tminus/.label/.clock bleiben 1:1 aus takeoff.css (nur Optik).
+   Aufbau (aussen nach innen):
+     .bc-panel      T–Plus | Instrument | T–Minus
+     .bc-instrument runder Rahmen, EIGENER Stapelkontext
+     .bc-dial       Grund + Tickkranz (::before fein, ::after grob)
+     .bc-dial-arc   verstrichener Anteil der Wartezeit, --acc-1
+     .bc-hand       Sekundenzeiger (der eine Bewegungsmoment)
+     .bc-readout    Beschriftung + Ziffern, liegt darueber
    ============================================================ */
-.bc-phero .cta-row { justify-content: center; }
-.bc-subnote { margin: 12px auto 0; max-width: 460px; text-align: center; color: var(--ink-faint); font-size: 13px; }
-
-.bc-cluster {
-  display: grid; justify-items: center; gap: clamp(8px, 1.6vh, 16px);
-  margin-top: clamp(20px, 3.4vh, 38px);
+.bc-panel {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  justify-items: center;
+  align-items: center;
+  gap: var(--sp-5);
+  margin-top: var(--sp-6);
+  text-align: center;
 }
-.bc-face {
+
+.bc-instrument {
   position: relative;
-  display: inline-flex; align-items: baseline; gap: .12em;
+  /* Der Ring des Instruments liegt auf einer eigenen Ebene. Ohne diese
+     Zeile faellt jedes negative z-index darin in den Wurzelkontext und
+     landet hinter dem Sektionsgrund — genau der Fehler von It. 13. */
+  isolation: isolate;
+  width: 100%;
+  /* Zwei Schranken wie bei .wordmark: Breite ueber rem, Hoehe ueber vh.
+     Ohne den vh-Term waechst der Kreis auf flachen Schirmen so weit, dass
+     T–Minus und die Knoepfe aus dem Bild fallen. */
+  max-width: min(26rem, 54vh);
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+}
+
+.bc-dial {
+  position: absolute; inset: 0; z-index: 0;
+  border-radius: 50%;
+  border: 1px solid rgb(var(--acc-3-rgb) / .3);
+}
+/* Nachts braucht die Uhrzeit Grund — dieselbe Logik wie .txplate, nur
+   rund und an der Sache: das Zifferblatt IST die Flaeche unter dem Text.
+   Tags traegt bereits die helle Saeule, dort bleibt der Kreis leer. */
+:root:not(.day-mode) .bc-dial {
+  background: radial-gradient(closest-side,
+      rgb(var(--bg-void-rgb) / .82) 0%,
+      rgb(var(--bg-void-rgb) / .66) 62%,
+      rgb(var(--bg-void-rgb) / .30) 88%,
+      rgb(var(--bg-void-rgb) / 0)  100%);
+}
+
+/* Tickkranz: 60 feine Striche (Minuten) ... */
+.bc-dial::before,
+.bc-dial::after {
+  content: ""; position: absolute; inset: 0; border-radius: 50%;
+  pointer-events: none;
+}
+.bc-dial::before {
+  background: repeating-conic-gradient(from -.25deg,
+      rgb(var(--acc-3-rgb) / .55) 0deg .5deg, transparent .5deg 6deg);
+  -webkit-mask-image: radial-gradient(closest-side, transparent calc(100% - 11px), #000 calc(100% - 10.5px));
+          mask-image: radial-gradient(closest-side, transparent calc(100% - 11px), #000 calc(100% - 10.5px));
+}
+/* ... und 12 laengere, kraeftigere (5-Minuten-Marken). */
+.bc-dial::after {
+  background: repeating-conic-gradient(from -.7deg,
+      rgb(var(--acc-3-rgb) / .85) 0deg 1.4deg, transparent 1.4deg 30deg);
+  -webkit-mask-image: radial-gradient(closest-side, transparent calc(100% - 22px), #000 calc(100% - 21.5px));
+          mask-image: radial-gradient(closest-side, transparent calc(100% - 22px), #000 calc(100% - 21.5px));
+}
+
+/* Luenetten-Bogen: Anteil der Wartezeit zwischen letztem und naechstem
+   Launch, der schon vorbei ist. --bc-prog (0..1) setzt KalenderChrono.tsx
+   am Zifferblatt; ohne JS und ohne bekannte Enden bleibt er auf 0 und der
+   Bogen ist schlicht nicht da. Er aendert sich um Bruchteile eines Pixels
+   pro Minute — das ist Information, keine Bewegung. */
+.bc-dial-arc {
+  position: absolute; inset: 0; border-radius: 50%;
+  pointer-events: none;
+  background: conic-gradient(from 0deg,
+      var(--acc-1) 0deg,
+      var(--acc-1) calc(var(--bc-prog, 0) * 360deg),
+      rgb(var(--acc-1-rgb) / 0) calc(var(--bc-prog, 0) * 360deg));
+  -webkit-mask-image: radial-gradient(closest-side, transparent calc(100% - 3px), #000 calc(100% - 2.6px));
+          mask-image: radial-gradient(closest-side, transparent calc(100% - 3px), #000 calc(100% - 2.6px));
+}
+
+/* Sekundenzeiger. Die Ebene dreht sich als Ganzes um die Kreismitte, der
+   sichtbare Strich sitzt aussen am Rand — so faehrt nie ein Zeiger durch
+   die Ziffern. Startzustand `paused`: ohne JS und in Stufe s steht er,
+   KalenderChrono.tsx setzt Phase (animation-delay) und Lauf. */
+.bc-hand {
+  position: absolute; inset: 0;
+  pointer-events: none;
+  animation: bc-hand-sweep 60s linear infinite;
+  animation-play-state: paused;
+}
+.bc-hand::before {
+  content: ""; position: absolute;
+  left: 50%; top: 3px; margin-left: -1px;
+  width: 2px; height: 26px; border-radius: 2px;
+  background: linear-gradient(180deg, var(--acc-1), rgb(var(--acc-1-rgb) / .25));
+}
+@keyframes bc-hand-sweep { to { transform: rotate(360deg); } }
+/* Stufe s und reduzierte Bewegung: nichts tickt. Die Komponente setzt
+   dasselbe noch einmal per Inline-Style (die gewinnt), das hier ist die
+   Absicherung fuer den Fall ohne JS. */
+:root[data-fx="s"] .bc-hand { animation-play-state: paused; }
+@media (prefers-reduced-motion: reduce) {
+  .bc-hand { animation-play-state: paused; }
+}
+/* Nur bei vollem Tier ein leiser Nachzieh-Schein — nachts, wo additives
+   Licht ueberhaupt etwas tut. */
+:root[data-fx="l"]:not(.day-mode) .bc-hand::before {
+  box-shadow: 0 0 10px rgb(var(--acc-1-rgb) / .55);
+}
+
+.bc-readout {
+  position: relative; z-index: 1;
+  display: grid; justify-items: center; gap: var(--sp-2);
+  width: 82%;
+}
+.bc-caption {
+  font-family: var(--font-mono); font-size: 10.5px;
+  letter-spacing: var(--track-micro);
+  text-transform: uppercase; color: var(--ink-faint);
+}
+
+/* ---------- Die Ziffern ----------
+   `background-clip: text` malt den Verlauf nur innerhalb der Padding-Box.
+   Bei line-height 1 liegt die Box exakt auf der Zeilenhoehe, jede Ober-
+   oder Unterlaenge faellt heraus und wird bei `color: transparent`
+   unsichtbar. Ziffern in Space Mono haben zufaellig keine — eine
+   Ersatzschrift (font-display: swap) oder ein spaeterer Textinhalt
+   dagegen schon.
+   Rezept wie bei .wordmark: Polster nach aussen, derselbe Betrag als
+   negativer Rand zurueck. Die gemalte Flaeche waechst, der Layoutkasten
+   bleibt millimetergenau derselbe — der Kreis darum verrutscht nicht. */
+.bc-face {
+  display: flex; align-items: baseline; justify-content: center; gap: .1em;
   font-family: var(--font-mono); font-weight: 700;
-  font-size: clamp(48px, 12vw, 128px); line-height: 1;
+  font-size: clamp(44px, min(11vw, 10vh), 84px);
+  line-height: 1;
   font-variant-numeric: tabular-nums; white-space: nowrap;
-  background: linear-gradient(172deg, var(--chrome-hi), var(--chrome-mid) 45%, var(--chrome-lo) 75%, var(--chrome-hi));
+  padding: .28em .16em .24em;
+  margin: -.28em -.16em -.24em;
+  background: linear-gradient(172deg,
+      var(--chrome-hi), var(--chrome-mid) 45%, var(--chrome-lo) 75%, var(--chrome-hi));
   -webkit-background-clip: text; background-clip: text; color: transparent;
   -webkit-text-stroke: .006em var(--bg-void); paint-order: stroke fill;
   filter: drop-shadow(0 0 26px rgb(var(--acc-3-rgb) / .22));
 }
-/* Kleine Luenetten-Andeutung direkt um die Ziffern — der literale Instrument-Bezel */
-.bc-face::before {
-  content: ""; position: absolute; inset: clamp(-16px, -3vw, -30px) clamp(-26px, -6vw, -54px);
-  z-index: -1; border-radius: 999px;
-  border: 1px solid rgb(var(--acc-3-rgb) / .18);
+/* Nulldbreiter Platz: die Sekunden haengen rechts an der Uhrzeit, zaehlen
+   aber nicht zur Zentrierung. Ohne das stuende "00:24" um die halbe
+   Sekundenbreite links neben der Kreismitte — bei 84px sind das 21px, und
+   ein Zifferblatt, dessen Ziffern nicht mittig stehen, sieht kaputt aus. */
+.bc-seconds {
+  width: 0;
+  font-size: .34em;
+  color: var(--acc-1-tint);
+  -webkit-text-fill-color: var(--acc-1-tint);   /* nicht vom Clip erfasst */
+  -webkit-text-stroke: 0;
+  font-variant-numeric: tabular-nums;
 }
-.bc-sec {
-  font-size: .3em; color: var(--acc-3-tint);
-  text-shadow: 0 0 8px rgb(var(--acc-3-rgb) / .4);
-}
-.bc-sec[hidden] { display: none; }
-:root[data-fx="l"] .bc-sec {
-  animation: bc-tick .4s steps(3, end);
-}
-@keyframes bc-tick { 0% { opacity: .3; transform: translateY(-.06em); } 100% { opacity: 1; transform: none; } }
-.bc-caption {
-  font-family: var(--font-mono); font-size: 10.5px; letter-spacing: .28em;
-  text-transform: uppercase; color: var(--ink-faint);
+.bc-seconds[hidden] { display: none; }
+:root[data-fx="l"] .bc-seconds { animation: bc-tick .4s steps(3, end); }
+@keyframes bc-tick {
+  0%   { opacity: .3; transform: translateY(-.06em); }
+  100% { opacity: 1;  transform: none; }
 }
 
-.bc-sub { display: flex; flex-wrap: wrap; justify-content: center; gap: clamp(20px, 4vw, 48px); }
-.bc-sub .tminus { margin: 0; }
-.bc-sub .tminus.tplus .clock { color: var(--ink-dim); text-shadow: none; }
-.bc-sub .tminus.tplus .label { color: var(--acc-2); }
-.bc-sub .tminus .clock small { font-size: .48em; }
+/* ---------- T–Plus links, T–Minus rechts ----------
+   .tminus/.label/.clock kommen aus takeoff.css (inkl. Tagmodus-Behandlung
+   in scene-day.css); hier wird nur Anordnung und Grad angepasst. */
+.bc-panel .tminus {
+  margin: 0;
+  display: grid; gap: var(--sp-1);
+  justify-items: center;
+}
+/* Kleiner statt enger: die Laufweite von .tminus .label wird im Tagmodus
+   ohnehin zentral nachgeregelt (scene-day.css, (0,4,0)) — ein Override von
+   hier aus haette nur nachts gegriffen und die beiden Modi auseinander
+   laufen lassen. Der Grad ist unangetastet und darf runter. */
+.bc-panel .tminus .label { font-size: 11px; }
+.bc-panel .tminus .clock { font-size: clamp(17px, 1.9vw, 26px); }
+.bc-panel .tminus .clock small { font-size: .48em; }
+/* Signalrolle: T–Minus ist die Zukunft, auf die es ankommt. */
+.bc-panel .bc-tm .label { color: var(--acc-1-tint); }
+/* T–Plus ist Vergangenheit: leise, kein Schein. */
+.bc-panel .bc-tp .label { color: var(--acc-2-tint); }
+.bc-panel .bc-tp .clock { color: var(--ink-dim); text-shadow: none; }
+
+/* Die beiden Ablesungen stehen nachts frei im Sternenfeld. Die
+   Nachtplatten-Liste in scene-night.css kennt sie nicht (fremde Datei),
+   also hier dasselbe Rezept, eng am Text: eine Ellipse, die zum Rand hin
+   auf null laeuft — Tiefe im Bild, kein grauer Kasten. Tags traegt die
+   helle Saeule, dort faellt sie weg. */
+:root:not(.day-mode) .bc-panel .tminus { position: relative; isolation: isolate; }
+:root:not(.day-mode) .bc-panel .tminus::before {
+  content: ""; position: absolute; z-index: -1; pointer-events: none;
+  /* Waagerecht nie weiter hinaus als der Seitenrand breit ist — sonst
+     ragt die Flaeche auf 360px ueber den Rand und erzeugt horizontalen
+     Overflow. max() zweier negativer Werte nimmt den kleineren Ueberstand
+     (Muster aus scene-night.css). */
+  inset: -14px max(-22px, calc(-1 * var(--pad))); border-radius: 22px;
+  background: radial-gradient(ellipse 94% 88% at 50% 50%,
+      rgb(var(--bg-void-rgb) / .78) 0%,
+      rgb(var(--bg-void-rgb) / .52) 62%,
+      rgb(var(--bg-void-rgb) / 0)  100%);
+}
+
+@media (min-width: 1000px) {
+  .bc-panel {
+    /* Feste Mittelspur, nicht minmax(0, X): eine minmax-Spur mit fester
+       Obergrenze wird vom INHALT bestimmt und darf kleiner ausfallen — der
+       Kreis haengt dann an der Breite der Ziffern statt umgekehrt. Eine
+       einzelne Laenge ist eine feste Spur, `width: 100%` am Instrument
+       loest damit garantiert auf den vollen Durchmesser auf. */
+    grid-template-columns: minmax(0, 1fr) min(26rem, 54vh) minmax(0, 1fr);
+    justify-items: stretch;
+    column-gap: clamp(20px, 3.4vw, 52px);
+    row-gap: 0;
+  }
+  /* Platzierung statt DOM-Reihenfolge: im Markup steht die WICHTIGE
+     Ablesung (T–Minus) direkt hinter der Uhr, damit sie auf dem Telefon
+     und im Screenreader zuerst kommt. Erst hier wandert T–Plus nach links
+     und die Zeile liest sich als Achse: Vergangenheit | Jetzt | Zukunft. */
+  .bc-instrument   { grid-column: 2; grid-row: 1; }
+  .bc-panel .bc-tm { grid-column: 3; grid-row: 1; text-align: left;  justify-items: start; }
+  .bc-panel .bc-tp { grid-column: 1; grid-row: 1; text-align: right; justify-items: end; }
+}
 
 /* ============================================================
-   4 · Kalender-Quick-Add pro Zeile (.bc-caladd) — Google-Link + .ics-
-   Knopf direkt an der Manifest-Zeile. Zurückhaltende Text-Links statt
-   weiterer Chip-Pillen, damit die Zeile nicht überladen wirkt.
+   3 · Statistikband — eigene fensterbreite Sektion (siehe Kopfkommentar,
+   Punkt 4). Der Innenabstand steckt in .stats selbst (takeoff.css).
    ============================================================ */
-.bc-caladd {
-  display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 4px 14px;
-  margin-top: 6px;
-}
-.bc-caladd a, .bc-caladd button {
-  font-family: var(--font-mono); font-size: 11px; letter-spacing: .03em;
-  color: var(--acc-3-tint); border-bottom: 1px dotted rgb(var(--acc-3-rgb) / .45);
-  padding-bottom: 1px; transition: color .2s, border-color .2s;
-}
-.bc-caladd a:hover, .bc-caladd button:hover,
-.bc-caladd a:focus-visible, .bc-caladd button:focus-visible { color: var(--ink); border-color: var(--ink); }
-.bc-caladd.is-tba { display: block; text-align: right; font-size: 12.5px; color: var(--ink-faint); }
+.bc-statsband { padding-block: var(--sp-4) 0; }
 
 /* ============================================================
-   5 · Zeitleiste — Jahres-/Heute-Trenner, Toolbar, Filter, Leerzustand
+   4 · Editorial-Raster: Rubrik links, Inhalt rechts
+
+   Vorher: 4 Sektionen, jede mit `style={{ paddingTop: 0 }}` und
+   `style={{ maxWidth: 760 }}` am .wrap nachgebogen — vier verschiedene
+   linke Kanten auf derselben Seite und rechts nichts. Jetzt eine Regel,
+   Abstaende aus den --sp-Rollen.
    ============================================================ */
-.bc-toolbar {
-  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
-  gap: 12px 20px; margin: 4px 0 18px;
-}
-.bc-filterbar { display: flex; flex-wrap: wrap; gap: 8px; }
-.bc-filterbar .chip {
-  min-height: 44px; box-sizing: border-box; cursor: pointer;
-  display: inline-flex; align-items: center;
-}
-.bc-toolbar .btn { padding: 10px 18px; font-size: 11.5px; }
+.bc-lane { padding-block: var(--sp-section) 0; position: relative; }
+.bc-lane:last-child { padding-bottom: var(--sp-section); }
 
-.m-row.bc-year, .m-row.bc-today { border-bottom: none; padding-top: 28px; margin-top: 2px; }
-.m-rows > .m-row.bc-year:first-child, .m-rows > .m-row.bc-today:first-child { padding-top: 0; margin-top: 0; }
-.m-row.bc-year dt, .m-row.bc-today dt {
-  font-family: var(--font-display); font-weight: 700; font-size: 15px;
-  letter-spacing: 0; text-transform: none; color: var(--ink);
+.bc-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--sp-head-body);
 }
-.m-row.bc-year dd, .m-row.bc-today dd {
-  font-family: var(--font-mono); font-size: 10.5px; letter-spacing: .16em; text-transform: uppercase;
+.bc-lane .section-head { margin-bottom: 0; }
+.bc-body { min-width: 0; }
+.bc-lane .section-head .h2 {
+  /* In der Rubrikspalte ist die Ueberschrift keine Displaytype mehr,
+     sondern eine mitlaufende Marke. 54px waeren dort ausserdem breiter
+     als die Spalte — "Landeplaetze" allein misst bei 54px rund 370px. */
+  /* Einspaltig (Telefon/Tablet) hat die Ueberschrift die volle Breite und
+     darf gross bleiben; erst in der schmalen Rubrikspalte wird sie kleiner
+     (unten in der Media-Query). */
+  font-size: clamp(28px, 4.4vw, 40px);
+  /* KEIN `hyphens: auto`: bei 34px trennte der Browser mitten in der
+     Rubrik ("Die naechs-ten Wochen", "Unsere Lan-deplaetze") — in einer
+     Marke sieht eine Silbentrennung nach Panne aus. Statt zu trennen ist
+     der Grad kleiner; `break-word` bleibt als letzter Notausgang fuer ein
+     einzelnes Wort, das laenger ist als die Spalte. */
+  overflow-wrap: break-word;
 }
-.m-row.bc-today dt { display: inline-flex; align-items: center; gap: 8px; color: var(--acc-1-tint); }
-.m-row.bc-today dt::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--acc-1); flex: none; }
-:root[data-fx="m"] .m-row.bc-today dt::before,
-:root[data-fx="l"] .m-row.bc-today dt::before { animation: pulse 2.2s ease-in-out infinite; }
+.bc-lead {
+  margin-top: var(--sp-3);
+  color: var(--ink-dim);
+  font-size: 14.5px; line-height: 1.55;
+  font-weight: var(--w-dim);
+}
 
-.m-row[hidden] { display: none; }
-.bc-empty { margin-top: 18px; color: var(--ink-dim); font-size: 14.5px; }
-.bc-empty[hidden] { display: none; }
-
-/* ---------- Patch-Fortschritts-Teaser: sitzt am Ende der Zeitleiste. ---------- */
-.bc-patch-teaser { margin-top: clamp(20px, 3vh, 30px); text-align: center; }
-.bc-patch-teaser a {
-  font-family: var(--font-mono); font-size: 12.5px; letter-spacing: .06em;
-  color: var(--ink-dim); border-bottom: 1px solid var(--bg-hairline);
-  padding-bottom: 3px; transition: color .25s, border-color .25s;
+@media (min-width: 940px) {
+  .bc-grid {
+    grid-template-columns: clamp(190px, 22vw, 268px) minmax(0, 1fr);
+    column-gap: clamp(32px, 5vw, 76px);
+    row-gap: 0;
+    align-items: start;
+  }
+  /* Sticky sitzt auf dem Wrapper, nicht auf .section-head: die
+     Nachtplatten-Liste in scene-night.css setzt dort `position: relative`
+     mit (0,4,0) — ein Override von hier aus haette mehr Klassen gebraucht,
+     als die Sache wert ist. */
+  .bc-rubric {
+    position: sticky;
+    top: calc(var(--topbar-h) + var(--sp-4));
+  }
+  /* In der Rubrikspalte ist die Ueberschrift keine Displaytype mehr,
+     sondern eine mitlaufende Marke — und 40px waeren dort breiter als die
+     Spalte: "Landeplaetze" allein misst bei 40px rund 273px. */
+  .bc-lane .section-head .h2 { font-size: clamp(25px, 2.3vw, 32px); }
 }
-.bc-patch-teaser a:hover, .bc-patch-teaser a:focus-visible { color: var(--ink); border-color: rgb(var(--acc-1-rgb) / .5); }
 
 /* ============================================================
-   6 · Monatsgitter "Wann geht's los" (.bc-months) — nur Monate mit
-   Terminen, keine toten Monate. "Heute" = --acc-1 (Signal-Konvention),
-   Eventtage = --acc-3 (strukturelle Markierung).
+   5 · Monatsgitter (.bc-months) — nur Monate mit Terminen, keine toten
+   Monate. "Heute" = --acc-1 (Signal), Eventtage = --acc-3 (Struktur).
    ============================================================ */
 .bc-months {
   display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
-  gap: 18px; margin-top: clamp(20px, 3vh, 32px);
+  /* `start` statt des Vorgabewerts `stretch`: sonst ziehen sich alle
+     Karten auf die Hoehe des laengsten Monats (6 Wochenzeilen) und der
+     kuerzere bekommt unten eine leere Flaeche von einer ganzen Zeile. */
+  align-items: start;
+  gap: var(--sp-card);
 }
-.bc-month { border: 1px solid var(--bg-hairline); border-radius: var(--radius); padding: clamp(16px, 2.4vw, 22px); }
+.bc-month {
+  border: 1px solid var(--bg-hairline); border-radius: var(--radius);
+  padding: var(--sp-4);
+}
 .bc-month-head { display: flex; align-items: baseline; justify-content: space-between; }
-.bc-month-head b { font-family: var(--font-display); font-weight: 700; font-size: 16px; text-transform: capitalize; }
-.bc-month-head span { font-family: var(--font-mono); font-size: 12px; color: var(--ink-faint); }
+.bc-month-head b { font-family: var(--font-display); font-weight: var(--w-head); font-size: 16px; text-transform: capitalize; }
+.bc-month-head span { font-family: var(--font-mono); font-size: 12px; color: var(--ink-faint); font-variant-numeric: tabular-nums; }
 .bc-weekdays {
-  display: grid; grid-template-columns: repeat(7, 1fr); margin-top: 16px;
+  display: grid; grid-template-columns: repeat(7, 1fr); margin-top: var(--sp-3);
   font-family: var(--font-mono); font-size: 9.5px; letter-spacing: .1em;
   text-transform: uppercase; color: var(--ink-faint); text-align: center;
 }
-.bc-month-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-top: 6px; }
+.bc-month-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-top: var(--sp-1); }
 .bc-day {
   aspect-ratio: 1; display: grid; place-items: center; border-radius: 6px;
   font-family: var(--font-mono); font-size: 11.5px; font-variant-numeric: tabular-nums;
@@ -200,45 +441,164 @@
 a.bc-day { color: var(--ink-dim); transition: background .2s, border-color .2s, color .2s; }
 .bc-day.has-event {
   color: var(--ink); border: 1px solid rgb(var(--acc-3-rgb) / .5);
-  background: rgb(var(--acc-3-rgb) / .10); font-weight: 700;
+  background: rgb(var(--acc-3-rgb) / .10); font-weight: var(--w-micro-b);
 }
 a.bc-day.has-event:hover, a.bc-day.has-event:focus-visible {
   border-color: var(--acc-3); background: rgb(var(--acc-3-rgb) / .2); color: var(--ink);
 }
 .bc-day.is-today { box-shadow: 0 0 0 1.5px var(--acc-1) inset; color: var(--ink); }
-.bc-months-empty { margin-top: clamp(20px, 3vh, 32px); color: var(--ink-dim); font-size: 14.5px; }
+.bc-months-empty { margin-top: 0; color: var(--ink-dim); font-size: 14.5px; }
 
 /* ============================================================
-   7 · Venue-Kurzverzeichnis (.bc-venues) — dedupliziertes .vcard-Paar
-   (.vcard/.vname/.vaddr/.vhint 1:1 aus takeoff.css) + Editorial-Notiz.
+   6 · Zeitleiste — Werkzeugleiste, Trenner, Kalender-Quick-Add
+   ============================================================ */
+.bc-toolbar {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
+  gap: var(--sp-3) var(--sp-4); margin-bottom: var(--sp-4);
+}
+.bc-filterbar { display: flex; flex-wrap: wrap; gap: var(--sp-2); }
+.bc-filterbar .chip {
+  min-height: 44px; box-sizing: border-box; cursor: pointer;
+  display: inline-flex; align-items: center;
+}
+.bc-toolbar .btn { padding: 10px 18px; font-size: 11.5px; }
+
+.bc-rows .m-row.bc-year,
+.bc-rows .m-row.bc-today { border-bottom: none; padding-top: var(--sp-5); margin-top: 2px; }
+.bc-rows > .m-row.bc-year:first-child,
+.bc-rows > .m-row.bc-today:first-child { padding-top: 0; margin-top: 0; }
+.bc-rows .m-row.bc-year dt,
+.bc-rows .m-row.bc-today dt {
+  font-family: var(--font-display); font-weight: var(--w-head); font-size: 15px;
+  letter-spacing: 0; text-transform: none; color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+.bc-rows .m-row.bc-year dd,
+.bc-rows .m-row.bc-today dd {
+  font-family: var(--font-mono); font-size: 10.5px; letter-spacing: .16em; text-transform: uppercase;
+}
+.bc-rows .m-row.bc-today dt { display: inline-flex; align-items: center; gap: var(--sp-2); color: var(--acc-1-tint); }
+.bc-rows .m-row.bc-today dt::before {
+  content: ""; width: 7px; height: 7px; border-radius: 50%;
+  background: var(--acc-1); flex: none;
+}
+.bc-rows .m-row[hidden] { display: none; }
+.bc-detail { color: var(--acc-3-tint); }
+.bc-empty { margin-top: var(--sp-4); color: var(--ink-dim); font-size: 14.5px; }
+.bc-empty[hidden] { display: none; }
+
+/* Kalender-Quick-Add pro Zeile: zurueckhaltende Textlinks statt weiterer
+   Chip-Pillen. Linksbuendig unter dem Zeilentext — rechtsbuendig hingen
+   sie frei in der Spalte und lasen als abgerissenes Fragment. */
+.bc-caladd {
+  display: flex; flex-wrap: wrap; gap: 4px var(--sp-3);
+  margin-top: var(--sp-1);
+}
+.bc-caladd a, .bc-caladd button {
+  font-family: var(--font-mono); font-size: 11px; letter-spacing: .03em;
+  color: var(--acc-3-tint); border-bottom: 1px dotted rgb(var(--acc-3-rgb) / .45);
+  padding-bottom: 1px; transition: color .2s, border-color .2s;
+}
+.bc-caladd a:hover, .bc-caladd button:hover,
+.bc-caladd a:focus-visible, .bc-caladd button:focus-visible { color: var(--ink); border-color: var(--ink); }
+.bc-caladd.is-tba { display: block; font-size: 12.5px; color: var(--ink-faint); }
+
+.bc-patch-teaser { margin-top: var(--sp-5); }
+.bc-patch-teaser a {
+  font-family: var(--font-mono); font-size: 12.5px; letter-spacing: .06em;
+  color: var(--ink-dim); border-bottom: 1px solid var(--bg-hairline);
+  padding-bottom: 3px; transition: color .25s, border-color .25s;
+}
+.bc-patch-teaser a:hover, .bc-patch-teaser a:focus-visible { color: var(--ink); border-color: rgb(var(--acc-1-rgb) / .5); }
+
+/* ============================================================
+   7 · Landeplaetze (.bc-venues) — .vcard/.vname/.vaddr/.vhint 1:1 aus
+   takeoff.css, dazu die Editorial-Notiz.
    ============================================================ */
 .bc-venues {
   display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 18px; margin-top: clamp(20px, 3vh, 32px);
+  gap: var(--sp-card);
 }
-/* Spalte, damit die Routen-Knoepfe unten andocken: die beiden Karten sind im
-   Raster gleich hoch, ihre Notiztexte aber unterschiedlich lang — sonst sitzen
-   die Knopfreihen 24px versetzt. */
+/* Spalte, damit die Routen-Knoepfe unten andocken: die beiden Karten sind
+   im Raster gleich hoch, ihre Notiztexte aber unterschiedlich lang —
+   sonst sitzen die Knopfreihen 24px versetzt. */
 .bc-venue {
   border: 1px solid var(--bg-hairline); border-radius: var(--radius);
-  padding: clamp(18px, 3vw, 26px);
+  padding: var(--sp-5);
   display: flex; flex-direction: column;
 }
-.bc-venue .route-row { margin-top: auto; padding-top: 16px; }
-.bc-venue-note { margin-top: 10px; color: var(--ink-dim); font-size: 14px; }
-
+.bc-venue .route-row { margin-top: auto; padding-top: var(--sp-3); }
+.bc-venue-note { margin-top: var(--sp-2); color: var(--ink-dim); font-size: 14px; }
 .bc-venue .route-row .btn { padding: 10px 18px; font-size: 11.5px; }
 
 /* ============================================================
-   8 · Mobile-Feintuning
+   8 · Abo-Erklaerung + Fragen — eine Sektion statt zweier
    ============================================================ */
+/* Der Punkt am .tx-label pulst in takeoff.css ungebremst (nur die globale
+   Tier-s-Regel staucht ihn). Auf dieser Seite laeuft bereits ein
+   Dauerlaeufer — der Sekundenzeiger —, und die Vorgabe fuer It. 14 lautet
+   EIN Bewegungsmoment pro Seite. Deshalb hier still.
+   (Wenn das sitesweit gelten soll, gehoert es nach takeoff.css — das ist
+   die Entscheidung des Orchestrators, nicht dieser Seite.) */
+.bc-body .transmission .tx-label::before { animation: none; }
+.bc-faqlist { margin-top: var(--sp-5); }
+
+/* ============================================================
+   9 · Tagmodus
+
+   Leitplanken aus scene-day.css: der Grund ist getoent, dunkle Bloecke
+   bleiben dunkel, GLOW WIRD KANTE, und die Chrome-Rampe wird dunkler
+   statt heller. Die Rampe der Ziffern ist deshalb dieselbe wie beim
+   Statistikband (--chrome-sweep-v, dort begruendet: eine Rampe, die oben
+   fast weiss beginnt, ist auf hellem Grund ein Loch).
+   ============================================================ */
+:root.day-mode .bc-face {
+  background-image: var(--chrome-sweep-v);
+  /* Kontur aus --bg-void waere tags HELL. Statt sie nur wegzunehmen,
+     bekommt sie die Rolle, die der Tagmodus dafuer vorsieht: eine harte
+     Tintenkontur ("Glow wird Kante"). Die Rampe --chrome-sweep-v beginnt
+     oben bei --chrome-mid und laeuft bei 50% durch --chrome-hi — auf
+     Beton ist das oben knapp und in der Glanzzone gar nicht mehr lesbar.
+     Bei 24-38px (.stats b) faellt das nicht auf, bei 84px schon.
+     `paint-order: stroke fill` haelt den Strich hinter der Fuellung, er
+     dickt die Glyphe also nicht auf, sondern zieht nur ihre Kante nach. */
+  -webkit-text-stroke: .014em var(--ink);
+  filter: none;
+}
+/* Der Ring braucht auf Beton mehr Kante, nicht mehr Licht. */
+:root.day-mode .bc-dial { border-color: rgb(var(--acc-3-rgb) / .45); }
+:root.day-mode .bc-dial::before { background: repeating-conic-gradient(from -.25deg, rgb(var(--acc-3-rgb) / .7) 0deg .5deg, transparent .5deg 6deg); }
+:root.day-mode .bc-dial::after  { background: repeating-conic-gradient(from -.7deg,  rgb(var(--acc-3-rgb) / 1)  0deg 1.4deg, transparent 1.4deg 30deg); }
+/* Der pulsende Heute-Punkt ist auf Hell ein blasser Fleck — gleiche
+   Loesung wie bei .transmission .tx-label::before in scene-day.css. */
+:root.day-mode .bc-rows .m-row.bc-today dt::before { box-shadow: 0 0 0 1px var(--ink); }
+:root.day-mode .bc-day.has-event { background: rgb(var(--acc-3-rgb) / .14); }
+:root.day-mode .bc-day.is-today { box-shadow: 0 0 0 1.5px var(--acc-1) inset; }
+:root.day-mode .bc-caladd a, :root.day-mode .bc-caladd button { color: var(--acc-3); }
+:root.day-mode .bc-detail { color: var(--acc-3); }
+:root.day-mode :is(.bc-month, .bc-venue) { border-color: rgb(var(--acc-2-rgb) / .35); }
+/* Mikro-Labels: gleiche Behandlung wie in scene-day.css — engere Laufweite
+   statt eines Gewichts, das Space Mono nicht hat. */
+:root.day-mode :is(.bc-caption, .bc-weekdays) { letter-spacing: .1em; color: var(--ink-dim); }
+
+/* ============================================================
+   10 · Kleine Schirme
+   ============================================================ */
+@media (max-width: 640px) {
+  .bc-dial::before {
+    -webkit-mask-image: radial-gradient(closest-side, transparent calc(100% - 8px), #000 calc(100% - 7.5px));
+            mask-image: radial-gradient(closest-side, transparent calc(100% - 8px), #000 calc(100% - 7.5px));
+  }
+  .bc-dial::after {
+    -webkit-mask-image: radial-gradient(closest-side, transparent calc(100% - 16px), #000 calc(100% - 15.5px));
+            mask-image: radial-gradient(closest-side, transparent calc(100% - 16px), #000 calc(100% - 15.5px));
+  }
+  .bc-hand::before { height: 18px; }
+}
 @media (max-width: 560px) {
   .bc-toolbar { align-items: stretch; }
   .bc-toolbar .btn { justify-content: center; }
-  .bc-caladd { justify-content: flex-start; }
-  .bc-caladd.is-tba { text-align: left; }
 }
 @media (max-width: 480px) {
-  .m-row dd { text-align: left; }
-  .bc-face { font-size: clamp(40px, 15vw, 72px); }
+  .bc-rows .m-row dd { text-align: left; }
 }

@@ -1,27 +1,31 @@
 "use client";
-/* Signatur-Motiv "Bodenstation Potsdam": fixe Dach-Antenne unten rechts,
-   hinter dem Inhalt (z-index -2, gleiches Stapel-Prinzip wie #stars —
-   dieser Knoten landet im DOM NACH Starfield, gewinnt also bei gleichem
-   z-index automatisch). Scan-Bewegung der Dish und Sweep laufen komplett
-   über reines, Tier-gatetes CSS (kontakt.css) — hier steckt nur der
-   Sende-Puls: ein einziger, dokumentweiter Klick-Listener auf
-   [data-fs-pulse] (Portierung von wirePulse() aus kontakt.js). Trifft
-   jeden mailto:/Telegram-Link egal in welcher Sektion (Wegweiser-Chips,
-   Empfehlungskarte, CTA-Reihe) — ganz ohne preventDefault, der Link läuft
-   normal weiter, hier kommt nur Ping-Ring-Animation + Toast obendrauf. */
+/* Signatur-Motiv "Bodenstation Potsdam", Teil 1 von 2: die fixe Dach-Antenne
+   unten rechts, hinter dem Inhalt. Teil 2 ist die Konsole im Inhalt
+   (KontaktFunkkanaele) — Radarscheibe plus Stationsanzeige. Beide gehoeren
+   zu EINEM Motiv und reagieren auf EINEN Moment: den Sende-Puls.
+
+   Hier steckt der eine dokumentweite Klick-Listener auf [data-fs-pulse]
+   (Portierung von wirePulse() aus kontakt.js). Er trifft jeden
+   mailto:/Telegram-Link, egal in welcher Sektion — ganz ohne
+   preventDefault, der Link laeuft normal weiter, hier kommt nur die
+   Ping-Ring-Animation, der Toast und seit It. 14 ein CustomEvent obendrauf,
+   mit dem die Konsole im selben Moment mitschwingt (SEND_PULSE_EVENT).
+
+   Stapelrang: der Knoten liegt hinter dem Inhalt, eine Stufe ueber dem
+   Sternfeld (--z-scene) und eine unter den Traegerflaechen (--z-veil) —
+   ausgerechnet in kontakt.css, damit hier keine nackte Zahl steht. */
 import { useEffect, useRef, useState } from "react";
 import type { CSSProperties } from "react";
+import { SEND_PULSE_EVENT, type SendPulseDetail } from "./KontaktFx";
 
-/* Kein Feld in kontakt.json (siehe _labels dort) — im Prototyp ebenfalls
-   ein reiner JS-Fallback, der nie aus den Seitendaten überschrieben wird. */
-const TELEGRAM_TOAST = "Kanal wird geöffnet …";
 const TOAST_MS = 2600;
 
 export default function KontaktBodenstation({
-  stationLabel, sendToast,
+  stationLabel, sendToast, telegramToast,
 }: {
   stationLabel: string;
   sendToast: string;
+  telegramToast: string;
 }) {
   const groundRef = useRef<HTMLDivElement>(null);
   const [toast, setToast] = useState<string | null>(null);
@@ -36,17 +40,19 @@ export default function KontaktBodenstation({
     function onClick(e: MouseEvent) {
       const btn = (e.target as HTMLElement).closest<HTMLElement>("[data-fs-pulse]");
       if (!btn) return;
+      const kind: SendPulseDetail["kind"] = btn.dataset.fsPulse === "telegram" ? "telegram" : "mail";
       const ground = groundRef.current;
       if (ground) {
         ground.classList.remove("is-sending");
         void ground.offsetWidth;   // Reflow erzwingen, damit die Animation bei erneutem Klick neu startet
         ground.classList.add("is-sending");
       }
-      setToast(btn.dataset.fsPulse === "telegram" ? TELEGRAM_TOAST : sendToast);
+      setToast(kind === "telegram" ? telegramToast : sendToast);
+      window.dispatchEvent(new CustomEvent<SendPulseDetail>(SEND_PULSE_EVENT, { detail: { kind } }));
     }
     document.addEventListener("click", onClick);
     return () => document.removeEventListener("click", onClick);
-  }, [sendToast]);
+  }, [sendToast, telegramToast]);
 
   return (
     <>

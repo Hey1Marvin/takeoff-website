@@ -1,147 +1,386 @@
 /* ============================================================
-   team.css — Signaturmotiv "Orbit-Stationsplan" + Bordkartei-Flip
-   Seiten-CSS für /team. Lädt NACH takeoff.css, nutzt ausschließlich
-   bestehende Tokens (--acc-1/2/3, --chrome-*, --font-mono, --bg-hairline,
-   --ease-out). Keine neue Palette, kein neuer Font, keine Canvas-Ebene.
+   team.css — Seiten-CSS fuer /team
 
-   Portierung von prototype/assets/css/pages/team.css (Orbit-Stationsplan,
-   1:1 übernommen) + Vertiefung um die Flip-Karten aus der Kartei-Spezifikation
-   (scratchpad/spec-team.md): jede Crew-Karte dreht sich per Klick zur
-   Rückseite mit Aufgaben-Manifest. Präfix `kt-` — kollisionsfrei geprüft
-   gegen takeoff.css / kollektiv.css (bp-) / awareness.css (aw-) /
-   news.css (rx-) / kalender.css / artists.css.
+   MOTIV: "Crew-Select" (Konzept 50 §E). Jede Crew-Karte dreht sich per
+   Klick zur Rueckseite mit dem Aufgaben-Manifest. Das ist der EINE teure
+   Effekt der Seite; alles andere haelt still oder antwortet auf eine
+   Handlung. Dazu genau ein orchestrierter Bewegungsmoment: der Bordplan
+   baut sich einmal auf, wenn er ins Bild kommt (kt-map-on).
+
+   WAS SICH IN IT. 14 GEAENDERT HAT UND WARUM (nachgesehen in
+   .design-audit/_team__{tag,nacht}__1440.png und befunde.json):
+
+   1) Der Orbit war eine vollflaechige, fixierte Ebene (opacity .16,
+      radiale Maske) — derselbe Trick wie auf fuenf anderen Seiten, und im
+      Tagmodus komplett unsichtbar. Er ist jetzt ein kleiner Bordplan IM
+      Layout (.kt-plan), sichtbar in beiden Modi, mit Legende in Text.
+      Damit entfaellt auch die Klasse `scene-deco` an dieser Stelle: die
+      war die Ausnahme fuer fixierte Vollbild-Deko, und die gibt es hier
+      nicht mehr. NACHZUZIEHEN (geteilte Datei, nicht mein Namensraum):
+      scene-day.css ~Z. 448 zaehlt `.kt-orbit (Team)` noch als eine der
+      sechs fixierten Deko-Ebenen auf — der Kommentar stimmt nicht mehr.
+
+   2) `#stars { filter: brightness(.95) }` stand hier UNGESCOPET. Seiten-CSS
+      wird global gebuendelt: nach einer Client-Navigation lag diese Regel
+      auf JEDER anderen Seite und daempfte dort den Sternenhimmel. Sie ist
+      ersatzlos weg — sie sollte nur die zu blassen Orbitringe stuetzen,
+      und die gibt es so nicht mehr.
+
+   3) `.gph { position: relative }` stand hier UND in kollektiv.css. Zwei
+      Seiten haben sich um dieselbe Klasse gestritten. Das Foto-Board nutzt
+      .gallery-grid/.gph nicht mehr (siehe Abschnitt 7) — die Regel ist weg
+      statt nur umgeschrieben.
+
+   4) Die Karten-Rueckseite konnte Inhalt abschneiden: beide Seiten lagen
+      `position:absolute; inset:0; overflow:hidden` in einem Kasten mit
+      `min-height: 222px`. Jetzt stapeln beide Seiten in DERSELBEN
+      Rasterzelle — die Zelle ist so hoch wie die hoehere Seite (Abschnitt 5).
+
+   5) Die Seite hatte den schlechtesten Rhythmus der Site: als einzige ohne
+      paddingTop-Override auf ihren .section, dadurch stand die
+      Missionsnotiz in ~216px Leere. Abstaende laufen jetzt ausschliesslich
+      ueber die Rollen-Tokens (--sp-section/-head-body/-block/-card/-tight).
+
+   SCOPING: jeder Selektor beginnt mit einer seiteneigenen Klasse
+   (.kt-statsband, .kt-crew, .kt-photos, .kt-board, .kt-plan, .kt-depts)
+   oder mit einem `kt-`-praefigierten, seiteneigenen Klassennamen. Kein
+   nacktes .card, kein #stars, keine ID im Selektor: `#crew` gibt es auch
+   auf der Startseite.
+
+   Keine neuen Farb-, Typo- oder Abstandswerte — alles aus den Tokens in
+   takeoff.css.
    ============================================================ */
 
-/* ---------- Bereichs-Akzente (keine neue Palette) ----------
-   Jeder Bereich bekommt einen der drei bestehenden Akzente als ruhige
-   Wiedererkennung zwischen Hintergrund-Ringen und Karten-Hover. Space/
-   Mars/Strand färben automatisch mit, weil alles über --acc-1/2/3 läuft. */
-:root {
-  --kt-flugdeck-rgb: var(--acc-1-rgb);
-  --kt-boden-rgb:    var(--acc-3-rgb);
-  --kt-bau-rgb:      var(--acc-2-rgb);
-  --kt-sensor-rgb:   var(--acc-3-rgb);
-  --kt-panel-rgb:    var(--acc-2-rgb);
-}
 
 /* ============================================================
-   1 · Orbit-Stationsplan — Hintergrund-Signaturmotiv (Ambient)
-   Fixed, hinter dem Inhalt, oben links im Bildfeld. Additiv zum Himmel,
-   nicht statt ihm — der Sternenhimmel bleibt immer sichtbar, nur minimal
-   gedämpft, damit die Ringe mehr Kontur bekommen. Tier S: fertiges
-   Standbild, kein Sweep, kein Canvas, kein eigener rAF-Loop.
+   1 · Rhythmus
+
+   Vorher: `.section` bringt oben UND unten var(--sp-section) mit. Jede
+   andere Seite dreht das obere Polster per style={{paddingTop:0}} ab,
+   diese nicht — gemessen bei 1440x900 standen um die Missionsnotiz je
+   ~108px, auf hohen Fenstern bis 130px, also bis 260px Leere um einen
+   kleinen gestrichelten Kasten (befunde.json).
+   Jetzt traegt jeder Block seine Luft NACH UNTEN, das obere Polster ist 0
+   bzw. eine Stufe kleiner. Verhaeltnis Blockabstand : Kopf-zu-Inhalt
+   bleibt damit rund 1.4:1 statt 1:0.4.
    ============================================================ */
-.kt-orbit {
-  position: fixed; top: 0; left: 0; z-index: -1;
-  width: min(50vw, 600px); height: min(52vh, 460px);
-  opacity: .16;
-  mask-image: radial-gradient(closest-side at 33% 42%, #000 0%, #000 42%, transparent 86%);
-  -webkit-mask-image: radial-gradient(closest-side at 33% 42%, #000 0%, #000 42%, transparent 86%);
-  pointer-events: none;
-}
-.kt-orbit svg { width: 100%; height: 100%; overflow: visible; }
-@media (max-width: 640px) {
-  .kt-orbit { width: 78vw; height: 44vh; opacity: .11; top: -4vh; left: -12vw; }
-}
-#stars { filter: brightness(.95); }
 
-.kt-ring { fill: none; stroke-width: 1.4; vector-effect: non-scaling-stroke; }
-.kt-ring-flugdeck { stroke: rgb(var(--kt-flugdeck-rgb) / .55); }
-.kt-ring-boden    { stroke: rgb(var(--kt-boden-rgb) / .55); }
-.kt-ring-bau      { stroke: rgb(var(--kt-bau-rgb) / .55); }
-.kt-ring-fallback { stroke: var(--ink-faint); stroke-opacity: .35; stroke-dasharray: 2 5; }
-.kt-hub {
-  fill: var(--chrome-hi); opacity: .8;
-  animation: pulse 2.6s ease-in-out infinite; /* @keyframes pulse aus takeoff.css wiederverwendet */
-}
-.kt-tick { stroke: var(--chrome-mid); stroke-width: 1; opacity: .5; vector-effect: non-scaling-stroke; }
-.kt-ring-label {
-  font-family: var(--font-mono); font-size: 9.5px; letter-spacing: .14em;
-  fill: var(--ink-faint);
-}
-.kt-orbit-dots circle { fill: var(--chrome-hi); opacity: .75; }
+/* Kennzahlenband. Die Luft steckt in .stats selbst (padding, takeoff.css) —
+   ein AUSSENabstand ist hier verboten: im Tagmodus malt jedes direkte Kind
+   von <main> seine eigene helle Spalte, ein margin dazwischen waere kein
+   Abstand, sondern ein schwarzer Riegel quer ueber die helle Seite.
+   Das kleine Polster oben ist trotzdem noetig und liegt deshalb INNEN:
+   .stats traegt nachts eine Traegerflaeche, die bis zu 34px nach oben
+   uebersteht und sonst die letzte Zeile des Hero-Intros wegblendet (im
+   Nacht-Screenshot sichtbar, auch schon vor dieser Iteration). */
+.kt-statsband { padding: var(--sp-4) 0 0; }
 
-/* Sweep — Tier L: rotiert dauerhaft, langsam. Tier M: oszilliert sanft,
-   ein einzelner gedrosselter Zyklus. Tier S: unsichtbar, die Ringe stehen
-   als fertig komponiertes Standbild. */
-.kt-sweep { display: none; transform-origin: 0 0; }
-.kt-sweep line { stroke: rgb(var(--acc-1-rgb) / .4); stroke-width: 1.2; stroke-linecap: round; }
-:root[data-fx="l"] .kt-sweep { display: block; animation: kt-sweep-rot 34s linear infinite; }
-:root[data-fx="m"] .kt-sweep { display: block; animation: kt-sweep-scan 22s ease-in-out infinite; }
-@keyframes kt-sweep-rot  { to { transform: rotate(360deg); } }
-@keyframes kt-sweep-scan { 0%, 100% { transform: rotate(-26deg); } 50% { transform: rotate(26deg); } }
+.kt-crew.section   { padding-block: var(--sp-7) var(--sp-8); }
+.kt-photos.section { padding-block: 0 var(--sp-8); }
+
 
 /* ============================================================
-   2 · Kennzahlen-Leiste — reine Wiederverwendung von .stats (takeoff.css).
+   2 · Redaktionsraster: breite Spalte + rechte Schiene
+
+   Der Hauptbefund der Iteration war "linksbuendige Textspalte auf 1440px,
+   rechts tote Flaeche". Beide Sektionen benutzen deshalb DASSELBE Raster:
+   Inhalt links, eine schmale Schiene rechts. Auf der Crew-Seite traegt
+   sie Bordplan, Legende und Missionsnotiz, auf dem Foto-Board den
+   Consent-Text. Ein Raster, zweimal benutzt — nicht zwei Erfindungen.
+
+   Die Schiene wird im Markup ZULETZT gerendert (Vorlese-Reihenfolge:
+   Inhalt vor Begleitspalte) und hier explizit nach rechts oben gesetzt.
+   Deshalb stehen alle drei Bereiche mit grid-area, nicht per Autoplatzierung.
    ============================================================ */
-#team-stats { margin-top: clamp(6px, 1.5vh, 18px); }
+.kt-crew, .kt-photos { --kt-rail: clamp(248px, 24vw, 320px); }
+
+.kt-board { display: grid; gap: var(--sp-head-body) var(--sp-6); }
+/* Der Kopfblock bringt sonst seinen eigenen Abstand mit — hier macht das
+   die Rasterluecke, sonst addieren sich beide. */
+.kt-board > .section-head { margin-bottom: 0; }
+
+.kt-photos-body { display: grid; gap: var(--sp-6); align-items: start; }
+
+@media (min-width: 1000px) {
+  .kt-board {
+    grid-template-columns: minmax(0, 1fr) var(--kt-rail);
+    align-items: start;
+  }
+  .kt-board > .section-head { grid-area: 1 / 1; }
+  .kt-board > .kt-depts     { grid-area: 2 / 1; }
+  /* Die Schiene ist kuerzer als das Board. Sie klebt mit, damit der Plan
+     beim Blaettern durch die Stationen im Bild bleibt — sonst waere die
+     Antwort "Station anfassen laesst ihren Ring aufleuchten" ab dem
+     zweiten Bereich unsichtbar. */
+  .kt-board > .kt-plan {
+    grid-area: 1 / 2 / span 2 / 3;
+    position: sticky; top: calc(var(--topbar-h) + var(--sp-4));
+  }
+
+  .kt-photos-body { grid-template-columns: minmax(0, 1fr) var(--kt-rail); }
+}
+
 
 /* ============================================================
-   3 · Bereiche (Flugdeck / Bodencrew / Bau & Gastgeber)
+   3 · Bordplan (rechte Schiene)
+
+   Ringe und Legende teilen sich EINE Reihenfolge mit den Bereichen im
+   Board (page.tsx baut beide aus derselben Liste). Welche Station welchen
+   Akzent traegt, entscheidet deshalb :nth-child — nicht eine ID, die beim
+   Umbenennen eines Bereichs stillschweigend danebengreift.
    ============================================================ */
-#kt-departments .kt-dept + .kt-dept { margin-top: clamp(38px, 6.5vh, 64px); }
-.kt-dept-head { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 12px; }
-.kt-dept-dot {
-  width: 9px; height: 9px; border-radius: 50%; flex: none;
-  align-self: center;
-  background: var(--dept-dot, var(--acc-2));
-  box-shadow: 0 0 9px var(--dept-dot, var(--acc-2));
-}
-.kt-dept[data-dept="flugdeck"] .kt-dept-dot { --dept-dot: var(--acc-1); }
-.kt-dept[data-dept="boden"]    .kt-dept-dot { --dept-dot: var(--acc-3); }
-.kt-dept[data-dept="bau"]      .kt-dept-dot { --dept-dot: var(--acc-2); }
-.kt-dept-title {
-  font-family: var(--font-display); font-weight: 700;
-  font-size: clamp(19px, 2.6vw, 24px);
-}
-.kt-dept-sub {
-  font-family: var(--font-mono); font-size: 10.5px; letter-spacing: .16em;
+.kt-plan { display: grid; align-content: start; gap: var(--sp-4); }
+
+.kt-plan-label {
+  display: flex; align-items: center; gap: 12px;
+  font-family: var(--font-mono); font-weight: var(--w-micro-b);
+  font-size: 10.5px; letter-spacing: var(--track-micro);
   text-transform: uppercase; color: var(--ink-faint);
 }
-.kt-dept-intro { margin: 6px 0 18px; color: var(--ink-dim); font-size: 14.5px; }
+.kt-plan-label::after { content: ""; flex: 1; height: 1px; background: var(--bg-hairline); }
 
-/* Karten-Grid teilt sich .crewgrid mit kollektiv.html (Duplikat ist ok,
-   Konflikt nicht). Höhere Selektor-Spezifität statt Ladereihenfolge, damit
-   die breitere Spalte für das Aufgaben-Manifest zuverlässig gewinnt. */
-#kt-departments .kt-grid { grid-template-columns: repeat(auto-fit, minmax(215px, 1fr)); align-items: stretch; }
-
-/* data-dept steuert nur die Hover-/Fokusfarbe der Vorderseite, damit sie
-   den Hintergrund-Ring ihres Bereichs aufgreift. */
-.kt-grid[data-dept="flugdeck"] .kt-face-front:hover, .kt-grid[data-dept="flugdeck"] .kt-face-front:focus-visible { border-color: rgb(var(--kt-flugdeck-rgb) / .65); }
-.kt-grid[data-dept="boden"] .kt-face-front:hover,    .kt-grid[data-dept="boden"] .kt-face-front:focus-visible    { border-color: rgb(var(--kt-boden-rgb) / .65); }
-.kt-grid[data-dept="bau"] .kt-face-front:hover,      .kt-grid[data-dept="bau"] .kt-face-front:focus-visible      { border-color: rgb(var(--kt-bau-rgb) / .65); }
-
-/* "seit <Jahr>"-Tag (Artist-Verlinkung) — kleine Pille unter der Rolle. */
-.ccard .kt-since {
-  display: inline-flex; margin: 8px auto 0; width: auto;
-  padding: 2px 9px; border-radius: 999px;
-  border: 1px solid rgb(var(--acc-3-rgb) / .35);
-  background: rgb(var(--acc-3-rgb) / .08);
-  color: var(--acc-3-tint);
-  font-size: 10px; letter-spacing: .1em;
+.kt-plan .kt-map { display: grid; gap: var(--sp-3); }
+.kt-plan .kt-map > svg {
+  display: block; width: 100%; max-width: 300px; height: auto;
+  justify-self: center; overflow: visible;
 }
+
+/* Bereichsfarben — eine Zuordnung fuer Ring, Legendenzeile und
+   Bereichspunkt im Board. --kt-active kommt aus Abschnitt 4 (Antwort auf
+   Zeigen/Fokus) und ist sonst 0. */
+.kt-plan .kt-stations > g:nth-child(1),
+.kt-plan .kt-legend > li:nth-child(1),
+.kt-depts > .kt-dept:nth-child(1) { --kt-dept-rgb: var(--acc-1-rgb); }
+.kt-plan .kt-stations > g:nth-child(2),
+.kt-plan .kt-legend > li:nth-child(2),
+.kt-depts > .kt-dept:nth-child(2) { --kt-dept-rgb: var(--acc-3-rgb); }
+.kt-plan .kt-stations > g:nth-child(3),
+.kt-plan .kt-legend > li:nth-child(3),
+.kt-depts > .kt-dept:nth-child(3) { --kt-dept-rgb: var(--acc-2-rgb); }
+.kt-plan .kt-stations > g:nth-child(4),
+.kt-plan .kt-legend > li:nth-child(4),
+.kt-depts > .kt-dept:nth-child(4) { --kt-dept-rgb: var(--acc-3-rgb); }
+
+.kt-plan .kt-ring {
+  fill: none;
+  vector-effect: non-scaling-stroke;
+  stroke: rgb(var(--kt-dept-rgb, var(--acc-2-rgb)) / calc(.55 + var(--kt-active, 0) * .45));
+  stroke-width: calc(1.2px + var(--kt-active, 0) * .8px);
+}
+.kt-plan .kt-ring-reserve {
+  stroke: var(--ink-faint); stroke-opacity: .3;
+  stroke-dasharray: 2 6; stroke-width: 1px;
+}
+/* --ink statt --chrome-hi: die Chrome-Rampe bleibt im Tagmodus hell, weisse
+   Punkte waren auf der hellen Saeule unsichtbar (im Tag-Screenshot gesehen).
+   --ink kippt mit dem Modus und traegt in beiden. */
+.kt-plan .kt-dot {
+  fill: var(--ink);
+  opacity: calc(.7 + var(--kt-active, 0) * .3);
+  r: calc(2.6px + var(--kt-active, 0) * 1.2px);
+  transition: opacity .3s var(--ease-out), r .3s var(--ease-out);
+}
+.kt-plan .kt-hub { fill: var(--ink); opacity: .85; }
+
+.kt-plan .kt-legend {
+  list-style: none; margin: 0; padding: 0;
+  display: grid; gap: var(--sp-2);
+}
+.kt-plan .kt-legend > li {
+  display: grid; grid-template-columns: 9px minmax(0, 1fr) auto;
+  align-items: center; gap: 10px;
+}
+.kt-plan .kt-legend-dot {
+  width: 9px; height: 9px; border-radius: 50%;
+  background: rgb(var(--kt-dept-rgb, var(--acc-2-rgb)) / calc(.5 + var(--kt-active, 0) * .5));
+  box-shadow: 0 0 10px rgb(var(--kt-dept-rgb, var(--acc-2-rgb)) / calc(var(--kt-active, 0) * .8));
+  transition: background .3s, box-shadow .3s;
+}
+.kt-plan .kt-legend-name {
+  font-family: var(--font-mono); font-size: 10.5px;
+  letter-spacing: var(--track-label); text-transform: uppercase;
+  color: var(--ink-dim);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.kt-plan .kt-legend-count {
+  font-family: var(--font-mono); font-weight: var(--w-micro-b);
+  font-size: 11px; font-variant-numeric: tabular-nums;
+  color: var(--ink-faint);
+}
+.kt-plan .kt-legend-reserve .kt-legend-dot {
+  background: none; border: 1px dashed var(--ink-faint); box-shadow: none;
+}
+.kt-plan .kt-legend-reserve .kt-legend-name { color: var(--ink-faint); }
+
+/* Nachts traegt .transmission eine Traegerflaeche, die bauartbedingt bis zu
+   34px ueber ihr Element hinausragt (scene-night.css) — sie legte sich auf
+   die zweite Zeile dieser Notiz. Der Rasterabstand allein kann das nicht
+   loesen, ohne die Schiene auseinanderzuziehen: die Notiz stellt sich
+   deshalb selbst eine Stufe hoeher, genau wie es Ueberschriften sitewide tun. */
+.kt-plan .kt-map-note {
+  position: relative; z-index: var(--z-heading);
+  font-size: 12.5px; color: var(--ink-faint);
+}
+
+/* Missionsnotiz in der Schiene. .transmission bringt zentrierten Text und
+   ein Polster fuer volle Breite mit — in 280px Schiene ist beides falsch. */
+.kt-plan .transmission { padding: var(--sp-4); text-align: left; }
+.kt-plan .transmission p { max-width: none; margin-inline: 0; font-size: 13.5px; }
+.kt-plan .transmission .tx-label { margin-bottom: var(--sp-2); font-size: 10px; letter-spacing: .2em; }
+
 
 /* ============================================================
-   4 · Bordkartei-Flip — jede Karte dreht sich zur Rückseite (Aufgaben).
-   Basis = Crossfade (alle Tiers, auf Tier S per Sitewide-Regel
-   :root[data-fx="s"] * { transition-duration:.15s!important } aus
-   takeoff.css praktisch verzugslos = "statische Karten"). Tier L bekommt
-   zusätzlich die echte 3D-Y-Drehung. Klick/Enter funktioniert auf jedem
-   Tier vollständig — nur das Drehgefühl unterscheidet sich.
-   ============================================================ */
-.kt-card { position: relative; height: 100%; }
-.kt-card-inner { position: relative; height: 100%; min-height: 222px; }
+   4 · Der orchestrierte Bewegungsmoment: Plan faehrt hoch
 
+   Einmalig, beim ersten Sichtbarwerden (TeamMapPower.tsx reicht die
+   Klasse nach und prueft vorher data-fx und prefers-reduced-motion).
+   Ohne JS steht der fertige Plan sofort da — `backwards` sorgt dafuer,
+   dass der Startzustand NUR waehrend der Animation gilt.
+   pathLength="1" auf den Kreisen macht den Umfang unabhaengig vom Radius:
+   ein Dash-Wert fuer alle vier Ringe statt vier gerechneter Umfaenge.
+   ============================================================ */
+.kt-map-on .kt-ring {
+  animation: kt-ring-draw .9s var(--ease-out) backwards;
+  animation-delay: calc(var(--r, 0) * .12s);
+}
+.kt-map-on .kt-dot {
+  animation: kt-dot-in .45s var(--ease-out) backwards;
+  animation-delay: calc(.45s + var(--i, 0) * .045s);
+}
+.kt-map-on .kt-hub { animation: kt-dot-in .4s var(--ease-out) backwards; }
+@keyframes kt-ring-draw {
+  from { stroke-dasharray: 1; stroke-dashoffset: 1; }
+  to   { stroke-dasharray: 1; stroke-dashoffset: 0; }
+}
+@keyframes kt-dot-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* Antwort auf eine Handlung: wer eine Station im Board anfasst (Maus oder
+   Tastatur), sieht ihren Ring, ihre Punkte und ihre Legendenzeile
+   aufleuchten. Ueber den Index gekoppelt, nicht ueber die Bereichs-ID —
+   ein umbenannter Bereich bricht die Verbindung damit nicht.
+   Der Wert vererbt sich in die Kinder; alles darueber rechnet in calc(). */
+.kt-board:has(.kt-depts > .kt-dept:nth-child(1):is(:hover, :focus-within))
+  :is(.kt-stations > g:nth-child(1), .kt-legend > li:nth-child(1)),
+.kt-board:has(.kt-depts > .kt-dept:nth-child(2):is(:hover, :focus-within))
+  :is(.kt-stations > g:nth-child(2), .kt-legend > li:nth-child(2)),
+.kt-board:has(.kt-depts > .kt-dept:nth-child(3):is(:hover, :focus-within))
+  :is(.kt-stations > g:nth-child(3), .kt-legend > li:nth-child(3)),
+.kt-board:has(.kt-depts > .kt-dept:nth-child(4):is(:hover, :focus-within))
+  :is(.kt-stations > g:nth-child(4), .kt-legend > li:nth-child(4)) {
+  --kt-active: 1;
+}
+
+
+/* ============================================================
+   5 · Bereiche und Crew-Select-Karten
+   ============================================================ */
+.kt-depts { display: grid; gap: var(--sp-8); }
+
+/* Der Bereichskopf traegt Titel, Untertitel UND die Einleitung. Nachts
+   bekommt er dafuer genau EINE Traegerflaeche (scene-night.css) statt
+   zweier, die sich gegenseitig ueberdecken — der Grund steht im Markup
+   (TeamCrewBoard.tsx). Der Abstand nach unten ist groesser als der
+   Ueberstand der naechsten Flaeche (--sp-6 gegen hoechstens 34px), damit
+   die Flaeche des Kartenrasters nicht in den Kopf hineinreicht. */
+.kt-crew .kt-dept-head {
+  display: grid; gap: var(--sp-1);
+  margin-bottom: var(--sp-6);
+}
+/* Titelzeile als eigene Reihe. Der erste Versuch war ein einziger
+   Flex-Kasten mit `flex: 1 0 100%` auf der Einleitung — das bricht NICHT
+   zuverlaessig um: `max-width` klemmt die Flex-Basis, bei kurzen Titeln
+   passte die Einleitung dann doch neben den Titel (bei 768px nachgemessen:
+   Flugdeck einzeilig, Bodencrew zweizeilig). Zwei Reihen statt einer
+   Umbruchregel. */
+.kt-crew .kt-dept-name {
+  display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 12px;
+}
+.kt-crew .kt-dept-dot {
+  width: 9px; height: 9px; border-radius: 50%; flex: none; align-self: center;
+  background: rgb(var(--kt-dept-rgb, var(--acc-2-rgb)));
+  box-shadow: 0 0 10px rgb(var(--kt-dept-rgb, var(--acc-2-rgb)) / .8);
+}
+.kt-crew .kt-dept-title {
+  font-family: var(--font-display); font-weight: var(--w-head);
+  font-size: clamp(18px, 2.2vw, 22px);
+}
+.kt-crew .kt-dept-sub {
+  font-family: var(--font-mono); font-size: 10.5px;
+  letter-spacing: var(--track-micro); text-transform: uppercase;
+  color: var(--ink-faint);
+}
+.kt-crew .kt-dept-intro {
+  margin: 0;
+  max-width: 48ch; color: var(--ink-dim); font-size: 14.5px;
+}
+/* Und deshalb bekommt sie hier KEINE zweite Flaeche: sie liegt schon auf
+   der ihres Kopfblocks. Spezifitaet ist der ganze Punkt dieser Zeile — die
+   Liste in scene-night.css steht bei (0,4,0), weil `:is()` die Spezifitaet
+   ihres staerksten Arguments erbt (dort `.section-head + .section-intro`).
+   `:root:not(.day-mode)` (0,2,0) plus drei Klassen ergibt (0,5,0). */
+:root:not(.day-mode) .kt-crew .kt-dept-head .kt-dept-intro::before { content: none; }
+
+/* Kartenraster. Vorher `auto-fit` mit 215px Minimum: ein Bereich mit zwei
+   Mitgliedern zog seine beiden Karten auf je die halbe Seitenbreite,
+   waehrend der Bereich darueber vier normal grosse Karten hatte — drei
+   Reihen, drei Kartengroessen. `auto-fill` haelt die Spur stehen, alle
+   Karten sind ueberall gleich gross.
+   `min(100%, …)` ist Pflicht: sonst zwingt minmax() in Containern unter
+   der Mindestbreite eine zu breite Spur und erzeugt Overflow.
+   grid-auto-rows: 1fr macht alle Reihen gleich hoch — das ist die
+   Select-Optik und verhindert, dass beim Umdrehen die Reihenhoehe springt. */
+.kt-crew .kt-grid {
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 288px), 1fr));
+  grid-auto-rows: 1fr;
+  gap: var(--sp-card);
+  align-items: stretch;
+}
+
+.kt-card { position: relative; height: 100%; }
+
+/* KERN DER BESCHNITT-KORREKTUR: beide Kartenseiten liegen in DERSELBEN
+   Rasterzelle. Die Zelle ist damit so hoch wie die hoehere der beiden —
+   eine Aufgabenliste beliebiger Laenge treibt die Karte auseinander,
+   statt unten abgeschnitten zu werden. Es gibt bewusst KEIN min-height
+   und KEIN overflow auf der Rueckseite mehr.
+   Nebeneffekt, der frueher fehlte: weil die Hoehe schon vor dem Drehen
+   steht, springt beim Drehen nichts. */
+.kt-card-inner {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  height: 100%;
+}
 .kt-face {
-  position: absolute; inset: 0; overflow: hidden;
+  grid-area: 1 / 1;
+  /* `position: relative` ist hier kein Kosmetikwert: die Scanlinie
+     (Abschnitt 6) ist absolut gesetzt und wird von `overflow: hidden` NUR
+     dann geklippt, wenn die Vorderseite auch ihr umgebender Block ist.
+     Solange beide Seiten `position: absolute` waren, ergab sich das von
+     selbst; im Rasterstapel muss man es hinschreiben. Beide Seiten
+     bekommen es, damit die Malreihenfolge die des Markups bleibt. */
+  position: relative;
   border-radius: var(--radius);
-  padding: 20px 18px;
+  padding: var(--sp-4);
   transition: opacity .35s var(--ease-out);
 }
-.kt-face-front { cursor: pointer; }
+.kt-face-front {
+  cursor: pointer;
+  /* Nur die Vorderseite klippt — sie wird vom Raster auf Zellenhoehe
+     gestreckt, ihr Inhalt kann also nie ueberlaufen. Gebraucht wird das
+     fuer die Scanlinie (Abschnitt 6), die sonst aus der Karte liefe. */
+  overflow: hidden;
+  display: grid; align-content: center; justify-items: center;
+  gap: var(--sp-1);
+  text-align: center;
+}
 .kt-face-back {
-  border: 1px solid rgb(var(--kt-panel-rgb) / .3);
-  background: rgb(var(--kt-panel-rgb) / .1);
+  border: 1px solid rgb(var(--kt-dept-rgb, var(--acc-2-rgb)) / .35);
+  background: linear-gradient(180deg,
+      rgb(var(--kt-dept-rgb, var(--acc-2-rgb)) / .12),
+      rgb(var(--bg-surface-rgb) / .8));
   display: flex; flex-direction: column;
   text-align: left;
   opacity: 0; visibility: hidden;
@@ -149,52 +388,103 @@
 .kt-card.flipped .kt-face-front { opacity: 0; visibility: hidden; }
 .kt-card.flipped .kt-face-back  { opacity: 1; visibility: visible; }
 
-/* Nur Tier L bekommt die echte 3D-Drehung — ersetzt die Crossfade-Logik.
-   perspective MUSS auf dem Eltern-Element liegen (Lehre aus .card-grid in
-   takeoff.css): preserve-3d allein reicht nicht, ohne Fluchtpunkt rendert
-   eine 3D-Rotation als flache affine Verzerrung. */
-:root[data-fx="l"] .kt-grid { perspective: 1200px; perspective-origin: 50% 30%; }
-:root[data-fx="l"] .kt-card-inner { transform-style: preserve-3d; transition: transform .6s var(--ease-out); }
-:root[data-fx="l"] .kt-face { backface-visibility: hidden; opacity: 1 !important; visibility: visible !important; transition: none; }
-:root[data-fx="l"] .kt-face-back { transform: rotateY(180deg); }
-:root[data-fx="l"] .kt-card.flipped .kt-card-inner { transform: rotateY(180deg); }
-
-/* Vorderseite: Flip-Hinweis unter der Rolle — muss aus sich selbst heraus
-   als klickbar lesen, kein Tooltip-Onboarding. */
-.kt-flip-hint {
-  display: block; margin-top: 10px;
-  font-family: var(--font-mono); font-size: 10.5px; letter-spacing: .08em;
-  color: var(--acc-3-tint); opacity: .8;
+/* Vorderseite: die .ccard-Grundform aus takeoff.css bleibt (Rahmen, Grund,
+   Avatar-Rund), nur Groesse und Ausrichtung werden auf das Kartenformat
+   gebracht. Spezifitaet (0,3,0) gegen `.ccard .avatar` (0,2,0) — bewusst
+   ueber Selektortiefe, nicht ueber Ladereihenfolge. */
+.kt-crew .kt-face-front .avatar { width: 60px; height: 60px; margin: 0 0 var(--sp-2); font-size: 17px; }
+.kt-crew .kt-face-front .avatar svg { width: 23px; height: 23px; }
+.kt-crew .kt-face-front b { font-size: 15.5px; line-height: 1.25; }
+.kt-crew .kt-card-role {
+  display: block; margin: 0;
+  font-family: var(--font-mono); font-size: 10.5px;
+  letter-spacing: var(--track-label); text-transform: uppercase;
+  color: var(--ink-faint);
 }
-.kt-face-front:hover .kt-flip-hint, .kt-face-front:focus-visible .kt-flip-hint { opacity: 1; }
+.kt-crew .kt-card-foot {
+  display: flex; flex-wrap: wrap; justify-content: center; align-items: center;
+  gap: 6px 10px; margin-top: var(--sp-2);
+}
+.kt-crew .kt-since {
+  display: inline-flex; margin: 0; width: auto;
+  padding: 2px 9px; border-radius: 999px;
+  border: 1px solid rgb(var(--acc-3-rgb) / .35);
+  background: rgb(var(--acc-3-rgb) / .08);
+  color: var(--acc-3-tint);
+  font-size: 10px; letter-spacing: var(--track-label);
+  text-transform: none;
+}
+/* Der Flip-Hinweis muss aus sich heraus als klickbar lesen — kein
+   Tooltip-Onboarding, kein Icon ohne Wort. */
+.kt-crew .kt-flip-hint {
+  display: inline-flex; align-items: center; gap: 5px; margin: 0;
+  font-family: var(--font-mono); font-size: 10.5px;
+  letter-spacing: var(--track-wide); text-transform: none;
+  color: var(--acc-3-tint); opacity: .85;
+}
+/* Der Pfeil ist ein <span> IN der Karte — ohne diese Zeile macht
+   `.ccard span` (takeoff.css) einen Block mit eigenem Abstand daraus. */
+.kt-crew .kt-flip-hint > span {
+  display: inline; margin: 0;
+  font: inherit; letter-spacing: inherit; color: inherit; text-transform: none;
+}
+.kt-face-front:hover .kt-flip-hint,
+.kt-face-front:focus-visible .kt-flip-hint { opacity: 1; }
 
-/* Rückseite: Aufgaben-Manifest */
-.kt-tasks {
+/* Hover-/Fokusfarbe greift den Ring des eigenen Bereichs auf. */
+.kt-crew .kt-face-front:hover,
+.kt-crew .kt-face-front:focus-visible { border-color: rgb(var(--kt-dept-rgb, var(--acc-2-rgb)) / .65); }
+
+/* Rueckseite: Aufgaben-Manifest */
+.kt-crew .kt-tasks {
   margin: 0; padding: 0; list-style: none;
   display: grid; gap: 7px; flex: 1;
   font-size: 13.5px; color: var(--ink-dim);
 }
-.kt-tasks li { padding-left: 15px; position: relative; }
-.kt-tasks li::before { content: ""; position: absolute; left: 1px; top: 8px; width: 5px; height: 5px; border-radius: 50%; background: var(--acc-3); }
-.kt-contact { margin: 10px 0 0; font-size: 12px; color: var(--ink-faint); }
-.kt-more {
-  display: inline-block; margin-top: 10px;
-  color: var(--acc-1-tint); font-size: 11.5px; letter-spacing: .06em;
+.kt-crew .kt-tasks li { padding-left: 15px; position: relative; }
+.kt-crew .kt-tasks li::before {
+  content: ""; position: absolute; left: 1px; top: 8px;
+  width: 5px; height: 5px; border-radius: 50%;
+  background: rgb(var(--kt-dept-rgb, var(--acc-2-rgb)));
 }
-.kt-more:hover, .kt-more:focus-visible { text-decoration: underline; text-underline-offset: 3px; }
-.kt-flip-close {
-  align-self: flex-start; margin-top: auto; padding-top: 12px;
-  font-family: var(--font-mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase;
+.kt-crew .kt-contact { margin: var(--sp-2) 0 0; font-size: 12px; color: var(--ink-faint); }
+.kt-crew .kt-more {
+  display: inline-block; margin-top: var(--sp-2);
+  color: var(--acc-1-tint); font-size: 11.5px; letter-spacing: var(--track-wide);
+}
+.kt-crew .kt-more:hover, .kt-crew .kt-more:focus-visible { text-decoration: underline; text-underline-offset: 3px; }
+.kt-crew .kt-flip-close {
+  align-self: flex-start; margin-top: auto; padding-top: var(--sp-3);
+  font-family: var(--font-mono); font-size: 11px;
+  letter-spacing: var(--track-label); text-transform: uppercase;
   color: var(--ink-faint); background: none; border: 0; cursor: pointer;
 }
-.kt-flip-close:hover, .kt-flip-close:focus-visible { color: var(--ink); }
+.kt-crew .kt-flip-close:hover, .kt-crew .kt-flip-close:focus-visible { color: var(--ink); }
 
-/* Portrait-Scanline — rein dekorativ, dezent. Reine CSS-Trigger über
-   :hover/:focus-visible (kein JS-State nötig); spielt einmal pro Eintritt,
-   weil animation-iteration-count Default = 1. Nur Tier M/L — Tier S bleibt
-   ohnehin bewegungsarm (Sitewide-Regel). */
+/* Nur Tier L bekommt die echte 3D-Drehung — sie ersetzt die Crossfade-Logik.
+   perspective MUSS auf dem DIREKTEN Elternelement des drehenden Kastens
+   liegen. Vorher stand sie auf .kt-grid, also dem GROSSELTERN: das
+   dazwischenliegende .kt-card ist ein flaches Element und hat den
+   Fluchtpunkt geschluckt — die Drehung lief als flache affine Verzerrung.
+   Genau die Falle, vor der takeoff.css bei .card-grid warnt. */
+:root[data-fx="l"] .kt-crew .kt-card { perspective: 1000px; perspective-origin: 50% 40%; }
+:root[data-fx="l"] .kt-crew .kt-card-inner { transform-style: preserve-3d; transition: transform .6s var(--ease-out); }
+:root[data-fx="l"] .kt-crew .kt-face { backface-visibility: hidden; opacity: 1 !important; visibility: visible !important; transition: none; }
+:root[data-fx="l"] .kt-crew .kt-face-back { transform: rotateY(180deg); }
+:root[data-fx="l"] .kt-crew .kt-card.flipped .kt-card-inner { transform: rotateY(180deg); }
+
+
+/* ============================================================
+   6 · Portrait-Scanline + Sammel-Easter-Egg
+
+   Beides Antworten auf eine Handlung, kein Dauerlauf. Die Scanlinie
+   spielt einmal je Eintritt (animation-iteration-count Default = 1) und
+   nur auf Tier M/L; Tier S ist per Sitewide-Regel ohnehin bewegungsarm.
+   ============================================================ */
 .kt-scan {
-  position: absolute; left: 10%; right: 10%; top: 16px; height: 2px;
+  /* margin: 0 gegen `.ccard span { margin-top: 4px }` aus takeoff.css —
+     ohne das verschiebt der Aussenabstand die absolut gesetzte Linie. */
+  position: absolute; margin: 0; left: 10%; right: 10%; top: 16px; height: 2px;
   background: linear-gradient(90deg, transparent, var(--acc-3-tint), transparent);
   opacity: 0; pointer-events: none;
 }
@@ -204,35 +494,101 @@
 }
 @keyframes kt-scanpass-card { 0% { opacity: 0; transform: translateY(0); } 15% { opacity: 1; } 100% { opacity: 0; transform: translateY(60px); } }
 
-/* ============================================================
-   5 · Sammel-Easter-Egg — Unicorn-Toast (dezent)
-   Kein Konfetti, kein Regenbogen-Verlauf: nur ein Emoji im ohnehin
-   vorhandenen .toast (takeoff.css), das per bereits existierendem
-   @keyframes eggpop (takeoff.css, .ditem.found) kurz einmal "poppt".
-   ============================================================ */
+/* Wer jede Karte einmal geoeffnet hat, kennt die ganze Crew. Kein Konfetti,
+   kein Dauer-Badge: ein Emoji im ohnehin vorhandenen .toast, das per
+   bereits existierendem @keyframes eggpop (takeoff.css) einmal poppt. */
 .kt-unicorn-pop { display: inline-block; margin-right: 6px; }
 :root[data-fx="m"] .toast.show .kt-unicorn-pop,
 :root[data-fx="l"] .toast.show .kt-unicorn-pop { animation: eggpop .9s var(--ease-out); }
 
-/* ============================================================
-   6 · Foto-Board — Wiederverwendung von .gallery-grid/.gph, Rollen-Tag
-   statt Nummerierung.
-   ============================================================ */
-.kt-slot-tag {
-  position: absolute; top: 6px; left: 8px;
-  font-family: var(--font-mono); font-size: 9.5px; letter-spacing: .1em;
-  color: rgb(var(--acc-2-rgb) / .6);
-}
-.gph { position: relative; }
 
 /* ============================================================
-   7 · Mobile-Sicherheit
+   7 · Foto-Board
+
+   Vorher: acht gestrichelte 4:3-Kaesten mit "Foto folgt nach Freigabe",
+   zusammen eine halbe Bildschirmhoehe reiner Platzhalter — und dafuer
+   .gallery-grid/.gph, wobei .gph auch kollektiv.css gehoerte.
+   Jetzt: eine Reihe leerer Plaetze im selben Rund wie die Karten-Avatare
+   (die Seite hat damit EINE Form fuer "eine Person"), daneben in der
+   Schiene der Grund, warum sie leer sind. Runde Plaetze duerfen umbrechen,
+   ohne dass eine angebrochene Reihe wie ein Rasterfehler aussieht.
    ============================================================ */
-@media (max-width: 480px) {
-  .kt-dept-head { gap: 3px 9px; }
-  .kt-card-inner { min-height: 240px; }
+.kt-photos .kt-strip {
+  list-style: none; margin: 0; padding: 0;
+  display: flex; flex-wrap: wrap; gap: var(--sp-3);
+}
+.kt-photos .kt-slot {
+  position: relative;
+  width: 58px; height: 58px; border-radius: 50%;
+  display: grid; place-items: center;
+  border: 1px dashed rgb(var(--acc-2-rgb) / .4);
+  background: rgb(var(--bg-surface-rgb) / .7);
+  font-family: var(--font-mono); font-size: 11px;
+  letter-spacing: var(--track-label); color: var(--ink-faint);
+}
+/* Der Name steht im Markup, damit Screenreader die Plaetze unterscheiden
+   koennen — sichtbar sind nur die Initialen. Eigene Regel, weil das
+   Design-System (noch) keine Hilfsklasse dafuer hat. */
+.kt-photos .kt-slot-name {
+  position: absolute; width: 1px; height: 1px;
+  overflow: hidden; clip-path: inset(50%); white-space: nowrap;
+}
+.kt-photos .kt-strip-note {
+  margin-top: var(--sp-3);
+  font-family: var(--font-mono); font-size: 10.5px;
+  letter-spacing: var(--track-micro); text-transform: uppercase;
+  color: var(--ink-faint);
+}
+.kt-photos .kt-consent {
+  margin-top: 0;
+  font-family: var(--font-text); font-size: 13.5px; color: var(--ink-dim);
+}
+.kt-photos .kt-join {
+  white-space: nowrap;
+  color: var(--acc-3-tint);
+  border-bottom: 1px solid rgb(var(--acc-3-rgb) / .45);
+}
+.kt-photos .kt-join:hover, .kt-photos .kt-join:focus-visible { border-bottom-color: var(--acc-3-tint); }
+
+
+/* ============================================================
+   8 · Schmale Schirme
+   ============================================================ */
+@media (max-width: 640px) {
+  .kt-crew .kt-dept-head { gap: 3px 9px; }
+  /* Der Plan bleibt — er ist das Motiv, nicht Zierrat —, aber er braucht
+     auf dem Telefon nicht die volle Spaltenbreite. */
+  .kt-plan .kt-map > svg { max-width: 240px; justify-self: start; }
 }
 
-/* Tages-Modus: keine eigene Regel nötig — jede Farbe hier läuft über
-   --acc-1/2/3, --chrome-*, --ink-*, die unter :root.day-mode bereits
-   umdefiniert sind (selbes Prinzip wie kollektiv.css/news.css). */
+/* Tages-Modus: keine eigene Regel noetig. Das galt frueher NICHT — die
+   fixierte Orbit-Ebene bekam im Tagmodus einen hellen Grund untergeschoben
+   und war dort ausserdem unsichtbar. Seit der Plan im Layout steht, laeuft
+   wirklich jede Farbe hier ueber --acc-1/2/3, --chrome-*, --ink-* und
+   --bg-*, die unter :root.day-mode bereits umdefiniert sind. Nachgesehen
+   im Tag-Screenshot, nicht angenommen. */
+
+/* ---------- Lesbarkeit ueber der hellen Szene (It. 14, nachgemessen) ----------
+   `verify-ui.mjs` fand vier Textstellen in der Schiene ohne Traegerflaeche:
+   die beiden Legendenzeilen, die Plan-Notiz und die Foto-Notiz. Ueber
+   Marsboden und Strandhorizont liegt hinter ihnen ein HELLER Grund, dort
+   faellt --ink-faint auf 2.7:1.
+   Die Schiene ist ein Nebenspalten-Panel — sie bekommt deshalb eine eigene,
+   ruhige Flaeche statt vier einzelner Textplatten. Das ist genau der Fall,
+   fuer den eine Flaeche richtig ist: ein abgegrenzter Baustein, kein
+   frei stehender Satz im Bild. */
+:root:not(.day-mode) .kt-plan {
+  background: rgb(var(--bg-void-rgb) / .55);
+  border-radius: var(--radius);
+  padding: var(--sp-4);
+}
+/* Die Foto-Notiz steht frei unter der Platzliste, nicht in einem Panel —
+   sie bekommt deshalb die enge Textplatte am Text selbst (das Primitiv aus
+   takeoff.css), keine Flaeche. */
+.kt-strip-note {
+  display: block;
+  width: fit-content;
+  padding: .14em .5em;
+  border-radius: .5em;
+}
+:root:not(.day-mode) .kt-strip-note { background: rgb(var(--bg-void-rgb) / .74); }

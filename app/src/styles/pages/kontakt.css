@@ -7,22 +7,81 @@
    sichtbare Halterung), kein Militär-/Überwachungsradar — DIY, warm,
    "von uns", passend zur Werkstatt-Historie des Kollektivs.
 
-   Läuft komplett über --acc-1 (Tokenkommentar in style.css: "Leitfarbe:
-   Signal" — für eine Funkkontakt-Seite kein Zufall), --acc-3 (kühler
-   Gegenpol: Nachthimmel/Metall) und die Chrome-Rampe. Keine neuen
-   Hex-Werte, damit Mars-/Strand-Theme die Szene automatisch mitfärben.
-   Lädt NACH style.css (hier: takeoff.css), nur additive `fs-`-Selektoren.
+   ---------------------------------------------------------------
+   WAS SICH IN IT. 14 GEÄNDERT HAT — und warum
 
-   Portierung 1:1 aus prototype/assets/css/pages/kontakt.css — Abschnitt 9
-   am Ende ist eine kleine Next.js-Ergänzung (Blip-Einflug der Radar-Punkte,
-   siehe KontaktFunkkanaele.tsx), sonst unverändert.
+   Das Motiv war charmant, aber die Seite darunter war eine linksbündige
+   Textspalte auf einem 1440er Schirm mit fünf gleich gebauten Sektionen.
+   Nachgemessen am Audit-Screenshot:
+
+   1  ZWEI Sektionen zeigten DIESELBEN sieben Einträge — erst als
+      Themen-Chips ("Wonach suchst du?"), dann als Kanalliste ("Wähl
+      deinen Kanal"). Beide sind jetzt EINE Sektion, die Konsole:
+      Chips und Liste links, Radar plus Stationsanzeige als klebende
+      Instrumentensäule rechts (.fs-konsole). Damit hat die rechte
+      Bildschirmhälfte endlich einen Gegenstand.
+
+   2  `.fs-roofline { background: var(--bg-void) }` — im Tagmodus löst
+      `--bg-void` nach HELL auf. Die Dach-SILHOUETTE nahm damit die Farbe
+      des Himmels an, und eine Silhouette in Himmelfarbe ist keine mehr.
+      Gelöst wie in scene-day.css bei der Wortmarke: im Tagmodus werden
+      auf `.fs-ground` die NACHT-Spiegeltoken (--nite-*) lokal
+      zurückgesetzt, die Regeln selbst bleiben unverändert und lösen von
+      allein wieder auf dunkle Werte auf (Abschnitt 1b).
+
+   3  `.phero h1 .glow` stand hier als GLOBALER Selektor. `.phero` und
+      `.glow` gibt es auf jeder Unterseite, und Seiten-CSS wird in Next
+      global gebündelt: nach einer Client-Navigation färbte diese Regel
+      fremde Hero-Überschriften um. Jetzt an `.fs-phero` gehängt.
+
+   4  Abschnitt 10 der alten Fassung definierte `.txplate` ein zweites Mal,
+      ungescopet, mit eigenem Polster, eigenem Radius und einem
+      HARTKODIERTEN Hexwert (`rgb(7 6 15 / .72)`). Seit It. 14 gehört
+      `.txplate` takeoff.css. Ersatzlos gestrichen.
+
+   5  Vier Sektionen trugen `style={{ paddingTop: "clamp(20px,3vh,34px)" }}`
+      als Inline-Style — eine vierte Abstandskonvention neben der Leiter.
+      Die Abstände kommen jetzt aus `--sp-*` (Abschnitt 0).
+
+   6  Die drei `.ditem`-Dekos standen mit `--right: 1vw` in der
+      Funkkanäle-Sektion. Genau dort steht jetzt die Instrumentensäule;
+      ab 1200px hätten sie hineingeragt. Sie sitzen jetzt im FAQ-Rand und
+      erst ab 1400px (Abschnitt 9).
+
+   BEWEGUNG: der eine orchestrierte Moment ist der SENDE-PULS auf Klick —
+   Dachantenne und Radarscheibe pingen gleichzeitig, die Statuszeile
+   springt auf "Signal unterwegs". Gestrichen wurden dafür die drei
+   Dauerschleifen, die nebenher liefen (Puls auf allen sieben Blips,
+   Zappeln der Signalbalken in jeder Kanalzeile, Einflug-Skalierung der
+   Scheibe beim Scrollen). Übrig bleiben der langsame Scan der Dish und
+   der Radar-Sweep — ein Radar, das nicht sweept, ist ein Kreis — sowie
+   die beiden 6px-Status-LEDs.
+
+   Farbe/Typo/Abstand ausschließlich über Tokens; keine neuen Hexwerte.
    ============================================================ */
+
+/* ============================================================
+   0 · Seitengerüst und Abstände (Ersatz für die Inline-Paddings)
+   ============================================================ */
+
+/* Der EINE Ausbruch aus der Textspalte: die Konsole ist ein Instrument
+   und darf breiter stehen als Fließtext. Hero, Vergleich und FAQ behalten
+   --maxw — ein Ausbruch liest sich als Absicht, drei Breiten als Zufall.
+   (Gleiche Begründung und gleiche Rechnung wie .ev-wrap in events.css.) */
+.fs-wrap { max-width: calc(var(--maxw) + 2 * var(--sp-8)); }
+
+/* Die erste Sektion sitzt direkt unter dem Hero, der bereits eigene
+   Fußpolsterung mitbringt — voller --sp-section stünde dort doppelt. */
+.fs-sec--konsole { padding-top: var(--sp-6); }
 
 /* ============================================================
    1 · Bodenstations-Szene (zusätzlich zum Sternenhimmel, nicht statt ihm)
    ============================================================ */
 .fs-ground {
-  position: fixed; inset: auto 0 0 0; z-index: -2;
+  position: fixed; inset: auto 0 0 0;
+  /* Eine Stufe über dem Sternfeld (--z-scene), eine unter den
+     Trägerflächen (--z-veil) — statt der früheren nackten -2. */
+  z-index: calc(var(--z-veil) - 1);
   height: clamp(210px, 30vh, 380px);
   pointer-events: none; isolation: isolate;
   transform: translateY(var(--fs-drift, 0px));
@@ -41,7 +100,7 @@
 }
 .fs-pole { fill: none; stroke: var(--chrome-mid); stroke-width: 2.2; vector-effect: non-scaling-stroke; }
 .fs-beacon, .fs-feed { fill: var(--acc-1); }
-.fs-beacon { animation: pulse 2.6s ease-in-out infinite; } /* @keyframes pulse aus style.css wiederverwendet */
+.fs-beacon { animation: pulse 2.6s ease-in-out infinite; } /* @keyframes pulse aus takeoff.css wiederverwendet */
 .fs-tag {
   position: absolute; left: 4%; bottom: 14px;
   font-family: var(--font-mono); font-size: 10px; letter-spacing: var(--track-label);
@@ -59,6 +118,37 @@
   backdrop-filter: blur(3px);
 }
 
+/* ---- 1b · Die Szene ist im Tagmodus trotzdem NACHT ----------------------
+   Eine Dach-Silhouette ist per Definition dunkel: sie ist das, was das
+   Licht wegnimmt. Alle Regeln oben arbeiten über Tokens, und Tokens lösen
+   im Tagmodus nach hell auf — die Silhouette wurde damit himmelfarben, der
+   Mast verschwand, und der HUD-Chip war ein heller Fleck auf hellem Grund.
+
+   Statt jede Regel zu verdoppeln, werden hier die Nacht-Spiegeltoken lokal
+   zurückgesetzt; die Regeln oben lösen dadurch von selbst wieder auf die
+   Nachtwerte auf. Exakt das Verfahren, mit dem scene-day.css die Wortmarke
+   und den Event-Titel behandelt. Die --nite-* sind pro Theme definiert, die
+   Szene bleibt also in Mars und Strand richtig eingefärbt.
+
+   Was das NICHT löst: im Tagmodus legt scene-day.css über jedes direkte
+   Kind von <main> eine fast deckende helle Platte, und .fs-ground liegt als
+   Szenenebene dahinter. Die Antenne bleibt dort ein sehr blasser Horizont.
+   Deshalb trägt das Motiv im Tagmodus die Konsole im Inhalt (Radar +
+   Stationsanzeige) — die steht IN der Platte und ist in beiden Modi da. */
+:root.day-mode .fs-ground {
+  --bg-void:       var(--nite-bg-void);
+  --bg-void-rgb:   var(--nite-void-rgb);
+  --bg-hairline:   var(--nite-bg-hairline);
+  --ink-faint:     var(--nite-ink-faint);
+  --chrome-hi:     var(--nite-chrome-hi);
+  --chrome-mid:    var(--nite-chrome-mid);
+  --chrome-lo:     var(--nite-chrome-lo);
+  --chrome-shadow: var(--nite-chrome-shadow);
+  --acc-1:         var(--nite-acc-1);
+  --acc-1-rgb:     var(--nite-acc-1-rgb);
+  --acc-3-rgb:     var(--nite-acc-3-rgb);
+}
+
 /* Dish-Bewegung: Scan statt Spin (Anti-Kitsch — echte Bodenstationsantennen
    tracken langsam/oszillierend, kein Diskolicht-Dauerspin). Die Ruhehaltung
    (leicht schräg, nicht mittig — wirkt "in Betrieb", nicht wie ein Reset)
@@ -73,20 +163,41 @@
 @keyframes fs-scan { 0%, 100% { transform: rotate(9deg); } 50% { transform: rotate(-7deg); } }
 
 /* ============================================================
-   2 · Sende-Puls — Ping-Ringe an der Dish
+   2 · Der EINE Bewegungsmoment: Sende-Puls
+
+   Ausgelöst nur durch einen Klick auf [data-fs-pulse] (Mail-/Telegram-
+   Knöpfe, Themen-Chips, Empfehlungs-CTA). KontaktBodenstation setzt
+   `.is-sending` auf die Dachantenne und schickt gleichzeitig ein
+   CustomEvent an die Konsole, die `.is-sending` auf die Instrumentensäule
+   setzt. Beide Enden des Motivs antworten damit auf dieselbe Handlung.
+
+   FX-gegatet: bei Tier "s" bleibt alles still (die Statuszeile springt
+   trotzdem um — Text ist Rückmeldung, keine Animation). Reduzierte
+   Bewegung fängt zusätzlich die globale Regel in takeoff.css ab.
    ============================================================ */
 .fs-ring-fx { fill: none; stroke: var(--acc-1); stroke-width: 1.6; opacity: 0; transform-origin: 108px 110px; }
-.fs-ground.is-sending .fs-ring-fx {
+:root[data-fx="m"] .fs-ground.is-sending .fs-ring-fx,
+:root[data-fx="l"] .fs-ground.is-sending .fs-ring-fx {
   animation: fs-ring-out 1.15s var(--ease-out) 1;
   animation-delay: calc(var(--i, 0) * .22s);
 }
 @keyframes fs-ring-out { from { opacity: .85; r: 4; } to { opacity: 0; r: 60; } }
 
+/* Zweites Ende: die Radarscheibe in der Konsole. Gleiche Kurve, gleiche
+   Staffelung, größerer Radius — der Ping läuft bis an den äußeren Ring. */
+.fs-radar-ping { fill: none; stroke: var(--acc-1); stroke-width: 1.8; opacity: 0; }
+:root[data-fx="m"] .fs-instr.is-sending .fs-radar-ping,
+:root[data-fx="l"] .fs-instr.is-sending .fs-radar-ping {
+  animation: fs-radar-ping-out 1.25s var(--ease-out) 1;
+  animation-delay: calc(var(--i, 0) * .26s);
+}
+@keyframes fs-radar-ping-out { from { opacity: .9; r: 8; } to { opacity: 0; r: 100; } }
+
 /* ============================================================
-   3 · Hero-Statuszeile
+   3 · Hero
    ============================================================ */
 .fs-status {
-  margin-top: 12px;
+  margin-top: var(--sp-3);
   display: inline-flex; align-items: center; gap: 8px;
   font-family: var(--font-mono); font-size: 12.5px; color: var(--ink-dim);
 }
@@ -96,18 +207,89 @@
   box-shadow: 0 0 7px rgb(var(--acc-1-rgb) / .8);
   animation: pulse 2.6s ease-in-out infinite;
 }
-/* .phero h1 traegt hier erstmals einen .glow-Span (style.css definiert den
-   3-Schicht-Glow bisher nur unter .h2) — gleiche Optik, hier fuer die
-   Hero-Ueberschrift ergaenzt (Duplikat ok, siehe DATA.md). */
-.phero h1 .glow {
+/* GESCOPET (vorher `.phero h1 .glow`, also global): takeoff.css definiert
+   den 3-Schicht-Glow nur unter `.h2`; für die Hero-Überschrift dieser Seite
+   wird er hier ergänzt — und nur für sie. */
+.fs-phero h1 .glow {
   color: var(--acc-1-tint);
   text-shadow: 0 0 6px rgb(var(--acc-1-rgb) / .5), 0 0 28px rgb(var(--acc-1-rgb) / .2);
 }
 
 /* ============================================================
-   4 · Anliegen-Wegweiser (Themen-Chips + Empfehlung)
+   4 · Die Konsole — das Raster der Seite
+
+   Fünf Bausteine aus drei Komponenten liegen in EINEM Raster. Möglich
+   macht das `display: contents` auf den beiden Komponenten-Wrappern:
+   .fs-router (Chips + Empfehlung) und .fs-funk (Instrumentensäule +
+   Kanalliste) verschwinden als Kasten, ihre Kinder werden direkte
+   Rasterelemente. Beide Wrapper tragen keine ARIA-Rolle — nur deshalb ist
+   das unbedenklich; .fs-topics (role="list") und die <dl>-Listen bleiben
+   eigene Kästen.
+
+   Benannte Bereiche statt Zeilennummern: die DOM-Reihenfolge (Chips,
+   Empfehlung, Zwischentitel, Säule, Liste, CTA) ist eine andere als die
+   Leserichtung des Rasters, und mit `grid-area` bleibt beides unabhängig
+   voneinander lesbar.
    ============================================================ */
-.fs-router { display: grid; gap: 22px; margin-top: 8px; }
+.fs-konsole { display: grid; gap: var(--sp-5); }
+.fs-router, .fs-funk { display: contents; }
+
+@media (min-width: 1000px) {
+  .fs-konsole {
+    grid-template-columns: minmax(0, 1fr) clamp(280px, 26vw, 340px);
+    grid-template-areas:
+      "topics   instr"
+      "reco     instr"
+      "chtitle  instr"
+      "channels instr"
+      "cta      instr";
+    column-gap: var(--sp-7);
+    row-gap: var(--sp-5);
+    align-items: start;
+  }
+  .fs-topics       { grid-area: topics; }
+  .fs-reco         { grid-area: reco; }
+  .fs-subhead      { grid-area: chtitle; }
+  .fs-channels     { grid-area: channels; }
+  .fs-konsole-cta  { grid-area: cta; }
+  .fs-instr {
+    grid-area: instr;
+    /* Ohne `align-self: start` füllt das Element seinen Rasterbereich über
+       alle fünf Zeilen aus — dann kann `sticky` nirgends hin. Mit
+       Inhaltshöhe am oberen Rand des Bereichs wandert es mit. */
+    align-self: start;
+    position: sticky;
+    top: calc(var(--topbar-h) + var(--sp-3));
+  }
+}
+/* Unter 1000px eine Spalte in Lesereihenfolge: erst wählen, dann die
+   Empfehlung lesen, dann die Station sehen, dann die Kanäle. */
+@media (max-width: 999px) {
+  .fs-konsole { grid-template-columns: minmax(0, 1fr); }
+  .fs-topics      { order: 1; }
+  .fs-reco        { order: 2; }
+  .fs-instr       { order: 3; }
+  .fs-subhead     { order: 4; }
+  .fs-channels    { order: 5; }
+  .fs-konsole-cta { order: 6; }
+}
+
+.fs-subhead {
+  margin: 0;
+  font-family: var(--font-mono); font-size: 11px; font-weight: var(--w-micro-b);
+  letter-spacing: var(--track-label); text-transform: uppercase;
+  color: var(--ink-faint);
+}
+.fs-konsole .fs-konsole-cta { margin-top: 0; }
+
+/* ============================================================
+   5 · Anliegen-Wegweiser (Themen-Chips + Empfehlung)
+   ============================================================ */
+/* Zwei Klassen, nicht eine: `.chips`, `.m-rows` und `.cta-row` setzen ihren
+   eigenen Aussenabstand mit (0,1,0). Im Raster kommt der Abstand aus `gap`,
+   sonst summieren sich beide — und ein Gleichstand haengt an der
+   Buendelreihenfolge der Seitenblaetter, also am Navigationsweg. */
+.fs-konsole .fs-topics { margin-top: 0; }
 .fs-topics .chip {
   display: inline-flex; align-items: center; justify-content: center;
   min-height: 44px; padding: 10px 18px;
@@ -120,28 +302,78 @@
   color: var(--bg-void); border-color: transparent;
   background: linear-gradient(165deg, var(--chrome-hi), var(--chrome-mid) 55%, var(--chrome-lo));
 }
-.fs-reco { transition: border-color .3s; }
+/* TAGMODUS. Die Chrome-Rampe laeuft tags von hell nach dunkel (scene-day.css:
+   "Chrome: DUNKLER, nicht heller"), und `--bg-void` ist tags HELL — der aktive
+   Chip haette also hellen Text auf hellem Spitzlicht gehabt, oben praktisch
+   unlesbar. Das war der einzige echte Kontrastfehler dieser Seite im hellen
+   Modus (das Blatt hatte bis It. 14 gar keine Tagregel). Tags kehrt sich die
+   Rampe um: dunkles Metall, helle Schrift — dieselbe Rolle ("gedrueckte
+   Taste"), nur von der anderen Seite beleuchtet. */
+:root.day-mode .fs-topics .chip.is-active {
+  color: var(--nite-ink);
+  background: linear-gradient(165deg, var(--chrome-lo), var(--chrome-shadow));
+}
+
+/* Die Empfehlung war eine 1120px breite, gestrichelte, mittig gesetzte
+   Box mit zwei Zeilen Text darin — der "leere Kasten", den das Audit auf
+   mehreren Seiten gefunden hat. Jetzt ein Ableseband: linksbündig, an den
+   Text gebunden, mit einer Signalkante links, die anzeigt, dass es zur
+   Chip-Reihe darüber gehört. */
+.fs-reco.transmission {
+  text-align: left;
+  padding: var(--sp-4) var(--sp-5);
+  border-style: solid;
+  border-color: var(--bg-hairline);
+  border-left: 2px solid rgb(var(--acc-1-rgb) / .55);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  transition: border-color .3s;
+}
+.fs-reco.transmission p { max-width: none; margin-inline: 0; }
+.fs-reco .tx-label { justify-content: flex-start; }
+/* `.transmission .tx-label::before` blinkt aus takeoff.css dauerhaft. Auf
+   dieser Seite gibt es bereits zwei Status-LEDs (Hero und Stationsanzeige),
+   die etwas AUSSAGEN — eine dritte an einer Beschriftung ist Zierrat und
+   laeuft gegen die "ein Bewegungsmoment"-Regel. */
+.fs-reco .tx-label::before { animation: none; }
+.fs-reco .fs-reco-hint { margin: 0; color: var(--ink-faint); font-size: 14.5px; }
 .fs-reco .fs-reco-line { margin: 0; font-family: var(--font-mono); font-size: 13.5px; color: var(--ink-dim); }
 .fs-reco .fs-reco-line b { color: var(--acc-1-tint); font-weight: var(--w-strong); }
-.fs-reco .fs-reco-text { margin: 10px 0 0; color: var(--ink-dim); }
-.fs-reco .cta-row { justify-content: center; margin-top: 18px; }
+.fs-reco .fs-reco-text { margin: var(--sp-2) 0 0; color: var(--ink-dim); }
+.fs-reco .cta-row { justify-content: flex-start; margin-top: var(--sp-4); }
 .fs-reco .fs-ch-tag { margin-right: 4px; }
 
 /* ============================================================
-   5 · Funkkanäle — Radar + Liste (zwei Ansichten derselben Daten)
-   ============================================================ */
-.fs-funk { display: grid; gap: 28px; margin-top: 4px; }
-@media (min-width: 860px) {
-  .fs-funk { grid-template-columns: .9fr 1.1fr; align-items: center; gap: 40px; }
-}
-@media (max-width: 859px) { .fs-radar { max-width: 190px; margin-bottom: 4px; } }
+   6 · Instrumentensäule — Radarscheibe + Stationsanzeige
 
-.fs-radar { position: relative; width: min(100%, 300px); aspect-ratio: 1; margin-inline: auto; }
+   Das Stück, das die rechte Bildschirmhälfte füllt. Bezel-Sprache wie die
+   Abflugtafel auf /events: Haarlinie, flacher Verlauf, Schatten aus der
+   Leiter. Bewusst KEIN zweites Signaturmotiv — dieselbe Bodenstation, nur
+   das Ende, das man ablesen kann.
+   ============================================================ */
+.fs-instr {
+  border: 1px solid var(--bg-hairline);
+  border-radius: var(--radius-lg);
+  background: linear-gradient(175deg, var(--bg-raised), var(--bg-base));
+  box-shadow: var(--shadow-2);
+  padding: var(--sp-4);
+}
+.fs-instr-title {
+  margin: 0 0 var(--sp-3);
+  font-family: var(--font-mono); font-size: 10px; font-weight: var(--w-micro-b);
+  letter-spacing: var(--track-label); text-transform: uppercase;
+  color: var(--ink-faint);
+  display: flex; align-items: center; gap: 10px;
+}
+.fs-instr-title::after {
+  content: ""; flex: 1; height: 1px; background: var(--bg-hairline);
+}
+
+.fs-radar { position: relative; width: min(100%, 260px); aspect-ratio: 1; margin-inline: auto; }
 /* Ohne explizite Groesse faellt eine <svg> mit viewBox auf ihre
    Default-Intrinsicgroesse zurueck (haeufige CSS/SVG-Falle) — .fs-radar
-   selbst ist per aspect-ratio bereits korrekt groess, die Face-SVG muss sie
+   selbst ist per aspect-ratio bereits korrekt gross, die Face-SVG muss sie
    nur noch ausfuellen. */
-.fs-radar-face { display: block; width: 100%; height: 100%; }
+.fs-radar-face { display: block; width: 100%; height: 100%; overflow: visible; }
 .fs-ring { fill: none; stroke: rgb(var(--acc-3-rgb) / .22); }
 .fs-cross { stroke: rgb(var(--acc-3-rgb) / .14); }
 
@@ -171,149 +403,194 @@
 .fs-blips { position: absolute; inset: 0; pointer-events: none; }
 .fs-blip {
   position: absolute; top: 50%; left: 50%; width: 8px; height: 8px; margin: -4px;
-  border-radius: 50%; background: var(--acc-1);
-  box-shadow: 0 0 8px rgb(var(--acc-1-rgb) / .8);
+  border-radius: 50%; background: rgb(var(--acc-1-rgb) / .55);
   transform: rotate(var(--ang, 0deg)) translate(46%) rotate(calc(-1 * var(--ang, 0deg)));
-  transition: transform .3s var(--ease-out), box-shadow .3s;
+  transition: background .3s, box-shadow .3s;
 }
-:root[data-fx="m"] .fs-blip, :root[data-fx="l"] .fs-blip {
-  animation: pulse 2.4s ease-in-out infinite; animation-delay: var(--dl, 0s);
+/* Vorher pulsierten alle sieben Blips dauerhaft. Ein Blip, der immer
+   blinkt, sagt nichts — jetzt leuchtet genau der, dessen Kanalzeile
+   gerade angefasst oder dessen Thema gewählt ist. */
+.fs-blip.is-active {
+  background: var(--acc-1);
+  box-shadow: 0 0 0 5px rgb(var(--acc-1-rgb) / .22), 0 0 14px rgb(var(--acc-1-rgb) / .9);
 }
-.fs-blip.is-active { box-shadow: 0 0 0 5px rgb(var(--acc-1-rgb) / .22), 0 0 14px rgb(var(--acc-1-rgb) / .9); }
 
-/* Kanalzeilen — Erweiterung von .m-row ("Duplikat ist ok, Konflikt nicht") */
+/* Stationsanzeige — Label-Wert-Liste, also .m-rows/.m-row (Vertrag). */
+.fs-instr .fs-readout { margin-top: var(--sp-4); font-size: 13px; }
+.fs-readout .m-row { padding: 7px 0; font-size: 13px; }
+.fs-readout .m-row:last-child { border-bottom: 0; }
+.fs-readout dd { color: var(--ink); }
+/* Ziffern mit fester Breite: sonst wandert die Zeile bei jedem
+   Minutenwechsel. Gilt für Uhr und Koordinaten. */
+.fs-num, .fs-clock { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+.fs-instr-status { display: flex; align-items: center; gap: 8px; }
+.fs-instr.is-sending .fs-instr-status { color: var(--acc-1-tint); }
 
-/* Die gemeinsame Textkante regelt jetzt `.m-rows` zentral in takeoff.css
-   (Subgrid). Die frueher hier stehende Sonderloesung ist damit entfallen. */
+/* Die Nacht-Trägerfläche aus scene-night.css setzt hinter JEDE .m-row eine
+   weiche dunkle Ellipse. In der Säule liegt bereits ein deckender Grund —
+   dort wären es sieben übereinanderliegende Flecken auf einer Karte, genau
+   das, was die Ausnahmeliste in scene-night.css für .mcard & Co. verhindert.
+   Spezifität: :root + :not() + drei Klassen = (0,5,0), eine Stufe über der
+   (0,4,0) der dortigen :is()-Liste. */
+:root:not(.day-mode) .fs-instr .m-rows .m-row::before { content: none; }
 
+/* ============================================================
+   7 · Kanalzeilen (Erweiterung von .m-row)
+   ============================================================ */
+.fs-konsole .fs-channels { margin-top: 0; }
+.fs-ch-row { transition: background .25s; }
+.fs-ch-row.is-active { background: rgb(var(--acc-1-rgb) / .05); }
 .fs-ch-tag {
   font-family: var(--font-mono); font-size: 10px; font-weight: var(--w-head); letter-spacing: var(--track-label);
   color: var(--acc-1-tint); border: 1px solid rgb(var(--acc-1-rgb) / .4); background: rgb(var(--acc-1-rgb) / .08);
   border-radius: 5px; padding: 2px 6px; margin-right: 8px;
 }
+.fs-ch-direct { color: var(--ink); }
 .fs-ch-link {
   color: var(--acc-3-tint); font-size: 13px; white-space: nowrap;
   border-bottom: 1px solid transparent; transition: border-color .25s;
 }
 .fs-ch-link:hover, .fs-ch-link:focus-visible { border-color: rgb(var(--acc-3-rgb) / .6); }
+
+/* Signalbalken: Ruhezustand gedämpft, volle Höhe nur bei Hover/Focus der
+   Zeile. Das frühere Dauer-Zappeln (fs-sig-idle, 2.6s infinite auf vier
+   Balken mal sechs Zeilen) ist ersatzlos gestrichen — es war Bewegung ohne
+   Aussage und lief gegen die "ein Bewegungsmoment"-Regel. */
 .fs-sig { display: inline-flex; gap: 2px; margin-left: 10px; vertical-align: middle; }
-.fs-sig i { display: block; width: 3px; border-radius: 1px; background: rgb(var(--acc-3-rgb) / .45); }
+.fs-sig i {
+  display: block; width: 3px; border-radius: 1px;
+  background: rgb(var(--acc-3-rgb) / .3);
+  transform-origin: bottom;
+  transition: background .25s var(--ease-out), transform .25s var(--ease-out);
+  transform: scaleY(.55);
+}
 .fs-sig i:nth-child(1) { height: 6px; }
 .fs-sig i:nth-child(2) { height: 9px; }
 .fs-sig i:nth-child(3) { height: 12px; }
 .fs-sig i:nth-child(4) { height: 15px; }
-:root[data-fx="m"] .fs-sig i, :root[data-fx="l"] .fs-sig i {
-  animation: fs-sig-idle 2.6s ease-in-out infinite; animation-delay: calc(var(--n, 0) * .12s);
+.fs-ch-row:hover .fs-sig i, .fs-ch-row:focus-within .fs-sig i,
+.fs-ch-row.is-active .fs-sig i {
+  background: var(--acc-3); transform: scaleY(1);
 }
-@keyframes fs-sig-idle { 50% { transform: scaleY(.6); } }
-.fs-ch-row:hover .fs-sig i, .fs-ch-row:focus-within .fs-sig i { background: var(--acc-3); }
-/* CH-04 (Awareness): bewusst KEIN Signal-Wackeln — ein ernstes Anliegen
+/* CH-04 (Awareness): bewusst KEIN Signal-Spielzeug — ein ernstes Anliegen
    soll nicht wie ein Mini-Spiel aussehen (siehe Anti-Kitsch-Liste). */
 .fs-ch-calm .fs-sig { display: none; }
 
 /* ============================================================
-   6 · Kanal-Vergleich
+   8 · Kanal-Vergleich (drei Kanäle + Kontaktkarte als vierte Kachel)
    ============================================================ */
 .fs-compare {
-  display: grid; gap: 14px; margin-top: 26px;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  display: grid; gap: var(--sp-card); margin-top: 0;
+  /* `min(100%, …)` statt einer nackten Mindestbreite: `auto-fit` legt sonst
+     unter 240px+Rand eine Spur an, die breiter ist als der Behaelter, und
+     erzeugt waagerechten Ueberlauf auf dem Telefon. */
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
+  align-items: stretch;
 }
 .fs-compare-item {
-  display: grid; gap: 6px;
+  display: grid; gap: 6px; align-content: start;
   border-radius: var(--radius);
   background: rgb(var(--acc-3-rgb) / .06);
   border: 1px solid rgb(var(--acc-3-rgb) / .2);
-  padding: 18px;
+  padding: var(--sp-4);
 }
 .fs-compare-item b { font-family: var(--font-display); font-weight: var(--w-head); font-size: 15.5px; }
 .fs-compare-item span { font-family: var(--font-mono); font-size: 13px; color: var(--ink-dim); }
 .fs-compare-item small { color: var(--ink-faint); font-size: 12px; line-height: 1.5; }
-
-.fs-vcard { margin-top: 24px; }
-.fs-vcard .lu-note { margin-top: 10px; }
-#fs-copy-btn svg, #fs-vcard-btn svg { width: 15px; height: 15px; flex: none; }
+/* Die Kontaktkarten-Kachel: gleicher Kasten, andere Betonung — sie ist die
+   Handlung in der Reihe, nicht noch eine Auskunft. */
+.fs-compare-vcard {
+  background: rgb(var(--acc-1-rgb) / .06);
+  border-color: rgb(var(--acc-1-rgb) / .22);
+}
+/* Der vCard-Knopf traegt die laengste Beschriftung der Seite. In einer
+   240px-Kachel passt sie nicht in eine Zeile — also darf sie umbrechen
+   statt die Kachel aufzublasen (das haette waagerechten Ueberlauf
+   erzeugt). Kleinere Stufe als der Standardknopf, weil er hier in einer
+   Kachel sitzt und nicht in einer CTA-Reihe. */
+.fs-compare-vcard .btn {
+  justify-self: start; margin-top: 2px; max-width: 100%;
+  padding: 10px 16px; font-size: 12px; letter-spacing: var(--track-label);
+  white-space: normal; text-align: left; line-height: 1.4;
+}
+.fs-compare-vcard .lu-note { margin-top: 2px; font-size: 12px; }
+/* `.lu-note` steht in der Nacht-Traegerflaechenliste von scene-night.css.
+   In der eingefaerbten Kachel liegt bereits Grund unter dem Text — dieselbe
+   Begruendung wie bei den Zeilen der Stationsanzeige oben, gleiche
+   Spezifitaetsrechnung (0,5,0 gegen 0,4,0). */
+:root:not(.day-mode) .fs-compare .fs-compare-vcard .lu-note::before { content: none; }
+.fs-btn-ico svg { width: 15px; height: 15px; flex: none; }
 
 /* ============================================================
-   7 · FAQ (details.faq aus style.css, nur Abstand ergänzt)
+   9 · FAQ — Kopf links, Fragen rechts
+
+   Die FAQ stand als 760px-Spalte auf 1440px, mit Kopf darüber und nichts
+   daneben. Der Kopf wandert in die linke Spalte: derselbe Inhalt, aber die
+   Fläche rechts ist beschäftigt, und die Fragen behalten eine lesbare
+   Zeilenlänge statt sich über die volle Breite zu ziehen.
    ============================================================ */
-.fs-faqlist { margin-top: 24px; }
+.fs-faq { display: grid; gap: var(--sp-5); }
+@media (min-width: 900px) {
+  .fs-faq {
+    grid-template-columns: minmax(0, 20rem) minmax(0, 1fr);
+    column-gap: var(--sp-7);
+    align-items: start;
+  }
+  .fs-faq > .section-head { margin-bottom: 0; }
+}
+/* `details.faq` bringt aus takeoff.css `margin-bottom: 10px` mit — hier
+   also KEIN zweiter Zeilenabstand, sonst steht er doppelt. */
+.fs-faqlist { margin-top: 0; }
+
+/* Theme-Deko im Rand. Der Schalter sitzt am Halter, nicht am .ditem selbst:
+   `.ditem` bringt seine eigene `@media (min-width:1200px)`-Sichtbarkeit je
+   Theme mit, und die soll unangetastet bleiben (ein Override dagegen müsste
+   deren Spezifität schlagen und wäre bei der nächsten Änderung dort still
+   falsch). Ab 1400px lässt die FAQ-Spalte rechts ~100px frei — vorher nicht,
+   deshalb bleibt der Halter darunter aus. */
+.fs-deco { display: none; }
+@media (min-width: 1400px) {
+  .fs-deco {
+    display: block;
+    position: absolute; inset: 0;
+    pointer-events: none;
+    z-index: var(--z-deco);
+  }
+  .fs-deco .ditem { --top: 26%; --left: auto; --right: 1.5vw; }
+}
 
 /* ============================================================
-   8 · Mobile-Sicherheit
+   10 · Schmale Schirme
    ============================================================ */
+@media (max-width: 999px) {
+  .fs-radar { width: min(100%, 200px); }
+}
 @media (max-width: 480px) {
   .fs-tag { display: none; } /* zu schmal fuer HUD-Label + Antenne nebeneinander */
   .fs-compare-item { text-align: left; }
+  .fs-reco.transmission { padding: var(--sp-4); }
 }
 
 /* ============================================================
-   9 · React-Portierung: Blip-Einflug (KontaktFunkkanaele.tsx)
+   11 · Blip-Einflug (KontaktFunkkanaele.tsx)
 
-   Ergänzung ggü. dem Prototyp: dort übernahm GSAP (gsap.from(...) in
-   buildMotionFX()) den einmaligen Einflug der Radar-Punkte beim ersten
-   Sichtbarwerden. Diese App bindet kein GSAP ein (keine neuen
-   Dependencies) — hier läuft dieselbe Choreografie als CSS-Transition,
-   exakt wie schon bei .bp-rig .bp-p in kollektiv.css (Grundzustand
-   SICHTBAR, damit ohne JS/bei Tier s nichts verschwindet — gleiches
-   "Fallback zuerst"-Prinzip wie .reveal in takeoff.css). Rührt nur
-   opacity an, NICHT transform — .fs-blip braucht sein transform bereits
-   vollständig für die Positionierung auf dem Kreis (siehe oben).
+   Ergänzung ggü. dem Prototyp: dort übernahm GSAP den einmaligen Einflug
+   der Radar-Punkte beim ersten Sichtbarwerden. Diese App bindet kein GSAP
+   ein — hier läuft dieselbe Choreografie als CSS-Transition, mit
+   Grundzustand SICHTBAR, damit ohne JS und bei Tier s nichts verschwindet
+   (gleiches "Fallback zuerst"-Prinzip wie .reveal in takeoff.css). Rührt
+   nur opacity an, NICHT transform — .fs-blip braucht sein transform
+   vollständig für die Positionierung auf dem Kreis.
+
+   Die frühere Scroll-Skalierung der ganzen Scheibe (animation-timeline:
+   view(), Abschnitt 11 der alten Fassung) ist gestrichen: die Scheibe
+   klebt jetzt am oberen Rand und wäre beim Scrollen dauernd am Wachsen und
+   Schrumpfen. Ein Bewegungsmoment, nicht zwei.
    ============================================================ */
 :root.js[data-fx="m"] .fs-blip, :root.js[data-fx="l"] .fs-blip {
   opacity: 0;
-  transition: opacity .5s var(--ease-out) var(--fs-blip-delay, 0s), transform .3s var(--ease-out), box-shadow .3s;
+  transition: opacity .5s var(--ease-out) var(--fs-blip-delay, 0s), background .3s, box-shadow .3s;
 }
 :root.js[data-fx="m"] .fs-blip.fs-blip-in, :root.js[data-fx="l"] .fs-blip.fs-blip-in {
   opacity: 1;
-}
-
-/* ============================================================
-   10 · Enge Inline-Trägerfläche ("Design-Politur"-Batch)
-
-   .fs-status (Hero-Statuszeile: Punkt · Empfangsbereit-Text · Uhrzeit) sitzt
-   direkt in .phero — die einzige Stelle auf dieser Seite, die weder von der
-   zentralen scene-night.css-Liste (.section-head/.section-intro/…) noch von
-   einem eigenen Chip wie .fs-tag gedeckt ist. Über Mars/Strand + Nacht kann
-   dort dieselbe zu helle Bodenfläche stehen, die scene-night.css fuer
-   .section-intro nachgemessen hat (Luminanz .05–.06, Kleinschrift faellt auf
-   ~2.7:1). Statt einer Box quer durchs Hero: eine Flaeche NUR hinter dem
-   Textlauf selbst, inline, laeuft mit Zeilenumbruch mit (box-decoration-break)
-   — exakt das Muster, das der Auftrag fuer "enge Traegerflaechen" verlangt.
-   Nur nachts aktiv: tags deckt bereits die Sektions-Platte aus
-   scene-day.css (`main > *:not(.hero):not(.ehero)`), dort waere ein
-   zusaetzlicher dunkler Chip nur ein Fremdkoerper auf hellem Grund. */
-.txplate {
-  display: inline;
-  padding: .1em .35em;
-  border-radius: .3em;
-  -webkit-box-decoration-break: clone;
-  box-decoration-break: clone;
-}
-:root:not(.day-mode) .txplate {
-  background: rgb(7 6 15 / .72);
-}
-
-/* ============================================================
-   11 · Radar-Einflug beim Scrollen (Veredelung — animation-timeline: view())
-
-   Zweite Ergaenzung neben dem Section-Head-.reveal (siehe page.tsx): der
-   Dial "faehrt hoch", waehrend er ins Bild scrollt — reine Scroll-Kopplung
-   ohne IntersectionObserver, der Browser treibt selbst an (kein rAF, keine
-   JS-Kosten). Gleiches Prinzip wie der ditem-Parallax in SceneReveals.tsx,
-   dort ebenfalls bewusst nur Tier "l" (volle Show). Grundzustand ist voll
-   sichtbar/skaliert — "Fallback zuerst": ohne @supports oder unter Tier m/s
-   bleibt der Dial einfach so stehen, wie er heute schon steht, nichts
-   verschwindet. Ruehrt nur opacity/transform an, genau wie die anderen
-   FX-gegateten Effekte dieser Datei. */
-@supports (animation-timeline: view()) {
-  :root[data-fx="l"] .fs-radar {
-    animation-name: fs-radar-in;
-    animation-timeline: view();
-    animation-range: entry 0% entry 60%;
-    animation-fill-mode: both;
-  }
-}
-@keyframes fs-radar-in {
-  from { opacity: .35; transform: scale(.86); }
-  to   { opacity: 1; transform: scale(1); }
 }

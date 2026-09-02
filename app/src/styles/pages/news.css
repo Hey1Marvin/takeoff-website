@@ -1,301 +1,628 @@
 /* ============================================================
-   news.css — Signaturmotiv "Bodenstation"
-   Seiten-CSS für news.html. Lädt NACH style.css, nutzt ausschließlich
-   bestehende Tokens (--acc-1 "Signal", --chrome-*, --font-mono,
-   --bg-hairline, --ease-out). Keine neue Palette, kein neuer Font.
+   news.css — Signatur-Motiv "Funkspruch-Terminal"
 
-   Kernidee: Die Marsmission HAT einen Boden (man steht drauf) — News
-   EMPFÄNGT nur (man steht davor). Die Antwort auf "Mars-Boden" ist
-   deshalb keine zweite Landschaft, sondern die Gegenstelle: eine
-   Bodenstation, die aus dem Orbit lauscht. Darunter wird die Karten-
-   Liste zur Konsole (Scanline + Signalbalken statt Deko).
+   DAS GESTALTERISCHE PROBLEM (It. 14, an den Screenshots nachgesehen)
+   Die Seite war eine linksbuendige Textspalte von 780px auf einem
+   1440px-Schirm; rechts standen 45 % schwarze Flaeche. Das Motiv selbst
+   war eine vollflaechige, fixierte, radial maskierte Ebene bei 17 %
+   Deckkraft — derselbe Trick wie auf fuenf anderen Seiten, und im
+   Tagmodus schlicht unsichtbar (helle Chrome-Rampe auf hellem Grund;
+   `_news__tag__1440.png` zeigt an der Stelle nichts). Die Scanline lag
+   bei 3 % ueber ganzen Sektionen und war ebenfalls nirgends zu sehen.
+   Ein Blatt ohne eine einzige `day-mode`-Regel.
 
-   Datei-Regeln (DATA.md): nur additive, seitengescopte Selektoren
-   unter dem Praefix `rx-` (Receive — Gegenstueck zu `.transmission`/
-   `tx-`). Geprueft: kollisionsfrei mit style.css/events.css/
-   kollektiv.css/main.js.
+   DIE ANTWORT
+   Ein Funkspruch-Terminal ist eine KONSOLE, keine Textspalte. Links steht
+   das Geraet (Empfangsschuessel auf einem kleinen Schirm, Messwerte,
+   Kanalwahl; klebt beim Scrollen), rechts laeuft der Papierstreifen
+   (Eingehend, dann Archiv). Damit traegt die Seite ueber ihre volle
+   Breite, der Kanalfilter bleibt als Werkzeug erreichbar, und das Motiv
+   ist ein begrenztes Objekt statt eines weiteren Schleiers.
+
+   DER EINE BEWEGUNGSMOMENT
+   Der neueste Funkspruch tippt sich einmal ein. Waehrenddessen laufen die
+   Wellenfronten der Schuessel und der Live-Punkt; am Ende rasten sie kurz
+   ein und stehen danach still. Kein Dauerloop auf dieser Seite — der alte
+   Sweep (14s-Endlosrotation) und die drei Dauer-Pulsringe sind weg.
+   Bei `data-fx="s"` und `prefers-reduced-motion` startet der Typewriter
+   gar nicht (NewsCard), das Deck bekommt keine Klasse, und alles steht
+   von der ersten Sekunde an als fertiges Standbild.
+
+   SCOPING
+   Seiten-CSS wird global gebuendelt: nach einer Client-Navigation liegen
+   ALLE Seitenblaetter gleichzeitig im Dokument. Deshalb haengt hier jeder
+   Selektor an `.rx-sec` (die Klasse jeder Top-Level-Sektion dieser Seite).
+   ENTFERNT wurde dabei:
+     · `#stars { filter: brightness(.94) }` — ungescopet und ausserhalb von
+       <main>, also nach einer Client-Navigation auf JEDER anderen Seite
+       weiter aktiv. Scopen ging nicht (das Sternfeld ist ein Geschwister
+       von <main>), und 6 % Helligkeit sind den Preis nicht wert.
+     · `.ncard { transition: … }` / `.ncard:hover { transform: … }` —
+       ebenfalls ungescopet. Das `transform` war ausserdem ein echter
+       Fehler: es macht die Karte zum Containing Block fuer
+       `position: fixed`, und genau darin steckt der `.toast` nach
+       "Link kopiert". Hover-Rueckmeldung kommt jetzt ueber den Schatten.
    ============================================================ */
 
 /* ============================================================
-   1 · Bodenstation — Empfangsschuessel (Signaturmotiv, Ambient)
-   Fixed, hinter dem Inhalt, hoch im Bildfeld (nicht mittig). Chrome
-   statt Akzentfarbe, damit sie als Hardware liest, nicht als
-   Leuchtreklame — Sweep/Ringe tragen dagegen --acc-1 ("Signal",
-   style.css Zeile 74 kommentiert genau so).
+   1 · Rhythmus der Sektionen
+   Abstaende ausschliesslich aus den --sp-Rollen. Die Konsole schliesst
+   ohne Bodenpolster ab, damit zwischen ihr und dem Empfangsschalter
+   genau EINE Sektionsluft steht (die des Empfangsschalters) — und damit
+   im Tagmodus kein Loch zwischen zwei hellen Spalten entsteht
+   (scene-day.css malt je direktem <main>-Kind eine eigene Platte;
+   ein Aussenabstand waere dort ein schwarzer Streifen).
    ============================================================ */
-.rx-array {
-  position: fixed; top: 0; right: 0; z-index: -2;
-  width: min(52vw, 640px); height: min(56vh, 480px);
-  opacity: .17;
-  mask-image: radial-gradient(closest-side at 70% 32%, #000 0%, #000 45%, transparent 88%);
-  -webkit-mask-image: radial-gradient(closest-side at 70% 32%, #000 0%, #000 45%, transparent 88%);
-  pointer-events: none;
-}
-@media (max-width: 640px) {
-  .rx-array { width: 72vw; height: 40vh; opacity: .11; top: -3vh; right: -10vw; }
-}
-/* Dezentes Toenen von #stars ist laut DATA.md (02.09.) erlaubt — Ausblenden nicht.
-   Der Sternenhimmel bleibt IMMER sichtbar, nur leicht gedaempft, damit die
-   Schuessel-Silhouette mehr traegt. */
-#stars { filter: brightness(.94); }
-
-/* Sweep-Strahl — Tier L: rotiert dauerhaft. Tier M: oszilliert sanft.
-   Tier S: unsichtbar (kein display:block), die Schuessel steht dort als
-   fertig komponiertes Standbild — s = statisch schoen, kein leerer Fleck. */
-.rx-sweep line { stroke: rgb(var(--acc-1-rgb) / .35); stroke-width: 1.5; stroke-linecap: round; }
-.rx-sweep { display: none; transform-origin: 0 0; }
-:root[data-fx="l"] .rx-sweep { display: block; animation: rx-sweep-rot 14s linear infinite; }
-:root[data-fx="m"] .rx-sweep { display: block; animation: rx-sweep-scan 10s ease-in-out infinite; }
-@keyframes rx-sweep-rot  { to { transform: rotate(360deg); } }
-@keyframes rx-sweep-scan { 0%, 100% { transform: rotate(-38deg); } 50% { transform: rotate(38deg); } }
-
-/* Signal-Ringe — drei gestaffelte Ringe (Tier L, Dauerloop), ein vierter
-   "Burst"-Ring feuert einmalig (Typewriter-Ende, JS setzt .rx-pulse). */
-.rx-ring { fill: none; stroke: rgb(var(--acc-1-rgb) / .45); stroke-width: 1.5; opacity: 0; }
-.rx-ring--burst { opacity: 0; }
-:root[data-fx="l"] .rx-ring:not(.rx-ring--burst) {
-  animation: rx-ring-pulse 4.8s ease-out infinite;
-  animation-delay: var(--rx-delay, 0s);
-}
-/* Tier M: kein Dauerloop — nur der einmalige "Power-On"-Puls beim ersten
-   Sichtbarwerden (JS setzt kurzzeitig .rx-array.rx-poweron) plus der
-   Typing-Burst, den beide Tiers (M/L) bekommen. */
-.rx-array.rx-poweron .rx-ring:not(.rx-ring--burst) { animation: rx-ring-pulse 1.6s ease-out 2; }
-.rx-array.rx-pulse .rx-ring--burst { animation: rx-ring-pulse .9s ease-out 1; opacity: 1; }
-@keyframes rx-ring-pulse { 0% { transform: scale(.6); opacity: .55; } 80%, 100% { transform: scale(1.55); opacity: 0; } }
+.rx-hero { padding-bottom: var(--sp-4); }
+.rx-station { padding-block: var(--sp-6) 0; }
+.rx-reception { padding-block: var(--sp-section); }
 
 /* ============================================================
-   2 · Konsole — Scanline-Layer ueber den Karten-Sections
-   Exakt die in events.css etablierte Technik (2,5 % Deckkraft, kein
-   Phosphor-Gruen, kein Glitch) — hier vom Rand-Detail zum tragenden
-   Motiv ausgebaut, weil die ganze Seite ein Empfangsgeraet ist.
+   2 · Das Deck — die Komposition
+   Unter 1040px eine Spalte (Geraet ueber Streifen), darueber zwei.
+   Die Schiene klebt nur, wenn das Fenster hoch genug ist, dass sie
+   vollstaendig hineinpasst — sonst waeren die unteren Kanalknoepfe
+   dauerhaft abgeschnitten.
    ============================================================ */
-.rx-console { position: relative; isolation: isolate; }
-.rx-console::before {
+.rx-sec .rx-deck { display: grid; gap: var(--sp-6); }
+
+@media (min-width: 1040px) {
+  .rx-sec .rx-deck {
+    grid-template-columns: clamp(250px, 24vw, 310px) minmax(0, 1fr);
+    gap: var(--sp-7);
+    align-items: start;   /* Pflicht fuer sticky: `stretch` zieht die
+                             Schiene auf volle Deckhoehe, dann klebt nichts */
+  }
+}
+@media (min-width: 1040px) {
+  /* Die Schiene klebt und ist dabei auf die Fensterhoehe BEGRENZT. Ohne die
+     Deckelung waere sie auf niedrigen Fenstern (1366x768 ergibt rund 640px
+     Sichthoehe) unten dauerhaft abgeschnitten — genau die untersten
+     Kanalknoepfe waeren dann nie erreichbar. So bekommt sie im Ausnahmefall
+     eine eigene Bildlaufleiste und bleibt vollstaendig bedienbar.
+     Das Polster/Negativ-Polster-Paar ist noetig, damit `overflow` den
+     weichen Schatten der Karte nicht an der Kante abschneidet. */
+  .rx-sec .rx-rail {
+    position: sticky;
+    top: calc(var(--topbar-h) + var(--sp-3));
+    max-height: calc(100dvh - var(--topbar-h) - var(--sp-5));
+    overflow: auto;
+    overscroll-behavior: contain;
+    margin: -6px; padding: 6px;
+  }
+}
+
+/* ============================================================
+   3 · Die Schiene — das Geraet
+   ============================================================ */
+.rx-sec .rx-rail-inner {
+  display: grid;
+  gap: var(--sp-4);
+  padding: var(--sp-4);
+  border: 1px solid var(--bg-hairline);
+  border-radius: var(--radius-lg);
+  background: linear-gradient(168deg,
+      rgb(var(--bg-raised-rgb) / .62),
+      rgb(var(--bg-base-rgb) / .30));
+  box-shadow: var(--shadow-1);
+}
+.rx-sec .rx-rail-eyebrow {
+  margin: 0;
+  font-family: var(--font-mono); font-size: 10px; font-weight: var(--w-micro-b);
+  letter-spacing: var(--track-micro); text-transform: uppercase;
+  color: var(--acc-3);
+}
+
+/* ---- Der Schirm ----
+   Bleibt in BEIDEN Modi dunkel (Tag-Leitplanke 2: "dunkle Bloecke bleiben
+   dunkel"). Nur so traegt die Chrome-Rampe der Schuessel tags wie nachts,
+   und nur so ist eine CRT-Scanline ueberhaupt sichtbar. */
+.rx-sec .rx-scope {
+  position: relative;
+  /* `isolation: isolate` ist hier PFLICHT, nicht Kosmetik: sie haelt die
+     Scanline (::after) und das Graticule (::before) in diesem Element.
+     Ohne sie faellt beides in den Wurzel-Stapelkontext und legt sich im
+     Zweifel ueber fremde Nachbarn. NICHT ENTFERNEN. */
+  isolation: isolate;
+  overflow: hidden;
+  margin: 0;
+  aspect-ratio: 16 / 10;
+  /* `width: 100%` ist Pflicht, nicht Redundanz: als Rasterkind bekaeme das
+     Element mit `justify-self: center` (oder `margin-inline: auto`) sonst
+     seine fit-content-Breite — und die haengt an einem SVG mit
+     `height: 100%`, also an nichts. Ergebnis waere ein 60px-Streifen.
+     Nachgemessen bei 390px Breite, im Screenshot gesehen. */
+  width: 100%;
+  max-width: 340px;
+  justify-self: center;
+  padding: var(--sp-3);
+  display: grid; place-items: center;
+  border: 1px solid var(--bg-hairline);
+  border-radius: var(--radius);
+  background:
+    radial-gradient(120% 92% at 50% 0%, rgb(var(--acc-3-rgb) / .22), transparent 66%),
+    rgb(var(--bg-void-rgb) / .88);
+}
+/* Graticule — das Fadenkreuzraster eines Messschirms. Fuellt die Breite
+   neben der (hochformatigen) Schuessel, ohne ein zweites Motiv zu sein. */
+.rx-sec .rx-scope::before {
   content: ""; position: absolute; inset: 0; pointer-events: none;
-  background: repeating-linear-gradient(0deg, rgb(var(--acc-3-rgb) / .03) 0 1px, transparent 1px 3px);
+  background:
+    linear-gradient(90deg, var(--chrome-hi) 0 1px, transparent 1px) 50% 0 / 25% 100%,
+    linear-gradient(0deg,  var(--chrome-hi) 0 1px, transparent 1px) 0 50% / 100% 33.33%;
+  opacity: .05;
 }
-.rx-live {
-  display: inline-flex; align-items: center; gap: 8px; margin-bottom: 14px;
-  font-family: var(--font-mono); font-size: 11px; font-weight: 700; letter-spacing: .26em;
-  text-transform: uppercase; color: var(--acc-1-tint);
+/* CRT-Scanline. Farbe ueber --chrome-hi statt eines Akzents: das Token ist
+   in JEDEM Theme und in BEIDEN Modi das helle Ende der Rampe, liegt hier
+   also immer hell auf dunkel. Deckung ueber `opacity`, damit kein zweiter
+   Farbwert entsteht. */
+.rx-sec .rx-scope::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: repeating-linear-gradient(0deg, var(--chrome-hi) 0 1px, transparent 1px 3px);
+  opacity: .07;
 }
-.rx-live-dot {
-  width: 7px; height: 7px; border-radius: 50%; background: currentColor;
-  box-shadow: 0 0 8px rgb(var(--acc-1-rgb) / .8);
-  animation: pulse 2.2s ease-in-out infinite; /* @keyframes pulse: aus style.css, wiederverwendet */
+.rx-sec .rx-array { display: block; height: 100%; width: auto; max-width: 100%; }
+.rx-sec .rx-scope-cap {
+  position: absolute; left: var(--sp-3); bottom: var(--sp-2); right: var(--sp-3);
+  font-family: var(--font-mono); font-size: 9.5px; font-weight: var(--w-micro-b);
+  letter-spacing: var(--track-micro); text-transform: uppercase;
+  color: var(--chrome-hi); opacity: .62;
 }
 
-/* Eingehend-Karte: groesser, mit Signal-Rahmen — Kontrast zum dichten Log */
-#rx-latest .ncard {
-  padding: clamp(22px, 4vw, 32px) clamp(22px, 4vw, 30px);
-  box-shadow: 0 0 0 1px rgb(var(--acc-1-rgb) / .22), 0 20px 50px rgb(0 0 0 / .4);
+/* ---- Schuesselgrafik ---- */
+.rx-sec .rx-wave {
+  stroke: rgb(var(--acc-1-rgb) / .85); stroke-width: 2; stroke-linecap: round;
+  opacity: .42;
+  transition: opacity .5s var(--ease-out), stroke-width .5s var(--ease-out);
 }
-.rx-headline {
-  font-family: var(--font-display); font-weight: 700;
-  font-size: clamp(22px, 3.4vw, 30px); line-height: 1.15; margin: 4px 0 8px;
+.rx-sec .rx-beam {
+  stroke: rgb(var(--acc-1-rgb) / .8); stroke-width: 1.5; stroke-linecap: round;
+  opacity: .26;
+  transition: opacity .5s var(--ease-out);
 }
 
-/* Typewriter-Cursor — nur die Eingehend-Headline, einmalig (siehe news.js) */
-.rx-typing::after {
-  content: ""; display: inline-block; width: .09em; height: .95em; margin-left: 2px;
-  background: var(--acc-1-tint); vertical-align: -.1em;
-  animation: blink 1s steps(1) infinite;
+/* ---- Messwerte ---- */
+.rx-sec .rx-readout {
+  display: grid; margin: 0;
+  border-top: 1px solid var(--bg-hairline);
 }
-@keyframes blink { 50% { opacity: 0; } }
-.rx-locked::after { animation: blink .35s steps(1) 2; }
-
-/* ============================================================
-   3 · Statuszeile & Signal-Stats-Readout (Terminal-HUD unter dem Intro)
-   Echte, aus Daten berechnete Werte — keine Fantasie-Techno-Statuszeile.
-   ============================================================ */
-.rx-status {
-  margin-top: 18px;
-  font-family: var(--font-mono); font-size: 12.5px; color: var(--ink-faint);
+.rx-sec .rx-ro-item {
+  display: flex; flex-direction: column; gap: 2px;
+  padding: var(--sp-2) 0;
+  border-bottom: 1px solid var(--bg-hairline);
 }
-.rx-readout {
-  display: flex; flex-wrap: wrap; gap: 20px 34px;
-  margin-top: 16px; padding: 14px 0;
-  border-top: 1px solid var(--bg-hairline); border-bottom: 1px solid var(--bg-hairline);
+.rx-sec .rx-ro-item dt {
+  font-family: var(--font-mono); font-size: 9.5px; font-weight: var(--w-micro);
+  letter-spacing: var(--track-micro); text-transform: uppercase;
+  color: var(--ink-faint);
 }
-.rx-ro-item { display: flex; flex-direction: column; gap: 3px; }
-.rx-ro-item i {
-  font-style: normal; font-family: var(--font-mono); font-size: 10px;
-  letter-spacing: .18em; text-transform: uppercase; color: var(--ink-faint);
-}
-.rx-ro-item b {
-  font-family: var(--font-mono); font-weight: 700; font-size: 15px;
+.rx-sec .rx-ro-item dd {
+  margin: 0;
+  font-family: var(--font-mono); font-size: 14px; font-weight: var(--w-micro-b);
   color: var(--ink); font-variant-numeric: tabular-nums;
 }
 
-/* Lage-Banner-Slot — Schema+Render-Slot fuer SPAETER, standardmaessig
-   inaktiv/hidden (statusBanner.active:false in news.json). */
-.rx-banner {
-  display: flex; flex-wrap: wrap; align-items: center; gap: 10px;
-  margin-top: 14px; padding: 10px 16px;
-  border: 1px solid rgb(var(--acc-1-rgb) / .4);
-  border-radius: 999px;
-  background: rgb(var(--acc-1-rgb) / .1);
-  font-size: 13.5px;
-}
-.rx-banner b {
-  font-family: var(--font-mono); font-size: 10.5px; font-weight: 700;
-  letter-spacing: .18em; text-transform: uppercase; color: var(--acc-1-tint);
-}
-.rx-banner a { color: var(--ink); text-decoration: underline; text-underline-offset: 2px; }
-
-/* ============================================================
-   4 · Signalbalken — Alter der Meldung als Bild ("Signal wird schwaecher"),
-   reines CSS ueber :nth-of-type (nicht :nth-child — die Jahres-Trennlinien
-   sind eigene <p>-Elemente zwischen den <article>-Karten und duerfen die
-   Zaehlung nicht verschieben).
+/* ---- Kanalwahl ----
+   Unter 1040px eine Reihe Pillen (Daumenformat, 44px), in der Schiene eine
+   senkrechte Liste — dort ist sie eine Kanalskala und keine Chipwolke.
    ============================================================ */
-.rx-sig { display: inline-flex; align-items: flex-end; gap: 2px; height: 11px; }
-.rx-sig i { width: 3px; border-radius: 1px; background: var(--ink-faint); display: block; transition: background .25s; }
-.rx-sig i:nth-child(1) { height: 35%; }
-.rx-sig i:nth-child(2) { height: 58%; }
-.rx-sig i:nth-child(3) { height: 80%; }
-.rx-sig i:nth-child(4) { height: 100%; }
-#rx-latest .rx-sig i,
-#rx-log article.ncard:nth-of-type(1) .rx-sig i { background: rgb(var(--n-acc)); }
-#rx-log article.ncard:nth-of-type(2) .rx-sig i:nth-child(-n+3) { background: rgb(var(--n-acc)); }
-#rx-log article.ncard:nth-of-type(3) .rx-sig i:nth-child(-n+2) { background: rgb(var(--n-acc)); }
-#rx-log article.ncard:nth-of-type(4) .rx-sig i:nth-child(-n+1) { background: rgb(var(--n-acc)); }
-/* ab dem 5. Log-Eintrag: alle Balken bleiben in ink-faint (verblasstes Signal) */
-.ncard:hover .rx-sig i { background: rgb(var(--n-acc)); } /* Mikrointeraktion: "reinhoeren" beim Hover */
-
-/* Jahres-Trennlinie im Archiv — dezente Mono-Marke, kein </p> im Grid,
-   damit die Karten-Zaehlung (:nth-of-type) unberuehrt bleibt. */
-.rx-yearmark {
-  margin: 4px 0 2px; text-align: center;
-  font-family: var(--font-mono); font-size: 11px; font-weight: 700; letter-spacing: .3em;
-  text-transform: uppercase; color: var(--ink-faint);
+.rx-sec .rx-chtitle {
+  margin: 0 0 var(--sp-2);
+  font-family: var(--font-mono); font-size: 9.5px; font-weight: var(--w-micro-b);
+  letter-spacing: var(--track-micro); text-transform: uppercase;
+  color: var(--ink-faint);
 }
-
-/* Hover-Feinschliff: .ncard traegt in style.css nur `border-color` in der
-   Transition-Liste — `transform` als Duplikat zu ergaenzen ist laut
-   DATA.md ok ("Duplikat ist ok, Konflikt nicht"). */
-.ncard { transition: border-color .3s, transform .3s var(--ease-out); }
-.ncard:hover { transform: translateY(-2px); }
-
-/* Consent-Note — 1:1-Pendant zu .setcard .consent-note (style.css) */
-.rx-consent {
-  display: none; margin-top: 10px; padding-top: 10px; font-size: 13px; color: var(--ink-dim);
-  border-top: 1px dashed rgb(var(--acc-3-rgb) / .3);
-}
-.ncard.asked .rx-consent { display: block; }
-
-/* ============================================================
-   5 · Kanal-Filter — echtes Werkzeug, nicht Deko. Chrome-Fill-Konvention
-   von .mctrl button[aria-pressed="true"] wiederverwendet statt neuer Farbe.
-   ============================================================ */
-.rx-channels { display: flex; flex-wrap: wrap; gap: 8px; margin: 18px 0 12px; }
-.rx-ch {
-  font-family: var(--font-mono); font-size: 11.5px; letter-spacing: .1em; text-transform: uppercase;
-  min-height: 44px; padding: 9px 14px; border-radius: 999px; border: 1px solid var(--bg-hairline);
-  color: var(--ink-dim); display: inline-flex; align-items: center; gap: 6px;
+.rx-sec .rx-channels { display: flex; flex-wrap: wrap; gap: var(--sp-2); }
+.rx-sec .rx-ch {
+  display: inline-flex; align-items: center; gap: 8px;
+  min-height: 44px; padding: 8px 14px;
+  border: 1px solid var(--bg-hairline); border-radius: 999px;
+  font-family: var(--font-mono); font-size: 11.5px; font-weight: var(--w-micro);
+  letter-spacing: var(--track-label); text-transform: uppercase;
+  color: var(--ink-dim);
   transition: color .2s, border-color .2s, background .2s;
 }
-.rx-ch svg { width: 14px; height: 14px; flex: none; }
-.rx-ch:hover { color: var(--ink); border-color: rgb(var(--acc-2-rgb) / .5); }
-.rx-ch[aria-pressed="true"] {
-  background: linear-gradient(168deg, var(--chrome-hi), var(--chrome-mid) 46%, var(--chrome-lo));
-  color: var(--bg-void); border-color: transparent; font-weight: 700;
+.rx-sec .rx-ch-icon { display: inline-flex; width: 14px; height: 14px; flex: none; position: relative; }
+.rx-sec .rx-ch-icon svg { width: 100%; height: 100%; }
+.rx-sec .rx-ch-icon--all::before {
+  content: ""; position: absolute; inset: 3px;
+  border: 1px solid currentColor; border-radius: 50%;
 }
-.rx-ch-n { opacity: .65; font-weight: 400; }
-.rx-count { font-family: var(--font-mono); font-size: 12px; color: var(--ink-faint); margin-bottom: 16px; }
-@keyframes rx-retune { 0% { opacity: .5; } 100% { opacity: 1; } }
-.rx-console.rx-retune #rx-log { animation: rx-retune .2s ease-out; } /* kurzer "Blip" beim Umschalten */
+.rx-sec .rx-ch-n { opacity: .6; }
+.rx-sec .rx-ch:hover { color: var(--ink); border-color: rgb(var(--acc-2-rgb) / .5); }
+.rx-sec .rx-ch[aria-pressed="true"] {
+  background: linear-gradient(168deg, var(--chrome-hi), var(--chrome-mid) 46%, var(--chrome-lo));
+  color: var(--bg-void); border-color: transparent; font-weight: var(--w-micro-b);
+}
+.rx-sec .rx-count {
+  margin: var(--sp-2) 0 0;
+  font-family: var(--font-mono); font-size: 11px; color: var(--ink-faint);
+}
+
+@media (min-width: 1040px) {
+  .rx-sec .rx-channels { display: grid; gap: 2px; }
+  .rx-sec .rx-ch {
+    display: grid; grid-template-columns: 14px minmax(0, 1fr) auto;
+    align-items: center; gap: 10px;
+    min-height: 42px; padding: 8px 10px;
+    border-color: transparent; border-radius: var(--radius);
+    text-align: left;
+  }
+  .rx-sec .rx-ch-name { overflow: hidden; text-overflow: ellipsis; }
+}
 
 /* ============================================================
-   6 · Permalink & Teilen, Cross-Links + Live-Countdown
+   4 · Der Streifen — Eingehend + Archiv
    ============================================================ */
-.rx-share { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
-.rx-share-btn, .rx-share-tg {
+.rx-sec .rx-feed { min-width: 0; }
+.rx-sec .rx-feed > * + * { margin-top: var(--sp-5); }
+.rx-sec .rx-feed > .rx-arch-title { margin-top: var(--sp-7); }
+.rx-sec .rx-feed > .rx-hint { margin-top: var(--sp-6); }
+
+/* Terminalzeile statt Ueberschriftenblock. Die Seite trug — wie alle
+   anderen — zweimal dasselbe `.section-head`-Skelett (eyebrow + 54px-H2)
+   mitten im Lesefluss; hier markiert eine Mono-Linie den Wechsel vom
+   eingehenden Funkspruch zum Archiv. Semantisch bleibt es ein <h2>. */
+.rx-sec .rx-rule {
+  display: flex; align-items: center; gap: var(--sp-3);
+  margin: 0;
+  font-family: var(--font-mono); font-size: 11px; font-weight: var(--w-micro-b);
+  letter-spacing: var(--track-label); text-transform: uppercase;
+  color: var(--ink-faint);
+}
+.rx-sec .rx-rule > span { flex: none; }
+.rx-sec .rx-rule::after {
+  content: ""; flex: 1 1 auto; height: 1px; min-width: 24px;
+  background: var(--bg-hairline);
+}
+.rx-sec .rx-rule--live { color: var(--acc-1-tint); }
+.rx-sec .rx-live-dot {
+  width: 7px; height: 7px; border-radius: 50%; flex: none;
+  background: currentColor;
+  box-shadow: 0 0 8px rgb(var(--acc-1-rgb) / .8);
+}
+.rx-sec .rx-arch-title { color: var(--ink-dim); font-size: 12px; }
+
+/* Kartenliste: im Streifen so breit wie die Spalte (die geteilte Regel
+   deckelt sie auf 780px — das war die Textspalte von frueher). */
+.rx-sec .news-list { max-width: none; gap: var(--sp-card); }
+.rx-sec .ncard {
+  padding: var(--sp-card) var(--sp-4);
+  /* Duplikat der Transition aus takeoff.css, um den Schatten zu ergaenzen —
+     ohne `transform` (siehe Kopfkommentar: Containing Block fuer .toast). */
+  transition: border-color .3s, box-shadow .3s var(--ease-out);
+}
+.rx-sec .ncard:hover { box-shadow: var(--shadow-1); }
+
+/* Die eingehende Karte: groesser, mit Signalrahmen und einer hauchduennen
+   Scanline — sie ist der Schirm, auf dem der Funkspruch ankommt. */
+.rx-sec .rx-latest .ncard {
+  position: relative;   /* Anker fuer die Scanline. KEIN transform/filter
+                           hier — sonst wird die Karte zum Containing Block
+                           fuer den fixierten .toast. */
+  padding: var(--sp-5);
+  border-color: rgb(var(--acc-1-rgb) / .3);
+  box-shadow: var(--shadow-2);
+}
+.rx-sec .rx-latest .ncard::after {
+  content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none;
+  border-radius: inherit;
+  background: repeating-linear-gradient(0deg, var(--chrome-hi) 0 1px, transparent 1px 3px);
+  opacity: .05;
+}
+.rx-sec .rx-headline {
+  font-family: var(--font-display); font-weight: var(--w-head);
+  font-size: clamp(22px, 3.2vw, 30px); line-height: 1.15;
+  margin: var(--sp-1) 0 var(--sp-2);
+}
+
+/* Typewriter-Cursor — nur die Eingehend-Headline, einmalig. */
+.rx-sec .rx-typing::after {
+  content: ""; display: inline-block; width: .09em; height: .95em; margin-left: 2px;
+  background: var(--acc-1-tint); vertical-align: -.1em;
+  animation: rx-blink 1s steps(1) infinite;
+}
+.rx-sec .rx-locked::after { animation: rx-blink .35s steps(1) 2; }
+@keyframes rx-blink { 50% { opacity: 0; } }
+
+/* Jahres-Trennlinie im Archiv — dieselbe Linienform wie die
+   Terminalzeilen, nur leiser. */
+.rx-sec .rx-yearmark {
+  display: flex; align-items: center; gap: var(--sp-3);
+  margin: var(--sp-2) 0;
+  font-family: var(--font-mono); font-size: 10px; font-weight: var(--w-micro-b);
+  letter-spacing: var(--track-micro); text-transform: uppercase;
+  color: var(--ink-faint);
+}
+.rx-sec .rx-yearmark::before,
+.rx-sec .rx-yearmark::after {
+  content: ""; flex: 1 1 auto; height: 1px; background: var(--bg-hairline);
+}
+/* Beim Kanalfilter tragen die Jahresmarken `hidden`. Das UA-`display: none`
+   dahinter hat gegen ein Autoren-`display: flex` KEINE Chance — ohne diese
+   Zeile blieben beim gefilterten Log die Jahrestrenner sichtbar und
+   trennten nichts mehr. (Gleiche Falle wie .tg-mark in musik.css.) */
+.rx-sec .rx-yearmark[hidden] { display: none; }
+
+.rx-sec .rx-nohits {
+  margin: 0;
+  padding: var(--sp-4);
+  border: 1px dashed rgb(var(--acc-2-rgb) / .35);
+  border-radius: var(--radius);
+  background: rgb(var(--bg-base-rgb) / .45);
+  font-family: var(--font-mono); font-size: 12.5px; color: var(--ink-dim);
+}
+.rx-sec .rx-hint { text-align: left; padding: var(--sp-5); }
+.rx-sec .rx-hint p { margin-inline: 0; max-width: 60ch; }
+
+/* ============================================================
+   5 · Signalbalken — Alter der Meldung als Bild
+   Die Staerke steht als ATTRIBUT an der Karte (aus dem Datum gerechnet,
+   siehe page.tsx). Vorher lief das ueber `article.ncard:nth-of-type(n)`,
+   also ueber die Position in der Liste: sobald der Kanalfilter Karten
+   ausblendet oder ein Nicht-<article> dazwischenkommt, faerbt so ein
+   Selektor still falsch.
+   ============================================================ */
+.rx-sec .rx-sig { display: inline-flex; align-items: flex-end; gap: 2px; height: 11px; }
+.rx-sec .rx-sig i {
+  display: block; width: 3px; border-radius: 1px;
+  background: var(--ink-faint);
+  transition: background .25s;
+}
+.rx-sec .rx-sig i:nth-child(1) { height: 35%; }
+.rx-sec .rx-sig i:nth-child(2) { height: 58%; }
+.rx-sec .rx-sig i:nth-child(3) { height: 80%; }
+.rx-sec .rx-sig i:nth-child(4) { height: 100%; }
+.rx-sec .rx-sig[data-strength="4"] i,
+.rx-sec .rx-sig[data-strength="3"] i:nth-child(-n+3),
+.rx-sec .rx-sig[data-strength="2"] i:nth-child(-n+2),
+.rx-sec .rx-sig[data-strength="1"] i:nth-child(-n+1) { background: rgb(var(--n-acc)); }
+/* Mikrointeraktion: beim Hover "reinhoeren" — alle Balken an. */
+.rx-sec .ncard:hover .rx-sig i { background: rgb(var(--n-acc)); }
+
+/* ============================================================
+   6 · Der eine Bewegungsmoment
+   `is-receiving` liegt exakt so lange auf dem Deck, wie der Typewriter
+   laeuft (rund eine Sekunde), `is-locked` 900ms danach. Danach steht die
+   Seite. Bei data-fx="s" / reduced motion setzt NewsConsole gar keine
+   Klasse, weil NewsCard den Typewriter dort nicht startet — der
+   Ruhezustand oben ist dann von Anfang an das fertige Bild.
+   ============================================================ */
+.rx-sec .rx-deck.is-receiving .rx-wave { animation: rx-wave-in .9s var(--ease-out) infinite; }
+.rx-sec .rx-deck.is-receiving .rx-wave:nth-child(2) { animation-delay: .18s; }
+.rx-sec .rx-deck.is-receiving .rx-wave:nth-child(3) { animation-delay: .36s; }
+.rx-sec .rx-deck.is-receiving .rx-beam { opacity: .7; }
+.rx-sec .rx-deck.is-receiving .rx-live-dot { animation: pulse 1.1s ease-in-out infinite; }
+@keyframes rx-wave-in {
+  0%   { opacity: .12; stroke-width: 2; }
+  40%  { opacity: 1;   stroke-width: 3; }
+  100% { opacity: .12; stroke-width: 2; }
+}
+/* Einrasten: kurz alles hell, dann zurueck in den Ruhezustand. */
+.rx-sec .rx-deck.is-locked .rx-wave { opacity: 1; stroke-width: 3; transition-duration: .15s; }
+.rx-sec .rx-deck.is-locked .rx-beam { opacity: .8; transition-duration: .15s; }
+
+/* Kurzer "Blip" beim Kanalwechsel — Reaktion auf eine Handlung, kein
+   Dauerloop, und deshalb ausdruecklich erlaubt. */
+@keyframes rx-retune { from { opacity: .45; } to { opacity: 1; } }
+.rx-sec .rx-deck.rx-retune .rx-log { animation: rx-retune .2s ease-out; }
+
+@media (prefers-reduced-motion: reduce) {
+  .rx-sec .rx-deck.is-receiving .rx-wave,
+  .rx-sec .rx-deck.is-receiving .rx-live-dot,
+  .rx-sec .rx-deck.rx-retune .rx-log,
+  .rx-sec .rx-typing::after,
+  .rx-sec .rx-locked::after { animation: none; }
+}
+:root[data-fx="s"] .rx-sec .rx-deck.is-receiving .rx-wave,
+:root[data-fx="s"] .rx-sec .rx-deck.is-receiving .rx-live-dot,
+:root[data-fx="s"] .rx-sec .rx-deck.rx-retune .rx-log { animation: none; }
+
+/* ============================================================
+   7 · Karteninhalte: Insta-Zweiklick, Querverweise, Teilen, Feedback
+   ============================================================ */
+.rx-sec .rx-consent {
+  display: none; margin-top: var(--sp-2); padding-top: var(--sp-2);
+  font-size: 13px; color: var(--ink-dim);
+  border-top: 1px dashed rgb(var(--acc-3-rgb) / .3);
+}
+.rx-sec .ncard.asked .rx-consent { display: block; }
+.rx-sec .rx-consent a { color: var(--acc-3-tint); border-bottom: 1px dotted rgb(var(--acc-3-rgb) / .5); }
+.rx-sec .rx-consent a:hover, .rx-sec .rx-consent a:focus-visible { color: var(--ink); }
+
+.rx-sec .rx-links { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; margin-top: var(--sp-3); }
+/* .rx-cross nutzt bewusst die bestehende .head-link unveraendert. */
+.rx-sec .rx-cross { margin-top: 0; }
+.rx-sec .rx-cd {
+  font-family: var(--font-mono); font-size: 11px; font-weight: var(--w-micro-b);
+  letter-spacing: .06em; color: var(--acc-1-tint);
+}
+
+.rx-sec .rx-share { display: flex; flex-wrap: wrap; gap: var(--sp-2); margin-top: var(--sp-3); }
+.rx-sec .rx-share-btn,
+.rx-sec .rx-share-tg {
   display: inline-flex; align-items: center; gap: 6px; min-height: 44px;
-  font-family: var(--font-mono); font-size: 11.5px; letter-spacing: .08em; text-transform: uppercase;
   padding: 7px 14px; border-radius: 999px;
   border: 1px solid rgb(var(--acc-1-rgb) / .4); color: var(--acc-1-tint);
+  font-family: var(--font-mono); font-size: 11.5px; letter-spacing: .08em; text-transform: uppercase;
   transition: border-color .2s, background .2s;
 }
-.rx-share-btn svg { width: 13px; height: 13px; }
-.rx-share-btn:hover, .rx-share-tg:hover,
-.rx-share-btn:focus-visible, .rx-share-tg:focus-visible {
+.rx-sec .rx-share-btn svg { width: 13px; height: 13px; }
+.rx-sec .rx-share-btn:hover, .rx-sec .rx-share-tg:hover,
+.rx-sec .rx-share-btn:focus-visible, .rx-sec .rx-share-tg:focus-visible {
   border-color: rgb(var(--acc-1-rgb) / .7); background: rgb(var(--acc-1-rgb) / .1);
 }
 
-.rx-links { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; margin-top: 14px; }
-/* .rx-cross nutzt bewusst die bestehende .head-link (style.css) unveraendert —
-   keine eigene Regel noetig, gleiche Optik wie ueberall sonst auf der Seite. */
-.rx-cross { margin-top: 0; }
-.rx-cd {
-  font-family: var(--font-mono); font-size: 11px; font-weight: 700; letter-spacing: .06em;
-  color: var(--acc-1-tint);
-}
-
-/* ============================================================
-   7 · Feedback zur letzten Mission (unter dem juengsten Recap)
-   ============================================================ */
-.rx-feedback {
-  margin-top: 12px; padding-top: 10px; font-size: 13.5px; color: var(--ink-dim);
+.rx-sec .rx-feedback {
+  margin-top: var(--sp-3); padding-top: var(--sp-2);
+  font-size: 13.5px; color: var(--ink-dim);
   border-top: 1px dashed rgb(var(--acc-1-rgb) / .3);
 }
-.rx-feedback b {
+.rx-sec .rx-feedback b {
   display: block; margin-bottom: 4px;
-  font-family: var(--font-mono); font-size: 10.5px; font-weight: 700;
+  font-family: var(--font-mono); font-size: 10.5px; font-weight: var(--w-micro-b);
   letter-spacing: .2em; text-transform: uppercase; color: var(--acc-1-tint);
 }
-.rx-feedback a { color: var(--acc-1-tint); border-bottom: 1px dotted rgb(var(--acc-1-rgb) / .5); }
-.rx-feedback a:hover, .rx-feedback a:focus-visible { color: var(--ink); }
+.rx-sec .rx-feedback a { color: var(--acc-1-tint); border-bottom: 1px dotted rgb(var(--acc-1-rgb) / .5); }
+.rx-sec .rx-feedback a:hover, .rx-sec .rx-feedback a:focus-visible { color: var(--ink); }
+
+/* Lage-Banner — Slot fuer spaeter, standardmaessig aus (news.json). */
+.rx-sec .rx-banner {
+  display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-2);
+  margin-top: var(--sp-3); padding: 10px 16px;
+  border: 1px solid rgb(var(--acc-1-rgb) / .4); border-radius: 999px;
+  background: rgb(var(--acc-1-rgb) / .1);
+  font-size: 13.5px;
+}
+.rx-sec .rx-banner b {
+  font-family: var(--font-mono); font-size: 10.5px; font-weight: var(--w-micro-b);
+  letter-spacing: .18em; text-transform: uppercase; color: var(--acc-1-tint);
+}
+.rx-sec .rx-banner a { color: var(--ink); text-decoration: underline; text-underline-offset: 2px; }
+
+/* Leerzustand */
+.rx-sec .rx-empty { margin: 0; }
+.rx-sec .rx-empty-cta { justify-content: center; margin-top: var(--sp-3); }
+.rx-sec .rx-deck--empty .rx-feed { display: grid; align-content: start; }
 
 /* ============================================================
-   8 · Leerzustand — reine Wiederverwendung von .transmission/.tx-label/
-   .cta-row/.btn (siehe events.css .standby-state, gleiches Prinzip).
+   8 · Empfangsschalter — FAQ links, Telegram-Karte rechts
+   Vorher: eine zentrierte 720px-Liste und darunter eine zentrierte
+   Karte, beides in der Mitte eines 1120px-Rasters. Zwei Spalten geben
+   dem Abschluss dieselbe Komposition wie dem Rest der Seite.
    ============================================================ */
-.rx-empty { margin-top: 20px; }
-
-/* ============================================================
-   9 · FAQ — bewaehrtes .m-row-Muster, fuer Prosa-Antworten angepasst
-   (Duplikat der Ausrichtungs-Overrides aus kollektiv.css' .bp-faq,
-   DATA.md: "Duplikat ist ok, Konflikt nicht").
-   ============================================================ */
-.rx-faq { display: grid; gap: 4px; max-width: 720px; margin: 0 auto; }
-.rx-faq .m-row { flex-direction: column; align-items: flex-start; gap: 6px; }
-.rx-faq .m-row dt {
-  font-family: var(--font-display); font-weight: 700; font-size: 15px;
+.rx-sec .rx-desk { display: grid; gap: var(--sp-6); }
+@media (min-width: 900px) {
+  .rx-sec .rx-desk {
+    grid-template-columns: minmax(0, 1.1fr) minmax(300px, .9fr);
+    gap: var(--sp-7);
+    align-items: start;
+  }
+}
+.rx-sec .rx-faq { display: grid; gap: 4px; max-width: none; margin: 0; }
+.rx-sec .rx-faq .m-row { flex-direction: column; align-items: flex-start; gap: 6px; }
+.rx-sec .rx-faq .m-row dt {
+  font-family: var(--font-display); font-weight: var(--w-head); font-size: 15px;
   letter-spacing: normal; text-transform: none; color: var(--ink);
 }
-.rx-faq .m-row dd { text-align: left; color: var(--ink-dim); font-size: 14px; }
+.rx-sec .rx-faq .m-row dd { text-align: left; color: var(--ink-dim); font-size: 14px; }
 
-/* ============================================================
-   10 · Kanal-CTA & Quer-Verweise (redaktioneller Abschlussblock)
-   ============================================================ */
-.rx-cta {
+.rx-sec .rx-cta {
   border-radius: var(--radius-lg);
   border: 1px solid rgb(var(--acc-1-rgb) / .25);
   background: linear-gradient(170deg, rgb(var(--bg-raised-rgb) / .8), rgb(var(--bg-base-rgb) / .9));
-  padding: clamp(26px, 5vw, 42px);
+  padding: var(--sp-5);
   text-align: center;
 }
-.rx-cta .eyebrow { justify-content: center; }
-.rx-cta h2 { font-family: var(--font-display); font-weight: 800; font-size: clamp(22px, 3.4vw, 30px); margin-top: 6px; }
-.rx-cta p { max-width: 480px; margin: 12px auto 0; color: var(--ink-dim); }
-.rx-cta .cta-row { justify-content: center; }
-.rx-promo {
-  display: flex; flex-wrap: wrap; justify-content: center; gap: 14px 28px;
-  margin-top: 22px; padding-top: 20px; border-top: 1px solid var(--bg-hairline);
+.rx-sec .rx-cta .eyebrow { justify-content: center; }
+/* Der Strich der .eyebrow ist eine LINKE Marke; auf zentriertem Text
+   zerlegt er die Zeile (der Strich bleibt oben allein stehen, sobald der
+   Text umbricht). In der zentrierten Karte entfaellt er. */
+.rx-sec .rx-cta .eyebrow::before { display: none; }
+.rx-sec .rx-cta h2 {
+  font-family: var(--font-display); font-weight: var(--w-display);
+  font-size: clamp(22px, 3vw, 28px); margin-top: var(--sp-1);
 }
-.rx-promo a {
-  display: inline-flex; align-items: center; min-height: 44px;
+.rx-sec .rx-cta p { max-width: 42ch; margin: var(--sp-3) auto 0; color: var(--ink-dim); }
+.rx-sec .rx-cta .cta-row { justify-content: center; margin-top: var(--sp-4); }
+.rx-sec .rx-promo {
+  display: grid; gap: var(--sp-2);
+  margin-top: var(--sp-4); padding-top: var(--sp-4);
+  border-top: 1px solid var(--bg-hairline);
+}
+.rx-sec .rx-promo a {
+  display: inline-flex; align-items: center; justify-content: center; min-height: 44px;
   font-family: var(--font-mono); font-size: 12.5px; letter-spacing: .06em; color: var(--ink-dim);
-  border-bottom: 1px solid transparent; transition: color .2s, border-color .2s;
+  border-bottom: 1px solid transparent;
+  transition: color .2s, border-color .2s;
 }
-.rx-promo a:hover, .rx-promo a:focus-visible { color: var(--acc-1-tint); border-color: rgb(var(--acc-1-rgb) / .5); }
+.rx-sec .rx-promo a:hover, .rx-sec .rx-promo a:focus-visible {
+  color: var(--acc-1-tint); border-color: rgb(var(--acc-1-rgb) / .5);
+}
 
 /* ============================================================
-   11 · Mobile-Sicherheit
+   9 · Tag-Modus
+   Bis It. 14 hatte dieses Blatt NULL day-mode-Regeln — der helle Modus
+   war nie geprueft. Eine Empfangsschuessel und eine CRT-Scanline sind
+   Nachtmotive; im Hellen brauchen sie ein Gegenstueck.
    ============================================================ */
-@media (max-width: 480px) {
-  .rx-readout { gap: 14px 26px; }
-  .rx-channels { gap: 6px; }
+/* Der Schirm bleibt dunkel (Leitplanke 2). --chrome-shadow ist tags mit
+   #23283C das dunkle Ende der Rampe und traegt die helle Chrome-Zeichnung
+   der Schuessel; die Scanline aus --chrome-hi bleibt damit unveraendert
+   sichtbar, ohne dass es eine zweite Regel braucht. */
+:root.day-mode .rx-sec .rx-scope {
+  background:
+    radial-gradient(120% 92% at 50% 0%, rgb(var(--acc-3-rgb) / .35), transparent 66%),
+    var(--chrome-shadow);
+  border-color: var(--ink);
+}
+:root.day-mode .rx-sec .rx-scope-cap { opacity: .8; }
+/* Wellen und Strahl: tags ist --acc-1 ein dunkles Beere-Rot (#A2005E) und
+   auf dem dunklen Schirm zu leise. --acc-face ist genau fuer diesen Fall
+   da — das Neon-Magenta, das im Tagmodus ausschliesslich als FLAECHE
+   auftreten darf (scene-day.css). Damit bleibt "Signal ist magenta" in
+   beiden Modi dieselbe Aussage, und die Wellen heben sich vom Chrom der
+   Schuessel ab statt mit ihm zu verschmelzen. */
+:root.day-mode .rx-sec .rx-wave { stroke: var(--acc-face); }
+:root.day-mode .rx-sec .rx-beam  { stroke: var(--chrome-mid); }
+
+/* Konsolenschiene: tags eine Karte auf der hellen Spalte — Kontur statt
+   Verlauf, wie alle anderen Karten im Tagmodus (scene-day.css). */
+:root.day-mode .rx-sec .rx-rail-inner {
+  background: linear-gradient(168deg, rgb(var(--bg-surface-rgb) / .9), rgb(var(--bg-base-rgb) / .6));
+  border-color: rgb(var(--acc-2-rgb) / .5);
+  box-shadow: 3px 4px 0 rgb(var(--acc-2-rgb) / .14);
+}
+/* Die Scanline der Eingehend-Karte liegt tags hell auf hell. Sie wechselt
+   auf das dunkle Ende der Rampe und bleibt damit dieselbe Textur. */
+:root.day-mode .rx-sec .rx-latest .ncard::after {
+  background: repeating-linear-gradient(0deg, var(--chrome-lo) 0 1px, transparent 1px 3px);
+  opacity: .07;
+}
+:root.day-mode .rx-sec .rx-latest .ncard {
+  border-color: var(--ink);
+  box-shadow: 5px 6px 0 rgb(var(--acc-1-rgb) / .5);
+}
+:root.day-mode .rx-sec .ncard:hover { box-shadow: 5px 6px 0 rgb(var(--acc-1-rgb) / .35); }
+/* Signalbalken: die Neons der Karten sind tags als 3px-Balken zu blass
+   (#6fc9e8 kommt auf 1.4:1 gegen den Kartengrund). Als FLAECHE traegt
+   dort die Tinte — die Farbidentitaet der Karte steckt tags ohnehin in
+   der Plakette, die scene-day.css auf Neon-Grund stellt. */
+:root.day-mode .rx-sec .rx-sig i { background: var(--bg-hairline); }
+:root.day-mode .rx-sec .rx-sig[data-strength="4"] i,
+:root.day-mode .rx-sec .rx-sig[data-strength="3"] i:nth-child(-n+3),
+:root.day-mode .rx-sec .rx-sig[data-strength="2"] i:nth-child(-n+2),
+:root.day-mode .rx-sec .rx-sig[data-strength="1"] i:nth-child(-n+1),
+:root.day-mode .rx-sec .ncard:hover .rx-sig i { background: var(--ink); }
+/* Live-Punkt: der Halo ist tags ein Schmutzfleck, die Kontur traegt. */
+:root.day-mode .rx-sec .rx-live-dot { box-shadow: 0 0 0 1px var(--ink); }
+:root.day-mode .rx-sec .rx-nohits { background: rgb(var(--bg-surface-rgb) / .8); }
+:root.day-mode .rx-sec .rx-cta {
+  background: linear-gradient(170deg, rgb(var(--bg-surface-rgb) / .9), rgb(var(--bg-base-rgb) / .6));
+  border-color: rgb(var(--acc-2-rgb) / .5);
+}
+/* Mikro-Labels: tags ueber engere Laufweite schwerer setzen, nicht ueber
+   das Gewicht (Space Mono ist nicht variabel) — dieselbe Regel wie in
+   scene-day.css fuer alle anderen Mikro-Labels. */
+:root.day-mode .rx-sec :is(.rx-rail-eyebrow, .rx-chtitle, .rx-ro-item dt, .rx-scope-cap) { letter-spacing: .12em; }
+:root.day-mode .rx-sec :is(.rx-rule, .rx-yearmark, .rx-ch) { letter-spacing: .085em; }
+
+/* ============================================================
+   10 · Schmale Schirme
+   ============================================================ */
+@media (min-width: 620px) and (max-width: 1039px) {
+  /* Geraet quer: Schirm links, Messwerte rechts daneben, Kanaele darunter.
+     Sonst steht ein 340px hoher Schirm allein ueber dem Streifen. */
+  .rx-sec .rx-rail-inner {
+    grid-template-columns: minmax(0, 300px) minmax(0, 1fr);
+    column-gap: var(--sp-5);
+    align-items: start;
+  }
+  .rx-sec .rx-rail-eyebrow,
+  .rx-sec .rx-chgroup { grid-column: 1 / -1; }
+  .rx-sec .rx-readout { align-self: center; }
+}
+@media (max-width: 619px) {
+  .rx-sec .rx-feed > * + * { margin-top: var(--sp-4); }
+  .rx-sec .rx-feed > .rx-arch-title { margin-top: var(--sp-6); }
 }

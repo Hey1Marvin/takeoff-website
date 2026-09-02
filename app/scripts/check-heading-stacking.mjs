@@ -86,39 +86,62 @@ for (const theme of THEMES) {
         await page.goto(BASE + route, { waitUntil: "load" });
         await page.waitForTimeout(1000);
 
-        const results = await page.evaluate(() => {
-          const unsichtbar = el => {
-            const r = el.getBoundingClientRect();
-            if (r.width <= 0 || r.height <= 0) return true;
-            const cs = getComputedStyle(el);
-            return cs.display === "none" || cs.visibility === "hidden";
-          };
-          const heads = [...document.querySelectorAll("main h1, main h2, main h3")]
-            .filter(h => !unsichtbar(h));
+        /* Element-Handles statt Selektor-String-Ausfuehrung IM Browser: das
+           eigentliche Scrollen muss von der Playwright-Seite aus angestossen
+           werden, ein Handle pro Ueberschrift, NACHEINANDER — nicht alle in
+           einem einzigen synchronen evaluate()-Durchlauf.
 
-          return heads.map(h => {
-            h.scrollIntoView({ block: "center", inline: "center" });
-            const r = h.getBoundingClientRect();
-            const cx = r.left + r.width / 2;
-            const cy = r.top + r.height / 2;
+           Anlauf 1 hatte h.scrollIntoView(...) fuer JEDE Ueberschrift
+           synchron in einer .map()-Schleife INNERHALB EINES evaluate()-
+           Aufrufs gemacht und produzierte massenhaft falsche FAILs:
+           elementFromPoint(cx,cy) kam mit null zurueck, weil window.scrollY
+           die ganze Schleife ueber bei 0 blieb — kein Yield zwischen den
+           Aufrufen, lange Blueprint-Seiten mit >7000px Dokumenthoehe.
+
+           Anlauf 2 nutzte locator.scrollIntoViewIfNeeded() (eigener
+           Playwright-Roundtrip, wartet zuverlaessig) — aber OHNE block:
+           "center"-Option (die kennt die Playwright-Methode nicht), dockt
+           also am naechsten Rand an. Bei kurzen Seiten landete die letzte
+           Ueberschrift dadurch am UNTEREN Viewport-Rand, exakt dort, wo das
+           fixe Mission-Control-Panel sitzt (.mctrl, position:fixed;
+           right/bottom, z-index:120, sitesweite Kopfleiste). Falsches
+           Ergebnis aus derselben Ursache wie der sticky Topbar oben:
+           Rand-Andocken statt Zentrieren.
+
+           Deshalb hier: explizites scrollIntoView({block:"center",
+           behavior:"instant"}) IN EINEM EIGENEN evaluate()-Aufruf (das
+           erzwingt sofortiges statt gegebenenfalls per CSS smooth
+           animiertes Scrollen UND der Aufrufwechsel selbst ist bereits der
+           Yield, den Anlauf 1 nicht hatte) — danach separat gemessen. */
+        const handles = await page.$$("main h1, main h2, main h3");
+        for (const h of handles) {
+          const box = await h.boundingBox(); // null bei display:none/visibility:hidden/zero-size
+          if (!box || box.width <= 0 || box.height <= 0) continue;
+
+          await page.evaluate(el => el.scrollIntoView({ block: "center", inline: "center", behavior: "instant" }), h);
+          const box2 = await h.boundingBox();
+          if (!box2) continue;
+          const cx = box2.x + box2.width / 2;
+          const cy = box2.y + box2.height / 2;
+
+          const r = await page.evaluate(([el, cx, cy]) => {
             const hit = document.elementFromPoint(cx, cy);
-            const ok = !!hit && (hit === h || h.contains(hit) || hit.contains(h));
+            const ok = !!hit && (hit === el || el.contains(hit) || hit.contains(el));
             return {
               ok,
-              tag: h.tagName,
-              text: (h.textContent || "").trim().slice(0, 60),
+              tag: el.tagName,
+              text: (el.textContent || "").trim().slice(0, 60),
               hitTag: hit ? hit.tagName : null,
               hitClass: hit ? String(hit.className || "").slice(0, 80) : null,
               hitId: hit ? hit.id || null : null,
+              cx, cy,
             };
-          });
-        });
+          }, [h, cx, cy]);
 
-        for (const r of results) {
           note(
             r.ok,
             `${route} @${width}px ${theme}/${day ? "Tag" : "Nacht"} <${r.tag.toLowerCase()}> "${r.text}"` +
-              (r.ok ? "" : ` -> verdeckt von <${(r.hitTag || "?").toLowerCase()}${r.hitId ? "#" + r.hitId : ""} class="${r.hitClass}">`)
+              (r.ok ? "" : ` -> verdeckt von <${(r.hitTag || "?").toLowerCase()}${r.hitId ? "#" + r.hitId : ""} class="${r.hitClass}"> @(${Math.round(r.cx)},${Math.round(r.cy)})`)
           );
         }
       }

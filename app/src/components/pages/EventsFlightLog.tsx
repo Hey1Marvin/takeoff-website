@@ -7,7 +7,6 @@
    "server-only" und darf hier nicht importiert werden. */
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import EventsStatusFlap from "./EventsStatusFlap";
 
 export interface FlogEntry {
   slug: string;
@@ -86,17 +85,29 @@ export default function EventsFlightLog({
         </div>
         <button type="button" className="fpin-reset" onClick={reset}>{resetLabel}</button>
       </header>
-      <div className="board-cols board-cols--sub" aria-hidden="true">
-        <span>Gate</span><span>Datum</span><span>Mission</span><span>Ort</span><span>Status</span>
-      </div>
+      {/* Hier stand eine zweite Spaltenkopfzeile (.board-cols--sub) mit
+          Gate/Datum/Mission/Ort/Status. Sie rahmte nichts: .flog li ist
+          eine Flex-Zeile, kein Raster mit diesen fuenf Spalten — genau
+          der Fehler, der oben an der Abflugtafel behoben wurde. Ein
+          Kopf ohne Tabelle ist ein Versprechen, das die Liste nicht
+          einloest, also weg damit statt es zu wiederholen. */}
       <ul className="flog events-flog">
         {events.map(e => (
-          <li key={e.slug} className="reveal">
+          /* Ohne .reveal: die Seite hat EINEN orchestrierten Bewegungs-
+             moment (das Hochfahren der Abflugtafel). Ein zweiter
+             Fade-up-Streusel auf jeder Log-Zeile war der generische
+             Default und nahm dem Moment oben seine Wirkung. */
+          <li key={e.slug}>
             <span className="fpatch" aria-hidden="true">{e.patchNo}</span>
             <span className="fdate txplate">{e.dateDisplay}</span>
             <Link className="fname txplate" href={e.href}>{e.title}</Link>
             <span className="fvenue txplate">{e.venue}</span>
-            <EventsStatusFlap variant="fstatus" className="chip" label="Departed" statusKey="departed" />
+            {/* Statisch statt Split-Flap: der Flap gehoert der Abflugtafel
+                oben (dem einen Bewegungsmoment der Seite). Neun Log-Zeilen,
+                die beim Scrollen einzeln umklappen, sind derselbe Streusel
+                wie ein .reveal auf jedem Block — und „angekommen" darf
+                ruhiger lesen als „kommend". */}
+            <span className="fstatus chip">Departed</span>
             {e.brief && <span className="fnote"><span className="txplate">{e.brief}</span></span>}
             <button
               type="button"

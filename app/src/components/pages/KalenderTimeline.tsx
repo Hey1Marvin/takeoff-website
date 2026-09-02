@@ -1,14 +1,18 @@
 "use client";
-/* Zeitleiste "Alle Termine auf einen Blick" — Termin-Zeilen sind bereits
-   fertig (sortiert, mit Jahres-/Heute-Trennern) aus dem Gateway gebaut
-   (page.tsx, Server-Teil); diese Komponente übernimmt nur, was echte
-   Browser-Interaktion braucht: Filter (all/upcoming/past) + .ics-Downloads
-   (Blob/ObjectURL sind Browser-APIs, der .ics-Text selbst kommt bereits
-   fix vorgerechnet vom Server mit).
+/* Zeitleiste "Alle Termine" — Termin-Zeilen sind bereits fertig (sortiert,
+   mit Jahres-/Heute-Trennern) aus dem Gateway gebaut (page.tsx, Server-
+   Teil); diese Komponente übernimmt nur, was echte Browser-Interaktion
+   braucht: Filter (all/upcoming/past) + .ics-Downloads (Blob/ObjectURL
+   sind Browser-APIs, der .ics-Text selbst kommt bereits fix vorgerechnet
+   vom Server mit).
 
    Zeilen bleiben beim Filtern über das native `hidden`-Attribut im DOM
    (kein Array-.filter() vor dem Rendern) — sonst würden die #ev-<slug>-
-   Sprungziele des Monatsgitters bei aktivem Filter plötzlich fehlen. */
+   Sprungziele des Monatsgitters bei aktivem Filter plötzlich fehlen.
+
+   It. 14: keine Inline-Styles mehr (Rahmen und Linkfarbe liegen jetzt als
+   Klassen in pages/kalender.css) und keine deutschen Zeichenketten im JSX
+   — Beschriftungen kommen aus src/data/pages/kalender.json. */
 import Link from "next/link";
 import { useMemo, useState } from "react";
 
@@ -57,11 +61,13 @@ function downloadIcs(filename: string, content: string) {
 }
 
 export default function KalenderTimeline({
-  items, todayIso, filters, emptyNote, cal, allIcsContent,
+  items, todayIso, filters, filterGroupLabel, detailsLabel, emptyNote, cal, allIcsContent,
 }: {
   items: KalenderTimelineItem[];
   todayIso: string;
   filters: { key: string; label: string }[];
+  filterGroupLabel: string;
+  detailsLabel: string;
   emptyNote: string;
   cal: { googleLabel: string; icsLabel: string; icsAllLabel: string };
   allIcsContent: string | null;
@@ -76,7 +82,7 @@ export default function KalenderTimeline({
   return (
     <>
       <div className="bc-toolbar">
-        <div className="bc-filterbar" role="group" aria-label="Zeitleiste filtern">
+        <div className="bc-filterbar" role="group" aria-label={filterGroupLabel}>
           {filters.map(f => (
             <button
               key={f.key}
@@ -96,7 +102,7 @@ export default function KalenderTimeline({
         )}
       </div>
 
-      <dl className="m-rows" style={{ borderTop: "1px solid var(--bg-hairline)" }}>
+      <dl className="m-rows bc-rows">
         {items.map(item => {
           const hidden = !isVisible(item, filter, todayIso);
 
@@ -114,13 +120,13 @@ export default function KalenderTimeline({
           }
 
           return (
-            <div className="m-row" id={item.id} key={item.id} hidden={hidden}>
+            <div className="m-row bc-evrow" id={item.id} key={item.id} hidden={hidden}>
               <dt>{item.dtLabel}</dt>
               <dd>
                 <b>{item.title}</b>
                 {item.venueName && <> · {item.venueName}</>}
                 {item.priceLabel && <> · {item.priceLabel}</>}
-                {" · "}<Link href={item.href} style={{ color: "var(--acc-3-tint)" }}>Details</Link>
+                {" · "}<Link className="bc-detail" href={item.href}>{detailsLabel}</Link>
                 {item.calendar && (
                   <div className={`bc-caladd${item.calendar.tbaNote ? " is-tba" : ""}`}>
                     {item.calendar.tbaNote ? (
@@ -147,7 +153,7 @@ export default function KalenderTimeline({
           );
         })}
       </dl>
-      <p className="bc-empty" hidden={visibleCount !== 0}>{emptyNote}</p>
+      <p className="bc-empty txfit" hidden={visibleCount !== 0}>{emptyNote}</p>
     </>
   );
 }

@@ -49,25 +49,33 @@
      und zwar in den echten Seitengrund samt Sternen — anders als ein
      deckender Verlauf, der an derselben Stelle ein blindes Band erzeugt
      haette.
-     Die Kurve ist nicht linear: oben steht das Video, ab der Mitte faellt
-     es, und dort wo die Event-Karte sitzt ist es weg. Die Karte behaelt
-     damit exakt den Kontrast, den sie ohne Video hat. */
+     Die Kurve ist nicht linear: das Video steht bis weit hinter die
+     Wortmarke und faellt erst im letzten Drittel. Vorher endete es schon
+     bei 38 % — das Bild war damit auf dem halben Hero weg und wirkte wie
+     ein Rest. Die Event-Karte ist trotzdem geschuetzt: sie bringt ihre
+     eigene deckende Flaeche mit, der Auslauf muss das nicht leisten. */
   /* Die Kurve steht in einer eigenen Eigenschaft, weil sie an zwei Stellen
      gebraucht wird: nachts auf dem Container, tagsueber auf dem Video darin
      (siehe Tag-Modus weiter unten). */
   --hv-mask: linear-gradient(180deg,
-      #000 0%, #000 38%, rgb(0 0 0 / .78) 56%,
-      rgb(0 0 0 / .34) 76%, rgb(0 0 0 / 0) 93%);
+      #000 0%, #000 70%, rgb(0 0 0 / .85) 84%,
+      rgb(0 0 0 / .45) 94%, rgb(0 0 0 / 0) 100%);
   -webkit-mask-image: var(--hv-mask);
   mask-image: var(--hv-mask);
 
   /* Stellschrauben. Sie stehen hier oben, damit Tag-Modus und Themes sie
      einzeln ueberschreiben koennen, statt die Regeln zu verdoppeln. */
-  --hv-sat:      .16;   /* Restsaettigung des Rohmaterials       */
-  --hv-bright:   .34;   /* Helligkeit                            */
+  /* Nachgemessen: der Text sitzt dort, wo der radiale Schleier am
+     staerksten ist — von .34 auf .74 Helligkeit aufzudrehen aendert seinen
+     Kontrast praktisch nicht (Tagline 9.11:1 -> 9.20:1, beide weit ueber
+     AA). Die frueheren Werte haben das Material also gedaempft, ohne dass
+     die Lesbarkeit es verlangt haette: bei .34 Helligkeit, .16 Saettigung
+     und .56 Schleier war vom Rave nichts mehr zu erkennen. */
+  --hv-sat:      .52;   /* Restsaettigung des Rohmaterials       */
+  --hv-bright:   .74;   /* Helligkeit                            */
   --hv-contrast: 1.22;  /* Zeichnung in den Silhouetten          */
-  --hv-tint:     .62;   /* Staerke der Farbangleichung an acc-*  */
-  --hv-scrim:    .56;   /* Grunddeckung der Abdunkelung          */
+  --hv-tint:     .32;   /* Staerke der Farbangleichung an acc-*  */
+  --hv-scrim:    .26;   /* Grunddeckung der Abdunkelung          */
 
   /* Ohne JS gibt es diese Ebene gar nicht (sie ist leer und wird von
      hero-video.js gefuellt). Der Klassen-Gate ist trotzdem gesetzt: er ist
@@ -222,8 +230,8 @@
    weil er auf --acc-1/--acc-2 sitzt. Nur die Dosis wird nachgezogen: Mars
    ist warm-orange und traegt mehr Faerbung, ohne dass es kitschig wird;
    Strand ist gelb/cyan und wuerde bei gleicher Dosis giftig. */
-:root[data-theme="mars"] .hero-video   { --hv-tint: .70; }
-:root[data-theme="strand"] .hero-video { --hv-tint: .48; --hv-scrim: .56; }
+:root[data-theme="mars"] .hero-video   { --hv-tint: .40; }
+:root[data-theme="strand"] .hero-video { --hv-tint: .26; --hv-scrim: .32; }
 
 /* ---------- Schmale Schirme ----------
    Auf dem Handy steht die Wortmarke relativ groesser im Bild und der
@@ -232,11 +240,11 @@
    wird es unruhig hinter dem Text. */
 @media (max-width: 700px) {
   .hero-video {
-    --hv-bright: .34;
-    --hv-scrim:  .58;
+    --hv-bright: .62;
+    --hv-scrim:  .34;
     --hv-mask: linear-gradient(180deg,
-        #000 0%, #000 30%, rgb(0 0 0 / .72) 48%,
-        rgb(0 0 0 / .28) 70%, rgb(0 0 0 / 0) 88%);
+        #000 0%, #000 58%, rgb(0 0 0 / .78) 74%,
+        rgb(0 0 0 / .34) 88%, rgb(0 0 0 / 0) 100%);
   }
 }
 

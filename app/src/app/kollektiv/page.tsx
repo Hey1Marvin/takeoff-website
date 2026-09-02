@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
-import type { CSSProperties, ReactNode } from "react";
+import type { ReactNode } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { pageContent, team, history, past, settings, partners, pageMedia } from "@/lib/data";
 import KollektivBlueprint from "@/components/pages/KollektivBlueprint";
+import KollektivSheet, { type SheetMeta } from "@/components/pages/KollektivSheet";
 import KollektivRig from "@/components/pages/KollektivRig";
 import KollektivHistory from "@/components/pages/KollektivHistory";
 import KollektivOrbit from "@/components/pages/KollektivOrbit";
@@ -18,70 +19,129 @@ export const metadata: Metadata = {
   description: "Wer takeoff ist: ehrenamtliches Rave-Kollektiv aus Potsdam. Selbstgebaute Anlage, Themen-Deko, Awareness als Haltung.",
 };
 
-/* Spiegelt src/data/pages/kollektiv.json (siehe assets/js/pages/kollektiv.js
-   im Prototyp für die 1:1-Referenz der Render-Logik). Der Contract
-   page-kollektiv.json beschreibt dieselbe Idee als Admin-Formular; Quelle
-   der Wahrheit für die Feldnamen ist hier die eingecheckte JSON. ethos.image/
-   imageAlt sind im Contract vorgesehen, werden aber auf der Seite selbst im
-   Prototyp nicht gerendert (die rechte Spalte zeigt das Rig-Diagramm) —
-   deshalb hier bewusst nicht Teil des Typs. */
+/* Spiegelt src/data/pages/kollektiv.json. Seit It. 14 liegen ALLE deutschen
+   Redaktionstexte dieser Seite dort — vorher standen sieben Ueberschriften,
+   beide Funkspruch-Bloecke und die Fotowand-Texte als Literal im JSX.
+   ethos.image/imageAlt sind im Contract vorgesehen, werden auf der Seite
+   aber nicht gerendert (die rechte Spalte des Deckblatts zeigt das
+   Anlagen-Diagramm) — deshalb hier bewusst nicht Teil des Typs.
+
+   ACHTUNG Contract: `sheet`, `sections`, `fotowand`, `mitmachen`, `booking`
+   und `spendChart.sumLabel` sind neu und stehen NOCH NICHT in
+   src/data/contracts/page-kollektiv.json (nicht mein Namensraum, siehe
+   Abschlussbericht). Bis das nachgezogen ist, kann ein Speichern aus dem
+   Admin diese Felder verlieren. */
+interface SectionCopy extends SheetMeta {
+  eyebrow?: string;
+  title?: string;
+  intro?: string;
+  /* nur Logbuch: Schlusssatz der letzten Zeile, mit {link}-Platzhalter */
+  tail?: string;
+  tailLink?: string;
+}
+
 interface KollektivPageContent {
   hero: { eyebrow: string; h1: string; intro: string };
   foundedDate: string;
   ethos: { text1: string; text2: string };
+  sheet: { rows: { label: string; value: string }[] };
+  sections: Record<
+    "cover" | "werte" | "finanzen" | "history" | "fotowand" | "crew" | "familie" | "faq" | "funkspruch",
+    SectionCopy
+  >;
   values: { icon: string; title: string; text: string }[];
-  spendChart: { note: string; items: { label: string; percent: number }[] };
+  spendChart: { note: string; sumLabel: string; items: { label: string; percent: number }[] };
   stats: {
     founded: { label: string };
     missions: { label: string };
     systemsBuilt: { value: string; label: string };
     volunteerPercent: { value: string; label: string };
   };
+  fotowand: {
+    mediaIntro: string;
+    mediaLabel: string;
+    placeholderLabel: string;
+    placeholders: { fig: string; text: string }[];
+    note: string;
+    noteLink: string;
+  };
   joinRoles: { label: string; mailSubject?: string }[];
+  mitmachen: {
+    label: string; text: string; rolesLabel: string;
+    direct: string; telegramLabel: string; mailLabel: string;
+  };
+  booking: { label: string; text: string; presskit: string };
   bookingFacts: { label: string; value: string }[];
   faq: { q: string; a: string }[];
 }
 
-/* H1 trägt den Glow auf dem letzten Wort; Satzzeichen am Ende bleiben
-   außerhalb des Glow-Spans. Portierung von setGlowHeadline (kollektiv.js)
-   als reine Render-Funktion statt DOM-Mutation. */
+/* Das letzte Wort einer Ueberschrift leuchtet — dieselbe Regel, die der
+   Contract fuer hero.h1 bereits beschreibt, gilt jetzt auch fuer die
+   Blatt-Ueberschriften. Satzzeichen am Ende bleiben ausserhalb des Spans.
+
+   EINWORT-TITEL leuchten NICHT: "Momente" waere sonst komplett magenta,
+   und eine ganz leuchtende Zeile ist kein Akzent mehr, sondern nur eine
+   andere Farbe. Ein Akzent braucht etwas, wogegen er steht. */
 function glowify(text: string): ReactNode {
   const words = text.trim().split(/\s+/);
-  if (!words.length) return text;
+  if (words.length < 2) return text;
   const last = words.pop()!;
   const trailMatch = last.match(/([.!?…,;:]+)$/);
   const trail = trailMatch ? trailMatch[1] : "";
   const word = trail ? last.slice(0, -trail.length) : last;
   return (
     <>
-      {words.length ? words.join(" ") + " " : ""}
+      {words.join(" ") + " "}
       <span className="glow">{word}</span>
       {trail}
     </>
   );
 }
 
-/* Hebt eine „…"-Phrase mit <em> hervor. Portierung von setEmphasisText.
-   Kein /s-Flag (dotAll) — Build-Target ist ES2017, und der Seitentext ist
-   ohnehin einzeilig, [\s\S] deckt Zeilenumbrüche trotzdem sicher ab. */
+/* Hebt eine „…"-Phrase hervor. Kein /s-Flag (dotAll) — Build-Target ist
+   ES2017; [\s\S] deckt Zeilenumbrueche ohnehin ab. */
 function emphasize(text: string): ReactNode {
   const m = text.match(/^([\s\S]*?)(„[^“]*“)([\s\S]*)$/);
   if (!m) return text;
   return (
     <>
       {m[1]}
-      <em style={{ color: "var(--ink)" }}>{m[2]}</em>
+      <em className="bp-em">{m[2]}</em>
       {m[3]}
     </>
   );
+}
+
+/* Redaktionstext mit Platzhaltern: "… Das ganze Team: {link}" wird zu
+   Text + React-Knoten + Text. Gleiche {token}-Konvention wie in
+   src/lib/i18n/de.ts, damit ein spaeterer Umzug in die i18n-Schicht kein
+   neues Format braucht. Unbekannte Tokens bleiben als Text stehen — das
+   ist beim Redigieren die ehrlichere Rueckmeldung als ein leerer String. */
+function tpl(text: string, slots: Record<string, ReactNode>): ReactNode {
+  return text.split(/(\{[a-zA-Z]+\})/).map((part, i) => {
+    const key = part.startsWith("{") && part.endsWith("}") ? part.slice(1, -1) : null;
+    if (key && key in slots) return <span key={i}>{slots[key]}</span>;
+    return <span key={i}>{part}</span>;
+  });
 }
 
 function initialsFrom(name: string): string {
   return name.trim().split(/\s+/).slice(0, 2).map(w => w[0]).join("").toUpperCase() || "??";
 }
 
-/* Icon-Sets (handgezeichnet, kein Icon-Framework) — identisch zu
-   VALUE_ICONS/TEAM_ICONS in kollektiv.js, damit der Kachel-Look 1:1 bleibt. */
+/* Blatt-Kopf: Kicker, Ueberschrift, Einleitung. Immer dieselbe Reihenfolge,
+   immer dieselben Abstaende (--sp-head-body ueber .section-head). */
+function SheetHead({ copy }: { copy: SectionCopy }) {
+  return (
+    <header className="section-head">
+      {copy.eyebrow && <p className="eyebrow">{copy.eyebrow}</p>}
+      {copy.title && <h2 className="h2">{glowify(copy.title)}</h2>}
+      {copy.intro && <p className="section-intro">{copy.intro}</p>}
+    </header>
+  );
+}
+
+/* Icon-Sets (handgezeichnet, kein Icon-Framework). */
 const VALUE_ICONS: Record<string, ReactNode> = {
   hand: (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
@@ -128,38 +188,6 @@ const TEAM_ICONS: Record<string, ReactNode> = {
   ),
 };
 
-/* Bündelt das wiederkehrende "Blaupausen-Blatt"-Chrome (Registermarken +
-   Titelblock) der BL.01–BL.07-Abschnitte. Rein präsentational, ohne
-   Interaktion — deshalb Server-seitig, kein "use client" nötig.
-   tight=true (Default) => padding-top:0, weil die Section direkt auf eine
-   andere Section folgt (wie im Prototyp-Markup). "familie" folgt auf den
-   freistehenden Orbit/Stats-Block und behält deshalb das normale
-   .section-Padding — tight={false} lässt den Inline-Style ganz weg, statt
-   ihn (wie ein bloßer style-Default es bei style={undefined} täte) doch
-   auf paddingTop:0 zurückfallen zu lassen. */
-function BpSheet({
-  id, plate, tight = true, children,
-}: {
-  id?: string;
-  plate: string;
-  tight?: boolean;
-  children: ReactNode;
-}) {
-  const style: CSSProperties | undefined = tight ? { paddingTop: 0 } : undefined;
-  return (
-    <section className="section" id={id} style={style}>
-      <div className="wrap bp-sheet">
-        <i className="bp-corner" data-pos="tl" aria-hidden="true" />
-        <i className="bp-corner" data-pos="tr" aria-hidden="true" />
-        <i className="bp-corner" data-pos="bl" aria-hidden="true" />
-        <i className="bp-corner" data-pos="br" aria-hidden="true" />
-        <span className="bp-plate" aria-hidden="true">{plate}</span>
-        {children}
-      </div>
-    </section>
-  );
-}
-
 export default async function KollektivPage() {
   const [page, crew, hist, gone, s, familie, clips] = await Promise.all([
     pageContent<KollektivPageContent>("kollektiv"),
@@ -172,6 +200,7 @@ export default async function KollektivPage() {
   ]);
   if (!page) notFound();
 
+  const sec = page.sections;
   const foundedYear = page.foundedDate.slice(0, 4);
   const missionsCount = String(gone.length).padStart(2, "0");
   const statCells: StatCell[] = [
@@ -180,96 +209,135 @@ export default async function KollektivPage() {
     { value: page.stats.systemsBuilt.value, label: page.stats.systemsBuilt.label },
     { value: page.stats.volunteerPercent.value, label: page.stats.volunteerPercent.label },
   ];
+  const spendSum = page.spendChart.items.reduce((n, i) => n + i.percent, 0);
+  const mailLink = (label: string) => (
+    <a className="bp-link" href={`mailto:${s.email}`}>{label}</a>
+  );
 
   return (
     <KollektivBlueprint>
-      <section className="phero">
-        <div className="wrap">
-          <p className="eyebrow">{page.hero.eyebrow}</p>
-          <h1>{glowify(page.hero.h1)}</h1>
-          <p className="section-intro">{page.hero.intro}</p>
+      {/* ---------- BL. 00 · Deckblatt ----------
+          Kopf und Schriftfeld nebeneinander, darunter die Uebersichts-
+          zeichnung der Anlage. Das ist die Antwort auf "linksbuendige
+          Spalte, rechts 55 % leer": der Bogen hat jetzt einen Kopfbereich
+          mit zwei Feldern statt einer Spalte im Nichts. */}
+      <KollektivSheet meta={sec.cover} className="phero bp-cover">
+        <div className="bp-cover-head">
+          <div className="bp-cover-title">
+            <p className="eyebrow">{page.hero.eyebrow}</p>
+            <h1>{glowify(page.hero.h1)}</h1>
+            <p className="section-intro">{page.hero.intro}</p>
+          </div>
+          <dl className="bp-titleblock">
+            {page.sheet.rows.map(row => (
+              <div key={row.label}>
+                <dt>{row.label}</dt>
+                <dd>{row.value.replace("{year}", foundedYear)}</dd>
+              </div>
+            ))}
+          </dl>
         </div>
-      </section>
 
-      {/* Ethos + Anlagen-Diagramm — 2-Spalten-Layout ab 860px (.bp-rig-inner) */}
-      <section className="section" style={{ paddingTop: "clamp(30px, 5vh, 50px)" }}>
-        <div className="wrap bp-rig-wrap">
-          <div className="bp-rig-inner">
-            <p style={{ color: "var(--ink-dim)", marginBottom: 18 }}>{page.ethos.text1}</p>
-            <p style={{ color: "var(--ink-dim)" }}>{emphasize(page.ethos.text2)}</p>
-            <KollektivRig />
+        <div className="bp-rig-inner">
+          <div className="bp-rig-text">
+            <p>{page.ethos.text1}</p>
+            <p>{emphasize(page.ethos.text2)}</p>
+          </div>
+          <KollektivRig />
+        </div>
+      </KollektivSheet>
+
+      {/* ---------- BL. 01 · Haltung ----------
+          Frueher fuenf Kacheln in einem auto-fit-Raster: bei 1120px lief
+          das auf 4 + 1 Waise hinaus, bei 768px auf 3 + 2. Fuenf Elemente
+          haben in einem elastischen Raster IMMER eine Waise, ausser bei
+          genau einer oder genau fuenf Spalten. Jetzt eine Stueckliste —
+          POS., Symbol, Bezeichnung, Text: eine Zeile pro Grundsatz, keine
+          Waise bei keiner Breite, und dem Bogen angemessener als Kacheln. */}
+      <KollektivSheet meta={sec.werte} id="werte">
+        <SheetHead copy={sec.werte} />
+        <ol className="bp-specs">
+          {page.values.map((v, i) => (
+            <li className="bp-spec" key={v.title}>
+              <span className="bp-spec-pos" aria-hidden="true">{String(i + 1).padStart(2, "0")}</span>
+              <span className="bp-spec-ico" aria-hidden="true">{VALUE_ICONS[v.icon]}</span>
+              {/* .txfit (geteilte Utility, takeoff.css): enge Traegerflaeche
+                  fuer Grid-Kinder. Ueber Mars-/Strandboden ist der Grund
+                  hell — die Stueckliste hat, anders als die frueheren
+                  Kacheln, keine eigene Flaeche mehr. */}
+              <b className="bp-spec-title txfit">{v.title}</b>
+              <p className="bp-spec-text txfit">{v.text}</p>
+            </li>
+          ))}
+        </ol>
+      </KollektivSheet>
+
+      {/* ---------- BL. 02 · Kassenbuch ----------
+          Balken links, Summenfeld rechts: der Hinweis stand vorher als
+          volle Zeile unter der Grafik und lief bei 1440px ueber 900px
+          Breite als eine einzige Mono-Zeile durch. */}
+      <KollektivSheet meta={sec.finanzen} id="finanzen">
+        <SheetHead copy={sec.finanzen} />
+        <div className="bp-ledger">
+          <div className="bp-ledger-chart">
+            <KollektivSpend items={page.spendChart.items} />
+          </div>
+          <aside className="bp-ledger-side">
+            <div className="bp-sum">
+              <span className="bp-sum-label">{page.spendChart.sumLabel}</span>
+              <b className="bp-sum-value">{spendSum} %</b>
+            </div>
+            <p className="lu-note">{page.spendChart.note}</p>
+          </aside>
+        </div>
+      </KollektivSheet>
+
+      {/* ---------- BL. 03 · Logbuch — der eine Bewegungsmoment ---------- */}
+      <KollektivSheet meta={sec.history} id="history">
+        <SheetHead copy={sec.history} />
+        <KollektivHistory
+          history={hist}
+          tail={sec.history.tail ?? ""}
+          tailLink={sec.history.tailLink ?? ""}
+        />
+      </KollektivSheet>
+
+      {/* ---------- BL. 04 · Fotowand ----------
+          Was da ist (Clips) und was noch fehlt (freie Felder) stehen
+          nebeneinander statt untereinander — sonst liest die Sektion sich
+          als "zwei Videos, dann vier leere Kaesten". */}
+      <KollektivSheet meta={sec.fotowand} id="fotowand">
+        <SheetHead copy={sec.fotowand} />
+        <div className="bp-wall">
+          {clips.length > 0 && (
+            <div className="bp-wall-media">
+              <p className="section-intro bp-wall-intro">{page.fotowand.mediaIntro}</p>
+              <MediaGallery items={clips} label={page.fotowand.mediaLabel} />
+            </div>
+          )}
+          <div className="bp-wall-free">
+            <p className="bp-wall-label">{page.fotowand.placeholderLabel}</p>
+            <div className="gallery-grid">
+              {page.fotowand.placeholders.map(ph => (
+                <div className="gph" key={ph.fig}>
+                  <span className="bp-fig" aria-hidden="true">{ph.fig}</span>
+                  <span className="bp-gph-text">{ph.text}</span>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
-      </section>
-
-      <BpSheet id="werte" plate="BL. 01 · HALTUNG">
-        <header className="section-head">
-          <p className="eyebrow">Haltung</p>
-          <h2 className="h2">Warum wir das <span className="glow">tun</span></h2>
-          <p className="section-intro">Kein Businessplan — fünf Grundsätze, an denen wir jede Mission messen.</p>
-        </header>
-        <div className="werte-grid">
-          {page.values.map(v => (
-            <div className="wtile" key={v.title}>
-              <span className="ico" aria-hidden="true">{VALUE_ICONS[v.icon]}</span>
-              <b>{v.title}</b>
-              <p>{v.text}</p>
-            </div>
-          ))}
-        </div>
-      </BpSheet>
-
-      <BpSheet id="finanzen" plate="BL. 02 · KASSENBUCH">
-        <header className="section-head">
-          <p className="eyebrow">Kassenbuch</p>
-          <h2 className="h2">Wohin das Geld <span className="glow">fliegt</span></h2>
-          <p className="section-intro">{'„Nicht-Verlust-orientiert" ist kein Slogan — hier ist, wofür Einnahmen draufgehen.'}</p>
-        </header>
-        <KollektivSpend items={page.spendChart.items} />
-        <p className="lu-note">{page.spendChart.note}</p>
-      </BpSheet>
-
-      <BpSheet id="history" plate="BL. 03 · LOGBUCH · M 1:1">
-        <header className="section-head">
-          <p className="eyebrow">Logbuch</p>
-          <h2 className="h2">Wie alles <span className="glow">anfing</span></h2>
-          <p className="section-intro">Kein Masterplan — nur eine kleine Gruppe, ein Lötkolben und die Idee, dass Potsdam mehr Trance verdient.</p>
-        </header>
-        <KollektivHistory history={hist} />
-      </BpSheet>
-
-      <BpSheet id="fotowand" plate="BL. 04 · FOTOWAND">
-        <header className="section-head">
-          <p className="eyebrow">Fotowand</p>
-          <h2 className="h2">Momente</h2>
-        </header>
-        {clips.length > 0 && (
-          <>
-            <p className="section-intro" style={{ marginTop: 0 }}>
-              Bewegtbild ist schon da — wie wir bauen, und wie aus drei Tagen Vorlauf
-              ein zweiter Subwoofer wird.
-            </p>
-            <MediaGallery items={clips} label="Videos des Kollektivs" />
-          </>
-        )}
-        <div className="gallery-grid" style={{ marginTop: clips.length > 0 ? 22 : 0 }}>
-          <div className="gph"><span className="bp-fig" aria-hidden="true">FIG. 01</span>Foto folgt<br />nach Freigabe</div>
-          <div className="gph"><span className="bp-fig" aria-hidden="true">FIG. 02</span>Foto folgt<br />nach Freigabe</div>
-          <div className="gph"><span className="bp-fig" aria-hidden="true">FIG. 03</span>Foto folgt<br />nach Freigabe</div>
-          <div className="gph"><span className="bp-fig" aria-hidden="true">FIG. 04</span>Foto folgt<br />nach Freigabe</div>
-        </div>
-        <p className="lu-note" style={{ marginTop: 14 }}>
-          Kein Foto ohne Frage — die Wand füllt sich, sobald alle Abgebildeten zugestimmt haben. Das ganze Team:{" "}
-          <Link href={pageHref("team")} style={{ color: "var(--acc-3-tint)" }}>Teamboard →</Link>
+        <p className="lu-note bp-wall-note">
+          {tpl(page.fotowand.note, {
+            link: <Link href={pageHref("team")} className="bp-link">{page.fotowand.noteLink}</Link>,
+          })}
         </p>
-      </BpSheet>
+      </KollektivSheet>
 
-      <BpSheet id="crew" plate="BL. 05 · BESATZUNG">
-        <header className="section-head">
-          <p className="eyebrow">Crew Select</p>
-          <h2 className="h2">Wer hier <span className="glow">funkt</span></h2>
-        </header>
-        <div className="crewgrid">
+      {/* ---------- BL. 05 · Besatzung ---------- */}
+      <KollektivSheet meta={sec.crew} id="crew">
+        <SheetHead copy={sec.crew} />
+        <div className="crewgrid bp-crew">
           {crew.map(member => (
             <div className="ccard" key={member.name}>
               <div className="avatar">
@@ -282,19 +350,20 @@ export default async function KollektivPage() {
             </div>
           ))}
         </div>
-      </BpSheet>
+      </KollektivSheet>
 
-      <div className="wrap">
+      {/* ---------- Kennwerte-Leiste ----------
+          Bewusst OHNE Blattnummer: es ist keine eigene Zeichnung, sondern
+          die Legende zwischen zweien. Sie laeuft trotzdem im selben Raster
+          mit, damit der Heftrand nicht abreisst. */}
+      <KollektivSheet meta={{}} className="bp-metrics">
         <KollektivOrbit foundedDate={page.foundedDate} />
         <KollektivStats stats={statCells} />
-      </div>
+      </KollektivSheet>
 
-      <BpSheet id="familie" plate="BL. 06 · VERBUND" tight={false}>
-        <header className="section-head">
-          <p className="eyebrow">Familie</p>
-          <h2 className="h2">Mit wem wir <span className="glow">fliegen</span></h2>
-          <p className="section-intro">Kollektive, Häuser und Menschen, ohne die unsere Nächte nicht gehen würden.</p>
-        </header>
+      {/* ---------- BL. 06 · Verbund ---------- */}
+      <KollektivSheet meta={sec.familie} id="familie">
+        <SheetHead copy={sec.familie} />
         <ul className="bp-family-grid">
           {familie.map(f => (
             <li className="bp-fam-card" key={f.name}>
@@ -310,13 +379,11 @@ export default async function KollektivPage() {
             </li>
           ))}
         </ul>
-      </BpSheet>
+      </KollektivSheet>
 
-      <BpSheet id="faq" plate="BL. 07 · BORDFRAGEN">
-        <header className="section-head">
-          <p className="eyebrow">Bordfragen</p>
-          <h2 className="h2">Häufig <span className="glow">gefragt</span></h2>
-        </header>
+      {/* ---------- BL. 07 · Bordfragen ---------- */}
+      <KollektivSheet meta={sec.faq} id="faq">
+        <SheetHead copy={sec.faq} />
         <dl className="m-rows bp-faq">
           {page.faq.map(item => (
             <div className="m-row" key={item.q}>
@@ -325,14 +392,18 @@ export default async function KollektivPage() {
             </div>
           ))}
         </dl>
-      </BpSheet>
+      </KollektivSheet>
 
-      <section className="section" id="mitmachen" style={{ paddingTop: 0 }}>
-        <div className="wrap">
-          <div className="transmission">
-            <span className="tx-label">Crew-Anwärter*innen gesucht</span>
-            <p>Bar, Einlass, Awareness, Deko-Bau oder Sani — klick deine Rolle an, wir schreiben zurück. takeoff wächst mit jeder Mission.</p>
-            <div className="chips bp-roles" role="list" aria-label="Rollen zum Mitmachen">
+      {/* ---------- BL. 08 · Funkspruch ----------
+          Vorher zwei zentrierte Kaesten untereinander, jeder mit 45 %
+          leerer Flaeche daneben. Nebeneinander bilden sie den Schlussbund
+          des Bogens. */}
+      <KollektivSheet meta={sec.funkspruch} className="bp-signals-sheet">
+        <div className="bp-signals">
+          <div className="transmission" id="mitmachen">
+            <span className="tx-label">{page.mitmachen.label}</span>
+            <p>{page.mitmachen.text}</p>
+            <div className="chips bp-roles" role="list" aria-label={page.mitmachen.rolesLabel}>
               {page.joinRoles.map(r => (
                 <a
                   className="chip" role="listitem" key={r.label}
@@ -342,31 +413,28 @@ export default async function KollektivPage() {
                 </a>
               ))}
             </div>
-            <p className="lu-note" style={{ marginTop: 16 }}>
-              Lieber direkt reden?{" "}
-              <a href={s.telegram} target="_blank" rel="noopener" style={{ color: "var(--acc-3-tint)" }}>Telegram</a>{" "}
-              oder <a href={`mailto:${s.email}`} style={{ color: "var(--acc-3-tint)" }}>Mail</a>.
+            <p className="lu-note bp-tx-note">
+              {tpl(page.mitmachen.direct, {
+                telegram: <a className="bp-link" href={s.telegram} target="_blank" rel="noopener">{page.mitmachen.telegramLabel}</a>,
+                mail: mailLink(page.mitmachen.mailLabel),
+              })}
             </p>
           </div>
-        </div>
-      </section>
 
-      <section className="section" id="booking" style={{ paddingTop: 0 }}>
-        <div className="wrap">
-          <div className="transmission">
-            <span className="tx-label">Booking &amp; Partner</span>
-            <p>Eigenes Soundsystem, eigenes Licht, eingespielte Schicht-Crews und Erfahrung mit Genehmigungen — wir supporten auch andere Veranstaltungen.</p>
+          <div className="transmission" id="booking">
+            <span className="tx-label">{page.booking.label}</span>
+            <p>{page.booking.text}</p>
             <div className="facts">
               {page.bookingFacts.map(f => (
                 <span key={f.label}><b>{f.label}</b> · {f.value}</span>
               ))}
             </div>
-            <p className="lu-note" style={{ marginTop: 16 }}>
-              Presskit folgt: <a href={`mailto:${s.email}`} style={{ color: "var(--acc-3-tint)" }}>{s.email}</a>
+            <p className="lu-note bp-tx-note">
+              {tpl(page.booking.presskit, { mail: mailLink(s.email) })}
             </p>
           </div>
         </div>
-      </section>
+      </KollektivSheet>
     </KollektivBlueprint>
   );
 }

@@ -3,9 +3,9 @@ import Link from "next/link";
 import { upcoming, past, fmtDate, settings, pageContent, nextEvent } from "@/lib/data";
 import { eventHref, pageHref } from "@/lib/site";
 import type { TakeoffEvent } from "@/lib/types";
-import ExpandCard from "@/components/ExpandCard";
 import EventsStatusFlap from "@/components/pages/EventsStatusFlap";
 import EventsBoardClock from "@/components/pages/EventsBoardClock";
+import EventsBoardRow from "@/components/pages/EventsBoardRow";
 import EventsTminusClock from "@/components/pages/EventsTminusClock";
 import EventsShareButton from "@/components/pages/EventsShareButton";
 import EventsFlightLog from "@/components/pages/EventsFlightLog";
@@ -18,16 +18,36 @@ export const metadata: Metadata = {
   description: "Alle takeoff-Events: kommende Missionen und das Flight Log der vergangenen Nächte.",
 };
 
-/* Spiegelt src/data/pages/events.json (siehe assets/js/pages/events.js im
-   Prototyp für die 1:1-Referenz der Render-/Statuslogik). */
+/* Spiegelt src/data/pages/events.json. */
 interface EventsPageData {
   hero: { eyebrow: string; titleHtml: string; intro: string };
-  board: { code: string; title: string; boardingWindowHours?: number };
+  board: {
+    code: string;
+    title: string;
+    boardingWindowHours?: number;
+    columns: { gate: string; date: string; mission: string; place: string; status: string };
+    gatePrefix: string;
+    toggleLabel: string;
+    footNoteOne: string;
+    footNoteMany: string;
+    footNoteNone: string;
+  };
+  briefing: {
+    boarding: string; boardingEnd: string; boardingOpenEnd: string;
+    venue: string; entry: string; sound: string;
+    detailCta: string; telegramCta: string; telegramTbaCta: string; icsDemoTitle: string;
+  };
   emptyState: { eyebrow: string; title: string; text: string; ctaLabel: string; ctaHref: string };
-  sections: { upcomingEyebrow: string; flightlogEyebrow: string; flightlogTitleHtml: string };
+  sections: {
+    upcomingEyebrow: string;
+    flightlogEyebrow: string;
+    flightlogTitleHtml: string;
+    flightlogNote: { before: string; linkLabel: string; after: string };
+  };
   eventExtras?: Record<string, { detailPage?: string; transit?: string; capacityNote?: string; weatherNote?: string; shareText?: string }>;
+  faqSection: { eyebrow: string; titleHtml: string };
   faq: { q: string; a: string }[];
-  tapTempo?: { title?: string; intro?: string; genres?: { name: string; bpmMin: number; bpmMax: number }[] };
+  tapTempo?: { eyebrow?: string; title?: string; titleHtml?: string; intro?: string; genres?: { name: string; bpmMin: number; bpmMax: number }[] };
   patchLog?: { toggleLabel: string; toastTemplate: string; resetLabel: string };
   share?: { copiedToast?: string };
   calendar: { ctaLabel: string; subscribeLabel: string };
@@ -67,22 +87,10 @@ function renderFaqAnswer(text: string) {
   return (
     <>
       {text.slice(0, idx)}
-      <Link href={pageHref("kollektiv", "mitmachen")} style={{ color: "var(--acc-3-tint)" }}>kollektiv#mitmachen</Link>
+      <Link className="ev-inline-link" href={pageHref("kollektiv", "mitmachen")}>kollektiv#mitmachen</Link>
       {text.slice(idx + marker.length)}
     </>
   );
-}
-
-/* Portierung von chipsHtml() aus events.js. */
-function eventChips(ev: TakeoffEvent): { label: string; hot?: boolean }[] {
-  const chips: { label: string; hot?: boolean }[] = [];
-  if (ev.pricing?.label) chips.push({ label: ev.pricing.label, hot: true });
-  for (const g of ev.genres ?? []) chips.push({ label: g });
-  /* Nur kurze Altersmarken ("18+") werden zum Chip — db.json führt für
-     Open Airs auch ausformulierte Sätze im selben Feld, die als Pille
-     unlesbar würden. */
-  if (ev.age && /^\d{1,2}\+$/.test(ev.age)) chips.push({ label: ev.age });
-  return chips;
 }
 
 /* Patch-Icons je Theme — 1:1 aus den Karten-SVGs in prototype/events.html
@@ -107,9 +115,12 @@ const PATCH_ICON_INNER: Record<string, React.ReactNode> = {
   heart: <path d="M12 20s-7.2-4.6-9.2-9A5.2 5.2 0 0 1 12 6.6 5.2 5.2 0 0 1 21.2 11c-2 4.4-9.2 9-9.2 9z" />,
 };
 
-/* Beweis-Portierung: komplette Events-Seite aus dem Gateway gerendert —
-   neue Events in der DB erscheinen hier automatisch (Karten, Flight Log,
-   Menü-Zähler in Topbar/BurgerMenu). */
+/* Gate-Nummer war bis It. 14 ein reiner CSS-Zaehler (counter-increment auf
+   .mcard, ungescopet — er lief damit auch auf fremden Seiten mit). Jetzt
+   kommt sie aus der Reihenfolge der Liste, wie jede andere Angabe der
+   Zeile auch. */
+const gateNo = (i: number) => String(i + 1).padStart(2, "0");
+
 export default async function EventsPage() {
   const [up, gone, s, page, next] = await Promise.all([
     upcoming(),
@@ -135,6 +146,15 @@ export default async function EventsPage() {
   const faq = page?.faq ?? [];
   const bpmGenres = page?.tapTempo?.genres;
   const heroTitleHtml = page?.hero.titleHtml ?? 'Events &amp; <span class="glow">Missionen</span>';
+  const cols = page?.board.columns ?? { gate: "Gate", date: "Datum", mission: "Mission", place: "Ort", status: "Status" };
+  const br = page?.briefing;
+
+  const footNote =
+    up.length === 0
+      ? page?.board.footNoteNone ?? "Kein Abflug angekündigt"
+      : up.length === 1
+        ? page?.board.footNoteOne ?? "1 Abflug angekündigt"
+        : (page?.board.footNoteMany ?? "{count} Abflüge angekündigt").replace("{count}", String(up.length));
 
   return (
     <>
@@ -143,7 +163,7 @@ export default async function EventsPage() {
           <p className="eyebrow">{page?.hero.eyebrow ?? "Flugplan"}</p>
           <h1 dangerouslySetInnerHTML={{ __html: heroTitleHtml }} />
           <p className="section-intro">
-            {page?.hero.intro ?? "Alles, was ansteht — und alles, was war. Tippe eine Karte an für das Briefing."}
+            {page?.hero.intro ?? "Alles, was ansteht — und alles, was war. Tipp eine Zeile der Tafel an, dann klappt das Briefing auf."}
           </p>
           <div className="tminus" role="timer" aria-label="Countdown zum nächsten Event">
             <span className="label">T-Minus</span>
@@ -152,124 +172,171 @@ export default async function EventsPage() {
         </div>
       </section>
 
-      <section className="section" id="kommend" style={{ paddingTop: "clamp(30px, 5vh, 50px)" }}>
-        <div className="wrap">
+      {/* Die Tafel ist der Ausbruch aus der Textspalte: breiter als jeder
+          andere Block der Seite (.ev-wrap), weil eine Abflugtafel breit
+          IST. Genau ein Ausbruch — mehrere verschiedene Breiten laesen
+          sich als Zufall, einer als Absicht. */}
+      <section className="section ev-sec ev-sec--board" id="kommend">
+        <div className="wrap ev-wrap">
           <p className="eyebrow">{page?.sections.upcomingEyebrow ?? "Kommende Missionen"}</p>
 
-          {up.length > 0 && (
-            <div className="board">
-              <EventsBoardPower />
-              <div className="board-frame">
-                <div className="board-toprow">
-                  <span className="board-code" aria-hidden="true">{page?.board.code ?? "PDM"}</span>
-                  <span className="board-title">{page?.board.title ?? "Abflugtafel"}</span>
-                  <EventsBoardClock />
+          <div className="ev-board">
+            <EventsBoardPower />
+            <div className="ev-frame">
+              <div className="board-toprow">
+                <span className="board-code" aria-hidden="true">{page?.board.code ?? "PDM"}</span>
+                <h2 className="board-title">{page?.board.title ?? "Abflugtafel"}</h2>
+                <EventsBoardClock />
+              </div>
+
+              {up.length === 0 ? (
+                <div className="ev-standby">
+                  <span className="ev-standby-label">{page?.emptyState.eyebrow ?? "Standby"}</span>
+                  <p className="ev-standby-title">{page?.emptyState.title ?? "Nächster Start in Vorbereitung"}</p>
+                  <p className="ev-standby-text">{page?.emptyState.text ?? "Kein Event angekündigt — aber startklar. Telegram weiß es zuerst."}</p>
+                  <a className="btn btn-primary" href={s.telegram} target="_blank" rel="noopener">
+                    {page?.emptyState.ctaLabel ?? "Telegram beitreten"}
+                  </a>
                 </div>
-                <div className="board-cols" aria-hidden="true">
-                  <span>Gate</span><span>Datum</span><span>Mission</span><span>Ort</span><span>Status</span>
-                </div>
+              ) : (
+                <>
+                  <div className="ev-cols" aria-hidden="true">
+                    <span>{cols.gate}</span>
+                    <span>{cols.date}</span>
+                    <span>{cols.mission}</span>
+                    <span>{cols.place}</span>
+                    <span>{cols.status}</span>
+                    <span />
+                  </div>
+
+                  <ul className="ev-rows">
+                    {up.map((e, i) => {
+                      const label = computeLabel(e, boardingWindowH);
+                      const statusKey = statusKeyFor(label);
+                      const extra = page?.eventExtras?.[e.slug];
+                      const transit = extra?.transit || e.venue.transit;
+                      const shareText = extra?.shareText || `${e.title} · ${e.weekday} ${fmtDate(e.date)} · ${e.venue.name}`;
+                      const noteLine = extra?.weatherNote
+                        ? { icon: "🌧", text: extra.weatherNote }
+                        : extra?.capacityNote
+                          ? { icon: "⚠", text: extra.capacityNote }
+                          : null;
+                      const whenLine = [
+                        e.doors && e.doors !== "TBA" ? `ab ${e.doors}` : "",
+                        e.pricing.label,
+                      ].filter(Boolean).join(" · ");
+                      const endLine = e.end
+                        ? e.end === "open end"
+                          ? ` · ${br?.boardingOpenEnd ?? "open end"}`
+                          : ` · ${br?.boardingEnd ?? "Ende"} ${e.end}`
+                        : "";
+
+                      return (
+                        <EventsBoardRow
+                          key={e.slug}
+                          index={i}
+                          accent={e.theme.accent}
+                          accentRgb={e.theme.accentRgb}
+                          toggleLabel={page?.board.toggleLabel ?? "Briefing"}
+                          head={
+                            <>
+                              <span className="ev-c ev-c-gate">
+                                <span className="ev-gate">{page?.board.gatePrefix ?? "Gate"} {gateNo(i)}</span>
+                              </span>
+                              <span className="ev-c ev-c-date">
+                                <span className="ev-wd">{e.weekday}</span>
+                                <span className="ev-day">{fmtDate(e.date)}</span>
+                              </span>
+                              <span className="ev-c ev-c-mission">
+                                <span className="ev-patch" aria-hidden="true">
+                                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                                    {PATCH_ICON_INNER[e.theme.patch] ?? PATCH_ICON_INNER.star}
+                                  </svg>
+                                </span>
+                                <span className="ev-titles">
+                                  <span className="ev-title">{e.title}</span>
+                                  {e.subtitle && <span className="ev-sub">{e.subtitle}</span>}
+                                </span>
+                              </span>
+                              <span className="ev-c ev-c-place">
+                                <span className="ev-venue">{e.venue.name}</span>
+                                {whenLine && <span className="ev-when">{whenLine}</span>}
+                              </span>
+                              <span className="ev-c ev-c-status">
+                                <EventsStatusFlap label={label} statusKey={statusKey} className="ev-status" />
+                              </span>
+                            </>
+                          }
+                          more={
+                            <>
+                              <div className="ev-facts">
+                                <dl className="m-rows">
+                                  <div className="m-row">
+                                    <dt>{br?.boarding ?? "Boarding"}</dt>
+                                    <dd><b>{e.doors}</b>{endLine}</dd>
+                                  </div>
+                                  <div className="m-row">
+                                    <dt>{br?.venue ?? "Landeplatz"}</dt>
+                                    <dd><b>{e.venue.name}</b><br />{transit || e.venue.address}</dd>
+                                  </div>
+                                  <div className="m-row">
+                                    <dt>{br?.entry ?? "Eintritt"}</dt>
+                                    <dd><b>{e.pricing.label}</b>{e.age === "18+" ? " · 18+" : ""}</dd>
+                                  </div>
+                                  {e.genres.length > 0 && (
+                                    <div className="m-row">
+                                      <dt>{br?.sound ?? "Sound"}</dt>
+                                      <dd translate="no">{e.genres.join(" · ")}</dd>
+                                    </div>
+                                  )}
+                                </dl>
+                              </div>
+
+                              <div className="ev-brief">
+                                <p className="m-brief">{e.brief}</p>
+                                {noteLine && <p className="ev-note">{noteLine.icon} {noteLine.text}</p>}
+                                {e.venue.mapsQuery && (
+                                  <div className="route-row ev-route">
+                                    <a className="btn btn-ghost" href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(e.venue.mapsQuery)}`} target="_blank" rel="noopener">Google Maps ↗</a>
+                                    <a className="btn btn-ghost" href={`https://maps.apple.com/?q=${encodeURIComponent(e.venue.mapsQuery)}`} target="_blank" rel="noopener">Apple Karten ↗</a>
+                                    <a className="btn btn-ghost" href={`https://www.openstreetmap.org/search?query=${encodeURIComponent(e.venue.mapsQuery)}`} target="_blank" rel="noopener">OSM ↗</a>
+                                  </div>
+                                )}
+                              </div>
+
+                              <div className="cta-row ev-cta">
+                                <Link className="btn btn-primary" href={eventHref(e.slug)}>{br?.detailCta ?? "Zur Missionsseite"}</Link>
+                                <a className="btn btn-ghost" href="#" aria-disabled="true" title={br?.icsDemoTitle ?? "Demo — echter Download kommt mit dem Backend"}>
+                                  {page?.calendar.ctaLabel ?? "＋ In den Kalender (.ics)"}
+                                </a>
+                                <EventsShareButton text={shareText} url={eventHref(e.slug)} copiedToast={page?.share?.copiedToast} />
+                                <a className="btn btn-ghost" href={s.telegram} target="_blank" rel="noopener">
+                                  {e.state === "tba" ? (br?.telegramTbaCta ?? "Telegram · zuerst erfahren") : (br?.telegramCta ?? "Telegram")}
+                                </a>
+                              </div>
+                            </>
+                          }
+                        />
+                      );
+                    })}
+                  </ul>
+                </>
+              )}
+
+              {/* Fusszeile INNERHALB des Rahmens: der Abo-Link hing vorher
+                  mit margin-top:-8px im Schlagschatten der Tafel. */}
+              <div className="ev-foot">
+                <span className="ev-foot-note">{footNote}</span>
+                <Link className="ev-foot-link" href={pageHref("kalender")}>
+                  {page?.calendar.subscribeLabel ?? "Alle Termine abonnieren →"}
+                </Link>
               </div>
             </div>
-          )}
-
-          <div className="board-actions">
-            <Link className="btn btn-ghost" href={pageHref("kalender")}>{page?.calendar.subscribeLabel ?? "Alle Termine abonnieren →"}</Link>
           </div>
-
-          {up.length === 0 ? (
-            <div className="transmission standby-state">
-              <span className="tx-label">{page?.emptyState.eyebrow ?? "Standby"}</span>
-              <p>
-                <strong>{page?.emptyState.title ?? "Nächster Start in Vorbereitung"}</strong><br />
-                <span className="es-text">{page?.emptyState.text ?? "Kein Event angekündigt — aber startklar. Telegram weiß es zuerst."}</span>
-              </p>
-              <div className="cta-row" style={{ justifyContent: "center", marginTop: 16 }}>
-                <a className="btn btn-primary" href={s.telegram} target="_blank" rel="noopener">
-                  {page?.emptyState.ctaLabel ?? "Telegram beitreten"}
-                </a>
-              </div>
-            </div>
-          ) : (
-            <div className="card-grid">
-              {up.map(e => {
-                const label = computeLabel(e, boardingWindowH);
-                const statusKey = statusKeyFor(label);
-                const extra = page?.eventExtras?.[e.slug];
-                const chips = eventChips(e);
-                const transit = extra?.transit || e.venue.transit;
-                const shareText = extra?.shareText || `${e.title} · ${e.weekday} ${fmtDate(e.date)} · ${e.venue.name}`;
-                const noteLine = extra?.weatherNote
-                  ? { icon: "🌧", text: extra.weatherNote }
-                  : extra?.capacityNote
-                    ? { icon: "⚠", text: extra.capacityNote }
-                    : null;
-
-                return (
-                  <ExpandCard
-                    key={e.slug}
-                    style={{ "--card-acc": e.theme.accent, "--card-acc-rgb": e.theme.accentRgb } as React.CSSProperties}
-                    more={
-                      <>
-                        <dl className="m-rows">
-                          <div className="m-row"><dt>Boarding</dt><dd><b>{e.doors}</b>{e.end ? ` · ${e.end === "open end" ? "open end" : `Ende ${e.end}`}` : ""}</dd></div>
-                          <div className="m-row"><dt>Landeplatz</dt><dd><b>{e.venue.name}</b><br />{transit || e.venue.address}</dd></div>
-                          <div className="m-row"><dt>Eintritt</dt><dd><b>{e.pricing.label}</b>{e.age === "18+" ? " · 18+" : ""}</dd></div>
-                          {e.genres.length > 0 && (
-                            <div className="m-row"><dt>Sound</dt><dd>{e.genres.join(" · ")}</dd></div>
-                          )}
-                        </dl>
-                        {e.venue.mapsQuery && (
-                          <div className="route-row">
-                            <a className="btn btn-ghost" href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(e.venue.mapsQuery)}`} target="_blank" rel="noopener">Google Maps ↗</a>
-                            <a className="btn btn-ghost" href={`https://maps.apple.com/?q=${encodeURIComponent(e.venue.mapsQuery)}`} target="_blank" rel="noopener">Apple Karten ↗</a>
-                            <a className="btn btn-ghost" href={`https://www.openstreetmap.org/search?query=${encodeURIComponent(e.venue.mapsQuery)}`} target="_blank" rel="noopener">OSM ↗</a>
-                          </div>
-                        )}
-                        {transit && <p className="lu-note">{transit}</p>}
-                        <p className="m-brief">{e.brief}</p>
-                        {noteLine && <p className="note-line">{noteLine.icon} {noteLine.text}</p>}
-                        <div className="cta-row">
-                          <Link className="btn btn-primary" href={eventHref(e.slug)}>Zur Missionsseite</Link>
-                          <a className="btn btn-ghost" href="#" aria-disabled="true" title="Demo — echter Download kommt mit dem Backend">
-                            {page?.calendar.ctaLabel ?? "＋ In den Kalender (.ics)"}
-                          </a>
-                          <EventsShareButton text={shareText} url={eventHref(e.slug)} copiedToast={page?.share?.copiedToast} />
-                          <a className="btn btn-ghost" href={s.telegram} target="_blank" rel="noopener">
-                            {e.state === "tba" ? "Telegram · zuerst erfahren" : "Telegram"}
-                          </a>
-                        </div>
-                      </>
-                    }
-                  >
-                    <span className="gate-tag" aria-hidden="true" />
-                    <EventsStatusFlap label={label} statusKey={statusKey} />
-                    <div className="patch" aria-hidden="true">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-                        {PATCH_ICON_INNER[e.theme.patch] ?? PATCH_ICON_INNER.star}
-                      </svg>
-                    </div>
-                    <div className="m-date">{e.weekday} <em>{fmtDate(e.date)}</em></div>
-                    <h3>{e.title}</h3>
-                    <p className="m-meta">
-                      {e.venue.name}{e.doors && e.doors !== "TBA" ? ` · ab ${e.doors}` : ""} · {e.pricing.label}
-                      <br />{e.subtitle}
-                    </p>
-                    {chips.length > 0 && (
-                      <div className="chips">
-                        {chips.map((c, i) => (
-                          <span className={`chip${c.hot ? " hot" : ""}`} key={`${c.label}-${i}`}>{c.label}</span>
-                        ))}
-                      </div>
-                    )}
-                  </ExpandCard>
-                );
-              })}
-            </div>
-          )}
         </div>
       </section>
 
-      <section className="section" id="flightlog">
+      <section className="section ev-sec ev-sec--log" id="flightlog">
         <div className="wrap">
           <EventsFlightLog
             events={flogEntries}
@@ -279,46 +346,59 @@ export default async function EventsPage() {
             toastTemplate={page?.patchLog?.toastTemplate ?? "Patch gespeichert — {count}/{total} Missionen"}
             resetLabel={page?.patchLog?.resetLabel ?? "Zurücksetzen"}
           />
-          <p className="lu-note" style={{ marginTop: 18 }}>
-            Galerien &amp; Sets folgen, sobald alle Abgebildeten gefragt wurden — <Link href={pageHref("kontakt")} style={{ color: "var(--acc-3-tint)" }}>kein Foto ohne Frage</Link>.
+          <p className="lu-note ev-log-note">
+            {page?.sections.flightlogNote?.before ?? "Galerien & Sets folgen, sobald alle Abgebildeten gefragt wurden — "}
+            <Link className="ev-inline-link" href={pageHref("kontakt")}>
+              {page?.sections.flightlogNote?.linkLabel ?? "kein Foto ohne Frage"}
+            </Link>
+            {page?.sections.flightlogNote?.after ?? "."}
           </p>
         </div>
       </section>
 
-      <section className="section" id="bpm">
+      {/* FAQ und Tap-Tempo standen als zwei volle Sektionen untereinander,
+          beide als schmale Spalte in einem 1440er Fenster. Als Paar
+          benutzen sie die Breite und die Seite wird um eine Sektionshoehe
+          kuerzer. */}
+      <section className="section ev-sec ev-sec--end">
         <div className="wrap">
-          <header className="section-head">
-            <p className="eyebrow">Sound-Check</p>
-            <h2 className="h2">Finde deinen <span className="glow">Rave-Rhythmus</span></h2>
-            <p className="section-intro">{page?.tapTempo?.intro ?? "Klopf mit — wir sagen dir, zu welchem Genre dein Tempo passt."}</p>
-          </header>
-          <EventsBpmTool genres={bpmGenres} />
-        </div>
-      </section>
+          <div className="ev-endgrid">
+            <div className="ev-faq" id="faq">
+              <header className="section-head">
+                <p className="eyebrow">{page?.faqSection.eyebrow ?? "Bevor du fragst"}</p>
+                <h2 className="h2" dangerouslySetInnerHTML={{ __html: page?.faqSection.titleHtml ?? 'Häufige <span class="glow">Fragen</span>' }} />
+              </header>
+              <div className="faqlist">
+                {faq.map(item => (
+                  <details key={item.q}>
+                    <summary>
+                      {item.q}
+                      <span className="fq-ico" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M12 5v14M5 12h14" /></svg>
+                      </span>
+                    </summary>
+                    <p className="fq-a">{renderFaqAnswer(item.a)}</p>
+                  </details>
+                ))}
+              </div>
+            </div>
 
-      <section className="section" id="faq">
-        <div className="wrap" style={{ maxWidth: 820 }}>
-          <header className="section-head">
-            <p className="eyebrow">Bevor du fragst</p>
-            <h2 className="h2">Häufige <span className="glow">Fragen</span></h2>
-          </header>
-          <div className="faqlist">
-            {faq.map(item => (
-              <details key={item.q}>
-                <summary>
-                  {item.q}
-                  <span className="fq-ico" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M12 5v14M5 12h14" /></svg>
-                  </span>
-                </summary>
-                <p className="fq-a">{renderFaqAnswer(item.a)}</p>
-              </details>
-            ))}
+            <aside className="ev-bpm" id="bpm">
+              <header className="section-head">
+                <p className="eyebrow">{page?.tapTempo?.eyebrow ?? "Sound-Check"}</p>
+                <h2
+                  className="h2 ev-bpm-title"
+                  dangerouslySetInnerHTML={{ __html: page?.tapTempo?.titleHtml ?? 'Finde deinen <span class="glow">Rave-Rhythmus</span>' }}
+                />
+                <p className="section-intro ev-bpm-intro">{page?.tapTempo?.intro ?? "Klopf mit — wir sagen dir, zu welchem Genre dein Tempo passt."}</p>
+              </header>
+              <EventsBpmTool genres={bpmGenres} />
+            </aside>
           </div>
         </div>
       </section>
 
-      <section className="section" style={{ paddingTop: 0 }}>
+      <section className="section ev-sec ev-sec--tx">
         <div className="wrap">
           <div className="transmission">
             <span className="tx-label">{page?.transmission.label ?? "Transmission incoming"}</span>

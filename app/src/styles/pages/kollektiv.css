@@ -1,126 +1,256 @@
 /* ============================================================
-   kollektiv.css — Signatur-Motiv "Bauplan" (Cyanotypie/Blueprint)
+   kollektiv.css — Signatur-Motiv „Blaupause"
 
-   takeoff baut Anlage, Licht und Deko selbst — diese Seite wird deshalb
+   takeoff baut Anlage, Licht und Deko selbst. Diese Seite wird deshalb
    nicht ueber das Kollektiv gestaltet, sondern ALS eines seiner eigenen
-   Konstruktionsdokumente: eine Blaupause. Drei Ebenen, ein System:
-     1) Traegerflaeche — Millimeterraster + Sheet-Rahmen hinter der ganzen
-        Seite (nicht nur einer Section).
-     2) Massline — die Flightlog-Zeitlinie zeichnet sich beim Scrollen.
-     3) Herzstueck — das Anlagen-Diagramm baut sich in Bau-Reihenfolge auf.
-   Laeuft komplett ueber --acc-3 (kuehler Gegenpol) — keine neuen Hex-Werte,
-   damit Mars-/Strand-Theme das Motiv korrekt mitfaerben. Siehe DATA.md.
+   Konstruktionsdokumente: ein Cyanotypie-Bogen.
 
-   Portierungshinweis: Das generische Site-weite ".reveal"-Scroll-Einblenden
-   (main.js im Prototyp) ist in dieser App-Migration noch nicht als geteilte
-   Komponente vorhanden (siehe events/awareness) und deshalb hier bewusst
-   nicht verdrahtet. Die EINE Stelle, an der ".reveal" im Prototyp zugleich
-   das 2-Spalten-Layout des Rig-Diagramms traegt, wurde auf die eigene
-   Klasse ".bp-rig-inner" umbenannt (siehe Abschnitt 3) — Optik identisch,
-   nur ohne Abhaengigkeit von der (hier fehlenden) Reveal-Klasse.
+   WAS SICH IN IT. 14 GEAENDERT HAT UND WARUM
+
+   Das Motiv war da, aber schuechtern. Nachgemessen an den Audit-Bildern
+   (.design-audit/_kollektiv__*):
+
+   1. KOMPOSITION. Die Seite war — trotz der staerksten Seiten-Identitaet
+      der Site — eine linksbuendige Textspalte von ~760px auf 1440px. Ein
+      technischer Bogen hat aber genau das, was fehlte: einen HEFTRAND, eine
+      SATZSPALTE und ein SCHRIFTFELD. Jede Sektion ist jetzt ein Blatt mit
+      Rand links (durchlaufender Haarstrich ueber die GANZE Seite, deshalb
+      liegt das vertikale Polster in .bp-body und nicht mehr in .section)
+      und die Bloecke, die vorher untereinander standen, stehen jetzt
+      nebeneinander: Kopf + Schriftfeld, Balken + Summenfeld, Clips + freie
+      Felder, die beiden Funksprueche.
+   2. TRAEGERBOGEN STATT VOLLFLAECHE. Das Millimeterraster lief vorher ueber
+      die ganze Fensterbreite und war damit „Hintergrund". Jetzt endet es
+      an der Bogenkante (--maxw), exakt dort, wo im Tag-Modus die helle
+      Inhaltsspalte (--day-column, scene-day.css) steht: nachts wie tags
+      liegt ein BOGEN auf dem Grund, kein Raster ueber allem.
+   3. BEWEGUNG. Der Parallax-Drift des Rasters ist entfallen (Begruendung
+      in KollektivBlueprint.tsx). Es bleibt EIN orchestrierter Moment:
+      die Massline im Logbuch, die sich beim Scrollen zeichnet. Die drei
+      uebrigen Regungen (Rig-Diagramm, Odometer, Kassenbuch-Balken) sind
+      Teil derselben Geste — „die Zeichnung zeichnet sich" — und teilen
+      Dauer und Easing.
+   4. SCOPING. `.flog::before` und `.gph` standen hier UNGESCOPET. `.flog`
+      gibt es auch auf der Startseite und auf /events, `.gph` auch auf
+      /team: Seiten-CSS wird global gebuendelt, nach einer Client-Navigation
+      lagen die Regeln also auf fremden Seiten. Alles haengt jetzt an
+      `.bp-blueprint`.
+   5. TAG-MODUS. Es gab hier NULL day-mode-Regeln. Der Zufall war
+      freundlich: --acc-3 loest tags nach #0B3D91 auf — Blaupausenblau. Der
+      Tag-Modus ist deshalb kein Kompromiss, sondern die zweite historische
+      Form des Motivs (blau auf weiss statt weiss auf blau).
+
+   Alles laeuft ueber --acc-3 (kuehler Gegenpol), damit Mars-/Strand-Theme
+   und Tag-Modus das Motiv korrekt mitfaerben. Keine neuen Hexwerte,
+   Abstaende ausschliesslich aus --sp-*.
    ============================================================ */
 
-/* ---------- 1) Traegerflaeche: Grundraster hinter #main ----------
-   isolation:isolate ist der entscheidende Kniff (Muster wie .mcard in
-   style.css): kapselt das z-index:-1-Pseudoelement in #main's eigenem
-   Stacking-Context, komplett entkoppelt vom eingefrorenen Sternenhimmel/
-   Boden-Stack (#stars/#horizon/#glints/#props), dessen Einfuege-Reihenfolge
-   main.js zur Laufzeit bestimmt. */
-.bp-blueprint { position: relative; isolation: isolate; }
+.bp-blueprint {
+  /* Breite des Heftrands. 0 unterhalb des Umbruchs, damit alle
+     rail-abhaengigen Rechnungen (Rasterlinie, Marken) mit einer einzigen
+     Variablen auskommen statt mit dupliziertem Media-Query-Wissen. */
+  --bp-rail: 0px;
+  /* Vertikales Polster EINES Blatts. Blatt gegen Blatt ergibt damit exakt
+     --sp-section (zweimal die Haelfte). Als eigene Variable, weil Blattkante,
+     Passermarken, Blattnummer und Schriftfeldzeile alle daran haengen: ein
+     Blatt mit anderem Polster (die Kennwerte-Leiste) muss nur --bp-pad
+     ueberschreiben, statt fuenf Rechnungen einzeln nachzuziehen. */
+  --bp-pad: calc(var(--sp-section) / 2);
+  position: relative;
+  isolation: isolate;
+}
+
+/* ---------- 1) Der Bogen ----------
+   isolation:isolate auf .bp-blueprint ist der entscheidende Kniff: kapselt
+   das z-index:-1-Pseudoelement in einem eigenen Stacking-Context, komplett
+   entkoppelt vom Sternenhimmel/Boden-Stack (#stars/#horizon/#glints), dessen
+   Einfuegereihenfolge zur Laufzeit entsteht. */
 .bp-blueprint::before {
-  content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+  content: ""; position: absolute; z-index: -1; pointer-events: none;
+  top: 0; bottom: 0; left: 50%;
+  transform: translateX(-50%);
+  /* AUSDRUECKLICH, nicht ererbt: der Reset in takeoff.css heisst `*` und
+     Pseudoelemente sind davon nicht erfasst (dafuer braeuchte es
+     `*, *::before, *::after`). Ohne diese Zeile liegt die Bogenkante
+     ausserhalb der 100%-Breite und erzeugt unterhalb von --maxw genau 1px
+     waagerechten Overflow — nachgemessen ueber acht Breiten. */
+  box-sizing: border-box;
+  width: min(100%, var(--maxw));
+  border-inline: 1px solid rgb(var(--acc-3-rgb) / .22);
   background-image:
-    repeating-linear-gradient(0deg,  rgb(var(--acc-3-rgb) / .045) 0 1px, transparent 1px 10px),
-    repeating-linear-gradient(90deg, rgb(var(--acc-3-rgb) / .045) 0 1px, transparent 1px 10px),
-    repeating-linear-gradient(0deg,  rgb(var(--acc-3-rgb) / .09)  0 1px, transparent 1px 100px),
-    repeating-linear-gradient(90deg, rgb(var(--acc-3-rgb) / .09)  0 1px, transparent 1px 100px);
-  mask-image: linear-gradient(180deg, transparent, #000 6%, #000 94%, transparent);
-  -webkit-mask-image: linear-gradient(180deg, transparent, #000 6%, #000 94%, transparent);
-  transform: translateY(var(--bp-drift, 0px));
+    repeating-linear-gradient(0deg,  rgb(var(--acc-3-rgb) / .055) 0 1px, transparent 1px 10px),
+    repeating-linear-gradient(90deg, rgb(var(--acc-3-rgb) / .055) 0 1px, transparent 1px 10px),
+    repeating-linear-gradient(0deg,  rgb(var(--acc-3-rgb) / .115) 0 1px, transparent 1px 100px),
+    repeating-linear-gradient(90deg, rgb(var(--acc-3-rgb) / .115) 0 1px, transparent 1px 100px);
+  mask-image: linear-gradient(180deg, transparent, #000 4%, #000 96%, transparent);
+  -webkit-mask-image: linear-gradient(180deg, transparent, #000 4%, #000 96%, transparent);
 }
 
-/* ---------- Sheet-Rahmen: Registermarken + Titelblock ---------- */
-.bp-sheet { position: relative; }
-.bp-corner {
-  position: absolute; width: 13px; height: 13px; pointer-events: none;
-  border: 0 solid rgb(var(--acc-3-rgb) / .55);
+/* ---------- 2) Das Blatt ----------
+   Die Sektion selbst hat KEIN vertikales Polster mehr — das traegt .bp-body.
+   Nur so stossen die Heftraender zweier Blaetter aneinander und der
+   Haarstrich links laeuft ohne Luecke durch das ganze Dokument. Der Abstand
+   Blatt zu Blatt bleibt exakt --sp-section (zweimal die Haelfte). */
+.bp-blueprint .bp-sec { padding-block: 0; }
+.bp-blueprint .bp-sheet {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
 }
-.bp-corner[data-pos="tl"] { top: 10px; left: 0;  border-width: 1px 0 0 1px; }
-.bp-corner[data-pos="tr"] { top: 10px; right: 0; border-width: 1px 1px 0 0; }
-.bp-corner[data-pos="bl"] { bottom: 10px; left: 0;  border-width: 0 0 1px 1px; }
-.bp-corner[data-pos="br"] { bottom: 10px; right: 0; border-width: 0 1px 1px 0; }
+.bp-blueprint .bp-body {
+  position: relative;
+  padding-block: var(--bp-pad);
+}
+.bp-blueprint .bp-rail { display: none; }
+
+@media (min-width: 1000px) {
+  .bp-blueprint { --bp-rail: 92px; }
+  .bp-blueprint .bp-sheet { grid-template-columns: var(--bp-rail) minmax(0, 1fr); }
+  .bp-blueprint .bp-rail {
+    display: flex;
+    justify-content: flex-end;
+    /* flex-start ist Pflicht, nicht Kosmetik: als Grid-Kind wird der Rand
+       auf die Blatthoehe gestreckt. Mit dem Default `stretch` waere auch
+       der senkrechte Schriftzug so hoch wie das Blatt — und rotate(180deg)
+       dreht ihn dann um die Mitte dieser Hoehe, er landet unten. */
+    align-items: flex-start;
+    position: relative;
+    padding: var(--bp-pad) calc(var(--sp-5) + 13px) 0 0;
+  }
+  /* Der durchlaufende Rand. Als ::after des Rands und nicht als Rahmen des
+     Blatts, damit er ueber die Blattgrenzen hinweg eine Linie bleibt. */
+  .bp-blueprint .bp-rail::after {
+    content: ""; position: absolute; top: 0; bottom: 0; right: var(--sp-5);
+    width: 1px; background: rgb(var(--acc-3-rgb) / .25);
+  }
+  .bp-blueprint .bp-rail-no {
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+    font-family: var(--font-mono); font-size: 10px;
+    letter-spacing: .3em; text-transform: uppercase;
+    color: rgb(var(--acc-3-rgb) / .8);
+  }
+}
+
+/* Blattkante: eine Haarlinie quer ueber den Bogen, die nur an ihren Enden
+   sichtbar ist (mask). Ein durchgezogener Strich waere ein <hr> zwischen
+   Sektionen — hier soll er nur andeuten, dass ein neues Blatt anfaengt. */
+.bp-blueprint .bp-sheet::before {
+  content: ""; position: absolute; pointer-events: none;
+  top: calc(var(--bp-pad) - var(--sp-5));
+  left: var(--pad); right: var(--pad); height: 1px;
+  background: rgb(var(--acc-3-rgb) / .3);
+  mask-image: linear-gradient(90deg, #000 0 9%, transparent 22% 78%, #000 91% 100%);
+  -webkit-mask-image: linear-gradient(90deg, #000 0 9%, transparent 22% 78%, #000 91% 100%);
+  display: none;
+}
+/* Passermarken — Registerkreuze auf den Enden der Blattkante. */
+.bp-mark {
+  position: absolute; display: none;
+  width: 15px; height: 15px;
+  border: 1px solid rgb(var(--acc-3-rgb) / .42);
+  border-radius: 50%;
+  pointer-events: none;
+}
+.bp-mark::before, .bp-mark::after {
+  content: ""; position: absolute; background: rgb(var(--acc-3-rgb) / .42);
+}
+.bp-mark::before { left: 50%; top: -5px; bottom: -5px; width: 1px; transform: translateX(-50%); }
+.bp-mark::after  { top: 50%; left: -5px; right: -5px; height: 1px; transform: translateY(-50%); }
+
+@media (min-width: 900px) {
+  .bp-blueprint .bp-sheet::before { display: block; }
+  .bp-blueprint .bp-cover .bp-sheet::before { display: none; }
+  .bp-blueprint .bp-mark[data-pos="tl"],
+  .bp-blueprint .bp-mark[data-pos="tr"] { display: block; }
+  .bp-blueprint .bp-mark {
+    top: calc(var(--bp-pad) - var(--sp-5) - 7px);
+  }
+  .bp-blueprint .bp-mark[data-pos="tl"] { left: calc(var(--pad) - 7px); }
+  .bp-blueprint .bp-mark[data-pos="tr"] { right: calc(var(--pad) - 7px); }
+  .bp-blueprint .bp-cover .bp-mark { display: none; }
+}
+
+/* Schriftfeldzeile oben rechts: sitzt auf der Zeile des Kickers, damit
+   Blattkopf und Blattnummer eine Zeile bilden statt zweier Ebenen. */
 .bp-plate {
-  position: absolute; top: -2px; right: 0; pointer-events: none;
+  position: absolute; right: 0;
+  top: calc(var(--bp-pad) + 2px);
+  pointer-events: none;
   font-family: var(--font-mono); font-size: 10px; letter-spacing: .16em;
-  text-transform: uppercase; color: var(--ink-faint); opacity: .85;
+  text-transform: uppercase; color: var(--ink-faint);
+  display: none;
 }
-@media (max-width: 640px) { .bp-corner, .bp-plate { display: none; } }
+@media (min-width: 760px) { .bp-blueprint .bp-plate { display: block; } }
+/* Auf dem Deckblatt sagt das Schriftfeld dasselbe ausfuehrlicher — eine
+   zweite Blattnummer daneben waere Doppelung. */
+.bp-blueprint .bp-cover .bp-plate { display: none; }
 
-/* Zeichenkreuz-Cursor auf Dokument-Flaechen — kostenlos (reines CSS), an
-   allen FX-Tiers erlaubt, weil keine Bewegung erzeugt wird. */
+/* Zeichenkreuz-Cursor auf Dokumentflaechen — reines CSS, erzeugt keine
+   Bewegung, deshalb an allen FX-Tiers erlaubt. */
 @media (hover: hover) and (pointer: fine) {
-  .bp-sheet, .bp-rig-wrap { cursor: crosshair; }
+  .bp-blueprint .bp-body { cursor: crosshair; }
+  .bp-blueprint a, .bp-blueprint button, .bp-blueprint video { cursor: pointer; }
 }
 
-/* ---------- 2) Flightlog-Massline ----------
-   Minimal-invasiver Override: ergaenzt nur transform/transform-origin auf
-   dem bestehenden .flog::before (Farbverlauf/Position bleiben unangetastet
-   in style.css). Default --bp-flog-p:1 = voll gezeichnet (Tier S/kein JS). */
-.flog::before { transform: scaleY(var(--bp-flog-p, 1)); transform-origin: top; }
-
-/* Bug (live nachgestellt, per getComputedStyle bestaetigt): .flog::before
-   ist in takeoff.css die Zeitstrahl-Linie (Farbverlauf, 2px, left:28px).
-   scene-night.css haengt an GENAU demselben Pseudo-Element zusaetzlich die
-   sitesweite Trägerfläche an — .flog steht dort in der :is()-Liste, weil
-   die Flightlog-VORSCHAU auf der Startseite eine braucht. Beide Regeln
-   treffen also dasselbe ::before und gewinnen je Einzel-Property gegen-
-   einander (hoehere Spezifitaet bei scene-night.css): background wird zur
-   dunklen Ellipse, inset ersetzt left/top/bottom, z-index:-1 und
-   border-radius:26px kommen dazu. Nachgemessen: top/bottom bleiben beide
-   gesetzt und ohne eigene Hoehe gestreckt -> statt der duennen Linie stand
-   dort nachts ein ~530-600px hoher dunkler Blob, und die Linie selbst war
-   unsichtbar. Genau die "Traegerflaeche zu gross"-Wirkung, hier als
-   Kollisions-Nebenwirkung statt Absicht. scene-night.css ist geteilte
-   Datei (siehe notes) — hier mit ID-Spezifitaet zurueckerobert: die Linie
-   bekommt ihre Geometrie und ihren Verlauf zurueck (inkl. der 640px-
-   Variante aus style.css), .fnote traegt seine Lesbarkeit stattdessen
-   ueber die enge .txplate-Flaeche weiter unten. */
-#flog-list::before {
-  inset: auto;
-  top: 8px; bottom: 8px; left: 28px; right: auto;
-  width: 2px; height: auto;
-  border-radius: 0;
-  z-index: 0;
-  background: linear-gradient(180deg, var(--acc-1), rgb(var(--acc-2-rgb) / .1));
-}
-@media (max-width: 640px) {
-  #flog-list::before { left: 24px; }
-}
-.bp-dim {
-  font-family: var(--font-mono); font-size: 10px; letter-spacing: .1em; text-transform: uppercase;
-  color: var(--acc-3); border: 1px solid rgb(var(--acc-3-rgb) / .35);
-  background: rgb(var(--acc-3-rgb) / .06); border-radius: 4px; padding: 2px 6px;
+/* ---------- 3) Deckblatt (BL. 00) ----------
+   Kopf und Schriftfeld nebeneinander. Der Titel steht damit in einem
+   schmaleren, besser lesbaren Satz (~620px statt 760px), und der leere
+   rechte Rand des Hero traegt endlich Inhalt. */
+.bp-cover-head { display: grid; gap: var(--sp-6); }
+/* Erst ab 1080px zweispaltig, nicht ab 900. Dazwischen frisst der Heftrand
+   (ab 1000px) so viel Breite, dass die Titelspalte unter 480px faellt — die
+   H1 laeuft dann bei clamp(...,5.6vw,60px) auf vier Zeilen. Nachgemessen bei
+   1000px: 456px Spalte, vier Zeilen. Ueber 1080px sind es drei, wie bei
+   1440px auch. */
+@media (min-width: 1080px) {
+  .bp-cover-head {
+    grid-template-columns: minmax(0, 1fr) minmax(200px, 260px);
+    align-items: end;
+    gap: var(--sp-7);
+  }
 }
 
-/* ---------- Enge Text-Traegerflaeche ("Traegerflaechen verengen") ----------
-   .txplate ist seit It. 14 EINE geteilte Utility in takeoff.css (dort
-   vollstaendig dokumentiert: inline, box-decoration-break:clone, Fuellung
-   nur nachts ueber --bg-void-rgb). Hier bewusst NICHT lokal neu definiert —
-   genau diese Streuung (drei leicht verschiedene Polster/Radien je Seite)
-   ist der Fehler, den die Konsolidierung in takeoff.css beheben sollte.
-   Verwendung auf dieser Seite: .fnote im Logbuch (Analogon zu den
-   Flight-Log-Notizen der Startseite) und der Orbit-Zaehler — beide sitzen
-   auf der rohen Szene ohne Karte/Panel und bekommen die Klasse direkt im
-   JSX (KollektivHistory.tsx, KollektivOrbit.tsx). */
+.bp-titleblock {
+  margin: 0;
+  /* Einspaltig (unter 1080px) haengt das Schriftfeld sonst ueber die volle
+     Satzbreite — ein Formularfeld mit 800px Wert-Spalte. */
+  max-width: 340px;
+  border: 1px solid rgb(var(--acc-3-rgb) / .3);
+  border-radius: 4px;
+  /* Fuellung ueber --bg-void-rgb und nicht ueber den Akzent: dieselbe Logik
+     wie .txplate in takeoff.css. Nachts deckt sie die Szene ab (Mars-/
+     Strandboden sind hell), tags loest das Token nach hell auf und die
+     Flaeche verschwindet in der Leseplatte — der Rahmen traegt dann. */
+  background: rgb(var(--bg-void-rgb) / .45);
+  font-family: var(--font-mono);
+}
+.bp-titleblock > div {
+  display: grid; grid-template-columns: 82px minmax(0, 1fr);
+  gap: var(--sp-2);
+  padding: var(--sp-2) var(--sp-3);
+  border-top: 1px solid rgb(var(--acc-3-rgb) / .18);
+}
+.bp-titleblock > div:first-child { border-top: 0; }
+.bp-titleblock dt {
+  font-size: 9.5px; letter-spacing: .16em; text-transform: uppercase;
+  color: var(--ink-faint);
+}
+.bp-titleblock dd { margin: 0; font-size: 11.5px; color: var(--ink-dim); }
 
-/* ---------- 3) Herzstueck: Rig-Diagramm ---------- */
-.bp-rig-wrap { max-width: 960px; }
+/* ---------- Herzstueck: Ethos-Text + Anlagen-Diagramm ---------- */
+.bp-rig-inner { display: grid; gap: var(--sp-5); margin-top: var(--sp-7); }
 @media (min-width: 860px) {
-  .bp-rig-wrap .bp-rig-inner { display: grid; grid-template-columns: 1.05fr 1fr; gap: 20px 40px; align-items: center; }
-  .bp-rig-wrap .bp-rig-inner p:first-of-type { grid-column: 1; grid-row: 1; }
-  .bp-rig-wrap .bp-rig-inner p:last-of-type  { grid-column: 1; grid-row: 2; }
-  .bp-rig-wrap .bp-rig-inner .bp-rig         { grid-column: 2; grid-row: 1 / 3; }
+  .bp-rig-inner {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
+    align-items: center;
+    gap: var(--sp-6);
+  }
 }
+.bp-rig-text p { color: var(--ink-dim); }
+.bp-rig-text p + p { margin-top: var(--sp-4); }
+.bp-em { color: var(--ink); }
+
 .bp-rig { width: 100%; height: auto; overflow: visible; }
 .bp-rig .bp-p {
   fill: none; stroke: var(--acc-3); stroke-width: 1.4; vector-effect: non-scaling-stroke;
@@ -130,64 +260,96 @@
 .bp-rig .bp-p-lead { stroke-dasharray: 2 2; opacity: .5; }
 .bp-rig text { font-family: var(--font-mono); font-size: 7.5px; letter-spacing: .02em; fill: var(--ink-dim); }
 
-/* ---------- Odometer (Stats) ---------- */
-/* Keine eigene Regel noetig: .stats b traegt in style.css bereits
-   font-variant-numeric: tabular-nums, das verhindert Breitenspringen
-   waehrend des Hochzaehlens. */
-
-/* ---------- Orbit-Tage-Zaehler ---------- */
-.bp-orbit {
-  display: flex; align-items: center; justify-content: center; gap: 9px;
-  padding-top: 22px;
-  font-family: var(--font-mono); font-size: 11px; letter-spacing: .18em; text-transform: uppercase;
-  color: var(--ink-faint);
+/* ---------- 4) Haltung (BL. 01): Stueckliste statt Kachelraster ----------
+   Fuenf Elemente in einem auto-fit-Raster haben bei jeder Breite ausser
+   „genau 1" und „genau 5 Spalten" eine Waise — nachgemessen 4+1 bei 1120px
+   und 3+2 bei 768px. Eine Stueckliste hat das Problem grundsaetzlich nicht,
+   nutzt die volle Satzbreite und ist dem Bogen angemessener als Karten. */
+.bp-specs {
+  list-style: none; margin: 0; padding: 0;
+  border-top: 1px solid var(--bg-hairline);
 }
-.bp-orbit b { color: var(--acc-3-tint); font-weight: 700; font-variant-numeric: tabular-nums; }
-.bp-orbit-dot {
-  width: 6px; height: 6px; border-radius: 50%; flex: none;
-  background: var(--acc-3);
-  box-shadow: 0 0 7px rgb(var(--acc-3-rgb) / .8);
-  animation: pulse 2.6s ease-in-out infinite;   /* wiederverwendet: @keyframes pulse aus style.css */
+.bp-spec {
+  display: grid;
+  grid-template-columns: 32px 30px minmax(0, 1fr);
+  align-items: start;
+  gap: var(--sp-1) var(--sp-3);
+  padding: var(--sp-4) 0;
+  border-bottom: 1px solid var(--bg-hairline);
+}
+/* Alle vier Zellen sind EXPLIZIT platziert. Mit Auto-Placement neben zwei
+   zeilenuebergreifenden Elementen haengt das Ergebnis vom Aufsetzpunkt des
+   Cursors ab und kippt beim kleinsten Markup-Wechsel. */
+.bp-spec-pos {
+  grid-column: 1; grid-row: 1 / span 2;
+  font-family: var(--font-mono); font-size: 11px; letter-spacing: .1em;
+  color: rgb(var(--acc-3-rgb) / .8);
+  padding-top: 2px;
+}
+.bp-spec-ico { grid-column: 2; grid-row: 1 / span 2; color: var(--acc-3); }
+.bp-spec-ico svg { display: block; width: 22px; height: 22px; }
+.bp-spec-title {
+  grid-column: 3; grid-row: 1;
+  font-family: var(--font-display); font-weight: var(--w-head); font-size: 16px;
+}
+.bp-spec-text {
+  grid-column: 3; grid-row: 2;
+  color: var(--ink-dim); font-size: 14.5px;
+}
+@media (min-width: 860px) {
+  .bp-spec {
+    grid-template-columns: 32px 30px minmax(150px, 250px) minmax(0, 1fr);
+    align-items: center;
+    gap: var(--sp-4);
+  }
+  .bp-spec-pos { grid-row: 1; padding-top: 0; }
+  .bp-spec-ico { grid-row: 1; }
+  .bp-spec-text { grid-column: 4; grid-row: 1; }
 }
 
-/* ---------- Werte-Kacheln ("Warum wir das tun") ---------- */
-.werte-grid { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); margin-top: 26px; }
-.wtile {
-  border-radius: var(--radius);
-  background: rgb(var(--acc-3-rgb) / .06);
-  border: 1px solid rgb(var(--acc-3-rgb) / .2);
-  padding: 18px;
-  font-size: 14.5px;
+/* ---------- 5) Kassenbuch (BL. 02): Balken + Summenfeld ---------- */
+.bp-ledger { display: grid; gap: var(--sp-6); }
+@media (min-width: 900px) {
+  .bp-ledger {
+    grid-template-columns: minmax(0, 1fr) minmax(200px, 290px);
+    align-items: start;
+    gap: var(--sp-7);
+  }
 }
-.wtile b { display: block; margin-bottom: 6px; font-family: var(--font-display); font-weight: 700; font-size: 15.5px; }
-.wtile p { color: var(--ink-dim); }
-.wtile .ico { display: block; margin-bottom: 12px; color: var(--acc-3); }
-.wtile .ico svg { width: 22px; height: 22px; }
-
-/* ---------- "Wohin geht das Geld" ---------- */
-.bp-spend { margin-top: 26px; display: grid; gap: 4px; max-width: 640px; }
+.bp-spend { display: grid; gap: var(--sp-1); }
+.bp-ledger .bp-spend { margin-top: 0; max-width: none; }
 .bp-spend-row {
-  display: grid; grid-template-columns: minmax(120px, 190px) 1fr 42px;
-  align-items: center; gap: 14px;
-  padding: 8px 0;
+  display: grid; grid-template-columns: minmax(120px, 200px) 1fr 46px;
+  align-items: center; gap: var(--sp-3);
+  padding: var(--sp-2) 0;
   font-size: 13.5px;
 }
 .bp-spend-label { color: var(--ink-dim); }
 .bp-spend-track {
-  display: block; height: 9px; border-radius: 999px;
+  position: relative;
+  display: block; height: 10px; border-radius: 999px;
   background: var(--bg-overlay);
   overflow: hidden;
+}
+/* Massteilung: alle 25 % ein Strich, ueber dem Balken. Macht aus dem
+   Fortschrittsbalken ein gemessenes Diagramm — und kostet kein Markup,
+   deshalb bleibt KollektivSpend.tsx unangetastet. */
+.bp-spend-track::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: repeating-linear-gradient(90deg,
+      transparent 0 calc(25% - 1px),
+      rgb(var(--bg-void-rgb) / .55) calc(25% - 1px) 25%);
 }
 .bp-spend-fill {
   display: block; height: 100%; width: var(--pct, 0%);
   border-radius: 999px;
   background: linear-gradient(90deg, rgb(var(--acc-3-rgb) / .55), var(--acc-3));
 }
-/* Veredelung: die Balken wachsen einmalig auf ihre Zielbreite, sobald das
-   Kassenbuch in den Sichtbereich scrollt (KollektivSpend.tsx, gleiches
-   static->armed->drawn-Muster wie KollektivRig/KollektivStats). Tier
-   s/reduced-motion/kein JS: die Grundregel oben bleibt unangetastet in
-   Kraft, die Balken stehen sofort auf --pct — kein leerer Ladezustand. */
+/* Die Balken wachsen einmalig auf ihre Zielbreite, sobald das Kassenbuch in
+   den Sichtbereich scrollt (KollektivSpend.tsx, gleiches
+   static->armed->drawn-Muster wie KollektivRig/KollektivStats). Tier s /
+   reduced-motion / kein JS: die Grundregel oben bleibt in Kraft, die Balken
+   stehen sofort auf --pct — kein leerer Ladezustand. */
 .bp-spend.is-armed .bp-spend-fill {
   width: 0%;
   transition: width 1s var(--ease-out);
@@ -199,22 +361,138 @@
   color: var(--ink-faint); font-variant-numeric: tabular-nums;
 }
 @media (max-width: 480px) {
-  .bp-spend-row { grid-template-columns: 1fr auto; row-gap: 5px; }
+  .bp-spend-row { grid-template-columns: 1fr auto; row-gap: var(--sp-1); }
   .bp-spend-label { grid-column: 1 / -1; }
 }
 
-/* ---------- Fotowand: FIG-Tag ---------- */
-.gph { position: relative; }
+.bp-sum {
+  display: flex; align-items: baseline; justify-content: space-between;
+  gap: var(--sp-3);
+  border: 1px solid rgb(var(--acc-3-rgb) / .28);
+  border-radius: var(--radius);
+  background: rgb(var(--bg-void-rgb) / .45);
+  padding: var(--sp-3) var(--sp-4);
+  /* --sp-6 und nicht --sp-3: der Nacht-Traeger von .lu-note darunter ragt
+     bauartbedingt bis zu 34px nach oben (scene-night.css) und legte sich
+     bei engerem Abstand ueber die Unterkante des Summenfelds. */
+  margin-bottom: var(--sp-6);
+}
+.bp-sum-label {
+  font-family: var(--font-mono); font-size: 10px;
+  letter-spacing: .2em; text-transform: uppercase; color: var(--ink-faint);
+}
+.bp-sum-value {
+  font-family: var(--font-mono); font-size: 20px; font-weight: var(--w-micro-b);
+  color: var(--acc-3-tint); font-variant-numeric: tabular-nums;
+}
+
+/* ---------- 6) Logbuch (BL. 03): die Massline ----------
+   ZWEI Dinge in einer Regel, beide notwendig:
+
+   a) GEOMETRIE ZURUECKEROBERN. `.flog::before` ist in takeoff.css die
+      Zeitstrahl-Linie (2px, left:28px, Farbverlauf). scene-night.css haengt
+      an GENAU demselben Pseudoelement zusaetzlich die sitesweite
+      Traegerflaeche an — `.flog` steht dort in der :is()-Liste, weil die
+      Flightlog-VORSCHAU der Startseite eine braucht. Beide Regeln treffen
+      dasselbe ::before und gewinnen je Property gegeneinander; nachgemessen
+      stand nachts statt der Linie ein ~530-600px hoher dunkler Blob.
+      scene-night.css ist geteilte Datei, deshalb hier mit ID-Spezifitaet
+      (1,1,0 gegen 4 Klassen) zurueckgeholt.
+   b) SCRUB. transform/transform-origin fuer --bp-flog-p (0..1), gesetzt von
+      KollektivHistory beim Scrollen. Default 1 = voll gezeichnet, damit
+      Tier s, reduced-motion und „kein JS" die fertige Linie sehen.
+
+   Die ID heisst `bp-logbuch` und nicht mehr `flog-list`: eine ID im
+   Selektor darf nur fuer etwas stehen, das es nirgends sonst gibt — genau
+   so hat `#flightlog .flog` einmal die Zeitlinie der Startseite geloescht.
+   Zusaetzlich an .bp-blueprint gehaengt, damit die Regel auch bei einer
+   gleichnamigen ID auf einer fremden Seite nicht zuschlagen kann. */
+.bp-blueprint #bp-logbuch::before {
+  inset: auto;
+  top: 8px; bottom: 8px; left: 28px; right: auto;
+  width: 2px; height: auto;
+  border-radius: 0;
+  z-index: 0;
+  background: linear-gradient(180deg, var(--acc-1), rgb(var(--acc-2-rgb) / .1));
+  transform: scaleY(var(--bp-flog-p, 1));
+  transform-origin: top;
+}
+@media (max-width: 640px) {
+  .bp-blueprint #bp-logbuch::before { left: 24px; }
+}
+.bp-dim {
+  font-family: var(--font-mono); font-size: 10px; letter-spacing: .1em; text-transform: uppercase;
+  color: var(--acc-3); border: 1px solid rgb(var(--acc-3-rgb) / .35);
+  background: rgb(var(--acc-3-rgb) / .06); border-radius: 4px; padding: 2px 6px;
+}
+
+/* .txplate ist seit It. 14 EINE geteilte Utility in takeoff.css und wird
+   hier bewusst NICHT lokal neu definiert — genau diese Streuung (drei
+   leicht verschiedene Polster je Seite) sollte die Konsolidierung beheben.
+   Verwendet in KollektivHistory (Logbuchzeilen) und KollektivOrbit. */
+
+/* ---------- 7) Fotowand (BL. 04): vorhanden neben ausstehend ---------- */
+.bp-wall { display: grid; gap: var(--sp-6); }
+@media (min-width: 960px) {
+  .bp-wall {
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+    align-items: start;
+    gap: var(--sp-7);
+  }
+}
+.bp-wall-intro { margin-top: 0; }
+.bp-wall-label {
+  font-family: var(--font-mono); font-size: 10px;
+  letter-spacing: .22em; text-transform: uppercase;
+  color: var(--ink-faint);
+  margin-bottom: var(--sp-3);
+}
+/* Gleiche Rechnung wie beim Summenfeld: die Traegerflaeche einer .lu-note
+   ragt bis 34px nach oben und verschleierte sonst die letzte Zeile
+   darueber. --sp-6 deckt den Ueberstand bei jeder Breite ab. */
+.bp-wall-note { margin-top: var(--sp-6); }
+.bp-blueprint .gph { position: relative; }
+.bp-gph-text { white-space: pre-line; }
 .bp-fig {
   position: absolute; top: 6px; left: 8px;
   font-family: var(--font-mono); font-size: 9px; letter-spacing: .12em;
-  color: rgb(var(--acc-3-rgb) / .55);
+  color: rgb(var(--acc-3-rgb) / .7);
 }
 
-/* ---------- Familie: Karten statt Chip-Liste ---------- */
+/* ---------- 8) Besatzung (BL. 05) ----------
+   Acht Karten in einem auto-fit-Raster ergaben bei 1120px 5+3. Vier feste
+   Spalten ergeben 4+4 — zwei volle Zeilen statt einer angebrochenen. */
+@media (min-width: 900px) {
+  .bp-blueprint .bp-crew { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+
+/* ---------- 9) Kennwerte-Leiste (ohne Blattnummer) ---------- */
+.bp-blueprint .bp-metrics { --bp-pad: var(--sp-6); }
+.bp-orbit {
+  display: flex; align-items: center; justify-content: center; gap: var(--sp-2);
+  padding-bottom: var(--sp-4);
+  font-family: var(--font-mono); font-size: 11px; letter-spacing: .18em; text-transform: uppercase;
+  color: var(--ink-faint);
+}
+.bp-orbit b { color: var(--acc-3-tint); font-weight: var(--w-micro-b); font-variant-numeric: tabular-nums; }
+.bp-orbit-dot {
+  width: 6px; height: 6px; border-radius: 50%; flex: none;
+  background: var(--acc-3);
+  box-shadow: 0 0 7px rgb(var(--acc-3-rgb) / .8);
+  animation: pulse 2.6s ease-in-out infinite;   /* @keyframes pulse aus takeoff.css */
+}
+:root[data-fx="s"] .bp-orbit-dot { animation: none; }
+@media (prefers-reduced-motion: reduce) { .bp-orbit-dot { animation: none; } }
+
+/* Odometer: keine eigene Regel noetig — .stats b traegt in takeoff.css
+   bereits font-variant-numeric: tabular-nums, das verhindert
+   Breitenspringen waehrend des Hochzaehlens. */
+
+/* ---------- 10) Verbund (BL. 06) ---------- */
 .bp-family-grid {
-  list-style: none; margin-top: 10px;
-  display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  list-style: none; margin: 0; padding: 0;
+  display: grid; gap: var(--sp-3);
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
 }
 .bp-fam-card {
   border-radius: var(--radius);
@@ -224,31 +502,101 @@
   overflow: hidden;
 }
 .bp-fam-card:hover { border-color: rgb(var(--acc-3-rgb) / .5); transform: translateY(-3px); }
-.bp-fam-card > a, .bp-fam-card > .bp-fam-inner { display: block; padding: 15px 18px; }
+.bp-fam-card > a, .bp-fam-card > .bp-fam-inner { display: block; padding: var(--sp-3) var(--sp-4); }
 .bp-fam-card a { color: inherit; }
-.bp-fam-card b { font-family: var(--font-display); font-weight: 700; font-size: 15px; }
-.bp-fam-card span { display: block; margin-top: 4px; color: var(--ink-faint); font-size: 12.5px; }
-
-/* ---------- FAQ: bewaehrtes m-rows-Muster, fuer Prosa-Antworten angepasst ----------
-   Basiswerte (Rahmen/Abstand) aus style.css .m-row bleiben, nur Ausrichtung
-   und Typografie werden fuer Frage/Antwort-Fliesstext ueberschrieben —
-   "Duplikat ist ok, Konflikt nicht" (DATA.md). */
-.bp-faq .m-row {
-  flex-direction: column; align-items: flex-start; gap: 6px;
+.bp-fam-card b { font-family: var(--font-display); font-weight: var(--w-head); font-size: 15px; }
+.bp-fam-card span { display: block; margin-top: var(--sp-1); color: var(--ink-faint); font-size: 12.5px; }
+@media (prefers-reduced-motion: reduce) {
+  .bp-fam-card { transition: border-color .3s; }
+  .bp-fam-card:hover { transform: none; }
 }
+
+/* ---------- 11) Bordfragen (BL. 07) ----------
+   Basiswerte (Rahmen/Abstand) aus takeoff.css .m-row bleiben; nur die
+   Spaltenteilung und die Typografie werden fuer Frage/Antwort angepasst.
+   Der frueher hier stehende `flex-direction: column` war tote Regel —
+   .m-row ist seit It. 13 ein Grid, nicht mehr Flex.
+   Erst ab 760px: darunter faltet takeoff.css .m-rows selbst auf eine
+   Spalte, und diese Regel (0,2,0) wuerde die Faltung sonst ueberstimmen. */
+@media (min-width: 760px) {
+  .bp-blueprint .bp-faq {
+    grid-template-columns: minmax(0, .85fr) minmax(0, 1.15fr);
+    column-gap: var(--sp-5);
+  }
+}
+/* --sp-5 statt der 10px aus takeoff.css: die Nacht-Traegerflaeche einer
+   .m-row ragt 34px nach oben und verschleierte damit die letzte Zeile der
+   Antwort DARUEBER (sichtbar auf jeder Seite mit .m-rows, nicht nur hier —
+   siehe Abschlussbericht). Mit 30px Polster bleibt ein Rest von 4px, der
+   nicht mehr auffaellt. */
+.bp-faq .m-row { padding: var(--sp-5) 0; }
 .bp-faq .m-row dt {
-  font-family: var(--font-display); font-weight: 700; font-size: 15.5px;
+  font-family: var(--font-display); font-weight: var(--w-head); font-size: 16px;
   letter-spacing: normal; text-transform: none; color: var(--ink);
 }
 .bp-faq .m-row dd { text-align: left; color: var(--ink-dim); font-size: 14.5px; }
 
-/* ---------- Mitmachen: Rollen-Chips als Mailto-Links (44px Tap-Ziel) ---------- */
+/* ---------- 12) Funkspruch (BL. 08): zwei Sendungen nebeneinander ---------- */
+.bp-signals { display: grid; gap: var(--sp-5); }
+@media (min-width: 900px) {
+  .bp-signals { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+.bp-tx-note { margin-top: var(--sp-6); }   /* siehe .bp-wall-note */
 .bp-roles { justify-content: center; }
 .bp-roles .chip {
   display: inline-flex; align-items: center; justify-content: center;
-  min-height: 44px; padding: 10px 18px;
+  min-height: 44px; padding: var(--sp-2) var(--sp-4);
   transition: color .25s, border-color .25s, background .25s;
 }
 .bp-roles .chip:hover, .bp-roles .chip:focus-visible {
   color: var(--ink); border-color: rgb(var(--acc-3-rgb) / .7); background: rgb(var(--acc-3-rgb) / .1);
+}
+
+/* ---------- Verweise im Fliesstext ---------- */
+.bp-link { color: var(--acc-3-tint); }
+.bp-link:hover, .bp-link:focus-visible { color: var(--ink); }
+
+/* ============================================================
+   TAG-MODUS
+
+   Vorher: keine einzige Regel. Der Bogen liest sich tags aber besser als
+   nachts, weil --acc-3 tags nach #0B3D91 aufloest — das ist buchstaeblich
+   Blaupausenblau. Die Blaupause hat historisch beide Formen (weiss auf
+   blau UND blau auf weiss); der Tag-Modus ist deshalb die zweite Form,
+   kein Kompromiss.
+
+   Was hier steht, ist nur das, was NICHT schon ueber die umdefinierten
+   Tokens stimmt: der Rasterkontrast (dunkle Linien auf hellem Grund
+   brauchen mehr Deckung als helle auf dunklem, sonst verschwinden sie im
+   Grundton) und die drei Stellen, an denen eine Farbe an --acc-3 mit
+   niedriger Deckung haengt und tags zu blass wird.
+   ============================================================ */
+:root.day-mode .bp-blueprint::before {
+  border-inline-color: rgb(var(--acc-3-rgb) / .3);
+  background-image:
+    repeating-linear-gradient(0deg,  rgb(var(--acc-3-rgb) / .07) 0 1px, transparent 1px 10px),
+    repeating-linear-gradient(90deg, rgb(var(--acc-3-rgb) / .07) 0 1px, transparent 1px 10px),
+    repeating-linear-gradient(0deg,  rgb(var(--acc-3-rgb) / .16) 0 1px, transparent 1px 100px),
+    repeating-linear-gradient(90deg, rgb(var(--acc-3-rgb) / .16) 0 1px, transparent 1px 100px);
+}
+:root.day-mode .bp-blueprint .bp-rail::after { background: rgb(var(--acc-3-rgb) / .32); }
+:root.day-mode .bp-blueprint .bp-sheet::before { background: rgb(var(--acc-3-rgb) / .38); }
+:root.day-mode .bp-mark { border-color: rgb(var(--acc-3-rgb) / .5); }
+:root.day-mode .bp-mark::before, :root.day-mode .bp-mark::after { background: rgb(var(--acc-3-rgb) / .5); }
+:root.day-mode .bp-blueprint .bp-rail-no { color: rgb(var(--acc-3-rgb) / .9); }
+/* Die Massteilung im Balken ist nachts dunkel (--bg-void), tags hell —
+   das Token dreht mit, hier ist nur die Deckung anzuheben, weil helle
+   Striche auf gesaettigtem Blau schwaecher trennen als dunkle. */
+:root.day-mode .bp-spend-track::after {
+  background: repeating-linear-gradient(90deg,
+      transparent 0 calc(25% - 1px),
+      rgb(var(--bg-void-rgb) / .9) calc(25% - 1px) 25%);
+}
+:root.day-mode .bp-fig { color: rgb(var(--acc-3-rgb) / .95); }
+:root.day-mode :is(.bp-titleblock, .bp-sum) { background: rgb(var(--acc-3-rgb) / .06); }
+/* scene-day.css hebt kleine Mono-Grade eine Farbstufe an; .bp-plate,
+   .bp-wall-label und .bp-orbit gehoeren in dieselbe Klasse von Labels,
+   stehen dort aber nicht (geteilte Datei — siehe Abschlussbericht). */
+:root.day-mode :is(.bp-plate, .bp-wall-label, .bp-orbit, .bp-sum-label, .bp-titleblock dt) {
+  color: var(--ink-dim);
 }

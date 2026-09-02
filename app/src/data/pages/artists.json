@@ -1,15 +1,25 @@
 {
   "hero": {
     "eyebrow": "Frequenzen",
-    "intro": "Die Menschen hinterm Pult — Residents, Gäste und der takeoff-Podcast. Bei uns gibt's keine Headliner-Hierarchie, nur gute Musik."
+    "title": "Artists &",
+    "titleGlow": "Sets",
+    "intro": "Die Menschen hinterm Pult — Residents, Gäste und der takeoff-Podcast. Bei uns gibt's keine Headliner-Hierarchie, nur gute Musik.",
+    "registerLabel": "Archiv",
+    "countArtists": "Kanäle",
+    "countSets": "Aufzeichnungen",
+    "countGuests": "Gäste",
+    "bandCaption": "Eine Zacke je Aufzeichnung — das ist das Archiv, von der ersten Nacht bis heute."
   },
   "residents": {
     "eyebrow": "Crew Select",
+    "title": "Residents",
     "filterAllLabel": "Alle",
     "filterAria": "Nach Genre filtern"
   },
   "sets": {
     "eyebrow": "Aufzeichnungen",
+    "title": "Sets &",
+    "titleGlow": "Podcast",
     "randomLabel": "Random Transmission",
     "randomHint": "Ein Klick, ein zufälliges Set aus dem Archiv.",
     "randomEmpty": "Noch keine Sets im Archiv — check bald wieder rein.",
@@ -17,6 +27,8 @@
   },
   "gaeste": {
     "eyebrow": "Gäste-Log",
+    "title": "Schon bei uns",
+    "titleGlow": "gefunkt",
     "intro": "Danke an alle, die unsere Nächte mitgeprägt haben — ein Klick zeigt, wann wir zusammen gefunkt haben.",
     "appearanceLabel": "Aufgetreten bei",
     "appearanceEmpty": "Termin wird noch zugeordnet."
@@ -25,6 +37,7 @@
     "label": "Open Decks",
     "title": "Du willst bei uns auflegen?",
     "text": "Schick uns dein Demo — wir hören uns alles an.",
+    "checklistLabel": "Was wir brauchen",
     "checklist": [
       "Set-Link (SoundCloud/Mixcloud, 20–30 Min)",
       "2–3 Termine, an denen du Zeit hättest",
@@ -32,5 +45,41 @@
     ],
     "mailSubject": "Open Decks Bewerbung",
     "ctaLabel": "Demo schicken"
+  },
+  "detail": {
+    "eyebrow": "Artist",
+    "roleLabel": "Rolle",
+    "sinceLabel": "seit",
+    "debutLabel": "Debüt",
+    "socialsLabel": "Socials",
+    "socialsValue": "SoundCloud ↗",
+    "mediaEyebrow": "Bewegtbild",
+    "mediaTitle": "Vor dem",
+    "mediaTitleGlow": "Pult",
+    "mediaCountLabel": "Clips",
+    "setsEyebrow": "Hören",
+    "setsTitle": "Sets",
+    "setsCountLabel": "Aufzeichnungen",
+    "logEyebrow": "Flight Log",
+    "logTitle": "Bei takeoff",
+    "logTitleGlow": "gespielt",
+    "logCountLabel": "Nächte",
+    "backLabel": "← Alle Artists",
+    "consentText": "Demo: Hier würde jetzt der Player laden (Zwei-Klick, DSGVO-freundlich). Kein Klick = kein Tracking."
+  },
+  "frequenzband": {
+    "label": "Frequenzband",
+    "unit": "BPM",
+    "min": 135,
+    "max": 153,
+    "ticks": [138, 145, 150],
+    "spread": 2.5,
+    "otherLabel": "ohne festes Tempo",
+    "genres": [
+      { "match": "Trance", "bpm": 138 },
+      { "match": "Hard Trance", "bpm": 145 },
+      { "match": "Bounce", "bpm": 150 },
+      { "match": "Hard Bounce", "bpm": 150 }
+    ]
   }
 }

@@ -30,3 +30,16 @@ export const TOPIC_SELECT_EVENT = "kontakt:topic-select";
 export interface TopicSelectDetail {
   ch: string;
 }
+
+/* Event-Name fuer den Sende-Puls: KontaktBodenstation haelt den einen
+   dokumentweiten Klick-Listener auf [data-fs-pulse] (Dach-Antenne + Toast).
+   Die Konsole (KontaktFunkkanaele) liegt in einer anderen Client-Insel,
+   soll aber im selben Moment reagieren — Radar-Ping und Status "Signal
+   unterwegs". Gleiche Bruecke wie bei TOPIC_SELECT_EVENT: ein CustomEvent
+   statt geteiltem State, damit beide Inseln unabhaengig bleiben. */
+export const SEND_PULSE_EVENT = "kontakt:send-pulse";
+
+export interface SendPulseDetail {
+  /** "mail" oder "telegram" — bestimmt Toast und Beschriftung. */
+  kind: "mail" | "telegram";
+}

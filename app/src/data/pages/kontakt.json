@@ -4,11 +4,44 @@
     "h1": "Sag Hallo.",
     "intro": "Ein Postfach, echte Menschen dahinter. Wir sind ehrenamtlich — gib uns ein paar Tage, dann kommt was zurück. Für schnelle Fragen rund um Events ist Telegram der Turbo."
   },
+  "sections": {
+    "konsole": {
+      "eyebrow": "Anliegen-Wegweiser",
+      "title": "Wonach suchst du?",
+      "intro": "Wähl dein Anliegen — die Station sagt dir, welcher Kanal passt, wie lange es dauert, und baut dir die Mail direkt vor.",
+      "channelsTitle": "Alle Kanäle im Klartext"
+    },
+    "vergleich": {
+      "eyebrow": "Kanal-Vergleich",
+      "title": "Was passt zu dir?",
+      "intro": "Für Vertrauliches: lieber Mail. Für schnelle Fragen: Telegram — aber öffentlich, alle lesen mit."
+    },
+    "faq": {
+      "eyebrow": "Bevor du schreibst",
+      "title": "Häufig gefragt",
+      "intro": "Fünf Fragen, die uns am häufigsten erreichen — vielleicht steht deine Antwort schon hier."
+    }
+  },
   "station": {
     "label": "Bodenstation Potsdam",
     "statusNote": "Empfangsbereit · Antwort meist in 2–5 Tagen",
     "sendPulseToast": "Signal unterwegs 📡",
-    "copyToast": "Adresse kopiert ✓"
+    "telegramToast": "Kanal wird geöffnet …",
+    "copyToast": "Adresse kopiert ✓",
+    "recoHint": "Wähl oben ein Anliegen — hier steht dann der passende Kanal samt Antwortzeit.",
+    "readout": {
+      "title": "Stationsdaten",
+      "callsignLabel": "Rufzeichen",
+      "callsign": "takeøff / Potsdam",
+      "positionLabel": "Position",
+      "position": "52,39° N · 13,06° O",
+      "timeLabel": "Lokalzeit",
+      "statusLabel": "Status",
+      "statusIdle": "Empfangsbereit",
+      "statusSending": "Signal unterwegs",
+      "channelLabel": "Kanal",
+      "channelIdle": "alle empfangsbereit"
+    }
   },
   "topics": [
     { "id": "allgemein", "label": "Allgemein", "text": "Alles, was sonst nirgends reinpasst.", "channel": "mail", "mailSubject": "Allgemeine Frage", "mailBody": "", "responseNote": "meist 2–5 Tage" },
@@ -41,19 +74,27 @@
     { "q": "Warum gibt's kein Kontaktformular?", "a": "Bewusst nicht — kein Tracking, kein Drittanbieter-Backend. Mail oder Telegram, echte Menschen antworten." }
   ],
   "vcard": {
-    "buttonLabel": "Als Kontakt speichern (.vcf)",
+    "name": "Kontaktkarte",
+    "buttonLabel": "Kontakt speichern (.vcf)",
     "orgName": "takeoff Potsdam",
     "note": "Speichert Mail, Telegram & Instagram direkt in deine Kontakte-App."
   },
   "_labels": {
     "hero.h1": "Überschrift",
-    "station.statusNote": "Bodenstation-Statuszeile",
+    "sections.konsole": "Sektion „Bodenstation“ — Kicker, Überschrift, Einleitung, Zwischentitel der Kanalliste",
+    "sections.vergleich": "Sektion „Kanal-Vergleich“ — Kicker, Überschrift, Einleitung",
+    "sections.faq": "Sektion „Häufig gefragt“ — Kicker, Überschrift, Einleitung",
+    "station.statusNote": "Bodenstation-Statuszeile im Hero",
     "station.sendPulseToast": "Sende-Puls-Toast",
+    "station.telegramToast": "Toast beim Öffnen von Telegram",
     "station.copyToast": "Kopier-Toast (E-Mail-Adresse)",
+    "station.recoHint": "Platzhaltertext der Empfehlung, solange nichts gewählt ist",
+    "station.readout": "Beschriftungen und Werte der Stationsanzeige neben dem Radar",
     "topics": "Anliegen-Wegweiser — ein Eintrag pro Themen-Chip",
     "channels": "Funkkanäle (Radar & Liste)",
     "channelCompare": "Kanal-Vergleich (E-Mail/Telegram/Instagram)",
     "faq": "Kontakt-FAQ",
+    "vcard.name": "Titel der Kontaktkarten-Kachel",
     "vcard.buttonLabel": "vCard-Button-Beschriftung",
     "vcard.note": "vCard-Hinweistext"
   }

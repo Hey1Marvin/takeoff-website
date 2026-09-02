@@ -1,178 +1,464 @@
 /* ============================================================
-   events.css — "Abflugtafel" (Departures Board)
-   Seiten-Signaturmotiv für /events. Lädt NACH takeoff.css, nutzt
-   ausschließlich bestehende Tokens (--font-mono, --bg-hairline,
-   --acc-*, --radius*). Keine neue Palette, kein neuer Font.
+   events.css — „Abflugtafel" (Departures Board)
 
-   1:1-Portierung aus prototype/assets/css/pages/events.css — keine
-   Bildpfade enthalten (nur Inline-SVG-Datenurls), daher keine
-   assets/img/-Ersetzung nötig.
+   Seiten-Signaturmotiv fuer /events. Laedt NACH takeoff.css und nutzt
+   ausschliesslich bestehende Tokens (--sp-*, --z-*, --shadow-*, --acc-*,
+   --bg-*, --font-*, --track-*, --w-*, --radius*). Keine neue Palette,
+   kein neuer Font, keine freien Pixelabstaende.
+
+   WAS SICH IN IT. 14 GEAENDERT HAT (und warum)
+
+   Bis It. 13 war die Tafel eine LEERE Behauptung: ein Rahmen mit Kopf-
+   zeile (Code · Titel · Uhr) und darunter die Spaltenkoepfe
+   „Gate · Datum · Mission · Ort · Status" — und dann keine einzige
+   Zeile. Die Events standen darunter noch einmal, als voellig separates
+   .card-grid mit .mcard. Die Koepfe rahmten nichts: sie standen auf
+   `4.5em 5em 1fr 1fr 6em`, das Kartenraster darunter auf
+   `repeat(auto-fit, minmax(280px, 1fr))`. Dieselben Daten, zweimal
+   gezeigt, in zwei nicht verwandten Rastern.
+
+   Jetzt IST die Zeile das Event. Die Spaltenkoepfe und die Zeilen teilen
+   sich EIN Raster (--ev-cols), eine Zeile klappt zum Briefing auf, und
+   der Abo-Link steht in einer Fusszeile INNERHALB des Rahmens statt mit
+   `margin-top: -8px` in dessen Schlagschatten.
+
+   Damit erledigen sich zwei Handkorrekturen von selbst:
+   · `.gate-tag { position: absolute; top: 20px; left: 24px }` kollidierte
+     mit `.patch` und wurde mit `#kommend .mcard .patch { margin-top: 28px }`
+     entschaerft — die Datei nannte das selbst eine Notloesung. Die
+     Gate-Nummer ist jetzt eine Zelle im Raster, nichts liegt mehr
+     uebereinander, die Magiezahl ist ersatzlos weg.
+   · `.card-grid { counter-reset: gate }` / `.mcard { counter-increment }`
+     waren ungescopet und liefen damit auf JEDER Seite mit, die .mcard
+     benutzt (Startseite). Die Nummer kommt jetzt aus der Liste (page.tsx).
+
+   Ebenfalls ersatzlos entfernt, weil ihr Gegenstand auf /events nicht
+   mehr existiert und sie ungescopet in fremde Seiten geleckt haben:
+   `.mcard .m-more-inner` (gestrichelte Kante), `.mcard .chips`,
+   `.mcard .route-row`, `.mcard .note-line`, `.mcard .m-share`,
+   `.status` als globaler Flex-Container, `.board-actions`.
+   Die Startseite hat eigene .mcard-Karten — sie bekamen diese Regeln
+   nach einer Client-Navigation ungefragt mit.
    ============================================================ */
 
 /* ============================================================
-   1 · Board-Header (Instrumenten-Bezel)
+   1 · Seitengeruest
+   Abstaende ausschliesslich aus der Leiter. Vorher standen sie als
+   Inline-`style={{ paddingTop: "clamp(30px,5vh,50px)" }}` im JSX.
    ============================================================ */
-.board-frame {
+.ev-sec--board { padding-top: var(--sp-6); }
+.ev-sec--tx { padding-top: 0; }
+.ev-log-note { margin-top: var(--sp-4); }
+
+/* Der EINE Ausbruch aus der Textspalte.
+   Die Seite war eine 1040px-Spalte auf einem 1440px-Schirm — rechts 55 %
+   schwarze Flaeche. Eine Abflugtafel IST breit, also darf genau sie
+   breiter stehen als der Rest. Ein Ausbruch liest sich als Absicht, drei
+   verschiedene Breiten als Zufall — deshalb behalten Hero, Flight Log,
+   FAQ und Transmission das normale --maxw. */
+.ev-wrap { max-width: calc(var(--maxw) + 2 * var(--sp-8)); }
+
+.ev-inline-link { color: var(--acc-3-tint); }
+.ev-inline-link:hover, .ev-inline-link:focus-visible { color: var(--ink); }
+
+/* ============================================================
+   2 · Rahmen und Kopfzeile (Instrumenten-Bezel)
+   Das Innenpolster sitzt an den Baendern, nicht am Rahmen — nur so
+   laufen die Trennlinien zwischen den Zeilen von Kante zu Kante.
+   ============================================================ */
+.ev-board {
+  /* EIN Raster fuer Spaltenkoepfe UND Zeilen. Genau das fehlte vorher.
+     Alle sechs Spuren sind entweder fest oder fr — keine `auto`-Spur:
+     `auto` misst sich am Inhalt, und der Inhalt der Kopfzeile ist ein
+     anderer als der der Zeilen. Die Koepfe staenden dann wieder neben
+     ihren Spalten statt darueber. */
+  --ev-toggle: 6.5rem;
+  --ev-cols: 5.5rem 8.5rem minmax(0, 1.7fr) minmax(0, 1.05fr) 7.5rem var(--ev-toggle);
+  --ev-gap: clamp(10px, 1.4vw, 20px);
+  --ev-pad: clamp(16px, 2.2vw, 28px);
+}
+.ev-frame {
+  position: relative;
+  overflow: hidden;
   border-radius: var(--radius-lg);
   border: 1px solid var(--bg-hairline);
   background: linear-gradient(175deg, var(--bg-raised), var(--bg-base));
-  box-shadow: inset 0 1px 0 rgb(255 255 255 / .06), 0 18px 40px rgb(0 0 0 / .35);
-  padding: clamp(14px, 3vw, 22px) clamp(16px, 4vw, 28px);
-  margin-bottom: clamp(22px, 4vh, 38px);
-  position: relative;
-  overflow: hidden;
+  box-shadow: var(--shadow-2);
 }
 /* Scanline-Andeutung — 2px Zeilenabstand, 2,5 % Deckkraft. Bewusst kein
-   Phosphor-Gruen, kein Glitch: das Board bleibt im Chrome-Vokabular der
+   Phosphor-Gruen, kein Glitch: die Tafel bleibt im Chrome-Vokabular der
    Seite statt in CRT-Kitsch zu kippen. */
-.board-frame::after {
+.ev-frame::after {
   content: ""; position: absolute; inset: 0; pointer-events: none;
+  z-index: var(--z-deco);
   background: repeating-linear-gradient(0deg, rgb(255 255 255 / .025) 0 1px, transparent 1px 3px);
 }
-.board-toprow { display: flex; align-items: center; gap: 14px; }
-.board-code {
-  font-family: var(--font-mono); font-weight: 700; font-size: 12px;
+.ev-frame .board-toprow {
+  display: flex; align-items: center; gap: var(--sp-3);
+  padding: clamp(14px, 1.8vw, 20px) var(--ev-pad);
+}
+.ev-frame .board-code {
+  font-family: var(--font-mono); font-weight: var(--w-micro-b); font-size: 12px;
   letter-spacing: var(--track-wide);
   padding: 4px 8px; border-radius: 5px;
   border: 1px solid var(--bg-hairline); background: var(--bg-overlay);
   color: var(--ink-dim); flex: none;
 }
-.board-title {
-  font-family: var(--font-display); font-weight: 800;
+.ev-frame .board-title {
+  font-family: var(--font-display); font-weight: var(--w-display);
   font-size: clamp(15px, 2vw, 19px); flex: 1;
   min-width: 0;
 }
-.board-clock {
+.ev-frame .board-clock {
   font-family: var(--font-mono); font-variant-numeric: tabular-nums;
   font-size: clamp(16px, 2.4vw, 22px); color: var(--ink);
   text-shadow: 0 0 5px rgb(var(--acc-3-rgb) / .35);
   flex: none;
 }
-.board-cols {
-  display: grid; grid-template-columns: 4.5em 5em 1fr 1fr 6em;
-  gap: 8px; margin-top: 12px; padding-top: 10px;
-  border-top: 1px solid var(--bg-hairline);
+
+/* Spaltenkoepfe — jetzt mit Gegenstand. */
+.ev-cols {
+  display: grid;
+  grid-template-columns: var(--ev-cols);
+  gap: var(--ev-gap);
+  padding: 10px var(--ev-pad);
+  border-block: 1px solid var(--bg-hairline);
   font-family: var(--font-mono); font-size: 10.5px;
   letter-spacing: var(--track-label); text-transform: uppercase;
   color: var(--ink-faint);
 }
-.board-cols span:last-child { text-align: right; }
-.board-cols--sub { margin: 0 0 10px; }
-/* Unter ~700px faellt .card-grid auf 1 Spalte — die 5-Spalten-Kopfzeile
-   wuerde dort nichts mehr rahmen und nur Zeilenumbrueche produzieren. */
-@media (max-width: 700px) { .board-cols { display: none; } }
-
-/* Kleine Zeile fuers Kalender-Abo direkt unter dem Board — bewusst
-   AUSSERHALB des aria-hidden-Blocks, damit sie fokussierbar bleibt. */
-.board-actions { display: flex; justify-content: flex-end; margin: -8px 0 22px; }
-.board-actions .btn { padding: 9px 16px; font-size: 11px; }
 
 /* ============================================================
-   2 · Ambient-Wasserzeichen (Signatur-Hintergrundmotiv)
-   Zusätzlich zum Sternenhimmel, nicht statt ihm — eigener Layer nur
-   innerhalb der beiden Board-Sections. Tile: kleine "Flap-Zelle" mit
-   Scharnierlinie.
+   3 · Zeilen
    ============================================================ */
-#kommend, #flightlog { position: relative; isolation: isolate; }
-#kommend::before, #flightlog::before {
-  content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='46' height='46' viewBox='0 0 46 46'%3E%3Crect x='9' y='13' width='28' height='20' rx='3' fill='none' stroke='%237761d1' stroke-opacity='0.05'/%3E%3Cline x1='9' y1='23' x2='37' y2='23' stroke='%237761d1' stroke-opacity='0.05'/%3E%3C/svg%3E");
-  mask-image: linear-gradient(180deg, transparent, #000 14%, #000 86%, transparent);
+.ev-rows {
+  list-style: none; margin: 0; padding: 0;
+  /* Fluchtpunkt fuer den Split-Flap-Einlauf (Abschnitt 8). `transform-
+     style` allein reicht nicht — ohne perspective rendert eine
+     3D-Rotation als flache Verzerrung. */
+  perspective: 1000px;
+  perspective-origin: 50% 0;
 }
-#flightlog::before { filter: saturate(.7) brightness(.9); } /* "angekommen" = ruhiger als "kommend" */
+.ev-row {
+  position: relative;
+  transition: box-shadow .3s var(--ease-out);
+}
+.ev-row + .ev-row { border-top: 1px solid var(--bg-hairline); }
+/* Leuchtschiene links, ueber Kopf UND aufgeklapptes Briefing hinweg.
+   Als Inset-Schatten statt Pseudoelement: kein zusaetzlicher Stapel-
+   kontext, keine Frage, ob die Schiene vor oder hinter dem Zeileninhalt
+   liegt. */
+.ev-row:hover, .ev-row:focus-within, .ev-row.is-open {
+  box-shadow: inset 2px 0 0 var(--card-acc);
+}
 
-/* ============================================================
-   3 · Gate-Tag (reines CSS, kein JS-Zähler nötig)
-   ============================================================ */
-.card-grid { counter-reset: gate; }
-.mcard { counter-increment: gate; }
-.gate-tag {
-  position: absolute; top: 20px; left: 24px; z-index: 1;
-  font-family: var(--font-mono); font-weight: 700; font-size: 10px;
+.ev-rowbtn {
+  width: 100%;
+  display: grid;
+  grid-template-columns: var(--ev-cols);
+  grid-template-areas: "gate date mission place status chev";
+  gap: var(--ev-gap);
+  align-items: center;
+  text-align: left;
+  padding: clamp(12px, 1.5vw, 17px) var(--ev-pad);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background .25s;
+}
+.ev-row:hover .ev-rowbtn,
+.ev-rowbtn:focus-visible { background: rgb(var(--card-acc-rgb) / .07); }
+/* Der globale Fokusring sitzt 3px AUSSERHALB des Elements; die Zeile ist
+   so breit wie der Rahmen, und der Rahmen hat overflow:hidden — links und
+   rechts waere der Ring damit abgeschnitten. Nach innen gelegt bleibt er
+   vollstaendig sichtbar. */
+.ev-rowbtn:focus-visible { outline-offset: -3px; border-radius: 0; }
+.ev-row.is-open .ev-rowbtn { background: rgb(var(--card-acc-rgb) / .1); }
+
+.ev-c { display: flex; min-width: 0; align-items: center; }
+.ev-c-gate { grid-area: gate; gap: var(--sp-2); }
+.ev-c-date { grid-area: date; flex-direction: column; align-items: flex-start; gap: 2px; }
+.ev-c-mission { grid-area: mission; gap: clamp(10px, 1.1vw, 14px); }
+.ev-c-place { grid-area: place; flex-direction: column; align-items: flex-start; gap: 2px; }
+.ev-c-status { grid-area: status; }
+.ev-c-toggle { grid-area: chev; justify-content: flex-end; gap: 8px; color: var(--card-acc); }
+
+/* Gate: bewusst neutral (wie das PDM-Schild im Kopf), nicht in der
+   Eventfarbe. Zwei gefuellte Farbpillen pro Zeile waeren Laerm — die
+   Farbidentitaet traegt die Statuspille und das Datum. */
+.ev-gate {
+  font-family: var(--font-mono); font-weight: var(--w-micro-b); font-size: 10px;
   letter-spacing: var(--track-label); text-transform: uppercase;
   padding: 4px 8px; border-radius: 5px;
-  color: var(--card-acc);
-  background: rgb(var(--card-acc-rgb) / .1);
-  border: 1px solid rgb(var(--card-acc-rgb) / .3);
+  border: 1px solid var(--bg-hairline); background: var(--bg-overlay);
+  color: var(--ink-dim); white-space: nowrap;
 }
-.gate-tag::before { content: "Gate " counter(gate, decimal-leading-zero); }
-/* .patch beginnt sonst bei padding-top (26px) und läge exakt unter dem
-   Gate-Tag (top:20px, ~24px hoch) — beide sind links ausgerichtet. Statt
-   die Karte neu zu gestalten, rückt nur die Position von .patch um so
-   viel, wie der Tag zusätzlich braucht. */
-#kommend .mcard .patch { margin-top: 28px; }
+.ev-wd {
+  font-family: var(--font-mono); font-size: 10.5px;
+  letter-spacing: var(--track-label); text-transform: uppercase;
+  color: var(--ink-faint);
+}
+.ev-day {
+  font-family: var(--font-mono); font-weight: var(--w-micro-b);
+  font-size: clamp(15px, 1.5vw, 18px);
+  font-variant-numeric: tabular-nums;
+  color: var(--card-acc);
+}
+.ev-patch {
+  flex: none; width: 34px; height: 34px; border-radius: 50%;
+  display: grid; place-items: center;
+  color: var(--card-acc);
+  background: radial-gradient(circle at 32% 26%, rgb(255 255 255 / .1), rgb(var(--bg-base-rgb) / .92) 62%);
+  border: 1px solid rgb(255 255 255 / .2);
+  box-shadow: inset 0 0 0 2px rgb(var(--card-acc-rgb) / .18);
+}
+.ev-patch svg { width: 17px; height: 17px; }
+.ev-titles { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.ev-title {
+  font-family: var(--font-display); font-weight: var(--w-head);
+  font-size: clamp(15px, 1.5vw, 18px); line-height: 1.16;
+  color: var(--ink);
+}
+.ev-sub { font-size: 13px; line-height: 1.3; color: var(--ink-faint); }
+.ev-venue { font-size: 14px; color: var(--ink-dim); }
+.ev-when {
+  font-family: var(--font-mono); font-size: 11.5px;
+  color: var(--ink-faint);
+}
+.ev-toggle-text {
+  font-family: var(--font-mono); font-weight: var(--w-micro-b); font-size: 10px;
+  letter-spacing: var(--track-label); text-transform: uppercase;
+}
+.ev-chev { flex: none; width: 15px; height: 15px; transition: transform .45s var(--ease-out); }
+.ev-row.is-open .ev-chev { transform: rotate(180deg); }
 
 /* ============================================================
-   4 · Split-Flap-Mechanik (Wort-Ebene, nicht Zeichen-Ebene)
-   .flap-stack stapelt live/incoming exakt übereinander (statt sie als
-   zwei Inline-Boxen nebeneinander zu zeigen) — robuster als grid-
-   auto-placement, weil .status zusätzlich einen ::before-Punkt
-   (Boarding-Puls) trägt, der in einem Grid-Kontext mitplatziert würde.
+   4 · Aufgeklapptes Briefing
+   Gleicher grid-template-rows-Trick wie .m-more (takeoff.css):
+   animierbar ohne Hoehenmessung. Der innere Container traegt zusaetzlich
+   .m-more-inner — das ist nicht Kosmetik, sondern zwei geerbte
+   Eigenschaften: `overflow:hidden; min-height:0` (sonst klappt gar
+   nichts) UND die Ausnahme von den Nachtplatten
+   (scene-night.css: `:is(.mcard, …, .m-more-inner) :is(.m-rows, .m-row, …)
+   ::before { content: none }`) — ohne sie zoege jede .m-row eine zweite
+   dunkle Ellipse ueber den Zeileninhalt.
    ============================================================ */
-.status, .fstatus { display: inline-flex; align-items: center; gap: 6px; }
-.flap-stack { position: relative; perspective: 240px; }
-.flap-face { display: inline-block; white-space: nowrap; backface-visibility: hidden; }
-.is-flapping .flap-face--live {
+.ev-more {
+  display: grid; grid-template-rows: 0fr;
+  transition: grid-template-rows .5s var(--ease-out);
+}
+.ev-row.is-open .ev-more { grid-template-rows: 1fr; }
+.ev-more-inner {
+  display: grid;
+  gap: var(--sp-4) var(--sp-6);
+  padding: var(--sp-1) var(--ev-pad) var(--sp-5);
+}
+@media (min-width: 960px) {
+  .ev-more-inner { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .ev-cta { grid-column: 1 / -1; }
+}
+.ev-facts .m-rows { margin-top: 0; }
+.ev-brief .m-brief { margin-top: 0; }
+.ev-note {
+  margin-top: var(--sp-3);
+  padding: 10px 12px;
+  border-radius: var(--radius);
+  background: rgb(var(--card-acc-rgb) / .07);
+  border: 1px solid rgb(var(--card-acc-rgb) / .2);
+  color: var(--ink-dim); font-size: 13px;
+}
+.ev-route { margin-top: var(--sp-3); }
+/* .cta-row bringt margin-top: 20px mit; im Raster ist der Abstand die
+   Rasterluecke, sonst steht er doppelt. */
+.ev-cta { margin-top: 0; }
+/* `.m-more .btn` (takeoff.css) greift hier nicht mehr — die Zeile heisst
+   .ev-more. Die gedrungenere Knopfgroesse im Briefing bleibt aber
+   richtig, sonst sprengen vier Knoepfe die Zeile. */
+.ev-more .btn { padding: 11px 18px; font-size: 12px; }
+.ev-more .m-share svg { width: 14px; height: 14px; }
+
+/* ============================================================
+   5 · Fusszeile der Tafel
+   ============================================================ */
+.ev-foot {
+  display: flex; flex-wrap: wrap; align-items: center;
+  justify-content: space-between; gap: var(--sp-2) var(--sp-4);
+  padding: clamp(8px, 1.1vw, 12px) var(--ev-pad);
+  border-top: 1px solid var(--bg-hairline);
+  background: rgb(var(--bg-void-rgb) / .25);
+}
+.ev-foot-note {
+  font-family: var(--font-mono); font-size: 10.5px;
+  letter-spacing: var(--track-label); text-transform: uppercase;
+  color: var(--ink-faint);
+}
+.ev-foot-link {
+  display: inline-flex; align-items: center; min-height: 44px;
+  font-family: var(--font-mono); font-weight: var(--w-micro-b); font-size: 11px;
+  letter-spacing: var(--track-label); text-transform: uppercase;
+  color: var(--acc-3-tint);
+  transition: color .2s;
+}
+.ev-foot-link:hover, .ev-foot-link:focus-visible { color: var(--ink); }
+
+/* ============================================================
+   6 · Standby — kein Event angekuendigt
+   Die Tafel verschwindet NICHT, wenn nichts ansteht. Eine Abflugtafel
+   ohne Abfluege ist ein eigener, richtiger Zustand.
+   ============================================================ */
+.ev-standby {
+  display: grid; justify-items: start; gap: var(--sp-2);
+  padding: var(--sp-6) var(--ev-pad);
+  border-top: 1px solid var(--bg-hairline);
+}
+.ev-standby-label {
+  display: inline-flex; align-items: center; gap: 9px;
+  font-family: var(--font-mono); font-weight: var(--w-micro-b); font-size: 11px;
+  letter-spacing: var(--track-micro); text-transform: uppercase;
+  color: var(--acc-3-tint);
+}
+.ev-standby-label::before {
+  content: ""; width: 7px; height: 7px; border-radius: 50%;
+  background: currentColor;
+  animation: pulse 2.2s ease-in-out infinite;
+}
+.ev-standby-title {
+  font-family: var(--font-display); font-weight: var(--w-head);
+  font-size: clamp(18px, 2.4vw, 24px); color: var(--ink);
+}
+.ev-standby-text { color: var(--ink-dim); font-size: 14.5px; max-width: 48ch; }
+.ev-standby .btn { margin-top: var(--sp-2); }
+
+/* ============================================================
+   7 · Split-Flap-Mechanik (Wort-Ebene, nicht Zeichen-Ebene)
+   .flap-stack stapelt live/incoming exakt uebereinander (statt sie als
+   zwei Inline-Boxen nebeneinander zu zeigen) — robuster als grid-auto-
+   placement, weil die Statuspille zusaetzlich einen ::before-Punkt
+   (Boarding-Puls) traegt, der in einem Grid-Kontext mitplatziert wuerde.
+   Alles an .ev-status/.fstatus gebunden: `.status` allein war ein
+   globaler Name (die Startseite hat eigene .status-Pillen).
+   ============================================================ */
+.ev-status, .fstatus { display: inline-flex; align-items: center; gap: 6px; }
+.ev-status {
+  font-family: var(--font-mono); font-size: 10px;
+  letter-spacing: var(--track-micro); text-transform: uppercase;
+  padding: 5px 10px; border-radius: 999px;
+  border: 1px solid rgb(var(--card-acc-rgb) / .5);
+  color: var(--card-acc);
+  background: rgb(var(--card-acc-rgb) / .08);
+  white-space: nowrap;
+}
+:is(.ev-status, .fstatus) .flap-stack { position: relative; perspective: 240px; }
+:is(.ev-status, .fstatus) .flap-face {
+  display: inline-block; white-space: nowrap; backface-visibility: hidden;
+}
+:is(.ev-status, .fstatus).is-flapping .flap-face--live {
   animation: flap-out .32s cubic-bezier(.5, 0, .75, 0) forwards;
 }
 @keyframes flap-out { to { transform: rotateX(-100deg); opacity: .35; } }
-.flap-face--incoming { display: none; }
-.is-flapping .flap-face--incoming {
+:is(.ev-status, .fstatus) .flap-face--incoming { display: none; }
+:is(.ev-status, .fstatus).is-flapping .flap-face--incoming {
   display: inline-block;
   position: absolute; inset: 0;
   animation: flap-in .32s cubic-bezier(.25, 1, .5, 1) .28s forwards;
 }
 @keyframes flap-in { from { transform: rotateX(90deg); opacity: 0; } to { transform: rotateX(0); opacity: 1; } }
 
-/* Puls nur für BOARDING — eigene Keyframes. Nur der zeitlich relevante
-   Zustand bewegt sich dauerhaft; ANNOUNCED/TBA/DEPARTED flappen einmal
-   und stehen still. */
-.mcard .status[data-flap-status="boarding"]::before {
+/* Puls nur fuer BOARDING. Nur der zeitlich relevante Zustand bewegt sich
+   dauerhaft; ANNOUNCED/TBA/DEPARTED flappen einmal und stehen still. */
+.ev-status[data-flap-status="boarding"]::before {
   content: ""; flex: none; width: 6px; height: 6px; border-radius: 50%;
   background: var(--card-acc);
   animation: gate-pulse 2.4s ease-in-out infinite;
 }
 @keyframes gate-pulse { 50% { opacity: .4; } }
 
-/* ============================================================
-   5 · .fstatus — Wiederverwendung von .chip (nur Farbgebung gedämpft,
-   "departed" soll ruhiger lesen als die Pillen bei kommenden Events)
-   ============================================================ */
+/* .fstatus (Flight Log) — Wiederverwendung von .chip, nur gedaempft:
+   „departed" soll ruhiger lesen als die Pillen kommender Events. */
 .fstatus { border-color: var(--bg-hairline); color: var(--ink-faint); text-transform: uppercase; }
 
 /* ============================================================
-   6 · Boarding-Pass-Anmutung im aufgeklappten Briefing
+   8 · Der EINE Bewegungsmoment der Seite
+   Rahmen faehrt hoch, Zeilen klappen gestaffelt um — aus einem
+   Beobachter (EventsBoardPower.tsx), damit beides nicht gegeneinander
+   startet. Start- und Endzustand sind identisch mit dem Ruhezustand:
+   nach Ablauf bleibt optisch nichts anders als vorher, und ohne JS
+   (oder bei Tier „s") sieht man von Anfang an genau dieses Ende.
    ============================================================ */
-.mcard .m-more-inner { border-top: 1px dashed rgb(var(--card-acc-rgb) / .35); padding-top: 14px; }
+.ev-frame.board-power-on {
+  animation: board-power-on 1.2s cubic-bezier(.2, .7, .25, 1) both;
+}
+@keyframes board-power-on {
+  from {
+    filter: brightness(.7) saturate(.85);
+    border-color: rgb(var(--acc-3-rgb) / .6);
+    box-shadow: var(--shadow-2), 0 0 0 rgb(var(--acc-3-rgb) / 0);
+  }
+  60% {
+    filter: brightness(1.06) saturate(1.05);
+    box-shadow: var(--shadow-2), 0 0 32px rgb(var(--acc-3-rgb) / .26);
+  }
+  to {
+    filter: brightness(1) saturate(1);
+    border-color: var(--bg-hairline);
+    box-shadow: var(--shadow-2), 0 0 0 rgb(var(--acc-3-rgb) / 0);
+  }
+}
+.ev-rows.ev-flap-in > .ev-row {
+  transform-origin: 50% 0;
+  animation: ev-flap-row .5s cubic-bezier(.25, 1, .5, 1) backwards;
+  /* Startet nach dem Anlauf des Rahmens, 80 ms Versatz je Zeile. Bei
+     sieben Zeilen ist der letzte Flap nach 0,78 s durch — lang genug,
+     dass man die Staffelung sieht, kurz genug, dass niemand wartet. */
+  animation-delay: calc(200ms + var(--i, 0) * 80ms);
+}
+@keyframes ev-flap-row {
+  from { transform: rotateX(-82deg); opacity: 0; }
+  to { transform: rotateX(0); opacity: 1; }
+}
+/* Doppelt genaeht: EventsBoardPower.tsx haengt die Klassen ohnehin nur
+   bei Tier m/l ohne reduced-motion an. Diese Bremsen greifen zusaetzlich,
+   falls der Tier-/Praeferenzwechsel mitten in der laufenden Animation
+   passiert — die globale [data-fx="s"]-Regel in takeoff.css wuerde die
+   LAUFZEIT auf .001s stauchen, die VERZOEGERUNG aber stehen lassen: die
+   Zeilen blieben dann bis zu ihrer Startzeit unsichtbar (fill: backwards). */
+:root[data-fx="s"] .board-power-on,
+:root[data-fx="s"] .ev-rows > .ev-row { animation: none; }
+@media (prefers-reduced-motion: reduce) {
+  .board-power-on, .ev-rows > .ev-row { animation: none; }
+  .ev-chev, .ev-more, .ev-row, .ev-rowbtn { transition: none; }
+}
 
 /* ============================================================
-   7 · Kartenzusätze: Genre-/Preis-Chips, Anfahrt, Hinweise, CTAs
-   Reine Wiederverwendung globaler Klassen (.chips/.chip/.route-row/
-   .vcard/.lu-note/.btn) — hier nur Abstände, keine neuen Farben.
+   9 · Ambient-Wasserzeichen (Signatur-Hintergrundmotiv)
+   Zusaetzlich zum Sternenhimmel, nicht statt ihm — eigener Layer nur
+   in den beiden Tafel-Sektionen. Tile: kleine „Flap-Zelle" mit
+   Scharnierlinie.
+
+   Achtung Spezifitaet/Reichweite: hier stand `#kommend::before,
+   #flightlog::before`. Die id „flightlog" gibt es auch auf der
+   STARTSEITE (src/app/page.tsx), und Seiten-CSS wird global gebuendelt —
+   nach einer Client-Navigation /events -> / lag das Wasserzeichen dort
+   ungefragt hinter dem Flight Log. Genau der Fehler, den dieselbe Datei
+   weiter unten schon einmal dokumentiert hat. Jetzt an Seitenklassen.
    ============================================================ */
-.mcard .chips { margin-top: 12px; }
-.mcard .route-row { margin-top: 14px; }
-.mcard .note-line {
-  margin-top: 12px; padding: 10px 12px;
-  border-radius: 8px;
-  background: rgb(var(--card-acc-rgb) / .06);
-  border: 1px solid rgb(var(--card-acc-rgb) / .18);
-  color: var(--ink-dim); font-size: 13px;
+.ev-sec--board, .ev-sec--log { position: relative; isolation: isolate; }
+.ev-sec--board::before, .ev-sec--log::before {
+  content: ""; position: absolute; inset: 0; z-index: var(--z-veil); pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='46' height='46' viewBox='0 0 46 46'%3E%3Crect x='9' y='13' width='28' height='20' rx='3' fill='none' stroke='%237761d1' stroke-opacity='0.05'/%3E%3Cline x1='9' y1='23' x2='37' y2='23' stroke='%237761d1' stroke-opacity='0.05'/%3E%3C/svg%3E");
+  mask-image: linear-gradient(180deg, transparent, #000 14%, #000 86%, transparent);
 }
-.mcard .m-share {
-  padding: 11px 18px; font-size: 12px;
-}
-.mcard .m-share svg { width: 14px; height: 14px; }
+.ev-sec--log::before { filter: saturate(.7) brightness(.9); } /* „angekommen" = ruhiger als „kommend" */
 
 /* ============================================================
-   8 · Flight-Log-Ergänzungen: Reset-Kopf, "War ich dabei"-Toggle
+   10 · Flight-Log-Ergaenzungen: Reset-Kopf, „War ich dabei"-Toggle
    ============================================================ */
 .flog-head {
   display: flex; flex-wrap: wrap; align-items: flex-end;
-  justify-content: space-between; gap: 14px 24px;
+  justify-content: space-between; gap: var(--sp-3) var(--sp-5);
 }
 .fpin-reset {
-  font-family: var(--font-mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase;
+  font-family: var(--font-mono); font-size: 11px;
+  letter-spacing: var(--track-label); text-transform: uppercase;
   color: var(--ink-faint);
   border: 1px solid var(--bg-hairline);
   border-radius: 999px;
@@ -190,7 +476,7 @@
   flex-basis: 100%;
   display: inline-flex; align-items: center; gap: 10px;
   min-height: 44px; margin-top: 2px; padding: 6px 4px;
-  border-radius: 8px;
+  border-radius: var(--radius);
   font-family: var(--font-mono); font-size: 12px; letter-spacing: .06em;
   color: var(--ink-faint);
   transition: color .2s;
@@ -211,22 +497,65 @@
 }
 
 /* ============================================================
-   9 · BPM-Tap-Tempo
+   11 · Schlussband: FAQ + Tap-Tempo als Paar
+   Beide standen als eigene, volle Sektionen untereinander — je eine
+   schmale Spalte in einem 1440er Fenster, zusammen zwei Sektionshoehen
+   toter Flaeche rechts. Als Paar benutzen sie die Breite, und das
+   Werkzeug bleibt beim Lesen der Antworten sichtbar (sticky).
    ============================================================ */
-.bpmtool {
-  display: grid; gap: 20px; justify-items: center; text-align: center;
-  max-width: 420px; margin-inline: auto;
-  padding: clamp(28px, 5vw, 44px) clamp(20px, 5vw, 36px);
+.ev-endgrid { display: grid; gap: var(--sp-7) var(--sp-8); align-items: start; }
+@media (min-width: 960px) {
+  .ev-endgrid { grid-template-columns: minmax(0, 1.25fr) minmax(280px, .75fr); }
+  .ev-bpm { position: sticky; top: calc(var(--nav-h) + var(--sp-4)); }
+}
+.ev-bpm .ev-bpm-title {
+  font-size: clamp(20px, 2.4vw, 28px);
+  margin-bottom: var(--sp-2);
+}
+/* Der Sektionskopf der Nebenspalte darf enger stehen als der der
+   Hauptspalte — er fuehrt ein Werkzeug ein, keinen Lesetext. */
+.ev-bpm .section-head { margin-bottom: var(--sp-5); }
+.ev-bpm .ev-bpm-intro { font-size: 14.5px; max-width: 42ch; }
+
+/* ---- FAQ-Akkordeon (natives details/summary) ---- */
+.ev-faq .faqlist { display: grid; gap: 10px; }
+.ev-faq .faqlist details {
+  border: 1px solid var(--bg-hairline);
+  border-radius: var(--radius);
+  background: linear-gradient(165deg, var(--bg-raised), var(--bg-surface));
+  padding: 0 20px;
+  transition: border-color .25s;
+}
+.ev-faq .faqlist details[open] { border-color: rgb(var(--acc-2-rgb) / .4); }
+.ev-faq .faqlist summary {
+  list-style: none;
+  cursor: pointer;
+  padding: 17px 0;
+  display: flex; align-items: center; justify-content: space-between; gap: var(--sp-3);
+  font-family: var(--font-display); font-weight: var(--w-head); font-size: 15.5px;
+  -webkit-tap-highlight-color: transparent;
+  min-height: 44px;
+}
+.ev-faq .faqlist summary::marker,
+.ev-faq .faqlist summary::-webkit-details-marker { content: ""; display: none; }
+.ev-faq .faqlist summary .fq-ico { flex: none; color: var(--acc-3); transition: transform .35s var(--ease-out); }
+.ev-faq .faqlist details[open] summary .fq-ico { transform: rotate(45deg); }
+.ev-faq .faqlist .fq-a { margin: 0 0 18px; color: var(--ink-dim); font-size: 14.5px; max-width: 640px; }
+
+/* ---- BPM-Tap-Tempo ---- */
+.ev-bpm .bpmtool {
+  display: grid; gap: var(--sp-4); justify-items: center; text-align: center;
+  padding: clamp(24px, 3vw, 36px) clamp(18px, 2.4vw, 30px);
   border: 1px solid var(--bg-hairline);
   border-radius: var(--radius-lg);
-  background: linear-gradient(165deg, var(--bg-2), var(--bg-1));
+  background: linear-gradient(165deg, var(--bg-raised), var(--bg-surface));
 }
-.bpm-intro { color: var(--ink-dim); font-size: 14.5px; margin-top: -10px; }
-.bpm-pad {
+.ev-bpm .bpm-pad {
   width: clamp(126px, 30vw, 172px); height: clamp(126px, 30vw, 172px);
   border-radius: 50%;
   display: grid; place-items: center; gap: 2px; text-align: center;
-  font-family: var(--font-mono); font-weight: 700; letter-spacing: .12em; text-transform: uppercase; font-size: 12.5px;
+  font-family: var(--font-mono); font-weight: var(--w-micro-b);
+  letter-spacing: .12em; text-transform: uppercase; font-size: 12.5px;
   color: var(--ink);
   background: radial-gradient(circle at 32% 26%, rgb(255 255 255 / .12), rgb(var(--bg-base-rgb) / .94) 68%);
   border: 1px solid rgb(var(--acc-1-rgb) / .4);
@@ -234,168 +563,141 @@
   transition: transform .12s var(--ease-out), box-shadow .25s;
   -webkit-tap-highlight-color: transparent;
 }
-.bpm-pad:active { transform: scale(.94); box-shadow: inset 0 0 0 3px rgb(var(--acc-1-rgb) / .32), 0 0 30px rgb(var(--acc-1-rgb) / .3); }
-.bpm-pad small { font-size: 10px; letter-spacing: .18em; color: var(--ink-faint); font-weight: 400; }
-.bpm-readout { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
-.bpm-readout b {
-  display: block; font-size: clamp(30px, 7vw, 44px); font-weight: 700; color: var(--ink);
+.ev-bpm .bpm-pad:active { transform: scale(.94); box-shadow: inset 0 0 0 3px rgb(var(--acc-1-rgb) / .32), 0 0 30px rgb(var(--acc-1-rgb) / .3); }
+.ev-bpm .bpm-pad small { font-size: 10px; letter-spacing: .18em; color: var(--ink-faint); font-weight: var(--w-micro); }
+.ev-bpm .bpm-readout { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+.ev-bpm .bpm-readout b {
+  display: block; font-size: clamp(30px, 7vw, 44px); font-weight: var(--w-micro-b); color: var(--ink);
   text-shadow: 0 0 6px rgb(var(--acc-1-rgb) / .35);
 }
-.bpm-readout span { font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: var(--ink-faint); }
-.bpm-match { font-family: var(--font-mono); font-size: 13.5px; color: var(--acc-1-tint); min-height: 1.4em; }
-.bpm-reset {
-  font-family: var(--font-mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase;
+.ev-bpm .bpm-readout span { font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: var(--ink-faint); }
+.ev-bpm .bpm-match { font-family: var(--font-mono); font-size: 13.5px; color: var(--acc-1-tint); min-height: 1.4em; }
+.ev-bpm .bpm-reset {
+  font-family: var(--font-mono); font-size: 11px;
+  letter-spacing: var(--track-label); text-transform: uppercase;
   color: var(--ink-faint); text-underline-offset: 3px;
   padding: 10px 4px; min-height: 44px; display: inline-flex; align-items: center;
 }
-.bpm-reset:hover, .bpm-reset:focus-visible { color: var(--ink-dim); }
+.ev-bpm .bpm-reset:hover, .ev-bpm .bpm-reset:focus-visible { color: var(--ink-dim); }
 
 /* ============================================================
-   10 · FAQ-Akkordeon (natives details/summary)
+   12 · Schmale Schirme
+   Unter 960px hat die Tafel keine sechs Spalten mehr — sie faellt in
+   gestapelte Zeilenkarten. Die Spaltenkoepfe verschwinden, weil sie dann
+   wieder nichts rahmen wuerden (genau der Fehler, der repariert wurde).
    ============================================================ */
-.faqlist { display: grid; gap: 10px; max-width: 760px; }
-.faqlist details {
-  border: 1px solid var(--bg-hairline);
-  border-radius: var(--radius);
-  background: linear-gradient(165deg, var(--bg-2), var(--bg-1));
-  padding: 0 20px;
-  transition: border-color .25s;
+@media (max-width: 1099px) {
+  /* Nur noch das Winkelzeichen — und die Spur schrumpft mit, sonst
+     klaffte rechts eine leere Spalte. */
+  .ev-board { --ev-toggle: 1.5rem; }
+  .ev-toggle-text { display: none; }
 }
-.faqlist details[open] { border-color: rgb(var(--acc-2-rgb) / .4); }
-.faqlist summary {
-  list-style: none;
-  cursor: pointer;
-  padding: 17px 0;
-  display: flex; align-items: center; justify-content: space-between; gap: 16px;
-  font-family: var(--font-display); font-weight: 700; font-size: 15.5px;
-  -webkit-tap-highlight-color: transparent;
-  min-height: 44px;
+@media (max-width: 959px) {
+  .ev-cols { display: none; }
+  .ev-rowbtn {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      "gate    status"
+      "date    date"
+      "mission chev"
+      "place   place";
+    gap: 10px var(--ev-gap);
+    align-items: start;
+    padding-block: var(--sp-3);
+  }
+  .ev-c-gate { align-items: center; }
+  .ev-c-status { justify-content: flex-end; }
+  .ev-c-date { flex-direction: row; align-items: baseline; gap: 8px; }
+  .ev-day { font-size: 20px; }
+  .ev-c-mission { align-items: flex-start; }
+  .ev-c-toggle { align-self: center; }
+  .ev-more-inner { padding-bottom: var(--sp-4); }
 }
-.faqlist summary::marker, .faqlist summary::-webkit-details-marker { content: ""; display: none; }
-.faqlist summary .fq-ico { flex: none; color: var(--acc-3); transition: transform .35s var(--ease-out); }
-.faqlist details[open] summary .fq-ico { transform: rotate(45deg); }
-.faqlist .fq-a { margin: 0 0 18px; color: var(--ink-dim); font-size: 14.5px; max-width: 640px; }
+@media (max-width: 560px) {
+  .ev-frame .board-toprow { flex-wrap: wrap; row-gap: 6px; }
+  .ev-frame .board-clock { margin-left: auto; }
+  .ev-foot { justify-content: flex-start; }
+  .ev-patch { width: 30px; height: 30px; }
+  .ev-patch svg { width: 15px; height: 15px; }
+}
 
 /* ============================================================
-   11 · Standby-Leerzustand (kein Event angekündigt)
-   Reine Wiederverwendung von .transmission/.tx-label/.cta-row/.btn.
+   13 · Tag-Modus
+   Die Neons der Events (--card-acc) sind als FLAECHE ueberall tragfaehig,
+   als SCHRIFT auf hellem Grund nicht: #6fc9e8 kaeme auf 1.6:1, #e5c25c
+   auf 1.5:1. scene-day.css trifft diese Entscheidung fuer .mcard bereits
+   (Datum, Umschalter, Plakette wandern auf --acc-1, die Statuspille wird
+   gefuellt) — die Tafelzeile ist kein .mcard mehr und braucht dieselbe
+   Entscheidung noch einmal, sonst faellt sie tags aus dem System.
    ============================================================ */
-.standby-state { margin-top: 4px; }
-
-/* ============================================================
-   12 · Mobile-Sicherheit
-   ============================================================ */
-@media (max-width: 480px) {
-  .board-toprow { flex-wrap: wrap; row-gap: 6px; }
-  .board-clock { margin-left: auto; }
-  .board-actions { justify-content: center; }
+:root.day-mode .ev-day,
+:root.day-mode .ev-c-toggle { color: var(--acc-1); }
+:root.day-mode .ev-status {
+  color: var(--ink);
+  background: rgb(var(--card-acc-rgb) / .9);
+  border-color: var(--ink);
+}
+:root.day-mode .ev-patch {
+  background: var(--bg-void);
+  border-color: var(--ink);
+  color: var(--acc-1);
+  box-shadow: inset 0 0 0 2px rgb(var(--card-acc-rgb) / .3), 2px 3px 0 var(--card-acc);
+}
+/* Auf hellem Grund ist eine weisse Scanline unsichtbar — der Rahmen
+   verloere tags seine Materialitaet. */
+:root.day-mode .ev-frame::after {
+  background: repeating-linear-gradient(0deg, rgb(0 0 0 / .022) 0 1px, transparent 1px 3px);
 }
 
 /* ============================================================
-   13 · Event-Detailseite — fehlendes Innenpolster nachziehen
+   14 · Event-Detailseite — fehlendes Innenpolster nachziehen
    `.wrap` + `.section` sind im Detail-Body auf einem einzigen Element
    kombiniert (`<div class="wrap section">`, 1:1 aus dem Prototyp
    uebernommen — prototype/event-*.html hat dieselbe Kombination). Beide
    Klassen haben dieselbe Spezifitaet (je eine Klasse); `.section`s
    Padding-Shorthand (`padding: … 0` in takeoff.css) steht dort HINTER
    `.wrap`s `padding-inline` und setzt padding-left/right dabei explizit
-   auf 0 — die Quellreihenfolge entscheidet, `.wrap`s Innenpolster verliert
-   komplett. Ergebnis unbehoben: Ueberschriften, Absaetze, Lineup/Stats/
-   Galerie und der Zurueck-Link liefen kantenbuendig bis an den
-   Bildschirmrand (nachgemessen: rect.left 0px bei 360/768/1440px Breite)
-   UND loesten bei ~768px Breite (Lineup+Stats+Galerie zusammen im
-   0-Polster-Zustand) einen horizontalen Overflow von 16px aus
-   (scrollWidth 784 statt 768 — mit dem Polster zurueck exakt 0 Overflow).
-   Einzige Stelle im ganzen Code, die beide Klassen so kombiniert (siehe
-   events/[slug]/page.tsx) — deshalb hier behoben, nicht in takeoff.css.
-   events.css muss dafuer ueberhaupt erst auf der Detailseite importiert
-   werden (war zuvor gar nicht eingebunden). */
+   auf 0 — die Quellreihenfolge entscheidet, `.wrap`s Innenpolster
+   verliert komplett. Ergebnis unbehoben: Ueberschriften, Absaetze,
+   Lineup/Stats/Galerie und der Zurueck-Link liefen kantenbuendig bis an
+   den Bildschirmrand (nachgemessen: rect.left 0px bei 360/768/1440px)
+   UND loesten bei ~768px einen horizontalen Overflow von 16px aus
+   (scrollWidth 784 statt 768). Einzige Stelle im Code, die beide Klassen
+   so kombiniert (events/[slug]/page.tsx) — deshalb hier behoben, nicht
+   in takeoff.css.
+   ============================================================ */
 main > .wrap.section {
   padding-inline: var(--pad);
 }
 
 /* ============================================================
-   14 · Trägerfläche verengen — Flight Log
+   15 · Traegerflaeche verengen — Flight Log
    Der geteilte Nacht-Carrier (scene-night.css, `:is(...) .flog::before`)
-   deckt `.flog` als GANZES Element ab — bei mehreren Missionen 800-1000px
+   deckt `.flog` als GANZES Element ab — bei mehreren Missionen 800–1000px
    hoch, ein Radialverlauf zentriert auf die Blockmitte. Zwei Probleme:
    erstens eine grossflaechige dunkle Platte genau dort, wo enge, textnahe
-   Flaechen gewuenscht sind (Referenzbeispiel: exakt diese Flight-Log-
-   Notizen). Zweitens ein echter Lesbarkeits-Bug: weil der Verlauf zur
-   Blockmitte hin am dunkelsten ist und zum Rand auf 0 ausblendet, bekommen
-   die ERSTE und LETZTE Zeile einer laengeren Liste spuerbar WENIGER
-   Deckung als die mittleren — genau umgekehrt zu dem, was der Carrier
-   eigentlich leisten soll.
-   Ersetzt durch enge Inline-Flaechen direkt an Datum/Name/Ort/Notiz, die
-   mit dem Text mitlaufen (auch bei Zeilenumbruch, dank
-   box-decoration-break). Jede Zeile traegt ihre eigene Lesbarkeit, egal
-   wie lang die Liste ist. */
-/* .txplate/.txfit stehen seit It. 14 in takeoff.css — hier stand eine
-   dritte, ungescopete Kopie mit eigenem Polster und Deckwert. */
+   Flaechen gewuenscht sind. Zweitens ein echter Lesbarkeits-Bug: weil der
+   Verlauf zur Blockmitte hin am dunkelsten ist und zum Rand auf 0
+   ausblendet, bekommen die ERSTE und LETZTE Zeile einer laengeren Liste
+   spuerbar WENIGER Deckung als die mittleren — genau umgekehrt zu dem,
+   was der Carrier leisten soll.
+   Ersetzt durch enge Inline-Flaechen direkt an Datum/Name/Ort/Notiz
+   (.txplate, steht seit It. 14 zentral in takeoff.css).
 
-/* .fnote hat `flex-basis:100%` (takeoff.css) und ist damit als Flex-Item
-   ein VOLLBREITER Block — die Plakette sitzt deshalb auf einem inneren
-   <span> (siehe EventsFlightLog.tsx), sonst waere sie wieder genau der
-   Vollflaechen-Riegel, den wir vermeiden wollen. Der grosse Carrier wird
-   dafuer nachts gezielt abgeschaltet — nur fuer diese Liste (#flightlog),
-   nicht sitesweit (die :is()-Liste in scene-night.css bleibt fuer alle
-   anderen Seiten unangetastet). */
-/* Achtung Spezifitaet: hier stand `#flightlog .flog::before` — eine ID.
-   Die id "flightlog" gibt es auch auf der STARTSEITE, und Seiten-CSS wird
+   Achtung Spezifitaet: hier stand `#flightlog .flog::before` — eine ID.
+   Die id „flightlog" gibt es auch auf der STARTSEITE, und Seiten-CSS wird
    global gebuendelt: nach einer Client-Navigation /events -> / schlug die
    ID-Regel (1,3,0) jede Klassenregel der Startseite (home.css: (0,5,0))
-   und loeschte dort die 2px-Zeitlinie des Flight Logs. Beim harten Neuladen
-   war alles in Ordnung — der klassische "kann ich nicht nachstellen"-Fehler.
-   Jetzt an die Seitenklasse gebunden statt an die id. */
+   und loeschte dort die 2px-Zeitlinie des Flight Logs. Beim harten
+   Neuladen war alles in Ordnung — der klassische „kann ich nicht
+   nachstellen"-Fehler. Jetzt an die Seitenklasse gebunden.
+   ============================================================ */
 :root:not(.day-mode) .flog.events-flog::before { content: none; }
 
 /* .fstatus/.fpin(-reset) bekommen keine Textkontur wie .txplate (Pillen/
-   Buttons, kein Fliesstext) — stattdessen eine eigene, ebenso enge
+   Knoepfe, kein Fliesstext) — stattdessen eine eigene, ebenso enge
    Flaechenfarbe, nur nachts, wo sie sonst ohne jede Deckung direkt auf
    Marsboden/Strandhimmel staenden. */
 :root:not(.day-mode) .fstatus { background: rgb(var(--bg-void-rgb) / .55); }
 :root:not(.day-mode) .fpin-reset,
 :root:not(.day-mode) .fpin .fp-ico { background: rgb(var(--bg-void-rgb) / .45); }
-
-/* ============================================================
-   15 · Veredelung — Abflugtafel „Power-On"
-   Einmaliger, dezenter Einlauf fuer .board-frame beim ersten
-   Sichtbarwerden (EventsBoardPower.tsx setzt die Klasse ueber einen
-   IntersectionObserver; FX-Tier/reduced-motion sind dort bereits vor dem
-   Klassenwechsel geprueft — .board-frame bleibt ohne JS oder bei Tier "s"
-   dauerhaft im normalen Ruhezustand sichtbar, kein Hidden-by-default).
-   Drei Ebenen laufen gemeinsam und LANGSAM (1,2s, ein Durchgang, kein
-   Flackern): Helligkeit faengt gedaempft an und hellt sich auf, die
-   Randfarbe wandert vom Akzent zur Ruhefarbe, ein Leuchtsaum baut sich auf
-   und klingt wieder ab. Start- und Endzustand sind IDENTISCH mit dem
-   Ruhezustand von .board-frame — nach Ablauf bleibt optisch nichts anders
-   als vorher.
-   ============================================================ */
-.board-frame.board-power-on {
-  animation: board-power-on 1.2s cubic-bezier(.2, .7, .25, 1) both;
-}
-@keyframes board-power-on {
-  from {
-    filter: brightness(.7) saturate(.85);
-    border-color: rgb(var(--acc-3-rgb) / .6);
-    box-shadow: inset 0 1px 0 rgb(255 255 255 / .06), 0 18px 40px rgb(0 0 0 / .35), 0 0 0 rgb(var(--acc-3-rgb) / 0);
-  }
-  60% {
-    filter: brightness(1.06) saturate(1.05);
-    box-shadow: inset 0 1px 0 rgb(255 255 255 / .06), 0 18px 40px rgb(0 0 0 / .35), 0 0 32px rgb(var(--acc-3-rgb) / .26);
-  }
-  to {
-    filter: brightness(1) saturate(1);
-    border-color: var(--bg-hairline);
-    box-shadow: inset 0 1px 0 rgb(255 255 255 / .06), 0 18px 40px rgb(0 0 0 / .35), 0 0 0 rgb(var(--acc-3-rgb) / 0);
-  }
-}
-/* Doppelt genaeht: EventsBoardPower.tsx haengt die Klasse ohnehin nur bei
-   Tier m/l ohne reduced-motion an. Diese Bremsen greifen zusaetzlich,
-   falls der Tier-/Praeferenzwechsel mitten in der laufenden Animation
-   passiert — die globale [data-fx="s"]-Regel in takeoff.css wuerde die
-   Laufzeit nur auf .001s stauchen, nicht die Animation ganz abschalten. */
-:root[data-fx="s"] .board-power-on { animation: none; }
-@media (prefers-reduced-motion: reduce) {
-  .board-power-on { animation: none; }
-}

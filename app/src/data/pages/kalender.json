@@ -7,7 +7,14 @@
 
   "clock": {
     "label": "Countdown bis zum nächsten Launch",
-    "fallbackTarget": "nächster Launch"
+    "fallbackTarget": "nächster Launch",
+    "caption": "Bordzeit · Europe/Berlin",
+    "tminusLabel": "T–Minus",
+    "tplusLabel": "T–Plus seit letztem Launch",
+    "liftoffLabel": "Liftoff",
+    "liftoffNote": "läuft",
+    "emptyValue": "—",
+    "units": { "days": "T", "hours": "h", "minutes": "m", "seconds": "s" }
   },
 
   "calendarActions": {
@@ -32,28 +39,36 @@
   "monthGrid": {
     "eyebrow": "Wann geht's los",
     "titleHtml": "Die nächsten <span class=\"glow\">Wochen</span>",
+    "lead": "Nur Monate, in denen wirklich etwas passiert. Tippst du auf einen markierten Tag, springst du in der Zeitleiste direkt zur Mission.",
     "monthsAhead": 4,
     "emptyMonthNote": "Kein Termin diesen Monat — Telegram weiß es zuerst.",
     "todayLabel": "Heute",
-    "eventLabel": "Mission"
+    "eventLabel": "Mission",
+    "gridLabelTemplate": "Kalender {month} {year}"
   },
 
   "timeline": {
     "eyebrow": "Gesamtübersicht",
-    "titleHtml": "Alle <span class=\"glow\">Termine</span> auf einen Blick",
+    "titleHtml": "Alle <span class=\"glow\">Termine</span>",
+    "lead": "Vom ersten Abend bis zur nächsten Nacht — alles auf einer Linie, mit Kalender-Knopf an jedem kommenden Termin.",
     "filters": [
       { "key": "all", "label": "Alle" },
       { "key": "upcoming", "label": "Kommend" },
       { "key": "past", "label": "Archiv" }
     ],
+    "filterGroupLabel": "Zeitleiste filtern",
+    "detailsLabel": "Details",
     "yearCountTemplate": "{n} Missionen",
+    "yearCountSingular": "1 Mission",
     "todayLabel": "Heute",
     "emptyNote": "Noch keine Termine in dieser Auswahl."
   },
 
   "venues": {
     "eyebrow": "Wohin genau",
-    "titleHtml": "Unsere <span class=\"glow\">Landeplätze</span>"
+    "titleHtml": "Unsere <span class=\"glow\">Landeplätze</span>",
+    "lead": "Zwei Orte, mehr braucht es nicht. Beide sind mit Tram und Rad erreichbar.",
+    "mapsLabel": "Google Maps ↗"
   },
   "venueNotes": {
     "Spartacus": "Unser Stammort — die meisten takeoff-Nächte finden hier statt.",
@@ -67,7 +82,8 @@
 
   "faqSection": {
     "eyebrow": "Bevor du abonnierst",
-    "titleHtml": "Fragen zum <span class=\"glow\">Abo</span>"
+    "titleHtml": "Fragen zum <span class=\"glow\">Abo</span>",
+    "lead": "Was das Abo heute kann, was noch fehlt und wie du bis dahin nichts verpasst."
   },
   "faq": [
     { "q": "Warum kann ich nicht einfach abonnieren?", "a": "Der Server für einen live gehaltenen Feed kommt mit dem Website-Relaunch. Bis dahin kannst du jeden Termin einzeln speichern." },

@@ -1,25 +1,37 @@
 "use client";
-/* Bordkartei-Flip: Crew-Karten drehen sich per Klick zur Rückseite
-   (Aufgaben-Manifest). Basis = Crossfade auf allen Tiers; Tier L bekommt
-   zusätzlich die echte 3D-Y-Drehung (siehe team.css). Die sitewide Regel
+/* Crew-Select — das Signaturmotiv der Team-Seite (Konzept 50 §E).
+   Jede Crew-Karte dreht sich per Klick zur Rueckseite und zeigt das
+   Aufgaben-Manifest. Basis = Crossfade auf allen Tiers; Tier L bekommt
+   zusaetzlich die echte 3D-Y-Drehung (siehe team.css). Die sitewide Regel
    :root[data-fx="s"] * { transition-duration:.15s!important } (takeoff.css)
    macht den Wechsel auf Tier S praktisch verzugslos — "statische Karten",
-   ohne dass hier ein eigener Tier-Zweig nötig wäre: Klick/Enter funktioniert
-   auf jedem Tier identisch, nur das Drehgefühl unterscheidet sich rein
-   über CSS. Portierung/Vertiefung von assets/js/pages/team.js (Original:
-   Orbit-Stationsplan ohne Flip) + scratchpad/spec-team.md (Flip-Konzept).
+   ohne dass hier ein eigener Tier-Zweig noetig waere: Klick/Enter/Escape
+   funktionieren auf jedem Tier identisch, nur das Drehgefuehl unterscheidet
+   sich rein ueber CSS.
 
-   A11y: Vorderseite ist ein <button aria-expanded aria-controls>, klassisches
-   Disclosure-Pattern (wie ExpandCard). Rückseite ist aria-hidden, solange
-   zu — visibility:hidden (team.css) nimmt sie zusätzlich aus dem Tab-Index.
-   Fokus wandert beim Öffnen zum "Zurück"-Button, beim Schließen zurück zur
-   Vorderseite (sonst stünde man nach dem Öffnen auf einem unsichtbaren
-   Element) — siehe pendingFocus-Effekt unten.
+   HOEHE (It. 14, war ein echter Fehler): vorher lagen beide Seiten
+   `position: absolute; inset: 0; overflow: hidden` in einem Kasten mit
+   `min-height: 222px`. Die Rueckseite ist eine Aufgabenliste beliebiger
+   Laenge — alles darueber wurde kommentarlos abgeschnitten, ohne Scroll,
+   ohne Ausweichverhalten. Jetzt stapelt team.css beide Seiten in DERSELBEN
+   Rasterzelle (`grid-area: 1/1`): die Zelle ist so hoch wie die hoehere
+   der beiden Seiten, die Rueckseite kann nicht mehr abschneiden, und weil
+   die Hoehe schon vor dem Drehen steht, springt beim Drehen auch nichts.
 
-   Sammel-Easter-Egg: wer jede Karte einmal öffnet, entdeckt "die ganze
+   A11y: Vorderseite ist ein <button aria-expanded aria-controls>, das
+   klassische Disclosure-Muster (wie ExpandCard) — `aria-pressed` waere hier
+   falsch, das ist die Semantik eines Umschalters ohne zugehoerigen Bereich.
+   Rueckseite ist aria-hidden, solange zu — visibility:hidden (team.css)
+   nimmt sie zusaetzlich aus dem Tab-Index. Fokus wandert beim Oeffnen zum
+   "Zurueck"-Knopf, beim Schliessen zurueck zur Vorderseite (sonst stuende
+   man nach dem Oeffnen auf einem unsichtbaren Element) — siehe
+   pendingRef-Effekt unten. Escape schliesst die offene Karte, egal wo im
+   Kartenrumpf der Fokus gerade steht.
+
+   Sammel-Easter-Egg: wer jede Karte einmal oeffnet, entdeckt "die ganze
    Crew" — ein einziges Mal pro Browser (eigener localStorage-Key), danach
    dauerhaft still. Kein Konfetti, kein Dauer-Badge — nur ein Toast. */
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode, type KeyboardEvent } from "react";
 import Link from "next/link";
 
 export interface TeamCardVM {
@@ -43,7 +55,7 @@ export interface TeamDeptVM {
   members: TeamCardVM[];
 }
 
-/* Identisches Icon-Set wie KollektivPage/team.js — "star" ergänzt den Satz,
+/* Identisches Icon-Set wie KollektivPage/team.js — "star" ergaenzt den Satz,
    der Contract (team.json) kennt es bereits als Option. */
 const ICONS: Record<string, ReactNode> = {
   heart: (
@@ -83,11 +95,13 @@ function writeFound(v: Set<string>) {
 }
 
 export default function TeamCrewBoard({
-  departments, flipOpenLabel, flipCloseLabel, unicornToast,
+  departments, flipOpenLabel, flipCloseLabel, sinceLabel, moreLabel, unicornToast,
 }: {
   departments: TeamDeptVM[];
   flipOpenLabel: string;
   flipCloseLabel: string;
+  sinceLabel: string;
+  moreLabel: string;
   unicornToast: string;
 }) {
   const [flipped, setFlipped] = useState<Set<string>>(new Set());
@@ -101,7 +115,7 @@ export default function TeamCrewBoard({
   const closeRefs = useRef(new Map<string, HTMLButtonElement>());
   const allIdsRef = useRef(new Set(departments.flatMap(d => d.members.map(m => m.id))));
 
-  // Fokus-Übergabe NACH dem Re-Render (erst dann ist das Ziel nicht mehr
+  // Fokus-Uebergabe NACH dem Re-Render (erst dann ist das Ziel nicht mehr
   // visibility:hidden und damit fokussierbar).
   useEffect(() => {
     const p = pendingRef.current;
@@ -121,7 +135,7 @@ export default function TeamCrewBoard({
     const found = foundRef.current;
     const allIds = allIdsRef.current;
     const wasComplete = allIds.size > 0 && [...allIds].every(i => found.has(i));
-    if (wasComplete) return; // Überraschung nur einmal, kein Dauer-Hinweis danach
+    if (wasComplete) return; // Ueberraschung nur einmal, kein Dauer-Hinweis danach
     found.add(id);
     writeFound(found);
     const isComplete = [...allIds].every(i => found.has(i));
@@ -138,34 +152,53 @@ export default function TeamCrewBoard({
     if (to) discover(id);
   }
 
+  /* Escape schliesst die offene Karte. Haengt am Kartenrumpf, nicht am
+     Zurueck-Knopf: der Fokus kann auch auf dem Profil-Link stehen. */
+  function onCardKeyDown(e: KeyboardEvent<HTMLDivElement>, id: string, isOpen: boolean) {
+    if (e.key !== "Escape" || !isOpen) return;
+    e.stopPropagation();
+    flip(id, false);
+  }
+
   return (
-    <div id="kt-departments">
+    <div className="kt-depts">
       {departments.map(dept => dept.members.length > 0 && (
-        <div className="kt-dept" data-dept={dept.id} key={dept.id}>
+        <section className="kt-dept" data-dept={dept.id} key={dept.id}>
+          {/* Titel, Untertitel und Einleitung liegen in EINEM Kopfblock.
+              Als Geschwister trugen sie nachts zwei getrennte Traegerflaechen,
+              und die untere ragte bauartbedingt bis zu 34px in die obere
+              hinein — im Screenshot als halb weggeblendeter Satz sichtbar.
+              Ein Block, eine Flaeche, kein Ueberlapp. */}
           <div className="kt-dept-head">
-            <span className="kt-dept-dot" aria-hidden="true" />
-            <h3 className="kt-dept-title">{dept.title}</h3>
-            {dept.subtitle && <span className="kt-dept-sub">{dept.subtitle}</span>}
+            <div className="kt-dept-name">
+              <span className="kt-dept-dot" aria-hidden="true" />
+              <h3 className="kt-dept-title">{dept.title}</h3>
+              {dept.subtitle && <span className="kt-dept-sub">{dept.subtitle}</span>}
+            </div>
+            {dept.intro && <p className="kt-dept-intro">{dept.intro}</p>}
           </div>
-          {dept.intro && <p className="kt-dept-intro">{dept.intro}</p>}
-          <div className="crewgrid kt-grid" data-dept={dept.id}>
+          <div className="crewgrid kt-grid">
             {dept.members.map(m => {
               const backId = `kt-back-${m.id}`;
               const isOpen = flipped.has(m.id);
               return (
-                <div className={`kt-card${isOpen ? " flipped" : ""}`} key={m.id}>
+                <div
+                  className={`kt-card${isOpen ? " flipped" : ""}`}
+                  key={m.id}
+                  onKeyDown={e => onCardKeyDown(e, m.id, isOpen)}
+                >
                   <div className="kt-card-inner">
                     <button
                       type="button"
                       className="ccard kt-face kt-face-front"
                       aria-expanded={isOpen}
                       aria-controls={backId}
-                      // Tier L (3D-Flip) hält per CSS !important beide Seiten
+                      // Tier L (3D-Flip) haelt per CSS !important beide Seiten
                       // opacity:1/visibility:visible (sonst kein Fluchtpunkt
-                      // fürs Drehen) — ohne inert bliebe die weggedrehte
-                      // Vorderseite trotzdem per Tab erreichbar und für
+                      // fuers Drehen) — ohne inert bliebe die weggedrehte
+                      // Vorderseite trotzdem per Tab erreichbar und fuer
                       // Screenreader sichtbar. inert deckt Fokus UND A11y-
-                      // Baum unabhängig vom CSS-Zustand ab (ARIA-Regel:
+                      // Baum unabhaengig vom CSS-Zustand ab (ARIA-Regel:
                       // aria-hidden darf NIE auf einem fokussierbaren
                       // Element ohne begleitendes inert/tabIndex stehen).
                       inert={isOpen}
@@ -177,16 +210,20 @@ export default function TeamCrewBoard({
                         {m.avatarIcon && ICONS[m.avatarIcon] ? ICONS[m.avatarIcon] : m.avatarText}
                       </span>
                       <b>{m.name}</b>
-                      <span>{m.role}</span>
-                      {m.since && <span className="kt-since">seit {m.since}</span>}
-                      <span className="kt-flip-hint" aria-hidden="true">{flipOpenLabel} →</span>
+                      <span className="kt-card-role">{m.role}</span>
+                      <span className="kt-card-foot">
+                        {m.since && <span className="kt-since">{sinceLabel} {m.since}</span>}
+                        <span className="kt-flip-hint">
+                          {flipOpenLabel} <span aria-hidden="true">→</span>
+                        </span>
+                      </span>
                     </button>
                     <div className="kt-face kt-face-back" id={backId} aria-hidden={!isOpen} inert={!isOpen}>
                       <ul className="kt-tasks">
                         {m.tasks.map(task => <li key={task}>{task}</li>)}
                       </ul>
                       {m.contact && <p className="kt-contact">{m.contact}</p>}
-                      {m.href && <Link className="kt-more" href={m.href}>{m.linkText ?? "Mehr →"}</Link>}
+                      {m.href && <Link className="kt-more" href={m.href}>{m.linkText ?? moreLabel}</Link>}
                       <button
                         type="button"
                         className="kt-flip-close"
@@ -201,7 +238,7 @@ export default function TeamCrewBoard({
               );
             })}
           </div>
-        </div>
+        </section>
       ))}
       <div className={`toast${toast ? " show" : ""}`} role="status" aria-live="polite">
         {toast && <span className="kt-unicorn-pop" aria-hidden="true">🦄</span>}

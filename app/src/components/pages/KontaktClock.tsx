@@ -29,5 +29,10 @@ export default function KontaktClock() {
     return () => clearInterval(id);
   }, []);
 
-  return <time>{time}</time>;
+  /* `fs-clock` traegt in kontakt.css `font-variant-numeric: tabular-nums`.
+     Ohne das haben die Ziffern proportionale Breiten (Space Grotesk/Inter):
+     die Uhr wird bei jedem Minutenwechsel breiter oder schmaler und schiebt
+     die Zeile daneben hin und her. Steht hier an der Komponente, damit die
+     Eigenschaft mitwandert, egal wo die Uhr eingebaut wird. */
+  return <time className="fs-clock">{time}</time>;
 }

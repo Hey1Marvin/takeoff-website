@@ -20,10 +20,24 @@ export const metadata: Metadata = {
    Gegenüber dem Prototyp bewusst vereinfacht: KEIN eigenes clock.eventSlug-
    Override mehr — nextEvent() im Gateway trägt diese Entscheidung schon
    sitesweit (settings.nextEventSlug), ein zweites Override-Feld nur für
-   diese Seite wäre eine zweite Quelle der Wahrheit für dieselbe Frage. */
+   diese Seite wäre eine zweite Quelle der Wahrheit für dieselbe Frage.
+
+   It. 14: Auf der Seite steht kein deutscher Text mehr direkt im JSX —
+   auch Kleinbeschriftungen ("Details", "Google Maps ↗", die Einheiten
+   T/h/m/s der Uhr) kommen aus dieser Datei. */
 interface KalenderPageContent {
   hero: { eyebrow: string; h1: string; intro: string };
-  clock: { label: string; fallbackTarget: string };
+  clock: {
+    label: string;
+    fallbackTarget: string;
+    caption: string;
+    tminusLabel: string;
+    tplusLabel: string;
+    liftoffLabel: string;
+    liftoffNote: string;
+    emptyValue: string;
+    units: { days: string; hours: string; minutes: string; seconds: string };
+  };
   calendarActions: {
     googleLabel: string;
     icsLabel: string;
@@ -37,23 +51,29 @@ interface KalenderPageContent {
   monthGrid: {
     eyebrow: string;
     titleHtml: string;
+    lead: string;
     monthsAhead: number;
     emptyMonthNote: string;
     todayLabel: string;
     eventLabel: string;
+    gridLabelTemplate: string;
   };
   timeline: {
     eyebrow: string;
     titleHtml: string;
+    lead: string;
     filters: { key: string; label: string }[];
+    filterGroupLabel: string;
+    detailsLabel: string;
     yearCountTemplate: string;
+    yearCountSingular: string;
     todayLabel: string;
     emptyNote: string;
   };
-  venues: { eyebrow: string; titleHtml: string };
+  venues: { eyebrow: string; titleHtml: string; lead: string; mapsLabel: string };
   venueNotes: Record<string, string>;
   howto: { label: string; textHtml: string };
-  faqSection: { eyebrow: string; titleHtml: string };
+  faqSection: { eyebrow: string; titleHtml: string; lead: string };
   faq: { q: string; a: string }[];
   share: { label: string; text: string; copiedToast?: string };
   patchTeaser: { label: string; href: string };
@@ -128,7 +148,7 @@ function buildVenues(upcomingEvents: TakeoffEvent[], notes: Record<string, strin
 function buildTimelineItems(
   sortedEvents: TakeoffEvent[],
   todayIso: string,
-  cfg: { yearCountTemplate: string; todayLabel: string; tbaNote: string },
+  cfg: { yearCountTemplate: string; yearCountSingular: string; todayLabel: string; tbaNote: string },
 ): KalenderTimelineItem[] {
   const items: KalenderTimelineItem[] = [];
   const countByYear = new Map<string, number>();
@@ -149,7 +169,7 @@ function buildTimelineItems(
     if (year !== lastYear) {
       const count = countByYear.get(year) ?? 0;
       const ddLabel = count === 1
-        ? "1 Mission"
+        ? cfg.yearCountSingular
         : cfg.yearCountTemplate.replace("{n}", String(count));
       items.push({ kind: "year", id: `year-${year}`, dtLabel: year, ddLabel });
       lastYear = year;
@@ -202,6 +222,7 @@ export default async function KalenderPage() {
   const sortedAll = [...all].sort((a, b) => a.date.localeCompare(b.date));
   const timelineItems = buildTimelineItems(sortedAll, todayIso, {
     yearCountTemplate: page.timeline.yearCountTemplate,
+    yearCountSingular: page.timeline.yearCountSingular,
     todayLabel: page.timeline.todayLabel,
     tbaNote: page.calendarActions.tbaNote,
   });
@@ -210,14 +231,26 @@ export default async function KalenderPage() {
 
   return (
     <>
+      {/* ---------- Kopf: das Instrument steht in der Mitte, nicht in einer
+           linken Spalte. Als einzige Seite der Site ist /kalender um eine
+           senkrechte Achse gebaut — ein Chronometer ist ein rundes Objekt,
+           und die Anordnung T–Plus | Jetzt | T–Minus liest sich selbst als
+           Zeitachse. ---------- */}
       <section className="phero bc-phero">
-        <div className="wrap">
-          <p className="eyebrow">{page.hero.eyebrow}</p>
+        <div className="wrap bc-hero">
+          <p className="eyebrow bc-eyebrow">{page.hero.eyebrow}</p>
           <h1 dangerouslySetInnerHTML={{ __html: page.hero.h1 }} />
-          <p className="section-intro">{page.hero.intro}</p>
+          <p className="section-intro bc-intro">{page.hero.intro}</p>
 
           <KalenderChrono
             clockAriaLabel={page.clock.label}
+            caption={page.clock.caption}
+            tminusLabel={page.clock.tminusLabel}
+            tplusLabel={page.clock.tplusLabel}
+            liftoffLabel={page.clock.liftoffLabel}
+            liftoffNote={page.clock.liftoffNote}
+            emptyValue={page.clock.emptyValue}
+            units={page.clock.units}
             fallbackTarget={page.clock.fallbackTarget}
             nextTitle={next?.title ?? null}
             nextDate={next?.date ?? null}
@@ -233,151 +266,189 @@ export default async function KalenderPage() {
             shareText={page.share.text}
             copiedToast={page.share.copiedToast}
           />
-          <p className="bc-subnote">{page.calendarActions.subscribeNote}</p>
+          <p className="bc-subnote txfit">{page.calendarActions.subscribeNote}</p>
         </div>
       </section>
 
-      <div className="wrap">
-        <div className="stats">
-          {page.stats.items.map((item, i) => (
-            <div key={i}>
-              <b>{item.mode === "manual" ? item.value : statCounts[item.key ?? ""]}</b>
-              <span>{item.label}</span>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <section className="section" id="monatsgitter" style={{ paddingTop: "clamp(30px, 5vh, 56px)", paddingBottom: "clamp(30px, 5vh, 56px)" }}>
+      {/* Eigene <section> statt eines nackten <div class="wrap">: die
+          Tagmodus-Platte in scene-day.css haengt an den DIREKTEN Kindern von
+          <main>. Als 1120px-Kasten bekam das Statistikband dort eine helle
+          Platte nur auf seiner eigenen Breite — links und rechts stand ein
+          harter schwarzer Riegel. Fensterbreite Sektion, Platte laeuft durch. */}
+      <section className="bc-statsband">
         <div className="wrap">
-          <header className="section-head">
-            <p className="eyebrow">{page.monthGrid.eyebrow}</p>
-            <h2 className="h2" dangerouslySetInnerHTML={{ __html: page.monthGrid.titleHtml }} />
-          </header>
-
-          {monthCards.length > 0 ? (
-            <div className="bc-months">
-              {monthCards.map(card => (
-                <div className="bc-month" key={`${card.year}-${card.monthName}`}>
-                  <div className="bc-month-head"><b>{card.monthName}</b><span>{card.year}</span></div>
-                  <div className="bc-weekdays" aria-hidden="true">
-                    {WEEKDAY_LABELS.map(w => <span key={w}>{w}</span>)}
-                  </div>
-                  <div className="bc-month-grid" aria-label={`Kalender ${card.monthName} ${card.year}`}>
-                    {card.cells.map((cell, i) => {
-                      if (!cell) return <span className="bc-day is-pad" aria-hidden="true" key={i} />;
-                      if (cell.events.length > 0) {
-                        const titles = cell.events.map(e => e.title).join(" · ");
-                        const label = `${cell.day}. ${card.monthName}${cell.isToday ? ` — ${page.monthGrid.todayLabel}` : ""} — ${page.monthGrid.eventLabel}: ${titles}`;
-                        return (
-                          <a
-                            className={`bc-day has-event${cell.isToday ? " is-today" : ""}`}
-                            href={`#ev-${cell.events[0].slug}`}
-                            aria-label={label}
-                            key={i}
-                          >
-                            {cell.day}
-                          </a>
-                        );
-                      }
-                      if (cell.isToday) {
-                        return (
-                          <span className="bc-day is-today" aria-label={`${cell.day}. ${card.monthName} — ${page.monthGrid.todayLabel}`} key={i}>
-                            {cell.day}
-                          </span>
-                        );
-                      }
-                      return <span className="bc-day" key={i}>{cell.day}</span>;
-                    })}
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p className="bc-months-empty">{page.monthGrid.emptyMonthNote}</p>
-          )}
-        </div>
-      </section>
-
-      <section className="section" id="termine" style={{ paddingTop: 0 }}>
-        <div className="wrap" style={{ maxWidth: 760 }}>
-          <header className="section-head">
-            <p className="eyebrow">{page.timeline.eyebrow}</p>
-            <h2 className="h2" dangerouslySetInnerHTML={{ __html: page.timeline.titleHtml }} />
-          </header>
-
-          <KalenderTimeline
-            items={timelineItems}
-            todayIso={todayIso}
-            filters={page.timeline.filters}
-            emptyNote={page.timeline.emptyNote}
-            cal={{
-              googleLabel: page.calendarActions.googleLabel,
-              icsLabel: page.calendarActions.icsLabel,
-              icsAllLabel: page.calendarActions.icsAllLabel,
-            }}
-            allIcsContent={allIcsContent}
-          />
-
-          <p className="bc-patch-teaser">
-            <Link href={page.patchTeaser.href}>{page.patchTeaser.label}</Link>
-          </p>
-        </div>
-      </section>
-
-      <section className="section" id="landeplaetze" style={{ paddingTop: 0 }}>
-        <div className="wrap" style={{ maxWidth: 760 }}>
-          <header className="section-head">
-            <p className="eyebrow">{page.venues.eyebrow}</p>
-            <h2 className="h2" dangerouslySetInnerHTML={{ __html: page.venues.titleHtml }} />
-          </header>
-          <div className="bc-venues">
-            {venueCards.map(v => (
-              <div className="bc-venue" key={v.name}>
-                <div className="vcard">
-                  <span className="vname" translate="no">{v.name}</span>
-                  {v.address && <span className="vaddr">{v.address}</span>}
-                  {v.transit && <span className="vhint">{v.transit}</span>}
-                </div>
-                {v.note && <p className="bc-venue-note">{v.note}</p>}
-                <div className="route-row">
-                  <a
-                    className="btn btn-ghost"
-                    href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(v.mapsQuery || v.address || v.name)}`}
-                    target="_blank"
-                    rel="noopener"
-                  >
-                    Google Maps ↗
-                  </a>
-                </div>
+          <div className="stats">
+            {page.stats.items.map((item, i) => (
+              <div key={i}>
+                <b>{item.mode === "manual" ? item.value : statCounts[item.key ?? ""]}</b>
+                <span>{item.label}</span>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      <section className="section" style={{ paddingTop: 0 }}>
-        <div className="wrap" style={{ maxWidth: 760 }}>
-          <div className="transmission">
-            <span className="tx-label">{page.howto.label}</span>
-            <p dangerouslySetInnerHTML={{ __html: page.howto.textHtml }} />
+      {/* ---------- Ab hier: Rubrik links, Inhalt rechts. Die Ueberschrift ist
+           kein Displaymoment mehr, sondern eine mitlaufende Rubrik — dadurch
+           traegt die Seite ihren Inhalt ueber die volle Spaltenbreite statt
+           in einer 760px-Saeule mit toter Flaeche daneben. ---------- */}
+      <section className="bc-lane" id="monatsgitter">
+        <div className="wrap bc-grid">
+          <div className="bc-rubric">
+            <header className="section-head">
+              <p className="eyebrow">{page.monthGrid.eyebrow}</p>
+              <h2 className="h2" dangerouslySetInnerHTML={{ __html: page.monthGrid.titleHtml }} />
+              <p className="bc-lead">{page.monthGrid.lead}</p>
+            </header>
+          </div>
+
+          <div className="bc-body">
+            {monthCards.length > 0 ? (
+              <div className="bc-months">
+                {monthCards.map(card => (
+                  <div className="bc-month" key={`${card.year}-${card.monthName}`}>
+                    <div className="bc-month-head"><b>{card.monthName}</b><span>{card.year}</span></div>
+                    <div className="bc-weekdays" aria-hidden="true">
+                      {WEEKDAY_LABELS.map(w => <span key={w}>{w}</span>)}
+                    </div>
+                    <div
+                      className="bc-month-grid"
+                      aria-label={page.monthGrid.gridLabelTemplate
+                        .replace("{month}", card.monthName)
+                        .replace("{year}", String(card.year))}
+                    >
+                      {card.cells.map((cell, i) => {
+                        if (!cell) return <span className="bc-day is-pad" aria-hidden="true" key={i} />;
+                        if (cell.events.length > 0) {
+                          const titles = cell.events.map(e => e.title).join(" · ");
+                          const label = `${cell.day}. ${card.monthName}${cell.isToday ? ` — ${page.monthGrid.todayLabel}` : ""} — ${page.monthGrid.eventLabel}: ${titles}`;
+                          return (
+                            <a
+                              className={`bc-day has-event${cell.isToday ? " is-today" : ""}`}
+                              href={`#ev-${cell.events[0].slug}`}
+                              aria-label={label}
+                              key={i}
+                            >
+                              {cell.day}
+                            </a>
+                          );
+                        }
+                        if (cell.isToday) {
+                          return (
+                            <span className="bc-day is-today" aria-label={`${cell.day}. ${card.monthName} — ${page.monthGrid.todayLabel}`} key={i}>
+                              {cell.day}
+                            </span>
+                          );
+                        }
+                        return <span className="bc-day" key={i}>{cell.day}</span>;
+                      })}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="bc-months-empty txfit">{page.monthGrid.emptyMonthNote}</p>
+            )}
           </div>
         </div>
       </section>
 
-      <section className="section" id="abo-faq" style={{ paddingTop: 0 }}>
-        <div className="wrap" style={{ maxWidth: 760 }}>
-          <header className="section-head">
-            <p className="eyebrow">{page.faqSection.eyebrow}</p>
-            <h2 className="h2" dangerouslySetInnerHTML={{ __html: page.faqSection.titleHtml }} />
-          </header>
-          <div>
-            {page.faq.map(item => (
-              <details className="faq" key={item.q}>
-                <summary>{item.q}</summary>
-                <div className="faq-body">{item.a}</div>
-              </details>
-            ))}
+      <section className="bc-lane" id="termine">
+        <div className="wrap bc-grid">
+          <div className="bc-rubric">
+            <header className="section-head">
+              <p className="eyebrow">{page.timeline.eyebrow}</p>
+              <h2 className="h2" dangerouslySetInnerHTML={{ __html: page.timeline.titleHtml }} />
+              <p className="bc-lead">{page.timeline.lead}</p>
+            </header>
+          </div>
+
+          <div className="bc-body">
+            <KalenderTimeline
+              items={timelineItems}
+              todayIso={todayIso}
+              filters={page.timeline.filters}
+              filterGroupLabel={page.timeline.filterGroupLabel}
+              detailsLabel={page.timeline.detailsLabel}
+              emptyNote={page.timeline.emptyNote}
+              cal={{
+                googleLabel: page.calendarActions.googleLabel,
+                icsLabel: page.calendarActions.icsLabel,
+                icsAllLabel: page.calendarActions.icsAllLabel,
+              }}
+              allIcsContent={allIcsContent}
+            />
+
+            <p className="bc-patch-teaser">
+              <Link href={page.patchTeaser.href}>{page.patchTeaser.label}</Link>
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section className="bc-lane" id="landeplaetze">
+        <div className="wrap bc-grid">
+          <div className="bc-rubric">
+            <header className="section-head">
+              <p className="eyebrow">{page.venues.eyebrow}</p>
+              <h2 className="h2" dangerouslySetInnerHTML={{ __html: page.venues.titleHtml }} />
+              <p className="bc-lead">{page.venues.lead}</p>
+            </header>
+          </div>
+
+          <div className="bc-body">
+            <div className="bc-venues">
+              {venueCards.map(v => (
+                <div className="bc-venue" key={v.name}>
+                  <div className="vcard">
+                    <span className="vname" translate="no">{v.name}</span>
+                    {v.address && <span className="vaddr">{v.address}</span>}
+                    {v.transit && <span className="vhint">{v.transit}</span>}
+                  </div>
+                  {v.note && <p className="bc-venue-note">{v.note}</p>}
+                  <div className="route-row">
+                    <a
+                      className="btn btn-ghost"
+                      href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(v.mapsQuery || v.address || v.name)}`}
+                      target="_blank"
+                      rel="noopener"
+                    >
+                      {page.venues.mapsLabel}
+                    </a>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Abo-Erklaerung und Abo-Fragen gehoeren zusammen — vorher waren es zwei
+          Sektionen, eine davon nur mit einem einzigen Kasten darin. */}
+      <section className="bc-lane" id="abo-faq">
+        <div className="wrap bc-grid">
+          <div className="bc-rubric">
+            <header className="section-head">
+              <p className="eyebrow">{page.faqSection.eyebrow}</p>
+              <h2 className="h2" dangerouslySetInnerHTML={{ __html: page.faqSection.titleHtml }} />
+              <p className="bc-lead">{page.faqSection.lead}</p>
+            </header>
+          </div>
+
+          <div className="bc-body">
+            <div className="transmission">
+              <span className="tx-label">{page.howto.label}</span>
+              <p dangerouslySetInnerHTML={{ __html: page.howto.textHtml }} />
+            </div>
+
+            <div className="bc-faqlist">
+              {page.faq.map(item => (
+                <details className="faq" key={item.q}>
+                  <summary>{item.q}</summary>
+                  <div className="faq-body">{item.a}</div>
+                </details>
+              ))}
+            </div>
           </div>
         </div>
       </section>

@@ -28,9 +28,7 @@ export interface KontaktTopicVM {
   crossLabel?: string;
 }
 
-const DEFAULT_HINT = "↑ Wähl ein Anliegen — wir zeigen dir den passenden Kanal und die Antwortzeit.";
-
-export default function KontaktWegweiser({ topics }: { topics: KontaktTopicVM[] }) {
+export default function KontaktWegweiser({ topics, hint }: { topics: KontaktTopicVM[]; hint: string }) {
   const [activeId, setActiveId] = useState<string | null>(null);
   const active = topics.find(t => t.id === activeId) ?? null;
 
@@ -40,6 +38,10 @@ export default function KontaktWegweiser({ topics }: { topics: KontaktTopicVM[] 
   };
 
   return (
+    /* `.fs-router` ist in kontakt.css `display: contents` — die Chip-Reihe und
+       die Empfehlungskarte werden dadurch direkte Raster-Elemente der Konsole
+       und koennen in verschiedenen Spalten liegen. Der Wrapper selbst traegt
+       keine ARIA-Rolle, deshalb ist `display: contents` hier unbedenklich. */
     <div className="fs-router">
       <div className="chips fs-topics" role="list" aria-label="Anliegen wählen">
         {topics.map(t => (
@@ -60,7 +62,7 @@ export default function KontaktWegweiser({ topics }: { topics: KontaktTopicVM[] 
       <div className="fs-reco transmission" aria-live="polite">
         <span className="tx-label">Empfehlung</span>
         {!active ? (
-          <p className="fs-reco-hint">{DEFAULT_HINT}</p>
+          <p className="fs-reco-hint">{hint}</p>
         ) : (
           <>
             <p className="fs-reco-line">

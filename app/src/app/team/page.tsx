@@ -3,7 +3,8 @@ import Link from "next/link";
 import { team, artists, past, nextEvent, pageContent, fmtDate } from "@/lib/data";
 import { artistHref, pageHref } from "@/lib/site";
 import type { TeamMember, Artist, LineupSlot } from "@/lib/types";
-import TeamOrbit from "@/components/pages/TeamOrbit";
+import TeamOrbit, { type TeamStationVM } from "@/components/pages/TeamOrbit";
+import TeamMapPower from "@/components/pages/TeamMapPower";
 import TeamCrewBoard, { type TeamDeptVM, type TeamCardVM } from "@/components/pages/TeamCrewBoard";
 import "@/styles/pages/team.css";
 
@@ -12,9 +13,9 @@ export const metadata: Metadata = {
   description: "Wer bei takeoff was macht — DJs, Licht, Deko, Awareness, Sani, Orga.",
 };
 
-/* Spiegelt src/data/pages/team.json. Referenz für die ursprüngliche
+/* Spiegelt src/data/pages/team.json. Referenz fuer die urspruengliche
    (nicht-flippende) Render-Logik: prototype/assets/js/pages/team.js —
-   das Flip-Konzept (Aufgaben-Rückseite, aria-korrekt, Tier-Guards,
+   das Flip-Konzept (Aufgaben-Rueckseite, aria-korrekt, Tier-Guards,
    Einhorn-Easteregg) kommt aus scratchpad/spec-team.md. */
 interface TeamStatDef { key: string; mode: "auto" | "manual"; value?: string; label: string }
 interface TeamDepartmentDef { id: string; title: string; subtitle: string; intro: string; match: string[] }
@@ -23,7 +24,8 @@ interface TeamRoleLink { href: string; linkText: string }
 interface TeamPageContent {
   hero: { eyebrow: string; h1: string; intro: string };
   stats: TeamStatDef[];
-  crew: { eyebrow: string; h2: string; intro: string; flipOpenLabel: string; flipCloseLabel: string };
+  crew: { eyebrow: string; h2: string; intro: string; flipOpenLabel: string; flipCloseLabel: string; sinceLabel: string; moreLabel: string };
+  plan: { label: string; note: string; reserveLabel: string };
   departments: TeamDepartmentDef[];
   departmentFallbackTitle: string;
   members: Record<string, TeamMemberExtra>;
@@ -36,7 +38,7 @@ interface TeamPageContent {
 }
 
 /* Initialen-Fallback (Portierung von initialsFrom() aus team.js) — trennt
-   zusätzlich an "-"/"&", nicht nur an Leerraum: "Awareness-Team" und
+   zusaetzlich an "-"/"&", nicht nur an Leerraum: "Awareness-Team" und
    "Deko & Bau" haben sonst keine Wortgrenze zum Trennen. */
 function initialsFrom(name: string): string {
   return name.trim().split(/[\s\-&]+/).filter(Boolean).slice(0, 2).map(w => w[0]).join("").toUpperCase() || "??";
@@ -64,7 +66,7 @@ function findArtist(name: string, artistList: Artist[]): Artist | null {
   return artistList.find(a => a.name.length > 2 && lower.includes(a.name.toLowerCase())) ?? null;
 }
 
-/* Wer aus der Crew steht im Lineup der nächsten Mission? (Portierung von
+/* Wer aus der Crew steht im Lineup der naechsten Mission? (Portierung von
    matchedLineupNames() aus team.js) */
 function matchedLineupNames(lineup: LineupSlot[], teamList: TeamMember[]): string[] {
   const found = new Set<string>();
@@ -111,7 +113,23 @@ function groupByDepartment(teamList: TeamMember[], departments: TeamDepartmentDe
 
 /* Team-Grid komplett aus dem Gateway gerendert — team() filtert unsichtbare
    Rollen automatisch (Beweis-Portierung wie events/page.tsx: neue Crew in
-   db.json erscheint hier ohne Markup-Änderung). */
+   db.json erscheint hier ohne Markup-Aenderung).
+
+   AUFBAU (It. 14). Vorher: eine linksbuendige Textspalte, darunter drei
+   Kartenreihen, dazwischen zwei freistehende <div class="wrap"> — und weil
+   diese Seite als einzige KEIN paddingTop-Override auf ihren .section
+   gesetzt hat, stand die kleine "Naechste Mission"-Notiz in rund 216px
+   Leere (je ~108px ueber und unter ihr, gemessen bei 1440x900,
+   .design-audit/befunde.json). Dazu kam: ein blankes .wrap als direktes
+   Kind von <main> bekommt im Tagmodus seine helle Spalte nur so breit wie
+   das .wrap selbst — links und rechts davon stand ein schwarzer Riegel quer
+   ueber die helle Seite (im Tag-Screenshot nachgesehen, nicht erschlossen).
+
+   Jetzt: vier vollbreite <section> als Kinder von <main> (keine nackten
+   .wrap mehr), ein durchgehendes Redaktionsraster "breite Spalte + rechte
+   Schiene" fuer Crew-Board und Foto-Board, und die Missionsnotiz sitzt in
+   dieser Schiene statt allein in der Leere. Alle Abstaende ueber die
+   Rollen-Tokens (--sp-*), keine style={{padding}}-Korrekturen mehr. */
 export default async function TeamPage() {
   const [pageContentRaw, crew, artistList, pastEvents, next] = await Promise.all([
     pageContent<TeamPageContent>("team"),
@@ -124,6 +142,8 @@ export default async function TeamPage() {
   if (!pageContentRaw) {
     // Seiten-Text fehlt (AGENTS.md: "falls vorhanden") — ohne Bereichs-/
     // Aufgaben-Texte gibt es nichts sinnvoll Strukturiertes zu rendern.
+    // Die Worte hier koennen NICHT aus der Datenschicht kommen: das ist
+    // genau der Zweig, in dem sie fehlt.
     return (
       <section className="phero">
         <div className="wrap">
@@ -137,13 +157,15 @@ export default async function TeamPage() {
   const page = pageContentRaw;
 
   const { buckets, rest } = groupByDepartment(crew, page.departments);
-  const departmentsVM: TeamDeptVM[] = page.departments.map(d => ({
-    id: d.id,
-    title: d.title,
-    subtitle: d.subtitle,
-    intro: d.intro,
-    members: (buckets.get(d.id) ?? []).map(m => buildCard(m, page, artistList)),
-  }));
+  const departmentsVM: TeamDeptVM[] = page.departments
+    .filter(d => (buckets.get(d.id) ?? []).length > 0)
+    .map(d => ({
+      id: d.id,
+      title: d.title,
+      subtitle: d.subtitle,
+      intro: d.intro,
+      members: (buckets.get(d.id) ?? []).map(m => buildCard(m, page, artistList)),
+    }));
   if (rest.length > 0) {
     departmentsVM.push({
       id: "fallback",
@@ -154,11 +176,15 @@ export default async function TeamPage() {
     });
   }
 
-  const orbitCounts = {
-    flugdeck: buckets.get("flugdeck")?.length ?? 0,
-    boden: buckets.get("boden")?.length ?? 0,
-    bau: buckets.get("bau")?.length ?? 0,
-  };
+  /* Der Bordplan liest dieselbe Liste wie das Board — Ringreihenfolge,
+     Legendenreihenfolge und Bereichsreihenfolge koennen damit nicht
+     auseinanderlaufen, und die Punktzahl je Ring ist die tatsaechliche
+     Bereichsgroesse statt einer gepflegten Zahl. */
+  const stations: TeamStationVM[] = departmentsVM.map(d => ({
+    id: d.id,
+    title: d.title,
+    count: d.members.length,
+  }));
 
   const statCells = page.stats.map(st => {
     let value = st.value ?? "—";
@@ -178,7 +204,7 @@ export default async function TeamPage() {
 
   return (
     <>
-      <TeamOrbit counts={orbitCounts} />
+      <TeamMapPower />
 
       <section className="phero">
         <div className="wrap">
@@ -188,55 +214,86 @@ export default async function TeamPage() {
         </div>
       </section>
 
-      <div className="wrap">
-        <div className="stats" id="team-stats">
-          {statCells.map(c => (
-            <div key={c.label}><b>{c.value}</b><span>{c.label}</span></div>
-          ))}
-        </div>
-      </div>
-
-      <section className="section" id="crew">
+      {/* Kennzahlenband. Die Luft steckt INNEN in .stats (takeoff.css:
+          padding, nie margin) — ein Aussenabstand waere im Tagmodus ein
+          Loch zwischen zwei hellen Spalten. */}
+      <section className="kt-statsband">
         <div className="wrap">
-          <header className="section-head">
-            <p className="eyebrow">{page.crew.eyebrow}</p>
-            <h2 className="h2" dangerouslySetInnerHTML={{ __html: page.crew.h2 }} />
-            <p className="section-intro">{page.crew.intro}</p>
-          </header>
-          <TeamCrewBoard
-            departments={departmentsVM}
-            flipOpenLabel={page.crew.flipOpenLabel}
-            flipCloseLabel={page.crew.flipCloseLabel}
-            unicornToast={page.easterEgg.toastText}
-          />
+          <div className="stats">
+            {statCells.map(c => (
+              <div key={c.label}><b>{c.value}</b><span>{c.label}</span></div>
+            ))}
+          </div>
         </div>
       </section>
 
-      <div className="wrap">
-        <div className="transmission" id="kt-mission">
-          <span className="tx-label">{page.nextMission.label}</span>
-          <p id="kt-mission-text">{missionText}</p>
-        </div>
-      </div>
+      <section className="section kt-crew" id="crew">
+        <div className="wrap">
+          <div className="kt-board">
+            <header className="section-head">
+              <p className="eyebrow">{page.crew.eyebrow}</p>
+              <h2 className="h2" dangerouslySetInnerHTML={{ __html: page.crew.h2 }} />
+              <p className="section-intro">{page.crew.intro}</p>
+            </header>
 
-      <section className="section" id="fotoboard">
+            <TeamCrewBoard
+              departments={departmentsVM}
+              flipOpenLabel={page.crew.flipOpenLabel}
+              flipCloseLabel={page.crew.flipCloseLabel}
+              sinceLabel={page.crew.sinceLabel}
+              moreLabel={page.crew.moreLabel}
+              unicornToast={page.easterEgg.toastText}
+            />
+
+            {/* Rechte Schiene: Bordplan, Legende, Missionsnotiz — fuellt die
+                Flaeche, die vorher neben der 640px-Textspalte leer stand.
+                Steht im Markup NACH dem Board, damit Vorlese-Reihenfolge und
+                Lesefluss auf schmalen Schirmen dieselben sind (Begleitspalte
+                zuletzt); auf breiten Schirmen setzt sie das Raster explizit
+                nach rechts oben, ohne dass die DOM-Reihenfolge luegt. */}
+            <aside className="kt-plan" aria-label={page.plan.label}>
+              <p className="kt-plan-label">{page.plan.label}</p>
+              <TeamOrbit
+                stations={stations}
+                note={page.plan.note}
+                reserveLabel={page.plan.reserveLabel}
+              />
+              <div className="transmission kt-mission">
+                <span className="tx-label">{page.nextMission.label}</span>
+                <p>{missionText}</p>
+              </div>
+            </aside>
+          </div>
+        </div>
+      </section>
+
+      {/* Foto-Board. Vorher acht gestrichelte 4:3-Kaesten mit "Foto folgt
+          nach Freigabe" — eine halbe Bildschirmhoehe Platzhalter. Jetzt
+          eine Reihe leerer Plaetze im selben Rund wie die Karten-Avatare,
+          daneben in der Schiene der Grund, warum sie leer sind. */}
+      <section className="section kt-photos" id="fotoboard">
         <div className="wrap">
           <header className="section-head">
             <p className="eyebrow">{page.photoboard.eyebrow}</p>
             <h2 className="h2" dangerouslySetInnerHTML={{ __html: page.photoboard.h2 }} />
           </header>
-          <div className="gallery-grid">
-            {crew.map(m => (
-              <div className="gph" key={m.name}>
-                <span className="kt-slot-tag" aria-hidden="true">{m.initials || initialsFrom(m.name)}</span>
-                {page.photoboard.slotNote}
-              </div>
-            ))}
+          <div className="kt-photos-body">
+            <div>
+              <ul className="kt-strip">
+                {crew.map(m => (
+                  <li className="kt-slot" key={m.name}>
+                    <span aria-hidden="true">{m.initials || initialsFrom(m.name)}</span>
+                    <span className="kt-slot-name">{m.name}</span>
+                  </li>
+                ))}
+              </ul>
+              <p className="kt-strip-note">{page.photoboard.slotNote}</p>
+            </div>
+            <p className="lu-note kt-consent">
+              {page.photoboard.note} {page.photoboard.joinText}{" "}
+              <Link className="kt-join" href={pageHref("kollektiv", "mitmachen")}>{page.photoboard.joinLabel}</Link>
+            </p>
           </div>
-          <p className="lu-note" style={{ marginTop: 14 }}>
-            {page.photoboard.note} {page.photoboard.joinText}{" "}
-            <Link href={pageHref("kollektiv", "mitmachen")} style={{ color: "var(--acc-3-tint)" }}>{page.photoboard.joinLabel}</Link>
-          </p>
         </div>
       </section>
     </>

@@ -16,6 +16,13 @@
     "typewriter": true,
     "charMs": 24
   },
+  "station": {
+    "eyebrow": "Bodenstation",
+    "scopeCaption": "Empfangsschüssel · Potsdam",
+    "readoutLabel": "Signal-Statistik",
+    "channelsLabel": "Kanäle",
+    "channelsAria": "Nach Kanal filtern"
+  },
   "stats": {
     "totalLabel": "Funksprüche gesamt",
     "topBadgeLabel": "häufigstes Badge",
@@ -35,6 +42,14 @@
       "Teaser": "eye"
     }
   },
+  "archive": {
+    "eyebrow": "Archiv",
+    "title": "Log-Archiv"
+  },
+  "hint": {
+    "label": "Hinweis",
+    "text": "Instagram-Posts laden erst nach einem Klick — vorher geht kein einziger Request an Instagram raus. Neue Einträge kommen später direkt aus dem Admin."
+  },
   "yearDivider": { "template": "— {year} —" },
   "crosslinks": {
     "n5": { "eventSlug": "freiraeume", "href": "event-freiraeume.html", "label": "Zum Event „Freiräume“" },
@@ -52,11 +67,17 @@
     "buttonLabel": "Teilen",
     "copiedToast": "Link kopiert ✓",
     "telegramIntent": true,
-    "telegramLabel": "Telegram"
+    "telegramLabel": "Telegram",
+    "groupAria": "Diesen Funkspruch teilen"
   },
   "instaCard": {
     "buttonLabel": "Instagram-Post ansehen · lädt erst nach Klick",
-    "consentNote": "Zwei-Klick-Schutz: Erst nach diesem Klick lädt Instagram nach (DSGVO-freundlich) — im Prototyp nur simuliert."
+    "consentNote": "Zwei-Klick-Schutz: Erst dieser zweite Klick geht zu Instagram. Vorher lädt von dort nichts.",
+    "openLabel": "Bei Instagram öffnen ↗"
+  },
+  "faqSection": {
+    "eyebrow": "Bevor du fragst",
+    "title": "Häufige Fragen"
   },
   "channelCta": {
     "eyebrow": "Auf dem Laufenden bleiben",
@@ -109,6 +130,15 @@
     "hero.eyebrow": "Kicker über der Überschrift",
     "hero.h1": "Überschrift (letztes Wort leuchtet automatisch)",
     "hero.intro": "Intro-Text unter der Überschrift",
+    "station.eyebrow": "Kicker über der Konsole (linke Spalte)",
+    "station.scopeCaption": "Bildunterschrift unter der Empfangsschüssel",
+    "station.channelsLabel": "Überschrift über den Kanal-Knöpfen",
+    "archive.eyebrow": "Kicker über dem Archiv",
+    "archive.title": "Überschrift des Archivs",
+    "hint.text": "Hinweiskasten am Ende des Archivs",
+    "faqSection.eyebrow": "Kicker über den häufigen Fragen",
+    "faqSection.title": "Überschrift der häufigen Fragen",
+    "instaCard.openLabel": "Beschriftung des freigeschalteten Instagram-Links",
     "channelCta.title": "Telegram-CTA-Titel",
     "channelCta.text": "Telegram-CTA-Text",
     "feedback.prompt": "Feedback-Frage",

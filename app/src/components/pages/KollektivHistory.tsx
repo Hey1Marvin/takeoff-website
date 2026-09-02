@@ -1,6 +1,7 @@
 "use client";
 /* Ebene 2 des Bauplan-Signaturmotivs: die Flightlog-Massline zeichnet sich
-   beim Scrollen (--bp-flog-p 0→1, siehe .flog::before in kollektiv.css).
+   beim Scrollen (--bp-flog-p 0→1, siehe #bp-logbuch::before in
+   kollektiv.css — die ID heisst absichtlich seitenspezifisch, siehe dort).
    Tier s/reduced-motion: sofort voll gezeichnet — CSS-Fallback
    var(--bp-flog-p, 1), hier zusätzlich explizit gesetzt für den Fall eines
    Live-Downgrades von m/l auf s. Rendert zugleich die Logbuch-Liste aus
@@ -21,7 +22,14 @@ const SPEC_TAGS: Record<string, string> = {
   "▲": "LIVE",
 };
 
-export default function KollektivHistory({ history }: { history: HistoryEntry[] }) {
+export default function KollektivHistory({ history, tail, tailLink }: {
+  history: HistoryEntry[];
+  /* Schlusssatz der letzten Zeile, mit {link}-Platzhalter. Stand vorher als
+     deutscher Text im JSX; Redaktionstext gehoert in die Datenschicht
+     (src/data/pages/kollektiv.json). */
+  tail: string;
+  tailLink: string;
+}) {
   const ref = useRef<HTMLUListElement>(null);
 
   useEffect(() => {
@@ -75,7 +83,7 @@ export default function KollektivHistory({ history }: { history: HistoryEntry[] 
   const lastIdx = history.length - 1;
 
   return (
-    <ul className="flog" id="flog-list" ref={ref}>
+    <ul className="flog" id="bp-logbuch" ref={ref}>
       {history.map((entry, i) => (
         <li key={`${entry.patch}-${entry.date}`}>
           {/* .txplate (takeoff.css, geteilte Utility seit It. 14): enge
@@ -95,10 +103,11 @@ export default function KollektivHistory({ history }: { history: HistoryEntry[] 
             <span className="txplate">
               {entry.note}
               {i === lastIdx && (
-                <>
-                  {" "}Weiter geht&apos;s im{" "}
-                  <Link href={pageHref("events", "flightlog")} style={{ color: "var(--acc-3-tint)" }}>Flight Log</Link>.
-                </>
+                <> {tail.split(/(\{link\})/).map((part, k) =>
+                  part === "{link}"
+                    ? <Link key={k} href={pageHref("events", "flightlog")} className="bp-link">{tailLink}</Link>
+                    : <span key={k}>{part}</span>,
+                )}</>
               )}
             </span>
           </span>

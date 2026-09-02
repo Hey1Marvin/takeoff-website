@@ -410,14 +410,21 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* ============ Stats-Band ============ */}
-      <div className="wrap">
-        <div className="stats reveal">
-          {statCells.map(c => (
-            <div key={c.label}><b>{c.value}</b><span>{c.label}</span></div>
-          ))}
+      {/* ============ Stats-Band ============
+          <section> statt <div>, fensterbreit: im Tagmodus malt JEDES direkte
+          Kind von <main> seine eigene helle Spalte (scene-day.css). Ein nur
+          1120px breites Kind laesst links und rechts den schwarzen
+          Seitengrund stehen — ein dunkler Riegel quer ueber die helle Seite.
+          Nachgemessen und auf /team und /kalender genauso korrigiert. */}
+      <section className="stats-band">
+        <div className="wrap">
+          <div className="stats reveal">
+            {statCells.map(c => (
+              <div key={c.label}><b>{c.value}</b><span>{c.label}</span></div>
+            ))}
+          </div>
         </div>
-      </div>
+      </section>
 
       {/* ============ AWARENESS ============ */}
       <section className="section hm-sec" id="awareness">

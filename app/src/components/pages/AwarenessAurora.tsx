@@ -1,12 +1,21 @@
 "use client";
-/* Signatur-Motiv "Leuchtfeuer": violetter Aurora-Schleier über dem
-   Sternenhimmel + Atem-Puls. Fast alles daran ist reines CSS, getrieben
-   vom globalen data-fx-Attribut (siehe @keyframes aw-breathe in
-   awareness.css) — hier steckt nur das eine Stück echte Interaktion:
-   der Ruheraum-Abschnitt intensiviert beim Erreichen kurz den
-   Horizont-Glow (html.aw-quiet-active). Bei Tier s / reduced-motion
-   bleibt der Zustand dauerhaft "an", ganz ohne Scroll-Tracking —
-   identisch zum Prototyp-Fallback in awareness.js. */
+/* Signatur-Motiv der Awareness-Seite: EIN violetter Aurora-Schleier in der
+   Farbwelt der lila Warnwesten, der im 4-Sekunden-Takt atmet. Das ist der
+   einzige Bewegungsmoment der Seite — bewusst kein Scroll-Effekt, keine
+   Reveals, kein Parallax. Die Ruhe ist die Aussage.
+
+   Alles Sichtbare steckt in awareness.css (Keyframes aw-breathe/aw-drift,
+   getiert ueber html[data-fx]). Hier liegt nur das eine Stueck echte
+   Interaktion: der Ruheraum-Abschnitt hebt beim Erreichen den unteren Saum
+   an (html.aw-quiet-active) — ein langsamer Zustandswechsel, keine Schleife.
+   Bei Tier s / reduced-motion bleibt der Zustand dauerhaft "an", ganz ohne
+   Scroll-Tracking.
+
+   Der Warp-Filter ist bewusst NUR eine Definition: referenziert wird er in
+   awareness.css allein bei data-fx="l" und ausserhalb von reduced-motion.
+   Vorher lief `filter: url(#aw-warp) blur(28px)` auf einer bildschirm-
+   fuellenden fixierten Ebene in JEDER Stufe mit — die teuerste Zeile der
+   Seite genau dort, wo jemand um wenig Effekt gebeten hat. */
 import { useEffect } from "react";
 
 export default function AwarenessAurora() {
@@ -36,20 +45,21 @@ export default function AwarenessAurora() {
 
   return (
     <>
-      {/* Warp-Filter (einmalig, unbewegt) — nur Definition, kein sichtbares Element */}
-      <svg
-        className="aw-defs"
-        aria-hidden="true"
-        focusable="false"
-        style={{ position: "absolute", width: 0, height: 0, overflow: "hidden" }}
-      >
+      {/* Nur Filter-Definition, kein sichtbares Element. `scene-deco`, damit
+          scene-day.css dieser Ebene keinen hellen Grund unterschiebt. */}
+      <svg className="aw-defs scene-deco" aria-hidden="true" focusable="false">
         <filter id="aw-warp" x="-20%" y="-20%" width="140%" height="140%">
           <feTurbulence type="fractalNoise" baseFrequency="0.006 0.014" numOctaves={2} seed={7} result="n" />
-          <feDisplacementMap in="SourceGraphic" in2="n" scale={160} xChannelSelector="R" yChannelSelector="G" />
+          <feDisplacementMap in="SourceGraphic" in2="n" scale={150} xChannelSelector="R" yChannelSelector="G" />
         </filter>
       </svg>
-      {/* Himmels-Ebene: liegt ÜBER #stars, Sternenhimmel bleibt sichtbar (mix-blend-mode: screen) */}
-      <div id="aw-sky" className="scene-deco" aria-hidden="true"><div className="aw-sky-inner" /></div>
+      {/* Der Schleier: eine Klasse statt einer ID — Seiten-CSS wird global
+          gebuendelt, und eine ID im Selektor ist der Fehler, der schon einmal
+          eine fremde Seite veraendert hat. */}
+      <div className="aw-sky scene-deco" aria-hidden="true">
+        <div className="aw-sky-veil" />
+        <div className="aw-sky-glow" />
+      </div>
     </>
   );
 }

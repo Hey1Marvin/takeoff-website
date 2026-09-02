@@ -1,13 +1,12 @@
 import type { Metadata } from "next";
-import type { CSSProperties, ReactNode } from "react";
+import type { ReactNode } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { pageContent, settings } from "@/lib/data";
 import type { Settings } from "@/lib/types";
 import KontaktBodenstation from "@/components/pages/KontaktBodenstation";
-import KontaktClock from "@/components/pages/KontaktClock";
 import KontaktWegweiser, { type KontaktTopicVM } from "@/components/pages/KontaktWegweiser";
-import KontaktFunkkanaele, { type KontaktChannelVM } from "@/components/pages/KontaktFunkkanaele";
+import KontaktFunkkanaele, { type KontaktChannelVM, type KontaktReadoutVM } from "@/components/pages/KontaktFunkkanaele";
 import KontaktCopyButton from "@/components/pages/KontaktCopyButton";
 import KontaktVCard from "@/components/pages/KontaktVCard";
 import "@/styles/pages/kontakt.css";
@@ -18,13 +17,32 @@ export const metadata: Metadata = {
   description: "Schreib uns — allgemein, Booking, Presse, Awareness oder Fundsachen.",
 };
 
-/* Spiegelt src/data/pages/kontakt.json (siehe assets/js/pages/kontakt.js im
-   Prototyp für die 1:1-Referenz der Render-/Sync-Logik). Der Contract
-   page-kontakt.json beschreibt dieselbe Idee als Admin-Formular; Quelle der
-   Wahrheit für die Feldnamen ist hier die eingecheckte JSON. */
+/* Spiegelt src/data/pages/kontakt.json. Der Contract page-kontakt.json
+   beschreibt bisher nur hero + channels; Quelle der Wahrheit für die
+   Feldnamen ist die eingecheckte JSON (Contract-Nachtrag steht im
+   Abschlussbericht von It. 14). */
+interface KontaktSectionText {
+  eyebrow: string;
+  title: string;
+  intro?: string;
+}
+
 interface KontaktPageContent {
   hero: { eyebrow: string; h1: string; intro: string };
-  station: { label: string; statusNote: string; sendPulseToast: string; copyToast: string };
+  sections: {
+    konsole: KontaktSectionText & { channelsTitle: string };
+    vergleich: KontaktSectionText;
+    faq: KontaktSectionText;
+  };
+  station: {
+    label: string;
+    statusNote: string;
+    sendPulseToast: string;
+    telegramToast: string;
+    copyToast: string;
+    recoHint: string;
+    readout: KontaktReadoutVM;
+  };
   topics: {
     id: string;
     label: string;
@@ -39,12 +57,12 @@ interface KontaktPageContent {
   channels: { label: string; text?: string; link?: string }[];
   channelCompare: { name: string; value: string; note?: string }[];
   faq: { q: string; a: string }[];
-  vcard: { buttonLabel: string; orgName: string; note: string };
+  vcard: { name: string; buttonLabel: string; orgName: string; note: string };
 }
 
 /* Prototyp-interne Anker (kollektiv.html#x) → echte Next-Routen. Geteilt
    zwischen Themen-Chips (topics[].linkHref) und Kanal-Zeilen
-   (channels[].link), gleiche Zuordnung wie LINK_LABELS in kontakt.js.
+   (channels[].link).
 
    Die Zielpfade kommen aus dem Link-Generator, nicht als Zeichenketten —
    sonst stuende dieselbe Zuordnung ein zweites Mal im Projekt und liefe beim
@@ -78,10 +96,10 @@ function buildMailto(email: string, subject?: string, body?: string): string {
 function channelAction(link: string | undefined, s: Settings): ReactNode {
   if (!link) return null;
   if (link.startsWith("mailto:")) {
-    return <b><a href={`mailto:${s.email}`} style={{ color: "var(--ink)" }}>{s.email}</a></b>;
+    return <b><a href={`mailto:${s.email}`} className="fs-ch-direct">{s.email}</a></b>;
   }
   if (/t\.me\//.test(link)) {
-    return <b><a href={s.telegram} target="_blank" rel="noopener" style={{ color: "var(--ink)" }}>Telegram-Gruppe ↗</a></b>;
+    return <b><a href={s.telegram} target="_blank" rel="noopener" className="fs-ch-direct">Telegram-Gruppe ↗</a></b>;
   }
   const href = ROUTE_MAP[link] ?? link;
   const label = CHANNEL_LINK_LABELS[link] ?? "Mehr dazu ansehen";
@@ -90,8 +108,7 @@ function channelAction(link: string | undefined, s: Settings): ReactNode {
 
 /* H1 trägt den Glow auf dem letzten Wort; Satzzeichen bleiben außerhalb
    des Glow-Spans. Portierung von setGlowHeadline() (kontakt.js) als reine
-   Render-Funktion statt DOM-Mutation — 1:1 dieselbe Logik wie glowify()
-   in kollektiv/page.tsx (eigene Kopie, eigener Seiten-Namensraum). */
+   Render-Funktion statt DOM-Mutation. */
 function glowify(text: string): ReactNode {
   const words = text.trim().split(/\s+/);
   if (!words.length) return text;
@@ -108,10 +125,12 @@ function glowify(text: string): ReactNode {
   );
 }
 
-/* Deko-Item "Trümmerteil" (assets/css/style.css .ditem — theme-bedingt
-   sichtbar, reines CSS-Float). Der GSAP-Scroll-Parallax aus dem Prototyp
-   (data-spd) entfällt hier bewusst: kein GSAP in dieser App, und die
-   Section-gebundene Deko bleibt ohne ihn genauso an ihrem Platz. */
+/* Deko-Item "Trümmerteil" (takeoff.css .ditem — theme-bedingt sichtbar).
+   Sitzt seit It. 14 im FAQ-Abschnitt statt in der Konsole: die Konsole
+   reicht rechts bis an die Rasterkante, der Deko-Rand dort war ab 1200px
+   genau die Zone, in der die Instrumentensäule steht. Neben der schmalen
+   FAQ-Spalte ist die Randzone dagegen echt frei — und der freie Rand ist
+   der einzige Ort, an dem ein Deko-Item hingehört. */
 function DitemIcon() {
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
@@ -121,8 +140,6 @@ function DitemIcon() {
     </svg>
   );
 }
-
-const DITEM_STYLE = { "--top": "4%", "--left": "auto", "--right": "1vw" } as CSSProperties;
 
 export default async function KontaktPage() {
   const [page, s] = await Promise.all([
@@ -161,9 +178,13 @@ export default async function KontaktPage() {
 
   return (
     <>
-      <KontaktBodenstation stationLabel={page.station.label} sendToast={page.station.sendPulseToast} />
+      <KontaktBodenstation
+        stationLabel={page.station.label}
+        sendToast={page.station.sendPulseToast}
+        telegramToast={page.station.telegramToast}
+      />
 
-      <section className="phero">
+      <section className="phero fs-phero">
         <div className="wrap">
           <p className="eyebrow">{page.hero.eyebrow}</p>
           <h1>{glowify(page.hero.h1)}</h1>
@@ -176,50 +197,52 @@ export default async function KontaktPage() {
                 das wuerde .txplate seinen inline-Charakter nehmen und
                 box-decoration-break wirkungslos machen. Eine Ebene tiefer
                 greift die Regel nicht mehr. */}
-            <span><span className="txplate">{page.station.statusNote} · <KontaktClock /> Uhr Potsdam</span></span>
+            <span><span className="txplate">{page.station.statusNote}</span></span>
           </p>
         </div>
       </section>
 
-      <section className="section" style={{ paddingTop: "clamp(20px, 3vh, 34px)" }}>
-        <div className="wrap">
-          <header className="section-head reveal">
-            <p className="eyebrow">Anliegen-Wegweiser</p>
-            <h2 className="h2">Wonach suchst du?</h2>
-            <p className="section-intro">Wähl dein Anliegen — wir sagen dir, welcher Kanal am besten passt, und bauen dir die Mail direkt vor.</p>
-          </header>
-          <KontaktWegweiser topics={topics} />
-        </div>
-      </section>
-
-      <section className="section" style={{ paddingTop: "clamp(20px, 3vh, 34px)" }}>
-        <div className="wrap">
-          <header className="section-head reveal">
-            <p className="eyebrow">Funkkanäle</p>
-            <h2 className="h2">Wähl deinen Kanal</h2>
+      {/* ---- Die Konsole: Wegweiser UND Funkkanäle in EINEM Raster ----
+          Vorher zwei Sektionen mit eigenem Kopf, die dieselben sieben
+          Einträge zweimal zeigten (erst als Chips, dann als Liste) und
+          dabei je eine linksbündige Spalte auf einem 1440er Schirm
+          bildeten. Jetzt: Chips und Liste links, Radar und Stationsanzeige
+          als klebende Instrumentensäule rechts. Ein Kopf, ein Gegenstand,
+          keine tote Fläche. */}
+      <section className="section fs-sec--konsole">
+        <div className="wrap fs-wrap">
+          <header className="section-head">
+            <p className="eyebrow">{page.sections.konsole.eyebrow}</p>
+            <h2 className="h2">{page.sections.konsole.title}</h2>
+            <p className="section-intro">{page.sections.konsole.intro}</p>
           </header>
 
-          <span className="ditem d-space" style={DITEM_STYLE} aria-hidden="true"><DitemIcon /></span>
-          <span className="ditem d-mars" style={DITEM_STYLE} aria-hidden="true"><DitemIcon /></span>
-          <span className="ditem d-strand" style={DITEM_STYLE} aria-hidden="true"><DitemIcon /></span>
+          <div className="fs-konsole">
+            <KontaktWegweiser topics={topics} hint={page.station.recoHint} />
 
-          <KontaktFunkkanaele channels={channels} />
+            <h3 className="fs-subhead txplate">{page.sections.konsole.channelsTitle}</h3>
 
-          <div className="cta-row" style={{ marginTop: 24 }}>
-            <a className="btn btn-primary" data-fs-pulse="mail" href={buildMailto(s.email)}>Mail schreiben</a>
-            <a className="btn btn-ghost" data-fs-pulse="telegram" href={s.telegram} target="_blank" rel="noopener">Telegram öffnen</a>
-            <KontaktCopyButton email={s.email} copyToast={page.station.copyToast} />
+            <KontaktFunkkanaele channels={channels} readout={page.station.readout} />
+
+            <div className="cta-row fs-konsole-cta">
+              <a className="btn btn-primary" data-fs-pulse="mail" href={buildMailto(s.email)}>Mail schreiben</a>
+              <a className="btn btn-ghost" data-fs-pulse="telegram" href={s.telegram} target="_blank" rel="noopener">Telegram öffnen</a>
+              <KontaktCopyButton email={s.email} copyToast={page.station.copyToast} />
+            </div>
           </div>
         </div>
       </section>
 
-      <section className="section" style={{ paddingTop: "clamp(20px, 3vh, 34px)" }}>
+      <section className="section fs-sec--vergleich">
         <div className="wrap">
-          <header className="section-head reveal">
-            <p className="eyebrow">Kanal-Vergleich</p>
-            <h2 className="h2">Was passt zu dir?</h2>
-            <p className="section-intro">Für Vertrauliches: lieber Mail. Für schnelle Fragen: Telegram — aber öffentlich, alle lesen mit.</p>
+          <header className="section-head">
+            <p className="eyebrow">{page.sections.vergleich.eyebrow}</p>
+            <h2 className="h2">{page.sections.vergleich.title}</h2>
+            <p className="section-intro">{page.sections.vergleich.intro}</p>
           </header>
+          {/* Die vCard ist die vierte Kachel dieser Reihe, kein einzelner
+              Knopf mehr unter der Reihe: sie beantwortet dieselbe Frage
+              ("wie erreichst du uns dauerhaft") wie die drei daneben. */}
           <div className="fs-compare">
             {page.channelCompare.map(c => (
               <div className="fs-compare-item" key={c.name}>
@@ -228,34 +251,46 @@ export default async function KontaktPage() {
                 <small>{c.note ?? ""}</small>
               </div>
             ))}
-          </div>
-          <div className="fs-vcard">
-            <KontaktVCard
-              buttonLabel={page.vcard.buttonLabel}
-              note={page.vcard.note}
-              orgName={page.vcard.orgName}
-              email={s.email}
-              telegram={s.telegram}
-              instagram={s.instagram}
-            />
+            <div className="fs-compare-item fs-compare-vcard">
+              <b>{page.vcard.name}</b>
+              <KontaktVCard
+                buttonLabel={page.vcard.buttonLabel}
+                note={page.vcard.note}
+                orgName={page.vcard.orgName}
+                email={s.email}
+                telegram={s.telegram}
+                instagram={s.instagram}
+              />
+            </div>
           </div>
         </div>
       </section>
 
-      <section className="section" style={{ paddingTop: "clamp(20px, 3vh, 34px)" }}>
-        <div className="wrap" style={{ maxWidth: 760 }}>
-          <header className="section-head reveal">
-            <p className="eyebrow">Bevor du schreibst</p>
-            <h2 className="h2">Häufig gefragt</h2>
-          </header>
-          <div className="fs-faqlist">
-            {page.faq.map(item => (
-              <details className="faq" key={item.q}>
-                <summary>{item.q}</summary>
-                <div className="faq-body">{item.a}</div>
-              </details>
-            ))}
+      <section className="section fs-sec--faq">
+        <div className="wrap">
+          <div className="fs-faq">
+            <header className="section-head">
+              <p className="eyebrow">{page.sections.faq.eyebrow}</p>
+              <h2 className="h2">{page.sections.faq.title}</h2>
+              <p className="section-intro">{page.sections.faq.intro}</p>
+            </header>
+            <div className="fs-faqlist">
+              {page.faq.map(item => (
+                <details className="faq" key={item.q}>
+                  <summary>{item.q}</summary>
+                  <div className="faq-body">{item.a}</div>
+                </details>
+              ))}
+            </div>
           </div>
+        </div>
+        {/* Theme-Deko im echten Rand — erst ab 1400px, wo die FAQ-Spalte
+            garantiert 100px Luft nach rechts lässt (die Sichtbarkeit je
+            Theme regelt weiterhin .ditem in takeoff.css). */}
+        <div className="fs-deco" aria-hidden="true">
+          <span className="ditem d-space"><DitemIcon /></span>
+          <span className="ditem d-mars"><DitemIcon /></span>
+          <span className="ditem d-strand"><DitemIcon /></span>
         </div>
       </section>
     </>

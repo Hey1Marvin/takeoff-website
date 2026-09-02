@@ -1,14 +1,25 @@
 {
   "_labels": {
     "hero.h1": "Haupttitel",
+    "heroAid": "Soforthilfe-Kasten im Kopf",
+    "recognition.title": "Überschrift „So erkennst du uns“",
+    "principlesHead": "Überschrift Grundsätze",
+    "helpHead": "Überschrift Hilfe & Notfall",
     "principles": "Die 4 Grundsätze",
-    "emergencyNumbers": "Notfallnummern"
+    "emergencyNumbers": "Notfallnummern",
+    "faqHead": "Überschrift FAQ"
   },
 
   "hero": {
     "eyebrow": "Awareness",
     "h1": "Feiern, auf das ihr euch verlassen könnt.",
     "intro": "Awareness ist bei uns kein Aushang, sondern gelebte Praxis: eigenes Team, eigene Ersthelfer*innen, Free Water — auf jeder einzelnen Mission. Safer Space, nicht Safe Space. Aber wir tun alles dafür."
+  },
+
+  "heroAid": {
+    "label": "Wenn es jetzt akut ist",
+    "note": "Auf dem Event: lila Weste ansprechen. Das Awareness-Team ist die ganze Nacht da.",
+    "linkLabel": "Alle Nummern & Meldewege"
   },
 
   "teamTiles": [
@@ -20,9 +31,11 @@
 
   "recognition": {
     "eyebrow": "So erkennst du uns",
+    "title": "Lila Weste, offenes Ohr",
     "text": "Unser Awareness-Team trägt lila Westen — ansprechbar die ganze Nacht, auf jedem Event. Ein eigenes Symbol (z. B. eine kleine Rakete) ist angedacht, aber noch nicht final.",
     "vestColor": "lila",
     "icon": "assets/img/pages/awareness/vest.svg",
+    "iconAlt": "Lila Awareness-Weste mit Reflektorstreifen",
     "photo": ""
   },
 
@@ -44,6 +57,11 @@
     "line": "Wenn's zu viel wird: eine Bank, Verbandszeug, niemand fragt warum."
   },
 
+  "principlesHead": {
+    "eyebrow": "Unsere Grundsätze",
+    "title": "Vier Regeln für uns",
+    "intro": "Daran hält sich das Awareness-Team — bei jeder Meldung, jedes Mal."
+  },
   "principles": [
     { "title": "Nur Ja heißt Ja",                     "text": "Beim Tanzen, Flirten, Anfassen: Hol dir ein Okay, bevor du loslegst." },
     { "title": "Du definierst deine Grenze",          "text": "Wo für dich ein Übergriff anfängt, entscheidest du. Niemand sonst." },
@@ -51,16 +69,28 @@
     { "title": "Was du uns erzählst, bleibt bei uns", "text": "Wir besprechen Vorfälle nur anonymisiert im Team." }
   ],
   "consequences": {
+    "label": "Eskalation",
     "text": "Wer Grenzen verletzt, bekommt höchstens eine Ansage — danach: Rauswurf, ohne Diskussion und ohne Ticket-Erstattung. Bei Übergriffen unterstützen wir die betroffene Person auf Wunsch bei einer Anzeige."
   },
 
+  "helpHead": {
+    "eyebrow": "Hilfe & Notfall",
+    "title": "Wenn's ernst wird"
+  },
   "reportChannels": {
+    "labels": {
+      "atEvent": "Am Event",
+      "afterEvent": "Danach",
+      "principle": "Grundsatz"
+    },
     "atEvent": "Sprich das Awareness-Team, die Sanis oder irgendwen von der Crew an — wir sind vernetzt.",
     "afterEvent": {
+      "intro": "Ist etwas passiert? Schreib uns:",
       "email": "info@takeoff-potsdam.de",
       "subject": "Awareness – Rückmeldung",
       "responseNote": "Wir melden uns so schnell wir können — meist innerhalb weniger Tage."
-    }
+    },
+    "principleText": "Hilfe holen hat nie Konsequenzen. Für niemanden. Nie."
   },
 
   "emergencyNumbers": [
@@ -96,16 +126,23 @@
   },
 
   "gettingHome": {
+    "eyebrow": "Nächste Mission",
+    "title": "Sicher hin & zurück",
     "intro": "Kommt gut nach Hause — Missionsende ist nicht Awareness-Ende.",
+    "tipsLabel": "Heimweg",
     "tips": [
       "Geh nicht allein, wenn's sich vermeiden lässt",
       "Sag jemandem Bescheid, wann du losgehst",
       "Bei Unsicherheit: Heimwegtelefon 030 12074182"
     ],
+    "mapsNote": "Karten öffnen extern in deiner App — hier lädt kein Tracker.",
+    "nextLabel": "Nächster Start:",
     "useNextEventVenue": true
   },
 
   "houseRules": {
+    "eyebrow": "Hausregeln",
+    "title": "Kurz & klar",
     "intro": "Wer Grenzen verletzt, fliegt — ohne Diskussion.",
     "rules": [
       { "text": "Konsens ist Pflicht", "hot": true },
@@ -118,6 +155,10 @@
     "venueNote": "Es gelten zusätzlich die Regeln der jeweiligen Location (z. B. der freiLand-Grundkonsens im Spartacus)."
   },
 
+  "faqHead": {
+    "eyebrow": "Bevor du fragst",
+    "title": "Awareness-FAQ"
+  },
   "faq": [
     { "q": "Muss ich zum Awareness-Team, auch wenn es nur eine Kleinigkeit ist?", "a": "Ja. Es gibt keine „zu kleine“ Sache — komm einfach vorbei." },
     { "q": "Bleibt das anonym, wenn ich etwas melde?", "a": "Ja. Wir besprechen Vorfälle nur anonymisiert im Team und unternehmen nichts ohne dein Okay." },
@@ -137,6 +178,7 @@
   },
 
   "meta": {
+    "label": "Stand:",
     "lastReviewed": "2026-09-02",
     "statusNote": "Wird laufend mit dem ganzen Team abgestimmt — nichts hier ist final."
   },

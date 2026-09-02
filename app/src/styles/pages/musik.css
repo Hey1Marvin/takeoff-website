@@ -1,306 +1,548 @@
 /* ============================================================
-   musik.css — Signatur-Motiv "Taktgeber" (Portierung aus prototype/assets/css/pages/musik.css)
+   musik.css — Signatur-Motiv "Puls" (Konzept 50 §E)
 
-   takeoff spielt Trance/Hard Trance/Bounce nicht nur — das Kollektiv baut
-   seine Anlage selbst (siehe history[] in db.json: eigener Subwoofer,
-   eigene Hoerner, eigenes Licht). "Taktgeber" nimmt das woertlich: die
-   Seite wird zum Bordcomputer-Modul, das Tempo als physikalische Groesse
-   ZEIGT statt nur zu behaupten. Eine Formel zieht sich durch alles:
+   WAS SICH IN IT. 14 GEÄNDERT HAT UND WARUM
+   -----------------------------------------
+   Vorher war das Motiv auf VIER Schichten verteilt: ein fixiertes
+   Frequenzband-Linienfeld (.tg-field), ein fixierter Halbkreis-Dial
+   (#tg-dial, dessen Zeiger in 2,6 s schwang — also in keinem Tempo, das
+   auf dieser Seite vorkommt), eine flache Skala im Inhalt und ein
+   Tap-Pad zwei Bildschirme darunter. Drei Befunde haben das gekippt:
 
-       ms pro Schlag = 60000 / BPM      (138 -> 435ms · 145 -> 414ms · 150 -> 400ms)
+   1. Die beiden fixierten Ebenen lagen auf z-index -2. Der Tagmodus legt
+      über `main > *` eine zu 97,5 % deckende Platte — beide Ebenen waren
+      tagsüber also vollständig unsichtbar, und nachts trugen sie bei
+      Deckwerten von .035/.16 auch kaum. Ein Motiv, das man in einem von
+      zwei Modi gar nicht sieht, ist keines. (Die Klasse `scene-deco`
+      rettet nur ihren HINTERGRUND, nicht ihre Sichtbarkeit.)
+   2. Zwei Ambient-Ebenen + Skala + Pad sind vier Motive, nicht eins. Die
+      radial maskierte Vollflächen-Ebene ist ausserdem genau der Trick,
+      den fünf andere Seiten auch benutzen.
+   3. Der Puls lief NUR bei :hover einer einzelnen Zeile. Der Satz der
+      Seite lautet aber "man sieht den Unterschied zwischen 138 und 150".
+      Nacheinander sieht man ihn nie — nur nebeneinander.
 
-   Vier Schichten, ein Instrument:
-     1) #tg-dial    — Halbkreis-Tempometer, fix im Hintergrund (wie der
-                       Mars-Boden), Skala 60-180 BPM, Genre-Kerben an
-                       ihrer echten Winkelposition. Statisches SVG in
-                       MusikAmbient.tsx (Server-Komponente, kein JS noetig).
-     2) .tg-field   — sehr leises Frequenzband-Linienfeld, gibt der
-                       ganzen Seite Instrumentencharakter.
-     3) .tg-panel   — dieselbe 60-180-Skala, jetzt flach im Content, plus
-                       Puls-Punkte im echten Takt neben jedem Genre.
-     4) .tg-tap     — Tap-Tempo-Pad, schreibt das eigene Tempo als "Du"-
-                       Marker live auf dieselbe Skala. Beides zusammen mit
-                       der Skala + Genre-Liste lebt in MusikTaktgeber.tsx
-                       (eine Client-Komponente, gemeinsamer State).
+   Jetzt: EIN Instrument im Inhalt (.tg-console), volle Spaltenbreite,
+   in beiden Modi sichtbar, und die drei Puls-Punkte laufen DAUERHAFT
+   und GLEICHZEITIG in ihrem echten Takt. Die Formel dahinter ist
+   unverändert die alte:
 
-   Farben: ausschliesslich --acc-1/2/3 (keine neue Hex-Farbe). Trance/Hard
-   Trance/Bounce teilen sich --acc-1 ("Signal"-Leitfarbe, Trance ist im
-   Seitentext bereits "das Herz von takeoff"). Techno bekommt den kuehlen
-   Gegenpol --acc-3 (stetiges Glimmen statt Puls — illustriert woertlich
-   "der gerade, dunkle Puls"). Psytrance den violetten Stuetzton --acc-2
-   (zwei leicht verstimmte Zyklen -> langsames Schweben).
+       ms pro Schlag = 60000 / BPM      (138 → 435ms · 145 → 414ms · 150 → 400ms)
 
-   Tier s: die globale Regel in takeoff.css
-   `:root[data-fx="s"] * { animation-duration:.001s !important; ... }`
-   uebernimmt fast die gesamte Ambient-Schicht kostenlos. Wo das nicht
-   reicht (Dial-Zeiger), setzt MusikAmbient/CSS unten einen expliziten
-   Ruhezustand.
+   `--beat` setzt MusikTaktgeber.tsx je Spalte aus den JSON-BPM.
 
-   Portierungshinweis (wie kollektiv.css): das generische Site-weite
-   ".reveal"-Scroll-Einblenden (main.js im Prototyp) existiert in dieser
-   App-Migration noch nicht als geteilte Komponente — deshalb traegt kein
-   Element hier die Klasse "reveal", und die "4 Schlaege beim ersten
-   Sichtbarwerden"-Regel unten (`.tg-genres.m-rows.in ...`) bleibt bewusst
-   inert (kein Beobachter setzt je ".in"). Hover/Focus lösen den Takt-Puls
-   weiterhin normal aus — kein Funktionsverlust, nur ein Reveal-Effekt
-   weniger, exakt wie bei den übrigen bereits portierten Seiten.
+   BEWEGUNG (Regel: ein orchestrierter Moment pro Seite)
+   ----------------------------------------------------
+   Der Puls ist dieser Moment — er läuft von allein, weil er die Aussage
+   IST. Dazu kommt genau eine Antwort auf eine Handlung: der Ring am
+   Tap-Pad und die "Du"-Marke auf der Skala. Sonst bewegt sich nichts;
+   insbesondere gibt es hier KEINEN Scroll-Reveal.
+
+   KORREKTUR zum alten Portierungshinweis: der behauptete, die
+   `.reveal`-Mechanik existiere in der App nicht und die Regel
+   `.tg-genres.m-rows.in …` sei deshalb "bewusst inert". Das stimmt seit
+   SceneReveals.tsx nicht mehr — die Komponente setzt `.in` auf jedes
+   `.reveal` und auf die Kinder von `.setgrid`. Die Regel war also eine
+   scharfe Waffe ohne Sicherung: hätte irgendwer der Liste `reveal`
+   gegeben, wären vier Schläge losgelaufen. Sie ist ersatzlos entfallen,
+   weil der Puls ohnehin dauerhaft läuft.
+
+   Farben: ausschliesslich --acc-1/2/3, keine neue Hex-Farbe. Die drei
+   Kern-Genres teilen sich --acc-1 mit Absicht: wenn Farbe UND Tempo
+   unterschiedlich wären, könnte man dem Auge nicht zeigen, dass allein
+   das Tempo den Unterschied macht. Techno bekommt den kühlen Gegenpol
+   --acc-3 (Glimmen ohne Puls — "der gerade, dunkle Puls"), Psytrance den
+   violetten Stützton --acc-2 (zwei leicht verstimmte Zyklen).
    ============================================================ */
 
-/* ---------- 1) Atmosphaere: Frequenzbaender ----------
-   Sehr leise, ueber die volle Seitenhoehe. Bewusst horizontale Linien
-   (kein Millimeterraster — das ist bereits kollektiv.css' "Bauplan"-
-   Motiv; zwei Karo-Motive im selben System waeren austauschbar). */
-.tg-field {
-  position: fixed; inset: 0; z-index: -2; pointer-events: none;
-  background-image: repeating-linear-gradient(180deg,
-      rgb(var(--acc-3-rgb) / .035) 0 1px, transparent 1px 56px);
-  mask-image: linear-gradient(180deg, transparent, #000 10%, #000 80%, transparent);
-  -webkit-mask-image: linear-gradient(180deg, transparent, #000 10%, #000 80%, transparent);
-}
+/* ---------- 0) Sektions-Rhythmus ----------
+   Ersetzt die Inline-`style={{ paddingTop: … }}` aus page.tsx. Die
+   Sektionen laufen im Fluss weiter, deshalb trägt nur die erste ihren
+   eigenen Kopfabstand — sonst stünden --sp-section von unten und von
+   oben aufeinander (rund 260 px Loch). */
+.section.tg-sec--console { padding-top: var(--sp-6); }
+.section.tg-sec--flow { padding-top: 0; }
 
-/* ---------- 2) Hintergrund-Dial ----------
-   Statisches, handgezeichnetes SVG (keine JS-generierten Ticks) — bleibt
-   dadurch auch ganz ohne JS sichtbar. Liegt oben rechts, dezent ins Bild
-   ragend, stark gedimmt+maskiert: der Sternenhimmel (#stars) bleibt die
-   dominante Flaeche darunter, dieser Dial legt sich nur additiv davor.
-   Kein mix-blend-mode — reine Strichkunst traegt mit opacity+Maske
-   sauberer als "screen" (anders als awareness.css' Leuchtfeuer). */
-.tg-dial {
-  position: fixed; top: clamp(48px, 8vh, 96px); right: clamp(-140px, -6vw, -40px);
-  z-index: -2; width: min(60vw, 660px); height: auto; opacity: .16;
-  pointer-events: none;
-  mask-image: radial-gradient(closest-side at 68% 60%, #000 0%, #000 40%, transparent 84%);
-  -webkit-mask-image: radial-gradient(closest-side at 68% 60%, #000 0%, #000 40%, transparent 84%);
+.tg-sr {
+  position: absolute; width: 1px; height: 1px; overflow: hidden;
+  clip-path: inset(50%); white-space: nowrap;
 }
-.tg-dial-ticks line { stroke: var(--chrome-mid); stroke-width: 1.4; vector-effect: non-scaling-stroke; }
-.tg-dial-notches line { stroke: var(--acc-1); stroke-width: 2.4; stroke-linecap: round; vector-effect: non-scaling-stroke; }
-.tg-dial-hub { fill: url(#tg-hub-grad); stroke: none; }
-.tg-dial-arm {
-  stroke: var(--acc-1-tint); stroke-width: 2; stroke-linecap: round;
-  vector-effect: non-scaling-stroke;
-  transform-box: fill-box; transform-origin: 50% 100%;
-  /* Ruhezustand (Tier s / reduced-motion): zeigt auf die Trance-Kerbe
-     (138 BPM = 27 Grad ab Senkrechte). "Sinnvoll", weil Trance im
-     Seitentext bereits "das Herz von takeoff" heisst — kein zufaelliger
-     Ruhepunkt. Deckt sich fast exakt mit dem "to"-Keyframe unten (26 statt
-     27 Grad), damit der Uebergang zwischen Tier s und m/l keinen
-     sichtbaren Sprung macht. */
-  transform: rotate(26deg);
-}
-/* Nur m/l bekommen die Schwingung — deshalb bewusst NICHT ueber die
-   globale Tier-s-!important-Regel geloest, sondern direkt gescoped: so
-   greift obiger Ruhezustand als echte Basisregel, kein Animations-Rest. */
-:is(:root[data-fx="m"], :root[data-fx="l"]) .tg-dial-arm {
-  animation: tg-swing 2.6s ease-in-out infinite alternate;
-}
-@keyframes tg-swing { from { transform: rotate(-26deg); } to { transform: rotate(26deg); } }
-@media (max-width: 640px) { .tg-dial { width: 84vw; top: -3vh; right: -22vw; opacity: .1; } }
+/* Alle Zahlen, die sich ändern können (Tap-Anzeige) oder untereinander
+   stehen (Skala, Spalten), auf feste Ziffernbreite — sonst springt die
+   Anzeige beim Zählen. */
+.tg-num { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
 
-/* ---------- 3) Content-Instrument: Panel + flache Skala ---------- */
-.tg-panel {
-  border: 1px solid rgb(var(--acc-1-rgb) / .22);
+/* ============================================================
+   1 · Die Konsole — EIN Instrument über die volle Spaltenbreite
+
+   Das war der Hauptbefund der Iteration: die Seite war eine 700-800px
+   breite Textspalte auf 1440px Schirm, rechts über die Hälfte leer.
+   Die Konsole ist die Antwort — nicht Deko, die die Fläche füllt,
+   sondern der Inhalt, der sie verdient hat:
+
+     ┌──────────────────────────────┬───────────────┐
+     │ Taktskala 60–180 (ablesen)   │ Tipp mit      │
+     │                              │ (bedienen)    │
+     ├──────────┬─────────┬─────────┴───────────────┤
+     │ 138      │ 145     │ 150     ← Vergrösserung │
+     ├──────────┴─────────┴─────────────────────────┤
+     │ Gelegentlich zu Gast: Techno · Psytrance     │
+     └──────────────────────────────────────────────┘
+
+   Innentrennung über Haarlinien statt geschachtelter Kästen: EIN Rahmen
+   aussen, sonst wäre es wieder Kästchen-Suppe.
+   ============================================================ */
+.tg-console {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) clamp(250px, 26%, 330px);
+  border: 1px solid var(--bg-hairline);
   border-radius: var(--radius-lg);
-  padding: clamp(20px, 4vw, 32px) clamp(20px, 4vw, 32px) clamp(30px, 5vw, 44px);
-  background: linear-gradient(165deg, rgb(var(--bg-raised-rgb) / .55), transparent);
+  /* Deckend wie eine Karte, nicht wie ein Schleier. Zwei Gruende:
+     die Konsole liest sonst als blasses Rechteck (genau der Befund
+     "Textplatten sind als Rechteck sichtbar, wo sie Tiefe geben
+     sollten"), und ueber Marsboden/Strandhorizont — beides helle Szenen,
+     die man per Mission Control auf jeder Seite einschalten kann — hat
+     ihr Text sonst keinen Grund. `.mcard`/`.next-card` machen es genauso
+     (scene-night.css: "Die Karten sind bereits deckend und brauchen
+     nichts"), deshalb steht die Konsole auch nicht in der :is()-Liste
+     dort. */
+  background: linear-gradient(168deg, rgb(var(--bg-raised-rgb) / .92), rgb(var(--bg-void-rgb) / .86));
+  overflow: hidden;
+  overflow: clip;
+}
+
+/* ---------- 1a) Ableseteil: die Taktskala ---------- */
+/* Der Ableseteil ist in derselben Rasterzeile wie das Tap-Pad und wird
+   von ihm mitgestreckt. Ohne `space-between` sammelt sich die Mehrhoehe
+   als Loch UNTER der Leiste — die Leiste haengt dann in der Luft. So
+   sitzt die Beschriftung oben, die Leiste auf der Unterkante des
+   Ableseteils, und die Luft steht dazwischen, wo sie als Atem liest.
+   `margin-top: auto` auf der Leiste statt `justify-content: space-between`
+   auf dem Block: sonst wuerde die Luft auch ZWISCHEN Zeile und Unterzeile
+   der Beschriftung verteilt. Der Mindestabstand haengt deshalb an der
+   Unterzeile, die Restluft an der Leiste. */
+.tg-read {
+  grid-column: 1;
+  padding: clamp(20px, 2.6vw, 30px) clamp(20px, 2.6vw, 32px) clamp(18px, 2.2vw, 26px);
+  display: flex; flex-direction: column;
 }
 .tg-caption {
-  font-family: var(--font-mono); font-size: 11px; font-weight: 700;
-  letter-spacing: .22em; text-transform: uppercase; color: var(--acc-1-tint);
+  font-family: var(--font-mono); font-size: 11px; font-weight: var(--w-micro-b);
+  letter-spacing: var(--track-micro); text-transform: uppercase; color: var(--acc-1-tint);
 }
-.tg-caption-sub { margin-top: 6px; color: var(--ink-dim); font-size: 14px; max-width: 46ch; }
+.tg-caption-sub {
+  margin: var(--sp-2) 0 clamp(22px, 3vw, 32px); color: var(--ink-dim);
+  font-size: 14px; max-width: 60ch;
+}
 
-/* Skalen-Mapping: dieselbe Formel wie fuer den Dial (60-180 BPM), aber
-   linear statt polar. Funktioniert ohne @property-Registrierung: eine
-   Zahl mal 100% reduziert sich in calc() korrekt zu einem Prozentwert. */
+/* Skalen-Geometrie. `--at` kommt fertig als Prozentwert aus der
+   Komponente (pctOf) — die Umrechnung BPM→Position steht damit an genau
+   EINER Stelle. Vorher stand hier `calc((var(--at) - 60) / 120 * 100%)`,
+   also die Skalengrenzen ein zweites Mal, hartkodiert neben der JSON.
+
+   Vier Ebenen, von oben nach unten:
+     Klammer "Kern-Tempi"  ← was die Spalten unten vergrössern
+     Genre-Zahlen + Punkte ← auf der Achse
+     ────── Achse ──────
+     Skalenstriche + Zahlen
+     "Du"-Marke mit Stiel  ← eigene Etage, kollidiert mit nichts
+   Die Trennung nach Etagen ist der Grund, warum hier nichts mehr
+   überlappt: vorher standen Genre-NAMEN nebeneinander auf einer Zeile
+   und lasen sich bei 138/145/150 als "TrHaraden TBounce". */
 .tg-scale-track {
+  --tg-axis: 58px;
   position: relative;
-  height: clamp(92px, 14vw, 118px);
-  margin-top: 22px;
+  height: clamp(150px, 15vw, 164px);
+  flex: none; margin-top: auto;
 }
 .tg-scale-track::before {
-  content: ""; position: absolute; left: 0; right: 0; bottom: 32px; height: 1px;
-  background: var(--bg-hairline);
+  content: ""; position: absolute; left: 0; right: 0; bottom: var(--tg-axis); height: 1px;
+  background: linear-gradient(90deg, transparent, var(--bg-hairline) 6%, var(--bg-hairline) 94%, transparent);
 }
 .tg-tick {
-  position: absolute; bottom: 32px; left: calc((var(--at) - 60) / 120 * 100%);
+  position: absolute; left: var(--at); bottom: calc(var(--tg-axis) - 7px);
   transform: translateX(-50%);
-  width: 1px; height: 7px; background: var(--chrome-mid);
+  width: 1px; height: 7px; background: var(--chrome-lo);
 }
+.tg-tick:not(.tg-tick--major) { height: 4px; opacity: .55; }
 .tg-tick b {
-  position: absolute; top: 12px; left: 50%; transform: translateX(-50%);
-  font-family: var(--font-mono); font-weight: 400; font-size: 10px;
+  position: absolute; top: 11px; left: 50%; transform: translateX(-50%);
+  font-family: var(--font-mono); font-variant-numeric: tabular-nums;
+  font-weight: var(--w-micro); font-size: 10px;
   color: var(--ink-faint); white-space: nowrap;
 }
-.tg-tick:not(.tg-tick--major) { height: 5px; opacity: .6; }
 
+/* Genre-Marken: Punkt auf der Achse, Zahl darüber. Kein Wortlabel mehr —
+   die Namen stehen gross in den Spalten darunter, und genau ihre
+   Wiederholung hier war die Kollision. */
 .tg-mark {
-  position: absolute; bottom: 32px; left: calc((var(--at) - 60) / 120 * 100%);
+  position: absolute; left: var(--at); bottom: var(--tg-axis);
   transform: translateX(-50%);
   display: flex; flex-direction: column-reverse; align-items: center; gap: 5px;
   --tg-acc: var(--acc-1); --tg-acc-rgb: var(--acc-1-rgb);
 }
-/* [hidden] hat sonst eine simple Attribut-Spezifitaet gegen die
-   `display: flex`-Regel oben zu wenig Prioritaet in manchen Engines —
-   hier ausdruecklich als eigene, spezifischere Regel gesichert, sonst
-   waere der "Du"-Marker vor dem ersten Tap sichtbar. */
+/* [hidden] hat gegen `display: flex` zu wenig Prioritaet — ausdrücklich
+   gesichert, sonst stünde die "Du"-Marke schon vor dem ersten Tap da. */
 .tg-mark[hidden] { display: none; }
 .tg-mark .tg-dot {
-  width: 11px; height: 11px; border-radius: 50%; flex: none;
+  width: 10px; height: 10px; border-radius: 50%; flex: none;
   background: var(--tg-acc);
-  box-shadow: 0 0 0 1px rgb(var(--tg-acc-rgb) / .4), 0 0 10px rgb(var(--tg-acc-rgb) / .55);
+  box-shadow: 0 0 0 1px rgb(var(--tg-acc-rgb) / .4), 0 0 10px rgb(var(--tg-acc-rgb) / .5);
 }
-.tg-mark b {
-  font-family: var(--font-mono); font-weight: 700; font-size: 10.5px;
-  letter-spacing: .02em; white-space: nowrap; color: var(--ink);
+.tg-mark small {
+  font-family: var(--font-mono); font-variant-numeric: tabular-nums;
+  font-size: 10.5px; font-weight: var(--w-micro-b); color: var(--ink-dim);
+  white-space: nowrap;
 }
-.tg-mark small { font-family: var(--font-mono); font-size: 9.5px; color: var(--ink-faint); }
+.tg-mark.is-matched .tg-dot { box-shadow: 0 0 0 2px rgb(var(--tg-acc-rgb) / .55), 0 0 16px rgb(var(--tg-acc-rgb) / .7); }
+.tg-mark.is-matched small { color: var(--ink); }
+
+/* Die mittlere Marke bekommt eine eigene Etage samt Verbindungsstrich.
+   Nachgemessen bei 1440px: zwischen "145" und "150" bleiben in einer Reihe
+   rund 3px, darunter stossen sie aneinander — 138/145/150 liegen auf einer
+   60-180-Skala nun einmal auf 10 % der Breite. Zwei Etagen sind genau das
+   Mittel, mit dem Messgeraete eng stehende Skalenwerte auseinanderhalten;
+   der Strich haelt die Zuordnung Zahl-Punkt eindeutig. */
+.tg-mark[data-genre="hard-trance"] small { transform: translateY(-17px); }
+.tg-mark[data-genre="hard-trance"]::after {
+  content: ""; position: absolute; left: 50%; bottom: 15px;
+  width: 1px; height: 15px; background: rgb(var(--tg-acc-rgb) / .45);
+}
+
+/* "Du" bekommt eine eigene Etage UNTER den Skalenzahlen und einen Stiel
+   hinauf zur Achse — so kann der eigene Wert überall stehen, auch mitten
+   im Genre-Cluster, ohne irgendetwas zu überdecken.
+
+   Der Stiel ist gestrichelt und halbdeckend, nicht durchgezogen: er läuft
+   zwangsläufig durch das Band der Skalenzahlen (bei einem getippten Tempo
+   nahe 60/90/120/150/180 sogar mitten durch eine davon). Gestrichelt liest
+   er als Hilfslinie und deckt keine Ziffer zu. */
+.tg-mark--you {
+  bottom: 0; height: var(--tg-axis);
+  flex-direction: column; justify-content: flex-end; gap: 4px;
+}
+.tg-you-stem {
+  flex: 1 1 auto; min-height: 6px; width: 1px; opacity: .6;
+  background: repeating-linear-gradient(180deg, var(--chrome-mid) 0 2px, transparent 2px 5px);
+}
 .tg-mark--you .tg-dot {
   background: var(--chrome-hi);
-  box-shadow: 0 0 0 1px rgb(255 255 255 / .55), 0 0 10px rgb(255 255 255 / .5);
+  box-shadow: 0 0 0 1px rgb(var(--acc-3-rgb) / .55), 0 0 10px rgb(var(--acc-3-rgb) / .45);
 }
-.tg-mark--you b { color: var(--chrome-hi); }
+.tg-mark--you small { color: var(--ink); }
+.tg-mark--you small b { color: var(--chrome-hi); font-weight: var(--w-micro-b); }
 
-/* ---------- 4) Genre-Lexikon: Puls-Punkte + Wegweiser-Chips ----------
-   Gescoped auf .tg-genres (NICHT global .m-rows .m-row): die Seite hat
-   zwei m-rows-Bloecke (Genres + Mini-Glossar weiter unten), und nur der
-   Genre-Block bekommt Takt-Punkte — das Glossar bleibt reines,
-   unangetastetes globales .m-rows aus takeoff.css. */
-.tg-genres .m-row {
-  position: relative; flex-wrap: wrap;
-  --tg-acc: var(--acc-1); --tg-acc-rgb: var(--acc-1-rgb);
+/* Klammer über dem Kernbereich: sagt, welchen Ausschnitt der Skala die
+   drei Spalten darunter vergrössern. `--from`/`--to` sind Prozentwerte
+   aus der Komponente. */
+.tg-bracket {
+  position: absolute; left: var(--from); right: calc(100% - var(--to));
+  bottom: calc(var(--tg-axis) + 52px); height: 9px;
+  border: 1px solid rgb(var(--acc-1-rgb) / .45);
+  border-bottom: 0;
+  border-radius: 4px 4px 0 0;
 }
-.tg-genres .m-row[data-genre="techno"]    { --tg-acc: var(--acc-3); --tg-acc-rgb: var(--acc-3-rgb); }
-.tg-genres .m-row[data-genre="psytrance"] { --tg-acc: var(--acc-2); --tg-acc-rgb: var(--acc-2-rgb); }
-.tg-genres .m-row dt { display: inline-flex; align-items: center; gap: 9px; }
-.tg-genres .m-row dt::before {
-  content: ""; width: 8px; height: 8px; border-radius: 50%; flex: none;
-  background: var(--tg-acc);
-  box-shadow: 0 0 0 1px rgb(var(--tg-acc-rgb) / .35), 0 0 7px rgb(var(--tg-acc-rgb) / .5);
-}
-/* Bewegungscharakter je Genre — illustriert die Beschreibung statt sie zu
-   wiederholen (Trance = weicher Atem, Hard Trance = Attack+Schub, Bounce =
-   Feder/Overshoot). Nur animation-name+timing hier; Dauer/Iterationen
-   kommen kontextabhaengig weiter unten (Reveal vs. Hover/Focus). */
-.tg-genres .m-row[data-genre="trance"]      dt::before { animation-timing-function: ease-in-out; }
-.tg-genres .m-row[data-genre="hard-trance"] dt::before { animation-timing-function: cubic-bezier(.15, .9, .3, 1); }
-.tg-genres .m-row[data-genre="bounce"]      dt::before { animation-timing-function: cubic-bezier(.3, 1.7, .5, 1); }
-@keyframes tg-pulse-soft   { 50% { opacity: .55; transform: scale(.82); } }
-@keyframes tg-pulse-kick   { 0%, 100% { transform: scale(1.12); } 55% { opacity: .6; transform: scale(.85); } }
-@keyframes tg-pulse-bounce { 0%, 100% { transform: scale(.72); opacity: .7; } 45% { transform: scale(1.22); opacity: 1; } }
-.tg-genres .m-row[data-genre="trance"]      dt::before { animation-name: tg-pulse-soft; }
-.tg-genres .m-row[data-genre="hard-trance"] dt::before { animation-name: tg-pulse-kick; }
-.tg-genres .m-row[data-genre="bounce"]      dt::before { animation-name: tg-pulse-bounce; }
-/* Psytrance: zwei leicht verstimmte Zyklen (3.1s/3.7s) statt Takt-BPM —
-   erzeugt langsames Schweben/Interferenz ("wenn die Muster tanzen"), ohne
-   eine erfundene BPM-Zahl zu behaupten. Techno bekommt bewusst KEINEN
-   animation-name: nur der statische Glow aus der Basisregel — illustriert
-   woertlich "der gerade, dunkle Puls". */
-.tg-genres .m-row[data-genre="psytrance"] dt::before {
-  animation: tg-shimmer 3.1s ease-in-out infinite, tg-shimmer-b 3.7s ease-in-out infinite;
-}
-@keyframes tg-shimmer   { 50% { opacity: .5; } }
-@keyframes tg-shimmer-b { 50% { transform: scale(.86); } }
-
-/* Ruhezustand: kein animation-duration gesetzt -> 0s (CSS-Default) ->
-   statischer Glow. Die erste Regel (".in") bleibt in dieser Migration
-   inert (siehe Portierungshinweis oben) — bei Hover/Focus laeuft der
-   Takt zum Vergleichen trotzdem normal. Beide Regeln sind bewusst auf
-   [data-bpm]:not([data-bpm=""]) begrenzt (= Trance/Hard Trance/Bounce):
-   Psytrance (data-bpm="") traegt seine zwei Zyklusdauern (3.1s/3.7s)
-   schon fest in der animation-Kurzform oben. Techno hat ohnehin keinen
-   animation-name — fuer Techno sind diese Regeln ein wirkungsloses No-op. */
-.tg-genres.m-rows.in .m-row[data-bpm]:not([data-bpm=""]) dt::before {
-  animation-duration: var(--beat); animation-iteration-count: 4; animation-fill-mode: forwards;
-}
-.tg-genres .m-row[data-bpm]:not([data-bpm=""]):hover dt::before,
-.tg-genres .m-row[data-bpm]:not([data-bpm=""]):focus-within dt::before {
-  animation-duration: var(--beat); animation-iteration-count: infinite;
+.tg-bracket b {
+  position: absolute; left: 50%; bottom: calc(100% + 4px); transform: translateX(-50%);
+  font-family: var(--font-mono); font-weight: var(--w-micro-b); font-size: 9.5px;
+  letter-spacing: var(--track-label); text-transform: uppercase;
+  color: var(--acc-1-tint); white-space: nowrap;
 }
 
-/* Treffer beim Tap-Tempo: dezenter Rahmen, kein Konfetti-Popup. */
-.m-row.is-matched { border-radius: 10px; box-shadow: inset 0 0 0 1px rgb(var(--tg-acc-rgb) / .4); }
-
-/* Wegweiser-Chips: eigene Zeile unterhalb von dt/dd. flex-basis:100% in
-   einem flex-wrap-Container ist dasselbe Muster wie .flog .fnote in
-   takeoff.css — kein neuer Trick. */
-.tg-wayfind {
-  flex-basis: 100%; display: flex; flex-wrap: wrap; align-items: center;
-  gap: 6px 8px; margin-top: 10px;
+/* ---------- 1b) Bedienteil: Tap-Tempo ----------
+   Steht jetzt NEBEN der Skala statt zwei Bildschirme darunter: man tippt
+   und sieht im selben Blick, wo die eigene "Du"-Marke landet und welche
+   Spalte aufleuchtet. Genau das war vorher unmöglich. */
+.tg-tap {
+  grid-column: 2; grid-row: 1;
+  border-left: 1px solid var(--bg-hairline);
+  padding: clamp(20px, 2.6vw, 30px) clamp(18px, 2.2vw, 26px);
+  text-align: center;
+  background: rgb(var(--acc-2-rgb) / .05);
+  display: flex; flex-direction: column; align-items: center;
 }
-.tg-wayfind-label {
-  font-family: var(--font-mono); font-size: 10px; letter-spacing: .12em;
-  text-transform: uppercase; color: var(--ink-faint); margin-right: 2px;
-}
-.tg-wayfind .chip { font-size: 11px; padding: 5px 10px; }
-.tg-wayfind .chip:hover, .tg-wayfind .chip:focus-visible { color: var(--ink); border-color: rgb(var(--tg-acc-rgb) / .55); }
-
-/* ---------- 5) Tap-Tempo-Pad ----------
-   Optik an .transmission/.stats angelehnt: gestrichelter Rahmen, mono
-   Zahlen im Chrome-Verlauf wie .stats b. Alle Uebergaenge nutzen
-   transform/opacity/border-color — Compositor-Kosten, kein Layout-
-   Thrashing (siehe Performance-Kommentare in takeoff.css). */
-.tg-tap { margin-top: 34px; text-align: center; border: 1px dashed rgb(var(--acc-2-rgb) / .3);
-  border-radius: var(--radius-lg); padding: clamp(26px, 5vw, 42px); }
 .tg-tap-label {
   display: inline-flex; align-items: center; gap: 8px;
-  font-family: var(--font-mono); font-size: 11px; font-weight: 700;
-  letter-spacing: .22em; text-transform: uppercase; color: var(--ink-dim);
+  font-family: var(--font-mono); font-size: 11px; font-weight: var(--w-micro-b);
+  letter-spacing: var(--track-micro); text-transform: uppercase; color: var(--ink-dim);
 }
 .tg-tap-dot {
   width: 7px; height: 7px; border-radius: 50%; background: var(--acc-1);
   box-shadow: 0 0 8px rgb(var(--acc-1-rgb) / .6); flex: none;
 }
-/* Tap-Ziel deutlich ueber der 44px-Mindestgroesse. */
+/* Tap-Ziel deutlich über der 44px-Mindestgrösse. */
 .tg-tap-pad {
-  position: relative; width: clamp(96px, 16vw, 132px); aspect-ratio: 1; border-radius: 50%;
+  position: relative; width: clamp(104px, 9vw, 132px); aspect-ratio: 1; border-radius: 50%;
   border: 1px solid rgb(var(--acc-1-rgb) / .5); background: rgb(var(--acc-1-rgb) / .08);
-  font-family: var(--font-mono); font-size: 12px; letter-spacing: .08em; text-transform: uppercase;
-  color: var(--ink); margin: 16px auto 0; display: grid; place-items: center;
+  font-family: var(--font-mono); font-size: 12px; letter-spacing: var(--track-wide);
+  text-transform: uppercase; color: var(--ink);
+  margin: var(--sp-4) 0 0; display: grid; place-items: center;
   cursor: pointer; transition: background .25s, transform .1s var(--ease-out);
 }
 .tg-tap-pad:hover { background: rgb(var(--acc-1-rgb) / .14); }
 .tg-tap-pad:active { transform: scale(.96); }
 .tg-tap-pad:focus-visible { outline: 2px solid var(--acc-1-tint); outline-offset: 4px; }
-.tg-tap-ring { position: absolute; inset: -7px; border-radius: 50%; border: 1px solid rgb(var(--acc-1-rgb) / 0); pointer-events: none; }
+.tg-tap-ring {
+  position: absolute; inset: -7px; border-radius: 50%;
+  border: 1px solid rgb(var(--acc-1-rgb) / 0); pointer-events: none;
+}
 .tg-tap-pad.is-tapped .tg-tap-ring { animation: tg-tap-flash .4s var(--ease-out); }
 @keyframes tg-tap-flash {
   from { border-color: rgb(var(--acc-1-rgb) / .8); transform: scale(1); }
   to   { border-color: rgb(var(--acc-1-rgb) / 0);  transform: scale(1.16); }
 }
 .tg-tap-word { pointer-events: none; }
-.tg-tap-readout { margin-top: 20px; }
+.tg-tap-readout { margin-top: var(--sp-4); }
 .tg-tap-bpm { display: inline-flex; align-items: baseline; gap: 6px; }
+/* `background-clip: text` malt den Verlauf nur innerhalb der PADDING-BOX;
+   was die Glyphen darüber hinausragen, bleibt farblos und damit bei
+   `color: transparent` unsichtbar. Bei einem Inline-Element ohne eigenes
+   line-height ist diese Box nur der Schriftkasten — Ober- und Unterlängen
+   ragen heraus. Dasselbe Rezept wie bei `.wordmark` in takeoff.css:
+   Polster in em, exakt durch negative Margen ausgeglichen, damit die
+   Zeile trotzdem nicht wächst. */
 .tg-tap-bpm b {
-  font-family: var(--font-mono); font-weight: 700; font-size: clamp(26px, 4vw, 36px);
+  display: inline-block;
+  font-family: var(--font-mono); font-weight: var(--w-micro-b);
+  font-size: clamp(26px, 3.4vw, 36px);
+  line-height: 1;
   font-variant-numeric: tabular-nums;
+  padding: .18em .08em .16em;
+  margin: -.18em -.08em -.16em;
   background: linear-gradient(172deg, var(--chrome-hi), var(--chrome-mid) 55%, var(--chrome-lo));
-  -webkit-background-clip: text; background-clip: text; color: transparent;
+  -webkit-background-clip: text; background-clip: text;
+  color: transparent;
 }
-.tg-tap-bpm small { font-family: var(--font-mono); font-size: 12px; color: var(--ink-faint); letter-spacing: .1em; text-transform: uppercase; }
-.tg-tap-match { display: block; margin-top: 8px; color: var(--ink-dim); font-size: 14px; max-width: 420px; margin-inline: auto; }
-.tg-tap-match b { color: var(--ink); font-weight: 600; }
+.tg-tap-bpm small {
+  font-family: var(--font-mono); font-size: 12px; color: var(--ink-faint);
+  letter-spacing: var(--track-label); text-transform: uppercase;
+}
+.tg-tap-match {
+  display: block; margin-top: var(--sp-2); color: var(--ink-dim);
+  font-size: 13.5px; max-width: 30ch; margin-inline: auto;
+}
+.tg-tap-match b { color: var(--ink); font-weight: var(--w-strong); }
 .tg-tap-reset {
-  margin-top: 16px; font-family: var(--font-mono); font-size: 11px; letter-spacing: .12em; text-transform: uppercase;
-  color: var(--ink-faint); border-bottom: 1px dotted currentColor; padding-bottom: 2px; transition: color .2s;
+  margin-top: var(--sp-3); font-family: var(--font-mono); font-size: 11px;
+  letter-spacing: var(--track-label); text-transform: uppercase;
+  color: var(--ink-faint); transition: color .2s;
+  /* `text-decoration` statt `border-bottom`: die Linie liegt dann unter dem
+     TEXT und nicht unter der Kastenbreite. Sobald der Knopf (auf schmalen
+     Schirmen) eine eigene, volle Zeile bekommt, zog der Rahmen sonst einen
+     gepunkteten Strich quer durch die ganze Spalte. */
+  text-decoration: underline dotted;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 4px;
 }
 .tg-tap-reset:hover, .tg-tap-reset:focus-visible { color: var(--ink); }
 
-/* ---------- 6) "Sound of takeoff" — Reinhören-Grid ----------
+/* scene-night.css legt `.tg-tap-readout` eine radiale Traegerflaeche unter
+   (die :is()-Liste dort). Das war richtig, solange die Zeile frei auf der
+   Szene stand — in der jetzt fast deckenden Konsole ist es ein sichtbarer
+   grauer Fleck. Abgeschaltet, aber NUR innerhalb der Konsole.
+   Die Liste dort liegt bei (0,4,0) — `.section-head + .section-intro` ist
+   ihr staerkstes Argument. Dieser Selektor kommt auf (0,5,0) und gewinnt
+   damit unabhaengig von der Blattreihenfolge. */
+:root:not(.day-mode) .tg-console .tg-tap .tg-tap-readout::before { display: none; }
+
+/* ============================================================
+   2 · Die drei Kern-Tempi als Spalten — das Signatur-Motiv "Puls"
+
+   Vorher waren das drei 14,5px-Zeilen einer Definitionsliste mit einem
+   8px-Punkt davor, der nur bei Hover schlug. Jetzt drei gleich breite
+   Spalten mit einem grossen Punkt, der DAUERHAFT in seinem echten Takt
+   schlägt. Nebeneinander laufend sind 435ms / 414ms / 400ms als
+   Unterschied wirklich sichtbar — das ist der ganze Zweck der Seite.
+   ============================================================ */
+.tg-cards {
+  grid-column: 1 / -1;
+  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
+  border-top: 1px solid var(--bg-hairline);
+}
+.tg-card {
+  --tg-acc: var(--acc-1); --tg-acc-rgb: var(--acc-1-rgb);
+  padding: clamp(20px, 2.4vw, 30px) clamp(18px, 2.2vw, 26px) clamp(22px, 2.6vw, 30px);
+  scroll-margin-top: 110px;
+  display: flex; flex-direction: column; gap: var(--sp-2);
+  transition: background .35s;
+}
+.tg-card + .tg-card { border-left: 1px solid var(--bg-hairline); }
+/* Treffer beim Tap-Tempo: kein Konfetti, nur ein Aufhellen der Spalte
+   plus die schon vorhandene Marke auf der Skala. */
+.tg-card.is-matched { background: rgb(var(--tg-acc-rgb) / .08); }
+
+.tg-card-bpm { display: flex; align-items: center; gap: var(--sp-3); }
+.tg-card-bpm b {
+  font-family: var(--font-mono); font-variant-numeric: tabular-nums;
+  font-weight: var(--w-micro-b); font-size: clamp(26px, 3vw, 34px);
+  line-height: 1; color: var(--ink);
+}
+.tg-card-bpm small {
+  font-family: var(--font-mono); font-size: 10.5px; letter-spacing: var(--track-label);
+  text-transform: uppercase; color: var(--ink-faint);
+}
+.tg-card-name {
+  font-family: var(--font-display); font-weight: var(--w-head);
+  font-size: clamp(17px, 1.5vw, 20px); line-height: 1.15; letter-spacing: var(--track-tight);
+  margin-top: var(--sp-1);
+}
+.tg-card-text { color: var(--ink-dim); font-size: 14px; }
+.tg-card-text b { color: var(--ink); font-weight: var(--w-strong); }
+
+/* ---------- Der Puls ----------
+   Zwei Teile im selben Takt: ein Kern, der atmet, und ein Ring, der pro
+   Schlag nach aussen läuft und verschwindet. Der Ring ist das, was den
+   Takt auf Distanz überhaupt ablesbar macht.
+
+   Ruhezustand (Tier s / reduced-motion) ist bewusst der SICHTBARE
+   Zustand: voller Kern, unsichtbarer Ring. Deshalb steht der Ring per
+   Grundregel auf opacity 0 und wird nur von den Keyframes hochgezogen —
+   fällt die Animation weg, bleibt eine ruhige Leuchte stehen, kein
+   halbfertiger Ring.
+
+   Nur transform/opacity — Compositor-Kosten, kein Layout pro Schlag.
+
+   Zentriert wird über `inset: 0; margin: auto`, NICHT über
+   `top/left: 50%` + `translate(-50%,-50%)`: die Keyframes brauchen
+   `transform` für sich allein, eine Zentrierung darüber wäre von ihnen
+   überschrieben worden. */
+.tg-beat {
+  position: relative; flex: none;
+  width: clamp(34px, 3.4vw, 44px); aspect-ratio: 1;
+}
+.tg-beat-core, .tg-beat-ring {
+  position: absolute; inset: 0; margin: auto; border-radius: 50%;
+  will-change: transform, opacity;
+}
+.tg-beat-core {
+  width: 42%; height: 42%;
+  background: var(--tg-acc);
+  box-shadow: 0 0 0 1px rgb(var(--tg-acc-rgb) / .4), 0 0 12px rgb(var(--tg-acc-rgb) / .5);
+}
+.tg-beat-ring {
+  width: 100%; height: 100%;
+  border: 1px solid var(--tg-acc);
+  opacity: 0;
+}
+@keyframes tg-beat-core { 0%, 100% { transform: scale(1); } 46% { transform: scale(.74); opacity: .72; } }
+@keyframes tg-beat-ring { 0% { transform: scale(.42); opacity: .75; } 70%, 100% { transform: scale(1); opacity: 0; } }
+
+/* Der Bewegungs-CHARAKTER je Genre illustriert die Beschreibung, statt
+   sie zu wiederholen: Trance = weicher Atem, Hard Trance = Attack mit
+   Schub, Bounce = Feder mit Overshoot. Die Timing-Funktion trägt das,
+   die Dauer (--beat) trägt das Tempo. */
+.tg-card[data-genre="trance"]      :is(.tg-beat-core, .tg-beat-ring) { animation-timing-function: ease-in-out; }
+.tg-card[data-genre="hard-trance"] :is(.tg-beat-core, .tg-beat-ring) { animation-timing-function: cubic-bezier(.15, .9, .3, 1); }
+.tg-card[data-genre="bounce"]      :is(.tg-beat-core, .tg-beat-ring) { animation-timing-function: cubic-bezier(.3, 1.7, .5, 1); }
+
+.tg-card .tg-beat-core { animation: tg-beat-core var(--beat) infinite; }
+.tg-card .tg-beat-ring { animation: tg-beat-ring var(--beat) infinite; }
+
+/* Tier "s" und reduzierte Bewegung: die globale Bremse in takeoff.css
+   setzt nur duration/iteration-count — die Animation liefe dann mit 1ms
+   pro Schlag weiter und würde den Compositor sinnlos beschäftigen. Hier
+   wird sie ausdrücklich abgeschaltet, der Ruhezustand oben steht. */
+:root[data-fx="s"] .tg-card :is(.tg-beat-core, .tg-beat-ring) { animation: none; }
+@media (prefers-reduced-motion: reduce) {
+  .tg-card :is(.tg-beat-core, .tg-beat-ring) { animation: none; }
+}
+
+/* ---------- Wegweiser-Chips in der Spalte ---------- */
+.tg-wayfind { margin-top: var(--sp-3); display: flex; flex-direction: column; gap: 6px; }
+.tg-wayfind-label {
+  font-family: var(--font-mono); font-size: 9.5px; letter-spacing: var(--track-label);
+  text-transform: uppercase; color: var(--ink-faint);
+}
+.tg-wayfind-label:not(:first-child) { margin-top: var(--sp-2); }
+.tg-wayfind-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.tg-wayfind .chip { font-size: 10.5px; padding: 5px 9px; }
+.tg-wayfind .chip:hover, .tg-wayfind .chip:focus-visible {
+  color: var(--ink); border-color: rgb(var(--tg-acc-rgb) / .6);
+}
+
+/* ============================================================
+   3 · Gäste ohne festes Tempo
+   Techno und Psytrance haben in db.json keine BPM und im Abend keinen
+   festen Platz. Sie deshalb mit auf die Skala zu erfinden wäre gelogen —
+   sie bekommen eine eigene, leisere Etage unter dem Instrument.
+   ============================================================ */
+.tg-guests {
+  grid-column: 1 / -1;
+  border-top: 1px solid var(--bg-hairline);
+  padding: clamp(18px, 2.2vw, 26px) clamp(18px, 2.2vw, 26px) clamp(20px, 2.4vw, 28px);
+  background: rgb(var(--bg-void-rgb) / .3);
+}
+.tg-guests-head {
+  display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--sp-2) var(--sp-3);
+  margin-bottom: var(--sp-4);
+}
+.tg-guests-label {
+  font-family: var(--font-mono); font-size: 10px; font-weight: var(--w-micro-b);
+  letter-spacing: var(--track-micro); text-transform: uppercase; color: var(--ink-faint);
+}
+.tg-guests-note { color: var(--ink-faint); font-size: 13px; max-width: 62ch; }
+.tg-guests-list {
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--sp-4) clamp(24px, 4vw, 48px);
+}
+.tg-guest {
+  --tg-acc: var(--acc-1); --tg-acc-rgb: var(--acc-1-rgb);
+  scroll-margin-top: 110px;
+}
+.tg-guest[data-genre="techno"]    { --tg-acc: var(--acc-3); --tg-acc-rgb: var(--acc-3-rgb); }
+.tg-guest[data-genre="psytrance"] { --tg-acc: var(--acc-2); --tg-acc-rgb: var(--acc-2-rgb); }
+.tg-guest-name {
+  display: flex; align-items: center; gap: 9px;
+  font-family: var(--font-mono); font-size: 11px; font-weight: var(--w-micro-b);
+  letter-spacing: var(--track-label); text-transform: uppercase; color: var(--ink);
+}
+.tg-guest-dot {
+  width: 9px; height: 9px; border-radius: 50%; flex: none;
+  background: var(--tg-acc);
+  box-shadow: 0 0 0 1px rgb(var(--tg-acc-rgb) / .35), 0 0 8px rgb(var(--tg-acc-rgb) / .5);
+}
+/* Techno bekommt absichtlich KEINE Animation: stetiges Glimmen statt
+   Puls — die wörtliche Illustration von "der gerade, dunkle Puls".
+   Psytrance zwei leicht verstimmte Zyklen (3.1s/3.7s): langsames
+   Schweben, ohne eine BPM-Zahl zu behaupten, die es nicht gibt. */
+.tg-guest[data-genre="psytrance"] .tg-guest-dot {
+  animation: tg-shimmer 3.1s ease-in-out infinite, tg-shimmer-b 3.7s ease-in-out infinite;
+}
+@keyframes tg-shimmer   { 50% { opacity: .5; } }
+@keyframes tg-shimmer-b { 50% { transform: scale(.86); } }
+.tg-guest-text { margin-top: var(--sp-2); color: var(--ink-dim); font-size: 14px; }
+
+/* ---------- Anschlusstext unter der Konsole ---------- */
+.tg-teaser { margin-top: var(--sp-5); }
+.tg-inline-link { color: var(--acc-3-tint); border-bottom: 1px solid rgb(var(--acc-3-rgb) / .4); }
+.tg-inline-link:hover, .tg-inline-link:focus-visible { color: var(--ink); border-bottom-color: var(--acc-1); }
+
+/* ============================================================
+   4 · "Sound of takeoff" — Reinhören-Raster
    .setgrid/.setcard/.cover/.play/.s-meta/.consent-note sind globale
-   Klassen aus takeoff.css (identisch zu artists.html) — hier nur der
-   Wrapper (Karte + Rueck-Link zum Artist-Profil). */
+   Klassen aus takeoff.css — hier nur der Wrapper (Karte + Rück-Link).
+   ============================================================ */
 .tg-setitem { display: flex; flex-direction: column; gap: 8px; }
 .tg-setitem .setcard { flex: 1; }
 .tg-setlink {
   align-self: flex-start;
-  font-family: var(--font-mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase;
-  color: var(--ink-faint); padding: 2px 2px 2px 0; transition: color .2s;
+  font-family: var(--font-mono); font-size: 11px; letter-spacing: var(--track-label);
+  text-transform: uppercase; color: var(--ink-faint);
+  padding: 2px 2px 2px 0; transition: color .2s;
 }
 .tg-setlink:hover, .tg-setlink:focus-visible { color: var(--acc-2-tint); }
 .tg-setlink::after { content: " →"; }
+.tg-transmission { margin-top: var(--sp-6); }
 
-/* ---------- 7) Ablauf einer Nacht — Zeitleiste ---------- */
-.tg-night { list-style: none; position: relative; margin-top: 10px; padding-left: 0; }
+/* ============================================================
+   5 · Der Ablauf einer Nacht
+
+   Ab 880px waagerecht: eine Nacht ist eine Strecke, keine Aufzählung,
+   und drei Phasen nebeneinander lesen sich als Verlauf. Darunter kippt
+   sie in die klassische senkrechte Zeitleiste — die drei Phasentexte
+   brauchen nebeneinander mindestens ~250px, sonst brechen die Chips.
+   ============================================================ */
+.tg-night { list-style: none; position: relative; margin: 0; padding-left: 0; }
 .tg-night::before {
   content: ""; position: absolute; left: 13px; top: 8px; bottom: 8px; width: 2px;
   background: linear-gradient(180deg, var(--acc-1), var(--acc-2), var(--acc-3));
@@ -310,62 +552,230 @@
 .tg-phase:last-child { border-bottom: 0; }
 .tg-phase::before {
   content: ""; position: absolute; left: 7px; top: 22px; width: 13px; height: 13px; border-radius: 50%;
-  background: var(--bg-1); border: 2px solid var(--acc-2);
+  background: var(--bg-base); border: 2px solid var(--acc-2);
 }
 .tg-phase-time {
-  display: block; font-family: var(--font-mono); font-size: 11px; letter-spacing: .14em;
-  text-transform: uppercase; color: var(--ink-faint);
+  display: block; font-family: var(--font-mono); font-size: 11px;
+  letter-spacing: var(--track-label); text-transform: uppercase; color: var(--ink-faint);
 }
 .tg-phase-label {
-  display: block; font-family: var(--font-display); font-weight: 700;
-  font-size: 19px; margin: 4px 0 9px;
+  display: block; font-family: var(--font-display); font-weight: var(--w-head);
+  font-size: clamp(18px, 1.8vw, 22px); margin: var(--sp-1) 0 var(--sp-2);
 }
-.tg-phase-genres { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 9px; }
+.tg-phase-genres { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: var(--sp-2); }
 .tg-phase-genres .chip { font-size: 11px; padding: 5px 10px; }
 .tg-phase-text { margin: 0; color: var(--ink-dim); font-size: 14.5px; }
 
-/* ---------- 8) Track-ID-Anfrage ----------
-   Bewusst NICHT .transmission (die globale Klasse bedeutet sitewide
-   "Feature kommt noch, hier nur ein Teaser" — Track-ID ist eine echte,
-   funktionierende Aktion, deshalb eigener, deutlicher Rahmen in
-   --acc-1-Ton statt --acc-2-gestrichelt). */
-.tg-trackid {
-  border: 1px solid rgb(var(--acc-1-rgb) / .3);
-  border-radius: var(--radius-lg);
-  padding: clamp(24px, 5vw, 40px);
-  text-align: center;
-  background: linear-gradient(170deg, rgb(var(--bg-raised-rgb) / .5), transparent);
+@media (min-width: 880px) {
+  .tg-night {
+    display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
+    column-gap: clamp(24px, 3vw, 44px);
+    padding-top: 38px;
+  }
+  /* Waagerechte Achse. Sie endet ungefähr über der Mitte der ersten und
+     letzten Spalte (100%/6 ist die exakte Mitte ohne Spaltenabstand; mit
+     Abstand liegt sie rund 15px daneben — unter der Federung des Verlaufs
+     nicht sichtbar), damit die Linie nicht ins Leere läuft. */
+  .tg-night::before {
+    left: calc(100% / 6); right: calc(100% / 6); top: 24px;
+    width: auto; bottom: auto; height: 2px;
+    background: linear-gradient(90deg, var(--acc-1), var(--acc-2), var(--acc-3));
+  }
+  .tg-phase { padding: 0; border-bottom: 0; }
+  /* Die Phase beginnt bei padding-top (38px), die Achse liegt bei 24px —
+     der Punkt sitzt also 14px über der Phasenoberkante, mittig auf der
+     Achse. */
+  .tg-phase::before { left: 50%; top: -14px; transform: translate(-50%, -50%); }
+  .tg-phase-time,
+  .tg-phase-label,
+  .tg-phase-genres,
+  .tg-phase-text { text-align: center; }
+  .tg-phase-genres { justify-content: center; }
 }
-.tg-trackid-eyebrow {
-  font-family: var(--font-mono); font-size: 11px; font-weight: 700;
-  letter-spacing: .24em; text-transform: uppercase; color: var(--acc-1-tint); margin-bottom: 10px;
-}
-.tg-trackid h3 { font-family: var(--font-display); font-weight: 700; font-size: clamp(20px, 3vw, 26px); margin-bottom: 8px; }
-.tg-trackid p { color: var(--ink-dim); max-width: 440px; margin: 0 auto 22px; }
-
-/* ---------- 9) Mini-Glossar & FAQ ----------
-   Glossar nutzt bewusst NUR .m-rows (ohne .tg-genres) — reines globales
-   Markup aus takeoff.css, keine Puls-Punkte, keine Kollision mit
-   Abschnitt 4. FAQ nutzt details.faq/.faq-body aus takeoff.css, hier nur
-   Abstand. */
-.tg-faqlist { margin-top: 22px; }
-.tg-share-row { display: flex; justify-content: flex-end; margin-top: 22px; }
-@media (max-width: 480px) { .tg-share-row { justify-content: flex-start; } }
 
 /* ============================================================
-   10 · Mobile-Sicherheit (<=560px)
+   6 · Nachschlagen: Jargon und FAQ nebeneinander
+   Beides ist kurze Referenz. Untereinander waren es zwei weitere
+   Textspalten auf halbem Schirm; nebeneinander tragen sie die Breite
+   und die Seite wird zwei Bildschirme kürzer.
    ============================================================ */
+.tg-ref {
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(32px, 5vw, 72px);
+}
+.tg-ref-col { min-width: 0; }
+/* Die beiden Koepfe tragen zusaetzlich `.section-head` — allein wegen der
+   Nacht-Traegerflaeche aus scene-night.css, die genau diese Klasse listet.
+   Ihr Standardabstand (--sp-head-body, bis 60px) ist fuer eine halbe
+   Spalte zu gross und wird hier mit hoeherer Spezifitaet zurueckgeholt. */
+.tg-ref .tg-ref-head { margin-bottom: var(--sp-4); }
+.tg-ref-title {
+  font-family: var(--font-display); font-weight: var(--w-display);
+  font-size: clamp(24px, 2.8vw, 34px); line-height: 1.1; letter-spacing: var(--track-tight);
+}
+.tg-ref-title .glow {
+  color: var(--acc-1-tint);
+  text-shadow: 0 0 6px rgb(var(--acc-1-rgb) / .5), 0 0 28px rgb(var(--acc-1-rgb) / .2);
+}
+/* Das Glossar in einer halben Spalte: die feste 190px-Labelspalte aus
+   takeoff.css würde hier zwei Drittel der Breite fressen. */
+.tg-glossary.m-rows { grid-template-columns: minmax(0, 1fr); }
+.tg-glossary .m-row { grid-template-columns: minmax(0, 1fr); row-gap: 3px; }
+.tg-faqlist { display: grid; gap: 10px; }
+
+/* ============================================================
+   7 · Track-ID-Anfrage
+   Bewusst NICHT .transmission (die globale Klasse bedeutet sitewide
+   "Feature kommt noch"). Track-ID ist eine echte Aktion — eigener
+   Rahmen im --acc-1-Ton, und als breites Band statt als schmaler
+   zentrierter Kasten: die Zeile Text steht links, der Knopf rechts.
+   ============================================================ */
+.tg-trackid {
+  margin-top: var(--sp-7);
+  display: flex; flex-wrap: wrap; align-items: center;
+  gap: var(--sp-4) clamp(24px, 4vw, 56px);
+  border: 1px solid rgb(var(--acc-1-rgb) / .3);
+  border-radius: var(--radius-lg);
+  padding: clamp(22px, 3vw, 34px) clamp(24px, 3.4vw, 40px);
+  background: linear-gradient(100deg, rgb(var(--bg-raised-rgb) / .9), rgb(var(--bg-void-rgb) / .78));
+}
+.tg-trackid-text { flex: 1 1 340px; min-width: 0; }
+.tg-trackid-eyebrow {
+  font-family: var(--font-mono); font-size: 11px; font-weight: var(--w-micro-b);
+  letter-spacing: var(--track-micro); text-transform: uppercase;
+  color: var(--acc-1-tint); margin-bottom: var(--sp-2);
+}
+.tg-trackid-title {
+  font-family: var(--font-display); font-weight: var(--w-head);
+  font-size: clamp(20px, 2.4vw, 28px); line-height: 1.15;
+}
+.tg-trackid-body { color: var(--ink-dim); margin-top: var(--sp-2); max-width: 52ch; }
+.tg-trackid-btn { flex: none; }
+
+.tg-share-row { display: flex; justify-content: flex-end; margin-top: var(--sp-5); }
+
+/* ============================================================
+   8 · Tag-Modus
+
+   Das Blatt hatte davon vorher NULL Zeilen — der helle Modus war auf
+   dieser Seite nie geprüft. Drei Dinge tragen dort nicht:
+     · Leucht-Schatten (`0 0 10px rgb(acc / .5)`) sind auf hellem Grund
+       ein blasser Fleck. Die Tag-Sprache des Systems ist stattdessen
+       Kontur + harter Versatz (siehe scene-day.css, .mcard/.patch).
+     · `--chrome-hi` ist tags das HELLSTE Token — als Punktfüllung auf
+       hellem Grund ein Loch. Die "Du"-Marke wird zur Tintenscheibe.
+     · Der Chrome-Verlauf der Tap-Zahl läuft tags von hell nach dunkel;
+       ohne Kontur franst die Zahl auf dem hellen Grund aus. Dasselbe
+       Mittel wie bei `.stats b` in scene-day.css.
+   ============================================================ */
+:root.day-mode .tg-console {
+  border-color: rgb(var(--acc-2-rgb) / .5);
+  background: rgb(var(--bg-surface-rgb) / .55);
+  box-shadow: 6px 7px 0 rgb(var(--acc-2-rgb) / .16);
+}
+:root.day-mode .tg-tap { background: rgb(var(--acc-2-rgb) / .07); }
+:root.day-mode .tg-guests { background: rgb(var(--bg-base-rgb) / .55); }
+
+/* Leuchten raus. Die Punkte sind tags dunkle Vollkreise (--acc-* löst dort
+   nach #A2005E/#5B21B6/#0B3D91 auf) und brauchen keinen Schein, um sich
+   vom Beton abzuheben — ein Leucht-Schatten auf Hell ist nur ein Fleck.
+   Statt dessen ein weiter, blasser Ring: liest als "leuchtend", ohne zu
+   glimmen. */
+:root.day-mode .tg-beat-core { box-shadow: 0 0 0 4px rgb(var(--tg-acc-rgb) / .16); }
+:root.day-mode .tg-mark .tg-dot,
+:root.day-mode .tg-guest-dot,
+:root.day-mode .tg-tap-dot { box-shadow: 0 0 0 3px rgb(var(--tg-acc-rgb, var(--acc-1-rgb)) / .16); }
+:root.day-mode .tg-beat-ring { border-color: var(--tg-acc); opacity: 0; }
+:root.day-mode .tg-mark--you .tg-dot { background: var(--ink); box-shadow: 0 0 0 2px rgb(var(--bg-void-rgb) / .9); }
+:root.day-mode .tg-mark--you small b { color: var(--ink); }
+:root.day-mode .tg-you-stem { background: repeating-linear-gradient(180deg, var(--acc-3) 0 2px, transparent 2px 5px); opacity: .7; }
+:root.day-mode .tg-tick { background: var(--chrome-lo); }
+:root.day-mode .tg-card.is-matched { background: rgb(var(--tg-acc-rgb) / .12); }
+:root.day-mode .tg-mark.is-matched .tg-dot { box-shadow: 0 0 0 2px var(--ink); }
+
+/* Die Chrome-Zahl bleibt nachts, geht tags aber. Nachgemessen im
+   Screenshot: `--chrome-sweep-v` ist in seiner oberen Haelfte heller Himmel
+   (#9BA2B8 → #F4F5F9), auf Beton (#E6E7EE) verschwindet die Zahl darin
+   nahezu; die Kontur aus `.stats b` traegt bei 36px nur 0.43px und rettet
+   das nicht. `.stats b` darf sich das leisten, weil dort statische
+   Displayzahlen stehen — hier ist es die LEBENDE Rueckmeldung auf das
+   Tippen, und die muss man lesen koennen. Also Tinte plus harter
+   Magenta-Versatz: genau die Tagsprache des Systems (scene-day.css,
+   .next-card / .btn-primary). */
+:root.day-mode .tg-tap-bpm b {
+  background: none;
+  color: var(--ink);
+  -webkit-text-fill-color: var(--ink);
+  text-shadow: 3px 3px 0 rgb(var(--acc-1-rgb) / .22);
+}
+/* Das Pad ist tags eine blasse Scheibe ohne Kante. Kontur + Versatz. */
+:root.day-mode .tg-tap-pad {
+  border-color: var(--acc-1);
+  box-shadow: 4px 5px 0 rgb(var(--acc-1-rgb) / .2);
+}
+:root.day-mode .tg-tap-pad:hover { box-shadow: 4px 5px 0 rgb(var(--acc-1-rgb) / .35); }
+:root.day-mode .tg-inline-link { color: var(--acc-3); border-bottom-color: var(--acc-3); }
+:root.day-mode .tg-inline-link:hover, :root.day-mode .tg-inline-link:focus-visible { color: var(--acc-1); }
+:root.day-mode .tg-setlink:hover, :root.day-mode .tg-setlink:focus-visible { color: var(--acc-1); }
+:root.day-mode .tg-ref-title .glow { color: var(--acc-1); text-shadow: none; }
+:root.day-mode .tg-trackid {
+  border-color: rgb(var(--acc-1-rgb) / .55);
+  background: rgb(var(--bg-surface-rgb) / .5);
+  box-shadow: 5px 6px 0 rgb(var(--acc-1-rgb) / .18);
+}
+:root.day-mode .tg-phase::before { background: var(--bg-void); border-color: var(--acc-2); }
+
+/* ============================================================
+   9 · Schmalere Schirme
+
+   Die Konsole klappt in zwei Stufen auseinander, nicht in einer:
+     < 1000px   Tap-Pad unter die Skala (nebeneinander bliebe für die
+                Skala unter ~380px Platz — das Genre-Cluster wäre wieder
+                ein Punkt).
+     <  760px   Spalten untereinander. Drei Spalten brauchen für Zahl,
+                Name, Satz und Chips je ~230px.
+   ============================================================ */
+@media (max-width: 1000px) {
+  .tg-console { grid-template-columns: minmax(0, 1fr); }
+  .tg-read { grid-column: 1; }
+  /* Waagerecht statt senkrecht: Pad links, Anzeige rechts — spart auf
+     dem Tablet rund 120px Höhe und hält Pad und Anzeige im Blick. */
+  .tg-tap {
+    grid-column: 1; grid-row: auto;
+    border-left: 0; border-top: 1px solid var(--bg-hairline);
+    flex-direction: row; flex-wrap: wrap; align-items: center; justify-content: center;
+    text-align: left; gap: var(--sp-3) clamp(20px, 4vw, 40px);
+  }
+  .tg-tap-label { flex-basis: 100%; justify-content: center; text-align: center; }
+  .tg-tap-pad { margin: 0; }
+  .tg-tap-readout { margin-top: 0; }
+  .tg-tap-match { margin-inline: 0; max-width: 38ch; }
+  /* Der Zuruecksetzen-Knopf wuerde sonst als dritter Flex-Kasten neben der
+     Anzeige haengen und weit rechts stehen. Eigene Zeile, mittig. Die
+     Unterlinie haengt am Text (text-decoration), laeuft also nicht mit
+     der vollen Zeilenbreite mit. */
+  .tg-tap-reset { flex-basis: 100%; text-align: center; }
+}
+@media (max-width: 760px) {
+  .tg-cards { grid-template-columns: minmax(0, 1fr); }
+  .tg-card + .tg-card { border-left: 0; border-top: 1px solid var(--bg-hairline); }
+  .tg-guests-list { grid-template-columns: minmax(0, 1fr); }
+  .tg-ref { grid-template-columns: minmax(0, 1fr); }
+}
 @media (max-width: 560px) {
-  /* Minor-Ticks raus, sonst wird die Leiste zum Strichcode. */
+  /* Nebenstriche raus, sonst wird die Leiste zum Strichcode. */
   .tg-tick:not(.tg-tick--major) { display: none; }
-  /* Genre-Namen auf der Leiste sind auf 320px Breite bei 138/145/150 BPM
-     nur ~12px auseinander — jedes Wortlabel wuerde mit dem Nachbarn
-     kollidieren. Reduktion auf Punkt+Zahl ist eng, aber kollisionsfrei;
-     die vollen Namen stehen ohnehin direkt darunter in der m-rows-Liste. */
-  .tg-mark b { display: none; }
-  .tg-mark small { font-size: 11px; color: var(--ink); font-weight: 700; }
-  /* Hard Trance (145) und Bounce (150) liegen nur 5 BPM auseinander —
-     zusaetzlicher Hochversatz haelt die beiden Zahlen frei voneinander. */
-  .tg-mark[data-genre="hard-trance"] { bottom: 46px; }
-  .tg-scale-track { height: clamp(104px, 20vw, 118px); }
+  /* 138/145/150 liegen auf 320px Breite nur ~12px auseinander. Die Zahlen
+     bleiben (sie sind die Aussage), aber versetzt in zwei Etagen — die
+     mittlere Marke rückt hoch, damit sich die drei Zahlen nicht
+     überlagern. Die vollen Namen stehen ohnehin direkt darunter. */
+  /* Die Etagen-Trennung der mittleren Marke gilt schon oben; hier wird nur
+     die Schrift enger gesetzt, weil auf 360px zwischen "138" und "150" nur
+     noch rund 28px liegen. */
+  .tg-mark small { font-size: 9.5px; }
+  .tg-scale-track { --tg-axis: 52px; height: 132px; }
+  .tg-bracket { display: none; }
+  .tg-share-row { justify-content: flex-start; }
+  .tg-trackid { text-align: left; }
+  .tg-trackid-btn { width: 100%; justify-content: center; }
 }

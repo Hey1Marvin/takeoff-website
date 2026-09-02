@@ -4,7 +4,12 @@
    natives <details name="glog"> gebaut: exklusives Akkordeon ganz ohne
    JavaScript (details[name] gruppiert seit Chromium/Firefox/Safari nativ),
    bleibt also auch ohne JS bedienbar. Server Component — kein "use client"
-   noetig. */
+   noetig.
+
+   Klassennamen It. 14: alles Seiteneigene traegt jetzt das Praefix `ar-`.
+   `.glog` und `.glog-panel` bleiben, weil beide in der Traegerflaechen-Liste
+   von scene-night.css stehen — sie sind geteiltes Vokabular, kein
+   Seiten-Stil. */
 import Link from "next/link";
 import { eventHref } from "@/lib/site";
 
@@ -29,14 +34,14 @@ export default function ArtistsGuestLog({
   appearanceEmpty: string;
 }) {
   return (
-    <div className="glog">
+    <div className="glog ar-guests">
       {guests.map(g => (
-        <details key={g.name} className="glog-item" name="glog">
+        <details key={g.name} className="ar-guest" name="glog">
           <summary className="chip" translate="no">{g.name}</summary>
-          <div className="glog-panel">
-            <p className="glog-panel-label">{appearanceLabel}</p>
+          <div className="glog-panel ar-guest-panel">
+            <p className="ar-guest-label">{appearanceLabel}</p>
             {g.appearances.length > 0 ? (
-              <ul className="glog-panel-list">
+              <ul className="ar-guest-list">
                 {g.appearances.map(e => (
                   <li key={e.slug}>
                     <Link href={eventHref(e.slug)}>{e.title}</Link>

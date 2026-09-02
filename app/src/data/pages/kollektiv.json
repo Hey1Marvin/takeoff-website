@@ -1,4 +1,11 @@
 {
+  "_labels": {
+    "sheet": "Schriftfeld auf dem Deckblatt",
+    "sections": "Blatt-Überschriften (Kicker, Titel, Einleitung)",
+    "fotowand": "Fotowand — Texte & Platzhalter",
+    "mitmachen": "Funkspruch — Mitmachen",
+    "booking": "Funkspruch — Booking & Partner"
+  },
   "hero": {
     "eyebrow": "Über uns",
     "h1": "Wir bauen unsere Nächte selbst.",
@@ -10,6 +17,90 @@
     "text2": "Wir sind nicht gewinnorientiert — eher „nicht-Verlust-orientiert“. Deshalb sind unsere Events oft free, die Getränke solidarisch.",
     "image": "assets/img/placeholders/werkstatt.svg",
     "imageAlt": "Werkstatt-Illustration: Lötkolben, Hühnerdraht, Farbeimer"
+  },
+  "sheet": {
+    "rows": [
+      {
+        "label": "Projekt",
+        "value": "takeoff · Potsdam"
+      },
+      {
+        "label": "Blatt",
+        "value": "00 · Deckblatt"
+      },
+      {
+        "label": "Gezeichnet",
+        "value": "Das Kollektiv, ehrenamtlich"
+      },
+      {
+        "label": "Stand",
+        "value": "seit {year}"
+      },
+      {
+        "label": "Maßstab",
+        "value": "M 1:1"
+      }
+    ]
+  },
+  "sections": {
+    "cover": {
+      "no": "00",
+      "name": "Deckblatt",
+      "scale": "M 1:1"
+    },
+    "werte": {
+      "no": "01",
+      "name": "Haltung",
+      "eyebrow": "Haltung",
+      "title": "Warum wir das tun",
+      "intro": "Kein Businessplan — fünf Grundsätze, an denen wir jede Mission messen."
+    },
+    "finanzen": {
+      "no": "02",
+      "name": "Kassenbuch",
+      "eyebrow": "Kassenbuch",
+      "title": "Wohin das Geld fliegt",
+      "intro": "„Nicht-Verlust-orientiert“ ist kein Slogan — hier ist, wofür Einnahmen draufgehen."
+    },
+    "history": {
+      "no": "03",
+      "name": "Logbuch",
+      "scale": "M 1:1",
+      "eyebrow": "Logbuch",
+      "title": "Wie alles anfing",
+      "intro": "Kein Masterplan — nur eine kleine Gruppe, ein Lötkolben und die Idee, dass Potsdam mehr Trance verdient.",
+      "tail": "Weiter geht’s im {link}.",
+      "tailLink": "Flight Log"
+    },
+    "fotowand": {
+      "no": "04",
+      "name": "Fotowand",
+      "eyebrow": "Fotowand",
+      "title": "Momente"
+    },
+    "crew": {
+      "no": "05",
+      "name": "Besatzung",
+      "eyebrow": "Crew Select",
+      "title": "Wer hier funkt"
+    },
+    "familie": {
+      "no": "06",
+      "name": "Verbund",
+      "eyebrow": "Familie",
+      "title": "Mit wem wir fliegen",
+      "intro": "Kollektive, Häuser und Menschen, ohne die unsere Nächte nicht gehen würden."
+    },
+    "faq": {
+      "no": "07",
+      "name": "Bordfragen",
+      "eyebrow": "Bordfragen",
+      "title": "Häufig gefragt"
+    },
+    "funkspruch": {
+      "no": "08",
+      "name": "Funkspruch"
+    }
   },
   "values": [
     {
@@ -40,6 +131,7 @@
   ],
   "spendChart": {
     "note": "Illustrative Werte, Stand 09/2026 — wird durch echte Kassenzahlen ersetzt, sobald es eine feste Kassenführung gibt.",
+    "sumLabel": "Summe",
     "items": [
       {
         "label": "Miete & Genehmigungen",
@@ -83,6 +175,31 @@
       "label": "ehrenamtlich"
     }
   },
+  "fotowand": {
+    "mediaIntro": "Bewegtbild ist schon da — wie wir bauen, und wie aus drei Tagen Vorlauf ein zweiter Subwoofer wird.",
+    "mediaLabel": "Videos des Kollektivs",
+    "placeholderLabel": "Freie Felder",
+    "placeholders": [
+      {
+        "fig": "FIG. 01",
+        "text": "Foto folgt\nnach Freigabe"
+      },
+      {
+        "fig": "FIG. 02",
+        "text": "Foto folgt\nnach Freigabe"
+      },
+      {
+        "fig": "FIG. 03",
+        "text": "Foto folgt\nnach Freigabe"
+      },
+      {
+        "fig": "FIG. 04",
+        "text": "Foto folgt\nnach Freigabe"
+      }
+    ],
+    "note": "Kein Foto ohne Frage — die Wand füllt sich, sobald alle Abgebildeten zugestimmt haben. Das ganze Team: {link}",
+    "noteLink": "Teamboard →"
+  },
   "joinRoles": [
     {
       "label": "Bar",
@@ -105,6 +222,19 @@
       "mailSubject": "Mitmachen – Sani"
     }
   ],
+  "mitmachen": {
+    "label": "Crew-Anwärter*innen gesucht",
+    "text": "Bar, Einlass, Awareness, Deko-Bau oder Sani — klick deine Rolle an, wir schreiben zurück. takeoff wächst mit jeder Mission.",
+    "rolesLabel": "Rollen zum Mitmachen",
+    "direct": "Lieber direkt reden? {telegram} oder {mail}.",
+    "telegramLabel": "Telegram",
+    "mailLabel": "Mail"
+  },
+  "booking": {
+    "label": "Booking & Partner",
+    "text": "Eigenes Soundsystem, eigenes Licht, eingespielte Schicht-Crews und Erfahrung mit Genehmigungen — wir supporten auch andere Veranstaltungen.",
+    "presskit": "Presskit folgt: {mail}"
+  },
   "bookingFacts": [
     {
       "label": "Technik",

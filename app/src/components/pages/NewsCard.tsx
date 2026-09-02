@@ -1,18 +1,24 @@
 "use client";
-/* Eine Karte im Mission Log — Portierung von cardHtml() (news.js). Trägt
-   pro Instanz drei kleine, unabhängige Interaktionen:
+/* Eine Karte im Mission Log. Traegt pro Instanz drei kleine, unabhaengige
+   Interaktionen:
      · Typewriter auf der Eingehend-Headline (nur featured, einmalig,
        Tier-gated, Text startet SSR-gleich voll da und wird erst NACH der
        Hydration geleert+neu getippt — kein Hydration-Mismatch)
-     · Insta-Zwei-Klick-Facade (Klick schaltet nur die Consent-Notiz frei,
-       laedt im Prototyp nie wirklich nach — bewusst, siehe news.js)
+     · Insta-Zwei-Klick-Fassade (der erste Klick schaltet nur den Hinweis
+       samt echtem Link frei; bis dahin geht kein Request zu Instagram)
      · Teilen (Web-Share-API mit Zwischenablage-Fallback, Muster 1:1 aus
        AwarenessShareButton) + Telegram-Intent-Link (braucht location.href,
        daher erst nach dem Mount befuellt statt serverseitig vorgerechnet)
-   Datum/Countdown/Crosslink-Href kommen bereits fertig berechnet von der
-   Seite (page.tsx) — reine Datumsmathematik bleibt serverseitig, damit
-   Server- und Client-Render exakt gleich aussehen. */
-import { useEffect, useId, useRef, useState } from "react";
+   Datum/Countdown/Crosslink-Href/Signalstaerke kommen bereits fertig
+   berechnet von der Seite (page.tsx) — Datumsmathematik bleibt serverseitig,
+   damit Server- und Client-Render exakt gleich aussehen.
+
+   IT. 14 — der Typewriter meldet sich jetzt nach OBEN (`onTyping`), statt
+   sich per `document.getElementById("rx-array")` selbst in eine fremde
+   Komponente zu greifen. Damit haengt die ganze Choreografie der Seite an
+   EINEM Zustand in NewsConsole und nicht an zwei Stellen, die sich
+   auseinanderentwickeln koennen. */
+import { useCallback, useEffect, useId, useRef, useState } from "react";
 import type { CSSProperties } from "react";
 
 export interface NewsCardData {
@@ -24,6 +30,10 @@ export interface NewsCardData {
   title: string;
   text: string;
   instaUrl?: string;
+  /* 4 = frisch, 1 = altes Signal. Kommt aus dem ALTER des Eintrags
+     (page.tsx), nicht aus seiner Position in der Liste — die Liste wird
+     clientseitig gefiltert, eine Positionsregel faerbt dann still falsch. */
+  strength: 1 | 2 | 3 | 4;
 }
 
 export interface NewsCrosslink {
@@ -44,11 +54,13 @@ export interface NewsShareCopy {
   telegramLabel: string;
   showTelegram: boolean;
   copiedToast: string;
+  groupAria: string;
 }
 
 export interface NewsInstaCopy {
   buttonLabel: string;
   consentNote: string;
+  openLabel: string;
 }
 
 function fxOn(): boolean {
@@ -60,7 +72,7 @@ function fxFull(): boolean {
 
 export default function NewsCard({
   item, featured = false, typewriter = false, charMs = 24,
-  crosslink = null, feedback = null, share, insta, hidden = false,
+  crosslink = null, feedback = null, share, insta, hidden = false, onTyping,
 }: {
   item: NewsCardData;
   featured?: boolean;
@@ -71,6 +83,7 @@ export default function NewsCard({
   share: NewsShareCopy;
   insta: NewsInstaCopy;
   hidden?: boolean;
+  onTyping?: (active: boolean) => void;
 }) {
   const [headline, setHeadline] = useState(item.title); // SSR-gleich: voller Text
   const [typing, setTyping] = useState(false);
@@ -81,6 +94,14 @@ export default function NewsCard({
   const headingRef = useRef<HTMLHeadingElement>(null);
   const stepTimeout = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const instaNoteId = useId();
+
+  /* Callback ueber einen Ref: sonst haengt der Typewriter-Effect an der
+     Identitaet der Funktion und startet bei jedem Rendern der Elternliste
+     (Filterklick!) von vorn. Zuweisung im Effect, nicht im Render — ein Ref
+     waehrend des Renderns zu beschreiben ist unter React 19 ein Fehler. */
+  const typingCb = useRef(onTyping);
+  useEffect(() => { typingCb.current = onTyping; }, [onTyping]);
+  const report = useCallback((active: boolean) => { typingCb.current?.(active); }, []);
 
   const shareUrl = `/news#${item.id}`;
 
@@ -101,24 +122,21 @@ export default function NewsCard({
         let i = 0;
         setTyping(true);
         setHeadline("");
+        report(true);
+        const finish = () => {
+          setTyping(false);
+          report(false);
+        };
         const step = () => {
-          if (!fxOn()) { setHeadline(text); setTyping(false); return; }
+          if (!fxOn()) { setHeadline(text); finish(); return; }
           i++;
           setHeadline(text.slice(0, i));
           if (i < text.length) {
             stepTimeout.current = setTimeout(step, stepMs);
           } else {
-            setTyping(false);
+            finish();
             setLocked(true);
             stepTimeout.current = setTimeout(() => setLocked(false), 700);
-            if (full) {
-              const arr = document.getElementById("rx-array");
-              if (arr) {
-                arr.classList.remove("rx-pulse");
-                void arr.offsetWidth; // Reflow erzwingen, damit die Animation neu startet
-                arr.classList.add("rx-pulse");
-              }
-            }
           }
         };
         step();
@@ -179,7 +197,11 @@ export default function NewsCard({
     >
       <div className="n-head">
         <span className="n-badge">{item.badge}</span>
-        <span className="rx-sig" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+        {/* Signalstaerke als Attribut, nicht als Listenposition — siehe
+            NewsCardData.strength. */}
+        <span className="rx-sig" data-strength={item.strength} aria-hidden="true">
+          <i></i><i></i><i></i><i></i>
+        </span>
         <span className="n-date">{item.dateFormatted}</span>
       </div>
 
@@ -207,7 +229,10 @@ export default function NewsCard({
           {/* Immer im DOM (CSS zeigt/versteckt über .ncard.asked .rx-consent,
               siehe news.css) — hält aria-controls gültig, statt beim
               Einklappen auf ein verschwundenes Element zu zeigen. */}
-          <p className="rx-consent" id={instaNoteId}>{insta.consentNote}</p>
+          <p className="rx-consent" id={instaNoteId}>
+            {insta.consentNote}{" "}
+            <a href={item.instaUrl} target="_blank" rel="noopener">{insta.openLabel}</a>
+          </p>
         </>
       )}
 
@@ -218,7 +243,7 @@ export default function NewsCard({
         </div>
       )}
 
-      <div className="rx-share" role="group" aria-label="Diesen Funkspruch teilen">
+      <div className="rx-share" role="group" aria-label={share.groupAria}>
         <button type="button" className="rx-share-btn" onClick={onShare}>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.7} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
             <circle cx="18" cy="5" r="2.6" /><circle cx="6" cy="12" r="2.6" /><circle cx="18" cy="19" r="2.6" />

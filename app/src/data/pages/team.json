@@ -15,7 +15,14 @@
     "h2": "Wer sitzt <span class=\"glow\">wo</span>",
     "intro": "Die Crew verteilt sich auf drei Stationen an Bord — vom Flugdeck bis zur Bodencrew. Eine Karte antippen dreht sie um und zeigt die Aufgaben dahinter.",
     "flipOpenLabel": "Aufgaben",
-    "flipCloseLabel": "← Zurück"
+    "flipCloseLabel": "← Zurück",
+    "sinceLabel": "seit",
+    "moreLabel": "Mehr →"
+  },
+  "plan": {
+    "label": "Stationen",
+    "note": "Ein Ring je Station, ein Punkt je Rolle. Der gestrichelte Ring außen ist noch frei.",
+    "reserveLabel": "Platz für neue Rollen"
   },
   "departments": [
     { "id": "flugdeck", "title": "Flugdeck", "subtitle": "Sound & Licht", "intro": "Wer an Pult und Pulten steht.", "match": ["Nico", "Mik", "JOJO", "Cyonic"] },
@@ -57,14 +64,14 @@
   },
   "artistLink": { "linkText": "Profil & Sets →" },
   "nextMission": {
-    "label": "Wer funkt bei der nächsten Mission",
+    "label": "Nächste Mission",
     "introTemplate": "Beim Launch am {date} live an Bord: {lineup} — dazu wie jede Nacht Awareness, Sani, Bar & Einlass.",
     "fallbackText": "Die nächste Mission wird noch geplant — die Bodencrew steht trotzdem schon bereit."
   },
   "photoboard": {
     "eyebrow": "Foto-Board folgt",
     "h2": "Bald mit <span class=\"glow\">Gesichtern</span>",
-    "slotNote": "Foto folgt nach Freigabe",
+    "slotNote": "Ein Platz je Rolle — Fotos folgen nach Freigabe",
     "note": "Das Team-Fotoboard kommt, sobald alle Abgebildeten zugestimmt haben — Consent gilt auch für uns selbst.",
     "joinText": "Du willst aufs Board?",
     "joinLabel": "Mach mit."
