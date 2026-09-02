@@ -351,7 +351,11 @@
 :root.day-mode:is([data-theme="mars"], [data-theme="strand"]) .topbar {
   background: rgb(var(--bg-void-rgb) / .96);
 }
-:root.day-mode .mctrl {
+/* Seit It. 14 ist `.mctrl` nur noch die durchsichtige Huelle (Knopf +
+   Panel untereinander). Die Flaechen sind `.mctrl-toggle` und
+   `.mctrl-panel` — auf ihnen muss der Tag-Look sitzen, sonst laege der
+   harte Versatzschatten um ein unsichtbares Kaestchen. */
+:root.day-mode :is(.mctrl-toggle, .mctrl-panel) {
   background: rgb(var(--bg-base-rgb) / .96);
   -webkit-backdrop-filter: none; backdrop-filter: none;
   box-shadow: 4px 5px 0 rgb(var(--acc-1-rgb) / .5), 0 2px 0 rgb(26 21 38 / .18);

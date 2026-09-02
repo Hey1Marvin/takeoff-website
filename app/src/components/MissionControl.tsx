@@ -7,7 +7,7 @@
    neu auf. Deshalb gibt es hier keinen Import aus sky/ — und keinen
    Doppelzustand zwischen React und Canvas ("Panel sagt Tag, Canvas malt
    Nacht"). Gleiche localStorage-Schluessel wie im Prototyp. */
-import { useSyncExternalStore } from "react";
+import { useEffect, useId, useState, useSyncExternalStore } from "react";
 
 const FX = [
   { v: "s", label: "Aus",    title: "Statisch — spart Akku & Daten" },
@@ -86,8 +86,57 @@ export default function MissionControl() {
      (main.js:6094-6104). Die Reihe bleibt sichtbar, aber gedimmt. */
   const groundOff = theme === "space";
 
+  /* Eingeklappt als Standard. Das Panel ist `position: fixed` in der rechten
+     unteren Ecke und war bisher IMMER offen — rund 330x230px, die auf jeder
+     Seite ueber dem Inhalt lagen (auf /awareness neben dem Fliesstext, auf
+     der 404 ueber dem Motiv). Es ist ein Einstellungswerkzeug, kein
+     Seiteninhalt; es gehoert griffbereit, nicht dauerhaft im Bild.
+     Der Zustand liegt im localStorage: wer es aufklappt, findet es beim
+     naechsten Seitenaufruf offen vor. Bewusst NICHT auf <html> — es ist
+     eine reine Bedien-Vorliebe, die die Szenen-Engine nichts angeht. */
+  const [offen, setOffen] = useState(false);
+  const panelId = useId();
+
+  /* Nach der Hydration den gespeicherten Wunsch nachziehen. Direkt im
+     useState-Initialisierer ginge das nicht: der Server kennt den Storage
+     nicht, und ein abweichender erster Client-Render ist ein
+     Hydration-Fehler. Einmalig, deshalb leere Abhaengigkeitsliste. */
+  useEffect(() => {
+    try {
+      if (localStorage.getItem("takeoff-mctrl") === "open") setOffen(true);
+    } catch { /* privater Modus — dann bleibt es zu */ }
+  }, []);
+
+  const umschalten = () => {
+    setOffen(o => {
+      const neu = !o;
+      save("takeoff-mctrl", neu ? "open" : "closed");
+      return neu;
+    });
+  };
+
   return (
-    <div className="mctrl" role="group" aria-label="Darstellungs-Einstellungen">
+    <div className={`mctrl${offen ? " is-open" : ""}`}>
+      <button
+        type="button"
+        className="mctrl-toggle"
+        aria-expanded={offen}
+        aria-controls={panelId}
+        onClick={umschalten}
+        title={offen ? "Einstellungen schliessen" : "Darstellung einstellen"}
+      >
+        {/* Schieberegler-Symbol — dieselbe Strichstaerke wie die uebrigen
+            Icons der Kopfleiste. */}
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6"
+             strokeLinecap="round" aria-hidden="true">
+          <path d="M4 8h10M18 8h2M4 16h4M12 16h8" />
+          <circle cx="16" cy="8" r="2" /><circle cx="10" cy="16" r="2" />
+        </svg>
+        <span className="mctrl-toggle-text">Darstellung</span>
+      </button>
+
+      <div className="mctrl-panel" id={panelId} role="group"
+           aria-label="Darstellungs-Einstellungen" hidden={!offen}>
       <div className="row">
         <span className="lbl">FX</span>
         {FX.map(b => (
@@ -122,6 +171,7 @@ export default function MissionControl() {
         <span className="lbl">Zeit</span>
         <button type="button" aria-pressed={!day} onClick={() => applyDay(false)}>Nacht</button>
         <button type="button" aria-pressed={day}  onClick={() => applyDay(true)}>Tag</button>
+        </div>
       </div>
     </div>
   );
