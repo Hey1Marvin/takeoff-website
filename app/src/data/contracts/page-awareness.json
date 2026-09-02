@@ -1,123 +1,475 @@
 {
   "$contract": "page-awareness",
-  "version": 1,
+  "version": 2,
   "label": "Awareness-Seite",
   "labelPlural": "Awareness-Seite",
   "icon": "shield",
-  "description": "Alle Texte der Awareness-Seite: Einleitung, Prinzipien-Kacheln, Hilfe-Zeilen, Hausregeln und frei erweiterbare Themen-Bausteine (z. B. Ruheraum, lila Weste, Free Water).",
-  "storage": { "scope": "page", "slug": "awareness" },
+  "description": "Alle Texte der Awareness-Seite. Neu erzeugt in It. 14 aus den tatsaechlichen Daten (src/data/pages/awareness.json): der alte Contract kannte 8 Felder, die Seite hat 71 — 67 waeren beim Speichern verloren gegangen, und 4 Contract-Felder gab es im Inhalt gar nicht mehr.",
+  "storage": {
+    "scope": "page",
+    "slug": "awareness"
+  },
   "fields": [
     {
       "key": "hero.eyebrow",
       "type": "text",
-      "label": "Kicker über der Überschrift",
-      "default": "Awareness",
-      "help": "Kurzes Wort über der großen Überschrift, z. B. „Awareness“."
+      "label": "Kopfbereich — Kicker"
     },
     {
       "key": "hero.h1",
       "type": "text",
-      "label": "Überschrift",
-      "required": true,
-      "default": "Feiern, auf das ihr euch verlassen könnt.",
-      "help": "Große Überschrift ganz oben auf der Seite."
+      "label": "Haupttitel"
     },
     {
       "key": "hero.intro",
       "type": "richtextLite",
-      "label": "Einleitungstext",
-      "required": true,
-      "default": "Awareness ist bei uns kein Aushang, sondern gelebte Praxis: eigenes Team, eigene Ersthelfer*innen, Free Water — auf jeder einzelnen Mission. Wir sagen ehrlich: Safer Space, nicht Safe Space. Aber wir tun alles dafür.",
-      "help": "Kurzer Absatz direkt unter der Überschrift — erklärt in 2–3 Sätzen, was Awareness bei takeoff bedeutet. **Fett** möglich, Absätze mit Leerzeile."
+      "label": "Kopfbereich — Einleitung"
+    },
+    {
+      "key": "heroAid.label",
+      "type": "text",
+      "label": "Soforthilfe-Kasten im Kopf — Beschriftung"
+    },
+    {
+      "key": "heroAid.note",
+      "type": "text",
+      "label": "Soforthilfe-Kasten im Kopf — Hinweis"
+    },
+    {
+      "key": "heroAid.linkLabel",
+      "type": "text",
+      "label": "Soforthilfe-Kasten im Kopf — Link-Beschriftung"
+    },
+    {
+      "key": "teamTiles",
+      "type": "list",
+      "label": "Team-Kacheln",
+      "of": [
+        {
+          "key": "icon",
+          "type": "image",
+          "label": "Symbol"
+        },
+        {
+          "key": "title",
+          "type": "text",
+          "label": "Überschrift"
+        },
+        {
+          "key": "text",
+          "type": "richtextLite",
+          "label": "Text"
+        }
+      ]
+    },
+    {
+      "key": "recognition.eyebrow",
+      "type": "text",
+      "label": "So erkennst du uns — Kicker"
+    },
+    {
+      "key": "recognition.title",
+      "type": "text",
+      "label": "Überschrift „So erkennst du uns“"
+    },
+    {
+      "key": "recognition.text",
+      "type": "richtextLite",
+      "label": "So erkennst du uns — Text"
+    },
+    {
+      "key": "recognition.vestColor",
+      "type": "text",
+      "label": "So erkennst du uns — Westenfarbe"
+    },
+    {
+      "key": "recognition.icon",
+      "type": "image",
+      "label": "So erkennst du uns — Symbol"
+    },
+    {
+      "key": "recognition.iconAlt",
+      "type": "text",
+      "label": "So erkennst du uns — Bildbeschreibung Symbol"
+    },
+    {
+      "key": "recognition.photo",
+      "type": "image",
+      "label": "So erkennst du uns — Foto"
+    },
+    {
+      "key": "approachReasons.eyebrow",
+      "type": "text",
+      "label": "Wobei du kommen kannst — Kicker"
+    },
+    {
+      "key": "approachReasons.intro",
+      "type": "text",
+      "label": "Wobei du kommen kannst — Einleitung"
+    },
+    {
+      "key": "approachReasons.items",
+      "type": "list",
+      "label": "Wobei du kommen kannst — Einträge",
+      "of": [
+        {
+          "key": "text",
+          "type": "text",
+          "label": "Eintrag"
+        }
+      ]
+    },
+    {
+      "key": "approachReasons.closing",
+      "type": "text",
+      "label": "Wobei du kommen kannst — Schlusssatz"
+    },
+    {
+      "key": "ruheraum.eyebrow",
+      "type": "text",
+      "label": "Ruheraum — Kicker"
+    },
+    {
+      "key": "ruheraum.line",
+      "type": "text",
+      "label": "Ruheraum — Zeile"
+    },
+    {
+      "key": "principlesHead.eyebrow",
+      "type": "text",
+      "label": "Überschrift Grundsätze — Kicker"
+    },
+    {
+      "key": "principlesHead.title",
+      "type": "text",
+      "label": "Überschrift Grundsätze — Überschrift"
+    },
+    {
+      "key": "principlesHead.intro",
+      "type": "text",
+      "label": "Überschrift Grundsätze — Einleitung"
     },
     {
       "key": "principles",
       "type": "list",
-      "label": "Prinzipien-Kacheln",
-      "help": "Die kleinen Kacheln ganz oben auf der Seite (z. B. „Awareness-Team“, „Free Water“). Reihenfolge im Formular = Reihenfolge auf der Seite. Neue Kachel einfach hinzufügen — sie erscheint automatisch, kein Programmieren nötig.",
+      "label": "Die 4 Grundsätze",
       "of": [
         {
-          "key": "icon",
-          "type": "select",
-          "label": "Symbol",
-          "required": true,
-          "options": [
-            { "value": "heart", "label": "Herz" },
-            { "value": "cross", "label": "Kreuz (Erste Hilfe)" },
-            { "value": "droplet", "label": "Tropfen (Wasser)" },
-            { "value": "camera", "label": "Kamera durchgestrichen (Fotoverbot)" },
-            { "value": "shield", "label": "Schild" },
-            { "value": "hand", "label": "Hand" }
-          ],
-          "help": "Welches Symbol vor dem Titel erscheint."
+          "key": "title",
+          "type": "text",
+          "label": "Überschrift"
         },
-        { "key": "title", "type": "text", "label": "Titel", "required": true, "help": "z. B. „Awareness-Team“." },
-        { "key": "text", "type": "richtextLite", "label": "Text", "required": true, "help": "Kurzer Erklärtext für diese Kachel. **Fett** für einzelne wichtige Sätze möglich." }
-      ],
-      "default": [
-        { "icon": "heart", "title": "Awareness-Team", "text": "Ansprechbar die ganze Nacht — erkennbar gekennzeichnet. Sprich uns an, wir kümmern uns. Sofort." },
-        { "icon": "cross", "title": "Sani-Team", "text": "Ausgebildete Ersthelfer*innen auf jedem Event. **Hilfe holen hat nie Konsequenzen — für niemanden.**" },
-        { "icon": "droplet", "title": "Free Water", "text": "Kostenloses Wasser am Awareness-Point. Trinkt, bevor ihr durstig seid — und passt aufeinander auf." },
-        { "icon": "camera", "title": "Fotoverbot", "text": "Kein Foto ohne Frage. Ausnahmen nur nach Absprache — was im Dunkeln passiert, bleibt da." }
+        {
+          "key": "text",
+          "type": "text",
+          "label": "Text"
+        }
       ]
     },
     {
-      "key": "help",
-      "type": "list",
-      "label": "Hilfe-Zeilen („Wenn's ernst wird“)",
-      "help": "Die Zeilen der Notfall-Tabelle. Stichwort links, Erklärung rechts, Link optional (z. B. Notruf-Nummer oder Mail-Adresse).",
-      "of": [
-        { "key": "label", "type": "text", "label": "Stichwort", "required": true, "help": "z. B. „Notruf“, „Am Event“, „Danach“, „Grundsatz“." },
-        { "key": "text", "type": "richtextLite", "label": "Erklärung", "required": true, "help": "**Fett** für den wichtigsten Teilsatz möglich." },
-        { "key": "link", "type": "text", "label": "Link (optional)", "help": "z. B. „tel:112“ oder „mailto:info@takeoff-potsdam.de“ — leer lassen, wenn die Zeile keinen Link braucht." }
-      ],
-      "default": [
-        { "label": "Notruf", "text": "**112** — bei jedem medizinischen Notfall, ohne Zögern.", "link": "tel:112" },
-        { "label": "Am Event", "text": "Awareness-Team & Sanis ansprechen — oder irgendwen von der Crew, wir sind vernetzt.", "link": "" },
-        { "label": "Danach", "text": "Ist etwas passiert? Schreib uns.", "link": "mailto:info@takeoff-potsdam.de" },
-        { "label": "Grundsatz", "text": "**Hilfe holen hat nie Konsequenzen.** Für niemanden. Nie.", "link": "" }
-      ]
+      "key": "consequences.label",
+      "type": "text",
+      "label": "Eskalation — Beschriftung"
     },
     {
-      "key": "rules",
-      "type": "list",
-      "label": "Hausregeln (Kurz-Chips)",
-      "help": "Kurze Stichpunkte, erscheinen als Chips. „Betont darstellen“ hebt eine Regel farblich hervor — für die wichtigsten Regeln (z. B. Konsens, Diskriminierung).",
-      "of": [
-        { "key": "text", "type": "text", "label": "Regel", "required": true, "help": "Kurzer Stichpunkt, z. B. „Konsens ist Pflicht“." },
-        { "key": "hot", "type": "toggle", "label": "Betont darstellen", "default": false }
-      ],
-      "default": [
-        { "text": "Konsens ist Pflicht", "hot": true },
-        { "text": "Keine Diskriminierung", "hot": true },
-        { "text": "Kein Foto ohne Frage", "hot": false },
-        { "text": "18+ mit Ausweis", "hot": false },
-        { "text": "Zero Tolerance bei K.-o.-Substanzen", "hot": false },
-        { "text": "Awareness ist ansprechbar", "hot": false }
-      ]
-    },
-    {
-      "key": "infoBlocks",
-      "type": "list",
-      "label": "Themen-Bausteine (z. B. Ruheraum, lila Weste, Free Water)",
-      "help": "Frei erweiterbare Infoblöcke für einzelne Awareness-Themen — zusätzlich zu den Prinzipien-Kacheln oben. Neuen Baustein einfach hinzufügen, wenn ein neues Thema erklärt werden soll (z. B. Ruheraum, Erkennung am Awareness-Team, Free Water).",
-      "of": [
-        { "key": "title", "type": "text", "label": "Titel", "required": true, "help": "z. B. „Ruheraum“ oder „Lila Weste“." },
-        { "key": "text", "type": "richtextLite", "label": "Text", "required": true, "help": "1–3 Sätze Erklärung. **Fett** und Absätze möglich." }
-      ],
-      "default": [
-        { "title": "Ruheraum", "text": "Auf ausgewählten Events gibt's einen ruhigen Rückzugsort abseits vom Floor — zum Durchatmen, Runterkommen oder wenn dir kurz alles zu viel wird. Frag das Awareness-Team, wo er gerade ist." },
-        { "title": "Lila Weste", "text": "Unser Awareness-Team erkennst du an der lila Weste. Ansprechbar die ganze Nacht — sprich uns einfach an, wir kümmern uns." },
-        { "title": "Free Water", "text": "Kostenloses Trinkwasser am Awareness-Point auf jedem Event. Trinkt, bevor ihr durstig seid — und passt aufeinander auf." }
-      ]
-    },
-    {
-      "key": "closingText",
+      "key": "consequences.text",
       "type": "richtextLite",
-      "label": "Abschluss-Text (unter den Hausregeln)",
-      "default": "Wer Grenzen verletzt, fliegt — ohne Diskussion. Es gelten zusätzlich die Regeln der jeweiligen Location (z. B. der freiLand-Grundkonsens im Spartacus). Das vollständige Awareness-Konzept veröffentlichen wir hier, sobald es mit dem ganzen Team abgestimmt ist.",
-      "help": "Schlusswort direkt unter den Hausregeln-Chips. **Fett** und Absätze möglich."
+      "label": "Eskalation — Text"
+    },
+    {
+      "key": "helpHead.eyebrow",
+      "type": "text",
+      "label": "Überschrift Hilfe & Notfall — Kicker"
+    },
+    {
+      "key": "helpHead.title",
+      "type": "text",
+      "label": "Überschrift Hilfe & Notfall — Überschrift"
+    },
+    {
+      "key": "reportChannels.labels.atEvent",
+      "type": "text",
+      "label": "Meldewege — Beschriftungen — Am Event"
+    },
+    {
+      "key": "reportChannels.labels.afterEvent",
+      "type": "text",
+      "label": "Meldewege — Beschriftungen — Nach dem Event"
+    },
+    {
+      "key": "reportChannels.labels.principle",
+      "type": "text",
+      "label": "Meldewege — Beschriftungen — principle"
+    },
+    {
+      "key": "reportChannels.atEvent",
+      "type": "text",
+      "label": "Meldewege — Am Event"
+    },
+    {
+      "key": "reportChannels.afterEvent.intro",
+      "type": "text",
+      "label": "Meldewege — Nach dem Event — Einleitung"
+    },
+    {
+      "key": "reportChannels.afterEvent.email",
+      "type": "text",
+      "label": "Meldewege — Nach dem Event — E-Mail"
+    },
+    {
+      "key": "reportChannels.afterEvent.subject",
+      "type": "text",
+      "label": "Meldewege — Nach dem Event — Betreff"
+    },
+    {
+      "key": "reportChannels.afterEvent.responseNote",
+      "type": "text",
+      "label": "Meldewege — Nach dem Event — Antwortzeit"
+    },
+    {
+      "key": "reportChannels.principleText",
+      "type": "text",
+      "label": "Meldewege — Grundsatz-Text"
+    },
+    {
+      "key": "emergencyNumbers",
+      "type": "list",
+      "label": "Notfallnummern",
+      "of": [
+        {
+          "key": "label",
+          "type": "text",
+          "label": "Beschriftung"
+        },
+        {
+          "key": "number",
+          "type": "text",
+          "label": "number"
+        },
+        {
+          "key": "note",
+          "type": "text",
+          "label": "Hinweis"
+        }
+      ]
+    },
+    {
+      "key": "substances.toleranceText",
+      "type": "richtextLite",
+      "label": "Substanzen — Toleranz"
+    },
+    {
+      "key": "substances.healthText",
+      "type": "richtextLite",
+      "label": "Substanzen — Gesundheit"
+    },
+    {
+      "key": "substances.links",
+      "type": "list",
+      "label": "Substanzen — Links",
+      "of": [
+        {
+          "key": "label",
+          "type": "text",
+          "label": "Beschriftung"
+        },
+        {
+          "key": "url",
+          "type": "text",
+          "label": "url"
+        }
+      ]
+    },
+    {
+      "key": "substances.disclaimer",
+      "type": "richtextLite",
+      "label": "Substanzen — Rechtlicher Hinweis"
+    },
+    {
+      "key": "spiking.title",
+      "type": "text",
+      "label": "K.-o.-Tropfen — Überschrift"
+    },
+    {
+      "key": "spiking.signs",
+      "type": "list",
+      "label": "K.-o.-Tropfen — Anzeichen",
+      "of": [
+        {
+          "key": "text",
+          "type": "text",
+          "label": "Eintrag"
+        }
+      ]
+    },
+    {
+      "key": "spiking.action",
+      "type": "text",
+      "label": "K.-o.-Tropfen — Handlung"
+    },
+    {
+      "key": "gettingHome.eyebrow",
+      "type": "text",
+      "label": "Sicher nach Hause — Kicker"
+    },
+    {
+      "key": "gettingHome.title",
+      "type": "text",
+      "label": "Sicher nach Hause — Überschrift"
+    },
+    {
+      "key": "gettingHome.intro",
+      "type": "text",
+      "label": "Sicher nach Hause — Einleitung"
+    },
+    {
+      "key": "gettingHome.tipsLabel",
+      "type": "text",
+      "label": "Sicher nach Hause — Überschrift Tipps"
+    },
+    {
+      "key": "gettingHome.tips",
+      "type": "list",
+      "label": "Sicher nach Hause — Tipps",
+      "of": [
+        {
+          "key": "text",
+          "type": "text",
+          "label": "Eintrag"
+        }
+      ]
+    },
+    {
+      "key": "gettingHome.mapsNote",
+      "type": "text",
+      "label": "Sicher nach Hause — Karten-Hinweis"
+    },
+    {
+      "key": "gettingHome.nextLabel",
+      "type": "text",
+      "label": "Sicher nach Hause — Beschriftung nächstes Event"
+    },
+    {
+      "key": "gettingHome.useNextEventVenue",
+      "type": "toggle",
+      "label": "Sicher nach Hause — Venue des nächsten Events verwenden"
+    },
+    {
+      "key": "houseRules.eyebrow",
+      "type": "text",
+      "label": "Hausregeln — Kicker"
+    },
+    {
+      "key": "houseRules.title",
+      "type": "text",
+      "label": "Hausregeln — Überschrift"
+    },
+    {
+      "key": "houseRules.intro",
+      "type": "text",
+      "label": "Hausregeln — Einleitung"
+    },
+    {
+      "key": "houseRules.rules",
+      "type": "list",
+      "label": "Hausregeln — Regeln",
+      "of": [
+        {
+          "key": "text",
+          "type": "text",
+          "label": "Text"
+        },
+        {
+          "key": "hot",
+          "type": "toggle",
+          "label": "hot"
+        }
+      ]
+    },
+    {
+      "key": "houseRules.venueNote",
+      "type": "richtextLite",
+      "label": "Hausregeln — Hinweis zur Location"
+    },
+    {
+      "key": "faqHead.eyebrow",
+      "type": "text",
+      "label": "Überschrift FAQ — Kicker"
+    },
+    {
+      "key": "faqHead.title",
+      "type": "text",
+      "label": "Überschrift FAQ — Überschrift"
+    },
+    {
+      "key": "faq",
+      "type": "list",
+      "label": "Häufige Fragen",
+      "of": [
+        {
+          "key": "q",
+          "type": "text",
+          "label": "q"
+        },
+        {
+          "key": "a",
+          "type": "text",
+          "label": "a"
+        }
+      ]
+    },
+    {
+      "key": "share.label",
+      "type": "text",
+      "label": "Teilen-Knopf — Beschriftung"
+    },
+    {
+      "key": "share.text",
+      "type": "text",
+      "label": "Teilen-Knopf — Text"
+    },
+    {
+      "key": "share.copiedToast",
+      "type": "text",
+      "label": "Teilen-Knopf — Meldung nach dem Kopieren"
+    },
+    {
+      "key": "transmission.label",
+      "type": "text",
+      "label": "Schlusswort — Beschriftung"
+    },
+    {
+      "key": "transmission.text",
+      "type": "richtextLite",
+      "label": "Schlusswort — Text"
+    },
+    {
+      "key": "meta.label",
+      "type": "text",
+      "label": "Stand & Status — Beschriftung"
+    },
+    {
+      "key": "meta.lastReviewed",
+      "type": "date",
+      "label": "Stand & Status — Zuletzt geprüft"
+    },
+    {
+      "key": "meta.statusNote",
+      "type": "text",
+      "label": "Stand & Status — Status-Hinweis"
+    },
+    {
+      "key": "images.heroBg",
+      "type": "image",
+      "label": "Bilder — Hintergrundbild Kopf"
+    },
+    {
+      "key": "images.vestIcon",
+      "type": "image",
+      "label": "Bilder — Westen-Symbol"
     }
   ],
-  "actions": ["edit"]
+  "actions": [
+    "edit"
+  ]
 }
