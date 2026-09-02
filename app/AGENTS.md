@@ -50,6 +50,8 @@ Deshalb:
 | **Datentypen = Contracts** (werden später Supabase-Tabellen + Admin-Formulare) | `src/data/contracts/*.json` + `src/lib/types.ts` synchron halten |
 | **Text braucht eine Fläche.** Über Strand- und Marsszene ist der Hintergrund hell. Neue Textblöcke in die `:is()`-Liste in `scene-night.css` eintragen — auf der ENGSTEN sinnvollen Ebene, sonst wird ein halber Bildschirm dunkel | `src/styles/scene-night.css` |
 | **Label-Wert-Listen sind ein Subgrid** (`.m-rows`/`.m-row`): alle Werte beginnen links auf einer Linie. Keine eigenen Flex-Layouts dafür bauen | `src/styles/takeoff.css` |
+| **Medien gehoeren in die Datenschicht.** Videos als `MediaItem` am Event/Artist bzw. in `db.json → media.<seite>`, nie als Pfad im TSX. Neue Clips entstehen aus `scripts/encode-reels.sh` + `reels-map.tsv`; das Rohmaterial in `InstaReels/` bleibt lokal | `src/data/db.json`, `MediaGallery.tsx` |
+| **Fremd-Player nur in drei Stufen**: Ruhezustand → Hinweis → Embed. Vor der Zustimmung geht KEIN Request an SoundCloud/YouTube, auch kein Standbild. Prüfung 10 in `verify-ui.mjs` misst das | `ArtistsSetCard.tsx` |
 | **FX-Tiers + reduced-motion** in jeder Client-Komponente respektieren | Boot-Script in `layout.tsx`, Muster in `Starfield.tsx` |
 | **Darstellungs-Zustand lebt auf `<html>`**, nicht in React: `data-fx`, `data-theme`, `data-video`, `lang` und die Klassen `day-mode`, `ground-on`, `scene-edges`, `is-event`, `js`. Schalter schreiben nur dorthin, Leser abonnieren per `MutationObserver`/`useSyncExternalStore` — nie ein zweiter Zustand daneben („Panel sagt Tag, Canvas malt Nacht") | `layout.tsx` (BOOT), `src/lib/sky/state.ts`, `MissionControl.tsx` |
 | Kein Tracking, keine Dritt-Requests, Embeds nur als Zwei-Klick-Facade | CLAUDE.md (Repo-Wurzel) |
