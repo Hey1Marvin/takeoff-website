@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import type { CSSProperties, ReactNode } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { pageContent, team, history, past, settings, partners } from "@/lib/data";
+import { pageContent, team, history, past, settings, partners, pageMedia } from "@/lib/data";
 import KollektivBlueprint from "@/components/pages/KollektivBlueprint";
 import KollektivRig from "@/components/pages/KollektivRig";
 import KollektivHistory from "@/components/pages/KollektivHistory";
@@ -11,6 +11,7 @@ import KollektivStats, { type StatCell } from "@/components/pages/KollektivStats
 import KollektivSpend from "@/components/pages/KollektivSpend";
 import "@/styles/pages/kollektiv.css";
 import { pageHref } from "@/lib/site";
+import MediaGallery from "@/components/pages/MediaGallery";
 
 export const metadata: Metadata = {
   title: "Kollektiv · takeoff potsdam",
@@ -160,13 +161,14 @@ function BpSheet({
 }
 
 export default async function KollektivPage() {
-  const [page, crew, hist, gone, s, familie] = await Promise.all([
+  const [page, crew, hist, gone, s, familie, clips] = await Promise.all([
     pageContent<KollektivPageContent>("kollektiv"),
     team(),
     history(),
     past(),
     settings(),
     partners(),
+    pageMedia("kollektiv"),
   ]);
   if (!page) notFound();
 
@@ -241,7 +243,16 @@ export default async function KollektivPage() {
           <p className="eyebrow">Fotowand</p>
           <h2 className="h2">Momente</h2>
         </header>
-        <div className="gallery-grid">
+        {clips.length > 0 && (
+          <>
+            <p className="section-intro" style={{ marginTop: 0 }}>
+              Bewegtbild ist schon da — wie wir bauen, und wie aus drei Tagen Vorlauf
+              ein zweiter Subwoofer wird.
+            </p>
+            <MediaGallery items={clips} label="Videos des Kollektivs" />
+          </>
+        )}
+        <div className="gallery-grid" style={{ marginTop: clips.length > 0 ? 22 : 0 }}>
           <div className="gph"><span className="bp-fig" aria-hidden="true">FIG. 01</span>Foto folgt<br />nach Freigabe</div>
           <div className="gph"><span className="bp-fig" aria-hidden="true">FIG. 02</span>Foto folgt<br />nach Freigabe</div>
           <div className="gph"><span className="bp-fig" aria-hidden="true">FIG. 03</span>Foto folgt<br />nach Freigabe</div>

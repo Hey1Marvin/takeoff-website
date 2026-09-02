@@ -2055,3 +2055,98 @@ body.has-sticky .mctrl { bottom: 72px; }
   .nav-lang button { min-width: 26px; padding: 0; }
 }
 
+
+/* ============================================================
+   Set-Player (Stufe 3 der Zwei-Klick-Fassade)
+
+   Die Karte wird zum Rahmen fuer das Embed. Kein eigener Rand um das
+   iframe: SoundCloud und YouTube bringen ihren eigenen mit, ein zweiter
+   Rahmen sieht nach Fehler aus.
+   ============================================================ */
+.setcard.is-playing {
+  display: block; padding: 0; overflow: hidden;
+  border-color: rgb(var(--acc-2-rgb) / .5);
+  cursor: default; transform: none;
+}
+.set-player {
+  display: block; width: 100%; border: 0;
+  aspect-ratio: 16 / 9;                 /* YouTube */
+  background: var(--bg-void);
+}
+/* SoundCloud braucht keine 16:9-Flaeche — der Wellenform-Player ist flach.
+   Erkennbar an der Quelle, deshalb ueber das src-Attribut adressiert. */
+.set-player[src*="soundcloud"] { aspect-ratio: auto; height: 166px; }
+
+/* ============================================================
+   Medien-Galerie — die Clips des Kollektivs
+
+   Instagram liefert 9:16, die Rave-Mitschnitte sind quer. Beides in
+   dasselbe quadratische Raster zu zwingen, schneidet entweder Koepfe ab
+   oder laesst Balken stehen. Deshalb behaelt jede Kachel ihr Format und
+   das Raster fuellt die Luecken auf.
+   ============================================================ */
+.mgal {
+  display: grid; gap: 14px; margin-top: 22px; padding: 0; list-style: none;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  /* `start` statt des Grid-Standards `stretch`: sonst zieht die Zeilenhoehe
+     jede Kachel auf die Hoehe der groessten, und unter dem Standbild klafft
+     Leerraum. Hoch- und Querformat nebeneinander heisst zwangslaeufig
+     unterschiedliche Hoehen — die duerfen sie behalten.
+     `dense` fuellt die Luecken, die die doppelt breiten Querformat-Kacheln
+     sonst hinter sich lassen. */
+  align-items: start;
+  grid-auto-flow: row dense;
+}
+.mgal-item {
+  position: relative; margin: 0; padding: 0;
+  border: 1px solid var(--bg-hairline); border-radius: var(--radius);
+  overflow: hidden; background: var(--bg-1);
+  transition: border-color .3s, transform .35s var(--ease-out);
+}
+.mgal-item:hover { border-color: rgb(var(--acc-2-rgb) / .5); transform: translateY(-3px); }
+.mgal-item.quer { grid-column: span 2; }
+@media (max-width: 560px) { .mgal-item.quer { grid-column: span 1; } }
+
+.mgal-flaeche { position: relative; display: block; width: 100%; border: 0;
+                padding: 0; background: none; cursor: pointer; color: inherit; }
+.mgal-item.hoch .mgal-flaeche { aspect-ratio: 9 / 16; }
+.mgal-item.quer .mgal-flaeche { aspect-ratio: 16 / 9; }
+.mgal-poster, .mgal-video { position: absolute; inset: 0; width: 100%; height: 100%;
+                            object-fit: cover; display: block; }
+/* Der Verlauf traegt die Bildunterschrift — ohne ihn steht heller Text auf
+   hellem Standbild. Derselbe weiche Auslauf wie die Traegerflaechen. */
+.mgal-flaeche::after {
+  content: ""; position: absolute; inset: auto 0 0 0; height: 55%;
+  background: linear-gradient(to top, rgb(var(--bg-void-rgb) / .92), rgb(var(--bg-void-rgb) / 0));
+  pointer-events: none;
+}
+.mgal-play {
+  position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+  width: 46px; height: 46px; border-radius: 50%;
+  display: grid; place-items: center; font-size: 15px;
+  background: rgb(var(--acc-1-rgb) / .32); color: var(--ink);
+  border: 1px solid rgb(var(--acc-1-rgb) / .5);
+  transition: transform .3s var(--ease-out), background .3s;
+}
+.mgal-flaeche:hover .mgal-play { transform: translate(-50%, -50%) scale(1.12); background: rgb(var(--acc-1-rgb) / .5); }
+.mgal-cap {
+  position: absolute; left: 12px; right: 12px; bottom: 10px; z-index: 1;
+  font-size: 12.5px; line-height: 1.35; color: var(--ink-dim); pointer-events: none;
+}
+.mgal-dauer {
+  position: absolute; right: 10px; top: 10px; z-index: 1;
+  font-family: var(--font-mono); font-size: 10px; letter-spacing: var(--track-label);
+  padding: 2px 6px; border-radius: 4px;
+  background: rgb(var(--bg-void-rgb) / .7); color: var(--ink-faint);
+}
+.mgal-ton {
+  position: absolute; right: 10px; bottom: 10px; z-index: 2;
+  font-family: var(--font-mono); font-size: 10px; letter-spacing: var(--track-label);
+  padding: 4px 9px; border-radius: 999px; cursor: pointer;
+  background: rgb(var(--bg-void-rgb) / .8); color: var(--ink-dim);
+  border: 1px solid var(--bg-hairline);
+}
+.mgal-ton:hover { color: var(--ink); border-color: rgb(var(--acc-2-rgb) / .6); }
+
+/* Stufe s: keine Videos, nur Standbilder — die Seite bleibt vollstaendig. */
+:root[data-fx="s"] .mgal-play { display: none; }

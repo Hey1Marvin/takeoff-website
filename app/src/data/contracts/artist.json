@@ -5,7 +5,11 @@
   "labelPlural": "Artists",
   "icon": "headphones",
   "description": "DJs & Acts des Kollektivs. Einmal global angelegt, können sie im Lineup beliebiger Events ausgewählt werden.",
-  "storage": { "scope": "db", "collection": "artists", "key": "slug" },
+  "storage": {
+    "scope": "db",
+    "collection": "artists",
+    "key": "slug"
+  },
   "fields": [
     {
       "key": "slug",
@@ -63,8 +67,19 @@
       "type": "list",
       "label": "Sets & Mixe",
       "of": [
-        { "key": "title", "type": "text", "label": "Titel", "required": true, "help": "z. B. „JOJO | takeoff Podcast #1“." },
-        { "key": "meta", "type": "text", "label": "Zusatzinfo", "help": "z. B. „Serie · YouTube & SoundCloud“ oder „09.05. · Liveset“." }
+        {
+          "key": "title",
+          "type": "text",
+          "label": "Titel",
+          "required": true,
+          "help": "z. B. „JOJO | takeoff Podcast #1“."
+        },
+        {
+          "key": "meta",
+          "type": "text",
+          "label": "Zusatzinfo",
+          "help": "z. B. „Serie · YouTube & SoundCloud“ oder „09.05. · Liveset“."
+        }
       ],
       "help": "Verlinkte Sets/Mixe/Podcast-Folgen dieses Acts, in Anzeige-Reihenfolge."
     },
@@ -81,11 +96,85 @@
       "type": "text",
       "label": "Eigene Artist-Seite",
       "help": "Pfad zu einer individuell gestalteten Profilseite, z. B. „artist-cyonic.html“. Leer lassen für die Standard-Ansicht."
+    },
+    {
+      "key": "media",
+      "label": "Videos",
+      "type": "list",
+      "hint": "Clips zu diesem Eintrag. Dateien liegen unter public/media/ und entstehen aus scripts/encode-reels.sh.",
+      "item": {
+        "type": "group",
+        "fields": [
+          {
+            "key": "kind",
+            "label": "Art",
+            "type": "select",
+            "options": [
+              "video",
+              "image"
+            ]
+          },
+          {
+            "key": "rolle",
+            "label": "Rolle",
+            "type": "select",
+            "options": [
+              "teaser",
+              "galerie",
+              "portrait"
+            ]
+          },
+          {
+            "key": "src",
+            "label": "Datei",
+            "type": "text"
+          },
+          {
+            "key": "poster",
+            "label": "Standbild",
+            "type": "image"
+          },
+          {
+            "key": "caption",
+            "label": "Bildunterschrift",
+            "type": "text"
+          },
+          {
+            "key": "ton",
+            "label": "Hat Ton",
+            "type": "toggle"
+          },
+          {
+            "key": "orientation",
+            "label": "Format",
+            "type": "select",
+            "options": [
+              "hoch",
+              "quer"
+            ]
+          },
+          {
+            "key": "dauer",
+            "label": "Dauer (s)",
+            "type": "number"
+          }
+        ]
+      }
     }
   ],
   "list": {
-    "columns": ["name", "role", "genres", "visible"],
+    "columns": [
+      "name",
+      "role",
+      "genres",
+      "visible"
+    ],
     "sort": "name"
   },
-  "actions": ["create", "edit", "toggleVisible", "delete"]
+  "actions": [
+    "create",
+    "edit",
+    "toggleVisible",
+    "delete"
+  ]
 }

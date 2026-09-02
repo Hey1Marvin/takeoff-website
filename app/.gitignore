@@ -42,3 +42,6 @@ next-env.d.ts
 
 # intern: SQLite-Datenbank des Crew-Bereichs (niemals ins Repo)
 /.data/
+
+# ---- Parallel-Arbeitsplaetze (eigene Build-Verzeichnisse) ----
+.next-*

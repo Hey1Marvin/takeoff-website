@@ -254,7 +254,10 @@ const MESSEN = () => {
 };
 
 /* ------------------------------------------------------------ */
-await rm(AUS, { recursive: true, force: true });
+/* Nur bei einem VOLLLAUF aufraeumen. Ein Teillauf ueber zwei Routen darf
+   nicht die Screenshots aller anderen wegwerfen — sonst steht man nach dem
+   Nachmessen einer einzelnen Seite ohne Vergleichsmaterial da. */
+if (!ROUTEN.length) await rm(AUS, { recursive: true, force: true });
 await mkdir(AUS, { recursive: true });
 
 const browser = await chromium.launch();

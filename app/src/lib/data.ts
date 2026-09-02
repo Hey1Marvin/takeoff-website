@@ -131,6 +131,12 @@ export async function history() {
   return (await db()).history;
 }
 
+/* Medien, die einer SEITE gehoeren statt einem Datensatz (kollektiv).
+   Datensatz-Medien haengen direkt am Event bzw. Artist. */
+export async function pageMedia(slug: string) {
+  return ((await db()).media ?? {})[slug] ?? [];
+}
+
 export async function pageContent<T = Record<string, unknown>>(slug: string): Promise<T | null> {
   const extra = await adapter.loadPage(slug);
   if (extra) return extra as T;

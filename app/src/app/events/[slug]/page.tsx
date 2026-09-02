@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import MediaGallery from "@/components/pages/MediaGallery";
+import ArtistsSetCard from "@/components/pages/ArtistsSetCard";
 import { notFound } from "next/navigation";
 import { events, event, settings, fmtDate } from "@/lib/data";
 import { t } from "@/lib/i18n";
@@ -102,6 +104,32 @@ export default async function EventDetail(
             <h3>Die Nacht in Zahlen</h3>
             <div className="stats" style={{ border: 0, padding: "10px 0" }}>
               {e.stats.map(st => <div key={st.l}><b>{st.n}</b><span>{st.l}</span></div>)}
+            </div>
+          </div>
+        )}
+
+        {e.media && e.media.length > 0 && (
+          <div className="eblock">
+            <h3>Videos</h3>
+            <MediaGallery items={e.media} label={`Videos vom Event ${e.title}`} />
+          </div>
+        )}
+
+        {e.sets && e.sets.length > 0 && (
+          <div className="eblock">
+            <h3>Sets zum Nachhören</h3>
+            <div className="setgrid">
+              {e.sets.map((set, i) => (
+                <ArtistsSetCard
+                  key={set.id}
+                  data={{
+                    id: `${e.slug}-set-${i}`, title: set.title, meta: set.meta,
+                    quelle: { platform: set.platform, id: set.id, url: set.url },
+                  }}
+                  consentText="Zwei-Klick: erst der Hinweis, dann erst lädt der Player."
+                  ariaLabel={`Set abspielen: ${set.title}`}
+                />
+              ))}
             </div>
           </div>
         )}

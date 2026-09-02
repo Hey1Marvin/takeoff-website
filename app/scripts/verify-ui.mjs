@@ -304,6 +304,53 @@ for (const r of ["/events/marsmission", "/awareness", "/news", "/kalender", "/mu
   await ctx.close();
 }
 
+// ---------- 10) Medien: erreichbar, nicht zu schwer, Zwei-Klick dicht ----------
+/* Ein Tippfehler im Pfad endet als stummer schwarzer Kasten — der Build merkt
+   davon nichts. Und der Zwei-Klick-Vertrag aus CLAUDE.md §6 ist eine Zusage an
+   Besucher: vor der Zustimmung geht KEIN Byte an SoundCloud oder YouTube.
+   Beides wird hier gemessen statt behauptet. */
+console.log("\n== Medien & Zwei-Klick ==");
+{
+  const db = JSON.parse(await (await import("node:fs/promises")).readFile(
+    new URL("../src/data/db.json", import.meta.url), "utf8"));
+  const pfade = new Set();
+  const sammle = o => (o?.media ?? []).forEach(m => { pfade.add(m.src); pfade.add(m.poster); });
+  db.events.forEach(sammle); db.artists.forEach(sammle);
+  Object.values(db.media ?? {}).forEach(l => l.forEach(m => { pfade.add(m.src); pfade.add(m.poster); }));
+
+  let fehlend = 0, zuGross = [];
+  for (const p of pfade) {
+    const r = await fetch(BASE + p, { method: "HEAD" });
+    if (!r.ok) { fehlend++; console.log(`       fehlt: ${p} (${r.status})`); continue; }
+    const mb = Number(r.headers.get("content-length") || 0) / 1048576;
+    if (p.endsWith(".mp4") && mb > 4) zuGross.push(`${p} ${mb.toFixed(1)}MB`);
+  }
+  note(fehlend === 0, `alle ${pfade.size} Mediendateien erreichbar (${fehlend} fehlend)`);
+  note(zuGross.length === 0, `kein Video über 4 MB${zuGross.length ? " — " + zuGross.join(", ") : ""}`);
+}
+{
+  const DRITTE = /soundcloud|sndcdn|youtube|youtu\.be|ytimg|googlevideo/i;
+  for (const [route, name] of [["/artists/jojo", "YouTube"], ["/events/spartacus-nacht", "SoundCloud"]]) {
+    const ctx = await browser.newContext();
+    const page = await ctx.newPage();
+    const extern = [];
+    page.on("request", r => { if (DRITTE.test(r.url())) extern.push(r.url()); });
+    await page.goto(BASE + route, { waitUntil: "load" });
+    await page.waitForTimeout(1500);
+    const vorher = extern.length;
+    const karte = await page.$(".setcard");
+    if (karte) { await karte.click(); await page.waitForTimeout(900); }
+    const nachErstem = extern.length;
+    if (karte) { await page.click(".setcard.asked"); await page.waitForTimeout(2200); }
+    const player = await page.evaluate(() => document.querySelector(".set-player")?.getAttribute("src") ?? "");
+    note(vorher === 0 && nachErstem === 0,
+      `${name}: kein Dritt-Request vor der Zustimmung (${nachErstem})`);
+    note(player.length > 0 && extern.length > nachErstem,
+      `${name}: Player lädt erst nach dem zweiten Klick`);
+    await ctx.close();
+  }
+}
+
 await browser.close();
 console.log(`\n==== ${fails.length ? fails.length + " FEHLER" : "ALLES GRUEN"} ====`);
 if (fails.length) { fails.forEach(f => console.log("  - " + f)); process.exit(1); }

@@ -5,6 +5,7 @@ import { artists, artist, event, settings, fmtDate } from "@/lib/data";
 import type { TakeoffEvent } from "@/lib/types";
 import ArtistOrbitAvatar from "@/components/pages/ArtistOrbitAvatar";
 import ArtistsSetCard from "@/components/pages/ArtistsSetCard";
+import MediaGallery from "@/components/pages/MediaGallery";
 import "@/styles/pages/artists.css";
 import { pageHref } from "@/lib/site";
 
@@ -83,6 +84,18 @@ export default async function ArtistDetail(
         </div>
       </section>
 
+      {a.media && a.media.length > 0 && (
+        <section className="section" style={{ paddingTop: 0 }}>
+          <div className="wrap">
+            <header className="section-head">
+              <p className="eyebrow">Bewegtbild</p>
+              <h2 className="h2">Vor dem <span className="glow">Pult</span></h2>
+            </header>
+            <MediaGallery items={a.media} label={`Videos von ${a.name}`} />
+          </div>
+        </section>
+      )}
+
       {a.sets.length > 0 && (
         <section className="section" style={{ paddingTop: 0 }}>
           <div className="wrap">
@@ -94,7 +107,10 @@ export default async function ArtistDetail(
               {a.sets.map((set, i) => (
                 <ArtistsSetCard
                   key={i}
-                  data={{ id: `${a.slug}-${i}`, title: set.title, meta: set.meta }}
+                  data={{
+                    id: `${a.slug}-${i}`, title: set.title, meta: set.meta,
+                    quelle: { platform: set.platform, id: set.id, url: set.url },
+                  }}
                   consentText={CONSENT_TEXT}
                   ariaLabel={`Set abspielen: ${set.title}`}
                 />

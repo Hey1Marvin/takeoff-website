@@ -106,7 +106,10 @@ export default async function ArtistsPage() {
   /* Sets & Podcast: alle Sets aller sichtbaren Artists geflacht — Grundlage
      fuer Grid + "Random Transmission". */
   const flatSets = artistList.flatMap(a =>
-    a.sets.map((set, i) => ({ id: `${a.slug}-${i}`, title: set.title, meta: set.meta }))
+    a.sets.map((set, i) => ({
+      id: `${a.slug}-${i}`, title: set.title, meta: set.meta,
+      quelle: { platform: set.platform, id: set.id, url: set.url },
+    }))
   );
 
   /* Gäste-Log: Auftritts-Zuordnung aus den Lineups aller sichtbaren Events —

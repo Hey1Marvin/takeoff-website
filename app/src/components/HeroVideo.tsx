@@ -22,10 +22,15 @@
 import { useEffect, useRef } from "react";
 
 const KEY = "takeoff-video";
-const POSTER = "/img/hero-rave-poster.webp";
+/* Echtes Material statt Platzhalter: ein Mitschnitt vom Mario-Kart-Rave,
+   aus der Menge aufs Pult gefilmt — von Marvin als Hero-Kandidat benannt.
+   Dunkel genug, dass die Wortmarke darueber lesbar bleibt.
+   Austauschen heisst: hier zwei Zeilen aendern (Kandidaten stehen in
+   scripts/reels-map.tsv, z. B. mariokart-molly-02 fuer mehr Bewegung). */
+const POSTER = "/media/mariokart-molly-04.jpg";
 const SOURCES = [
-  { src: "/video/hero-rave.webm", type: "video/webm" },
-  { src: "/video/hero-rave.mp4", type: "video/mp4" },
+  { src: "/media/mariokart-molly-04.webm", type: "video/webm" },
+  { src: "/media/mariokart-molly-04.mp4", type: "video/mp4" },
 ];
 /* Unterhalb dieses Anteils sichtbarer Hero-Höhe darf der Boden (Mars-/
    Strandhorizont) wieder erscheinen — siehe hv-cover in hero-video.css. */
