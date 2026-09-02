@@ -10,6 +10,7 @@ import EventsTminusClock from "@/components/pages/EventsTminusClock";
 import EventsShareButton from "@/components/pages/EventsShareButton";
 import EventsFlightLog from "@/components/pages/EventsFlightLog";
 import EventsBpmTool from "@/components/pages/EventsBpmTool";
+import EventsBoardPower from "@/components/pages/EventsBoardPower";
 import "@/styles/pages/events.css";
 
 export const metadata: Metadata = {
@@ -157,6 +158,7 @@ export default async function EventsPage() {
 
           {up.length > 0 && (
             <div className="board">
+              <EventsBoardPower />
               <div className="board-frame">
                 <div className="board-toprow">
                   <span className="board-code" aria-hidden="true">{page?.board.code ?? "PDM"}</span>

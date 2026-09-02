@@ -55,6 +55,17 @@ app/scripts/_env.mjs
 # ---- Heruntergeladenes Referenzmaterial (157 MB, fremdes Urheberrecht) ----
 InstaReels/
 
+# ---- Zugangsdaten des Crew-Bereichs ----
+#      Klartext-Passwoerter der Testkonten. Das Repo ist oeffentlich —
+#      diese Datei darf es unter keinen Umstaenden verlassen.
+ZUGAENGE.md
+
+# ---- Tests, die ausgeschlossenen Code importieren ----
+#      app/tests/roster.test.mjs importiert src/lib/intern/roster.ts, und das
+#      ist oben ausgeschlossen. Ohne diese Zeile enthaelt ein Klon einen Test,
+#      der nicht laufen kann.
+app/tests/
+
 # ---- Lokale Sicherungskopien ----
 backups/
 .crew-verify

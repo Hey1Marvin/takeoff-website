@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { events, event, settings, fmtDate } from "@/lib/data";
 import { t } from "@/lib/i18n";
 import { pageHref } from "@/lib/site";
+import "@/styles/pages/events.css";
 
 /* Generische Event-Detailseite — dynamisch aus der DB.
    Jedes Event (auch später im Admin angelegte) bekommt automatisch

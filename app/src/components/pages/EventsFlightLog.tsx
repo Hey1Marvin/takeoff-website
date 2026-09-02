@@ -91,13 +91,13 @@ export default function EventsFlightLog({
       </div>
       <ul className="flog">
         {events.map(e => (
-          <li key={e.slug}>
+          <li key={e.slug} className="reveal">
             <span className="fpatch" aria-hidden="true">{e.patchNo}</span>
-            <span className="fdate">{e.dateDisplay}</span>
-            <Link className="fname" href={e.href}>{e.title}</Link>
-            <span className="fvenue">{e.venue}</span>
+            <span className="fdate txplate">{e.dateDisplay}</span>
+            <Link className="fname txplate" href={e.href}>{e.title}</Link>
+            <span className="fvenue txplate">{e.venue}</span>
             <EventsStatusFlap variant="fstatus" className="chip" label="Departed" statusKey="departed" />
-            {e.brief && <span className="fnote">{e.brief}</span>}
+            {e.brief && <span className="fnote"><span className="txplate">{e.brief}</span></span>}
             <button
               type="button"
               className="fpin"

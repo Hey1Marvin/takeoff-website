@@ -73,6 +73,13 @@ const TILE_ICONS: Record<string, React.ReactNode> = {
 /* Prototyp-Bildpfade (assets/img/…) → selbst gehostetes /img/. */
 const publicImg = (p: string) => p.replace(/^assets\/img\//, "/img/");
 
+/* LESBARKEIT (It. 14): Statt der grossen radialen Nacht-Traegerflaechen aus
+   scene-night.css traegt auf dieser Seite jeder Textbaustein seine eigene,
+   ENG anliegende Platte (Klassen .txplate/.txfit, definiert in awareness.css;
+   die grossen Flaechen sind dort per `content: none` abgeschaltet, Anker ist
+   die Sektionsklasse `aw-sec`). Die Platte sitzt bewusst auf dem p/li/h2
+   SELBST, nie auf einem inneren Span: die Lesbarkeits-Pruefung in
+   verify-ui.mjs laeuft ueber genau diese Elemente und ihre Vorfahren. */
 export default async function AwarenessPage() {
   const [page, next] = await Promise.all([
     pageContent<AwarenessData>("awareness"),
@@ -87,29 +94,33 @@ export default async function AwarenessPage() {
     <>
       <AwarenessAurora />
 
-      <section className="phero">
+      <section className="phero aw-sec">
         <div className="wrap">
           <p className="eyebrow">{page.hero.eyebrow}</p>
           <h1>{page.hero.h1}</h1>
-          <p className="section-intro">{page.hero.intro}</p>
+          <div className="aw-introw">
+            <p className="section-intro txplate">{page.hero.intro}</p>
+          </div>
         </div>
       </section>
 
       {/* ============ So erkennst du uns · Team · Wobei du kommen kannst ============ */}
-      <section className="section" style={{ paddingTop: "clamp(30px, 5vh, 50px)" }}>
+      <section className="section aw-sec" style={{ paddingTop: "clamp(30px, 5vh, 50px)" }}>
         <div className="wrap">
           <header className="section-head">
             <p className="eyebrow">{page.recognition.eyebrow}</p>
-            <h2 className="h2">Lila Weste, offenes Ohr</h2>
+            <h2 className="h2 txplate">Lila Weste, offenes Ohr</h2>
           </header>
 
           <div className="aw-recognition">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={publicImg(page.recognition.icon)} alt="Lila Awareness-Weste mit Reflektorstreifen" width={120} height={140} loading="lazy" />
-            <p>{page.recognition.text}</p>
+            <div className="aw-rec-txt">
+              <p className="txplate">{page.recognition.text}</p>
+            </div>
           </div>
 
-          <div className="aware">
+          <div className="aware reveal">
             <div className="aware-grid">
               {page.teamTiles.map(tile => (
                 <div className="atile" key={tile.title}>
@@ -122,27 +133,29 @@ export default async function AwarenessPage() {
 
           <div className="aw-reasons">
             <p className="eyebrow">{page.approachReasons.eyebrow}</p>
-            <p className="aw-reasons-intro">{page.approachReasons.intro}</p>
+            <p className="aw-reasons-intro txplate">{page.approachReasons.intro}</p>
             <ul className="aw-reasons-list">
-              {page.approachReasons.items.map(item => <li key={item}>{item}</li>)}
+              {page.approachReasons.items.map(item => <li className="txfit" key={item}>{item}</li>)}
             </ul>
-            <p className="aw-reasons-closing">{page.approachReasons.closing}</p>
+            <p className="aw-reasons-closing txplate">{page.approachReasons.closing}</p>
           </div>
         </div>
       </section>
 
       {/* ============ Unsere Grundsätze + Eskalation ============ */}
-      <section className="section" style={{ paddingTop: 0 }}>
+      <section className="section aw-sec" style={{ paddingTop: 0 }}>
         <div className="wrap">
           <header className="section-head">
             <p className="eyebrow">Unsere Grundsätze</p>
-            <h2 className="h2">Vier Regeln für uns</h2>
-            <p className="section-intro">Daran hält sich das Awareness-Team — bei jeder Meldung, jedes Mal.</p>
+            <h2 className="h2 txplate">Vier Regeln für uns</h2>
+            <div className="aw-introw">
+              <p className="section-intro txplate">Daran hält sich das Awareness-Team — bei jeder Meldung, jedes Mal.</p>
+            </div>
           </header>
 
           <div className="aw-principles">
             {page.principles.map((p, i) => (
-              <div className="aw-principle" key={p.title}>
+              <div className="aw-principle reveal" key={p.title}>
                 <span className="aw-num" aria-hidden="true">{String(i + 1).padStart(2, "0")}</span>
                 <b>{p.title}</b>
                 <p>{p.text}</p>
@@ -150,7 +163,7 @@ export default async function AwarenessPage() {
             ))}
           </div>
 
-          <div className="aw-consequence">
+          <div className="aw-consequence reveal">
             <span className="aw-label">Eskalation</span>
             <p>{page.consequences.text}</p>
           </div>
@@ -158,11 +171,11 @@ export default async function AwarenessPage() {
       </section>
 
       {/* ============ Hilfe & Notfall ============ */}
-      <section className="section" id="hilfe" style={{ paddingTop: 0 }}>
+      <section className="section aw-sec" id="hilfe" style={{ paddingTop: 0 }}>
         <div className="wrap">
           <header className="section-head">
             <p className="eyebrow">Hilfe &amp; Notfall</p>
-            <h2 className="h2">Wenn&apos;s ernst wird</h2>
+            <h2 className="h2 txplate">Wenn&apos;s ernst wird</h2>
           </header>
 
           <div className="aw-share-row">
@@ -184,7 +197,7 @@ export default async function AwarenessPage() {
             ))}
           </div>
 
-          <dl className="m-rows" style={{ maxWidth: 720, borderTop: "1px solid var(--bg-hairline)", marginTop: 28 }}>
+          <dl className="m-rows aw-report">
             <div className="m-row"><dt>Am Event</dt><dd>{page.reportChannels.atEvent}</dd></div>
             <div className="m-row">
               <dt>Danach</dt>
@@ -216,39 +229,43 @@ export default async function AwarenessPage() {
           </div>
 
           <div className="aw-spiking">
-            <h3>{page.spiking.title}</h3>
+            <h3 className="txplate">{page.spiking.title}</h3>
             <ul>
-              {page.spiking.signs.map(s => <li key={s}>{s}</li>)}
+              {page.spiking.signs.map(s => <li className="txfit" key={s}>{s}</li>)}
             </ul>
-            <p className="aw-action">{page.spiking.action}</p>
+            <p className="aw-action txplate">{page.spiking.action}</p>
           </div>
         </div>
       </section>
 
       {/* ============ Ruheraum: bewusst die leerste Section der Seite ============ */}
-      <section className="section aw-quiet">
+      <section className="section aw-quiet aw-sec">
         <div className="wrap">
           <p className="eyebrow">{page.ruheraum.eyebrow}</p>
-          <p className="aw-quiet-line">{page.ruheraum.line}</p>
+          <p className="aw-quiet-line txplate">{page.ruheraum.line}</p>
         </div>
       </section>
 
       {/* ============ Hausregeln ============ */}
-      <section className="section" id="regeln" style={{ paddingTop: 0 }}>
+      <section className="section aw-sec" id="regeln" style={{ paddingTop: 0 }}>
         <div className="wrap">
           <header className="section-head">
             <p className="eyebrow">Hausregeln</p>
-            <h2 className="h2">Kurz &amp; klar</h2>
+            <h2 className="h2 txplate">Kurz &amp; klar</h2>
           </header>
           <div className="glog">
             {page.houseRules.rules.map(r => (
               <span className={`chip${r.hot ? " hot" : ""}`} key={r.text}>{r.text}</span>
             ))}
           </div>
-          <p className="section-intro" style={{ marginTop: 22 }}>{page.houseRules.intro}</p>
-          <p className="section-intro">{page.houseRules.venueNote}</p>
+          <div className="aw-introw" style={{ marginTop: 22 }}>
+            <p className="section-intro txplate">{page.houseRules.intro}</p>
+          </div>
+          <div className="aw-introw" style={{ marginTop: 10 }}>
+            <p className="section-intro txplate">{page.houseRules.venueNote}</p>
+          </div>
 
-          <div className="transmission" style={{ marginTop: 28 }}>
+          <div className="transmission aw-tx">
             <span className="tx-label">{page.transmission.label}</span>
             <p>{page.transmission.text}</p>
           </div>
@@ -256,19 +273,21 @@ export default async function AwarenessPage() {
       </section>
 
       {/* ============ Sicher hin & zurück zur nächsten Mission ============ */}
-      <section className="section aw-home" style={{ paddingTop: 0 }}>
+      <section className="section aw-home aw-sec" style={{ paddingTop: 0 }}>
         <div className="wrap">
           <header className="section-head">
             <p className="eyebrow">Nächste Mission</p>
-            <h2 className="h2">Sicher hin &amp; zurück</h2>
-            <p className="section-intro">{page.gettingHome.intro}</p>
+            <h2 className="h2 txplate">Sicher hin &amp; zurück</h2>
+            <div className="aw-introw">
+              <p className="section-intro txplate">{page.gettingHome.intro}</p>
+            </div>
           </header>
 
           {showVenue && next?.venue && (
             <div className="vcard">
-              <span className="vname">{next.venue.name}</span>
-              {next.venue.address && <span className="vaddr">{next.venue.address}</span>}
-              {next.venue.transit && <span className="vhint">{next.venue.transit}</span>}
+              <span className="vname txfit">{next.venue.name}</span>
+              {next.venue.address && <span className="vaddr txfit">{next.venue.address}</span>}
+              {next.venue.transit && <span className="vhint txfit">{next.venue.transit}</span>}
               {next.extras && next.extras.length > 0 && (
                 <div className="chips" style={{ marginTop: 8 }}>
                   {next.extras.map(x => <span className="chip" key={x}>{x}</span>)}
@@ -279,15 +298,15 @@ export default async function AwarenessPage() {
                 <a className="btn btn-ghost" href={`https://maps.apple.com/?daddr=${encodeURIComponent(mapsQuery)}`} target="_blank" rel="noopener">Apple Karten ↗</a>
                 <a className="btn btn-ghost" href={`https://www.openstreetmap.org/search?query=${encodeURIComponent(mapsQuery)}`} target="_blank" rel="noopener">OSM ↗</a>
               </div>
-              <p className="lu-note">Karten öffnen extern in deiner App — hier lädt kein Tracker.</p>
+              <p className="lu-note txfit">Karten öffnen extern in deiner App — hier lädt kein Tracker.</p>
             </div>
           )}
 
           <ul className="aw-hometips">
-            {page.gettingHome.tips.map(tip => <li key={tip}>{tip}</li>)}
+            {page.gettingHome.tips.map(tip => <li className="txfit" key={tip}>{tip}</li>)}
           </ul>
           {next && (
-            <p className="lu-note" style={{ marginTop: 16 }}>
+            <p className="lu-note txfit" style={{ marginTop: 16 }}>
               Nächster Start:{" "}
               <Link href={eventHref(next.slug)} style={{ color: "var(--acc-3-tint)" }}>
                 {next.title} · {fmtDate(next.date)} →
@@ -298,11 +317,11 @@ export default async function AwarenessPage() {
       </section>
 
       {/* ============ Awareness-FAQ ============ */}
-      <section className="section" style={{ paddingTop: 0 }}>
+      <section className="section aw-sec" style={{ paddingTop: 0 }}>
         <div className="wrap">
           <header className="section-head">
             <p className="eyebrow">Bevor du fragst</p>
-            <h2 className="h2">Awareness-FAQ</h2>
+            <h2 className="h2 txplate">Awareness-FAQ</h2>
           </header>
           <div className="aw-faq">
             {page.faq.map(item => (
@@ -312,7 +331,7 @@ export default async function AwarenessPage() {
               </details>
             ))}
           </div>
-          <p className="lu-note aw-meta-note">
+          <p className="lu-note aw-meta-note txfit">
             Stand: {fmtDate(page.meta.lastReviewed)}{page.meta.statusNote ? ` · ${page.meta.statusNote}` : ""}
           </p>
         </div>

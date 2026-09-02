@@ -707,6 +707,7 @@ export const de = {
   "crew.portalArtist": "Dein Auftritt",
   "crew.portalPartner": "Partnerbereich",
   "crew.uebergabe": "Übergabe",
+  "crew.rechte": "Rollen & Rechte",
 } as const;
 
 /* Der deutsche Schluesselsatz ist der Vertrag: en.ts wird gegen

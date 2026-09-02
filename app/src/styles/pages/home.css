@@ -87,3 +87,153 @@
 @keyframes hero-in-up-30 { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: none; } }
 @keyframes hero-in-pop   { from { opacity: 0; transform: scale(.94);      } to { opacity: 1; transform: none; } }
 @keyframes hero-in-fade  { from { opacity: 0; } to { opacity: 1; } }
+
+/* ============================================================
+   Design-Politur (It. 14) — nur Startseite
+
+   Namensraum: alle Regeln hier haengen an `.hm-sec` (Marker-Klasse der
+   fuenf Startseiten-Sektionen, gesetzt in page.tsx), an `.missions`
+   (Klasse nur auf der Startseite) oder an `.home-flog`. home.css wird wie
+   jedes Seiten-CSS global gebuendelt — ohne die Marker wuerden Selektoren
+   wie `.section-head` oder `#crew` auf /team und /events durchschlagen.
+
+   Spezifitaet, bewusst: die Nacht-Traegerflaechen in scene-night.css
+   stehen in einer :is()-Liste, deren staerkstes Argument zwei Klassen
+   traegt — die ganze Liste zaehlt damit (0,4,0) (siehe AGENTS.md,
+   „Fallen"). Jede Regel hier, die eine davon uebersteuern soll, traegt
+   deshalb mindestens fuenf Klassen statt sich auf die Bündel-Reihenfolge
+   von Seiten- gegen Layout-CSS zu verlassen.
+   ============================================================ */
+
+/* ---------- Kopfzeilen: die zweite Platte schnitt die Headline an ----------
+   `.section-intro` steht in der :is()-Liste der Nacht-Traegerflaechen und
+   bekam damit eine EIGENE Platte — zusaetzlich zu der des `.section-head`,
+   in dem es bereits steckt. Die Intro-Platte ragt bauartbedingt 34px ueber
+   ihr Element hinaus (der Verlauf braucht Auslauf), und weil das Intro
+   positioniert ist, malt sie UEBER die H2 darueber: nachgemessen lagen
+   18px rgba(void/.86) quer ueber den Unterlaengen von „Nächste Missionen"
+   und „Unser Sound" — der gemeldete „abgeschnitten"-Eindruck.
+   Die Platte des section-head traegt das Intro mit (es ist sein Kind);
+   die zweite Platte leistet nur den Schaden. Weg damit. */
+:root:not(.day-mode) .hm-sec .section-head .section-intro::before { content: none; }
+
+/* Gleiche Doppelung im Awareness-Block: `.note` liegt IM deckenden
+   .aware-Panel und brauchte nie eine eigene Platte — ihr 34px-Ueberstand
+   legte sich stattdessen auf die Unterkanten der vier Kacheln darueber. */
+:root:not(.day-mode) .hm-sec .aware .note::before { content: none; }
+
+/* ---------- Flight Log: enge Leisten statt Panel ----------
+   Nachts bekam die ganze Liste EINE 1040px breite Traegerplatte — genau
+   die grossflaechige dunkle Flaeche, die nicht mehr gewuenscht ist. Sie
+   verdeckte ausserdem die Zeitlinie: scene-night ueberschreibt `.flog::
+   before`, und auf dem Pseudoelement sass vorher der 2px-Verlauf, der die
+   Missions-Abzeichen verbindet (takeoff.css). Der Tag-Modus hatte die
+   Linie, die Nacht nicht.
+
+   Hier wird beides zurueckgedreht: das Pseudoelement wird wieder zur
+   Linie (Werte 1:1 aus takeoff.css), und die Lesbarkeit uebernehmen enge
+   Inline-Leisten direkt am Text (.txplate, naechster Block). Der Himmel,
+   der Mond und die Szene zwischen den Eintraegen bleiben sichtbar. */
+:root:not(.day-mode) .hm-sec .flog.home-flog::before {
+  inset: 8px auto 8px 28px;
+  width: 2px;
+  border-radius: 0;
+  background: linear-gradient(180deg, var(--acc-1), rgb(var(--acc-2-rgb) / .1));
+}
+/* takeoff.css rueckt Linie und Abzeichen unter 640px zusammen — die
+   ID-freie Basisregel dort verliert gegen die Spezifitaet hier, deshalb
+   muss der Versatz mitgefuehrt werden. */
+@media (max-width: 640px) {
+  :root:not(.day-mode) .hm-sec .flog.home-flog::before { inset: 8px auto 8px 24px; }
+}
+
+/* Die Leiste selbst: echtes Inline, damit sie mit dem Zeilenumbruch
+   mitlaeuft und jede Zeile ihr eigenes, eng anliegendes Stueck Grund
+   bekommt (box-decoration-break: clone). Farbe ueber das Void-Token: im
+   Tag-Modus wird daraus von selbst eine helle Leiste unter dunkler
+   Schrift — beide Modi aus einer Regel.
+
+   Vorsicht Namensvetter: awareness.css definiert ein UNGESCOPETES
+   `.txplate` samt einer Nachtregel auf (0,3,0) — nach einer Client-
+   Navigation ueber /awareness liegt deren Blatt mit im Dokument. Die
+   Regeln hier tragen deshalb .hm-sec/.home-flog (>= (0,4,0)), damit die
+   Log-Leisten der Startseite in jeder Lade-Reihenfolge ihre eigenen
+   Werte behalten. */
+.hm-sec .home-flog .txplate {
+  display: inline;
+  padding: .16em .5em .18em;
+  border-radius: 8px;
+  background: rgb(var(--bg-void-rgb) / .74);
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+:root:not(.day-mode) .hm-sec .home-flog .txplate {
+  background: rgb(var(--bg-void-rgb) / .74);
+}
+/* Der kleine Eigenzug des Logs: jedes Datum traegt links eine 2px-Marke
+   in der Leitfarbe — dieselbe Farbe, mit der die Zeitlinie oben beginnt.
+   Datumsleiste und Linie lesen sich so als ein Instrument. */
+.hm-sec .home-flog .fdate .txplate {
+  box-shadow: inset 2px 0 0 rgb(var(--acc-1-rgb) / .65);
+  padding-left: .62em;
+}
+/* Der Eventname ist ein Link und bleibt einer: die Leiste hellt beim
+   Zeigen leicht auf, mehr Zustand braucht es nicht. */
+.hm-sec .home-flog .fname a.txplate {
+  transition: background .25s;
+}
+.hm-sec .home-flog .fname a.txplate:hover,
+.hm-sec .home-flog .fname a.txplate:focus-visible {
+  background: rgb(var(--bg-raised-rgb) / .9);
+}
+
+/* ---------- Veredelung 1: Kopf-Staffel ----------
+   Die Sektionskoepfe kamen als EIN Block herein (global: .reveal).
+   Jetzt steht die Traegerflaeche sofort, und Eyebrow, Headline, Intro
+   und Verweis setzen sich nacheinander darauf — Grund ruhig, Inhalt
+   staffelt. Nur mit JavaScript und nur in den Stufen m/l; `.in` setzt
+   weiterhin SceneReveals, hier steht ausschliesslich die Choreografie.
+   Stufe „s" erreicht diese Selektoren nie, reduzierte Bewegung kappt
+   die Dauer global auf .15s und SceneReveals deckt sofort auf. */
+:root.js[data-fx="m"] .hm-sec .section-head.reveal,
+:root.js[data-fx="l"] .hm-sec .section-head.reveal {
+  opacity: 1;
+  transform: none;
+  transition: none;
+}
+:root.js[data-fx="m"] .hm-sec .section-head.reveal :is(.eyebrow, .h2, .section-intro, .head-link),
+:root.js[data-fx="l"] .hm-sec .section-head.reveal :is(.eyebrow, .h2, .section-intro, .head-link) {
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity .6s var(--ease-out), transform .6s var(--ease-out);
+}
+:root.js[data-fx="m"] .hm-sec .section-head.reveal .h2,
+:root.js[data-fx="l"] .hm-sec .section-head.reveal .h2 { transition-delay: .09s; }
+:root.js[data-fx="m"] .hm-sec .section-head.reveal .section-intro,
+:root.js[data-fx="l"] .hm-sec .section-head.reveal .section-intro { transition-delay: .2s; }
+:root.js[data-fx="m"] .hm-sec .section-head.reveal .head-link,
+:root.js[data-fx="l"] .hm-sec .section-head.reveal .head-link { transition-delay: .3s; }
+:root.js[data-fx="m"] .hm-sec .section-head.reveal.in :is(.eyebrow, .h2, .section-intro, .head-link),
+:root.js[data-fx="l"] .hm-sec .section-head.reveal.in :is(.eyebrow, .h2, .section-intro, .head-link) {
+  opacity: 1;
+  transform: none;
+}
+
+/* ---------- Veredelung 2: Log-Eintraege docken an ----------
+   Braucht KEIN eigenes CSS: SceneReveals fuehrt `.flog` bereits als
+   Stagger-Container (transitionDelay je Kind + .in beim Eintreffen), nur
+   trugen die Zeilen die .reveal-Klasse nie — der Mechanismus lief ins
+   Leere. page.tsx setzt sie jetzt; Grundzustand, Transition, Tier-Gates
+   und reduced-motion kommen komplett aus takeoff.css. Die Zeitlinie
+   steht dabei still, die Eintraege setzen nacheinander auf ihr auf.
+
+   ---------- Deko-Item aus der Textspalte ----------
+   Zwischen 1200px (ab da sind die Items sichtbar) und ~1380px ist die
+   freie Randzone schmaler als das grosse Missions-Item: bei 1210px ragte
+   es nachgemessen 20px in „Flugplan"/Headline hinein. In diesem Fenster
+   rueckt es an den Rand und eine Groessenstufe herunter; ab 1380px gilt
+   wieder die volle Groesse aus takeoff.css. */
+@media (min-width: 1200px) and (max-width: 1380px) {
+  .missions .ditem.big { left: .8vw; }
+  .missions .ditem.big svg { width: 48px; }
+}

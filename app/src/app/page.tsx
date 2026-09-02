@@ -214,8 +214,12 @@ export default async function Home() {
         <div className="scroll-hint" aria-hidden="true">{page.hero.scrollHint}</div>
       </section>
 
-      {/* ============ MISSIONEN ============ */}
-      <section className="section missions" id="missionen">
+      {/* ============ MISSIONEN ============
+          `hm-sec` ist der Namensraum-Marker der Startseite: home.css haengt
+          seine Korrekturen (Kopf-Platten, Flight-Log, Reveal-Staffel) daran,
+          damit nichts davon auf fremde Seiten durchschlaegt — die ids
+          (#crew, #flightlog) existieren auch auf /team und /events. */}
+      <section className="section missions hm-sec" id="missionen">
         {/* Theme-Deko: sichtbar ist immer nur das Item des aktiven Themes
             (takeoff.css), erst ab 1200px Breite. */}
         <span className="ditem d-space big" data-spd="-70" style={{ "--top": "10%", "--left": "2.5vw" } as React.CSSProperties} aria-hidden="true">
@@ -327,7 +331,7 @@ export default async function Home() {
       </div>
 
       {/* ============ SOUND ============ */}
-      <section className="section" id="sound">
+      <section className="section hm-sec" id="sound">
         <span className="ditem d-space" data-spd="-40" style={{ "--top": "22%", "--left": "auto", "--right": "2vw" } as React.CSSProperties} aria-hidden="true">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round">
             <path d="M7 5.5l3-1.5 2.5 1 .5 3-2.5 2-3-.8z" />
@@ -377,7 +381,7 @@ export default async function Home() {
       </section>
 
       {/* ============ CREW ============ */}
-      <section className="section" id="crew">
+      <section className="section hm-sec" id="crew">
         <div className="wrap">
           <header className="section-head reveal">
             <p className="eyebrow">{page.crew.eyebrow}</p>
@@ -416,7 +420,7 @@ export default async function Home() {
       </div>
 
       {/* ============ AWARENESS ============ */}
-      <section className="section" id="awareness">
+      <section className="section hm-sec" id="awareness">
         <div className="wrap">
           <div className="aware reveal">
             <p className="eyebrow">{page.awareness.eyebrow}</p>
@@ -443,7 +447,7 @@ export default async function Home() {
       </section>
 
       {/* ============ FLIGHT LOG ============ */}
-      <section className="section" id="flightlog">
+      <section className="section hm-sec" id="flightlog">
         <HomeSecrets
           ariaLabel={page.secrets.ariaLabel}
           foundTemplate={page.secrets.foundTemplate}
@@ -455,14 +459,23 @@ export default async function Home() {
             <p className="eyebrow">{page.flightlog.eyebrow}</p>
             <h2 className="h2" dangerouslySetInnerHTML={{ __html: page.flightlog.titleHtml }} />
           </header>
-          <ul className="flog">
+          {/* `home-flog`: die Startseiten-Fassung des Logs. Nachts ersetzt
+              home.css die grossflaechige Traegerplatte aus scene-night.css
+              durch enge Textleisten — dafuer braucht jeder Textlauf eine
+              eigene Inline-Ebene (.txplate). Die Ebene sitzt IN den
+              Flex-Kindern, nicht auf ihnen: Flex-Items werden blockifiziert,
+              erst der innere Span ist echtes Inline und kann mit
+              box-decoration-break am Zeilenumbruch mitlaufen.
+              `reveal` auf den Zeilen aktiviert die Stagger-Mechanik, die
+              SceneReveals fuer .flog-Container bereits mitbringt. */}
+          <ul className="flog home-flog">
             {flog.map(e => (
-              <li key={e.slug}>
+              <li key={e.slug} className="reveal">
                 <span className="fpatch" aria-hidden="true">{e.patchNo ?? "M?"}</span>
-                <span className="fdate">{fmtDate(e.date)}</span>
-                <span className="fname"><Link href={eventHref(e.slug)}>{e.title}</Link></span>
-                <span className="fvenue">{e.venue.name}</span>
-                {e.brief && <span className="fnote">{e.brief}</span>}
+                <span className="fdate"><span className="txplate">{fmtDate(e.date)}</span></span>
+                <span className="fname"><Link className="txplate" href={eventHref(e.slug)}>{e.title}</Link></span>
+                <span className="fvenue"><span className="txplate">{e.venue.name}</span></span>
+                {e.brief && <span className="fnote"><span className="txplate">{e.brief}</span></span>}
               </li>
             ))}
           </ul>

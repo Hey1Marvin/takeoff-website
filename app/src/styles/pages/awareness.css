@@ -10,7 +10,35 @@
    einen ZUSTAND desselben Himmels: ein weicher violetter Schleier,
    der alle 4s atmet, unten von einem Leuchtfeuer verankert — der
    Awareness-Punkt. Ein geteilter Herzschlag (--aw-breath) treibt
-   Himmel und Notruf-Ring.
+   Himmel, Notruf-Ring und die Wasserzeichen-Nummern der Grundsätze.
+
+   LESBARKEIT — TEXTPLATTEN STATT TRÄGERFLÄCHEN (It. 14)
+   Die großen radialen Nacht-Trägerflächen aus scene-night.css
+   (inset bis -34/-52px) haben auf dieser Seite zweierlei kaputt
+   gemacht: (1) die Fläche des JEWEILS NÄCHSTEN Bausteins malte über
+   den Text darüber (position:relative hebt sie in die Positioniert-
+   Phase; nachgemessen z.B. 20px über der Hero-H1, 18px über "Vier
+   Regeln für uns", 23px zwischen den m-rows-Zeilen), und (2) sie
+   mattierten den Himmel großflächig — genau das, was der Auftrag
+   "enge Flächen NUR hinter dem Text" verbietet. Deshalb sind sie
+   hier per `content: none` abgeschaltet (Anker: Sektionsklasse
+   .aw-sec, Spezifität (0,5,0) schlägt die geteilte Regel (0,4,0)
+   quellordnungsunabhängig — Falle ":is() erbt die Spezifität seines
+   stärksten Arguments" aus AGENTS.md beachtet).
+
+   An ihre Stelle treten zwei enge Plattenklassen direkt am Text:
+   · .txplate  inline, läuft mit dem Zeilenumbruch mit
+               (box-decoration-break: clone) — für p/h2/h3 im Fluss.
+   · .txfit    Block-Variante mit width:fit-content — für Kinder von
+               Grid-/Flex-Containern (li, vcard-Zeilen), die der
+               Browser zwangsweise blockifiziert (display:inline
+               griffe dort nie).
+   Beide sitzen auf dem Textelement SELBST (nie auf einem inneren
+   Span): die Lesbarkeitsprüfung in verify-ui.mjs läuft über
+   p/li/dd/dt/h2/h3 und ihre VORFAHREN — ein Span-Kind wäre für sie
+   unsichtbar. Gerahmte Bausteine (Karten, .aware, .aw-substances,
+   .aw-report, FAQ, Transmission) bleiben als gewollte Flächen und
+   tragen ihren Text über den eigenen Grund.
 
    Portierungshinweis: Der Prototyp trägt zusätzlich ein Faden-mit-
    Wegpunkten-Motiv (Scroll-Lichtpunkt + IntersectionObserver je
@@ -29,6 +57,7 @@
   --aw-edge-rgb:    var(--acc-1-rgb);   /* schmaler Iridescence-Rand, wie --irid-veil */
   --aw-breath:      4000ms;             /* 4-Sekunden-Atem, treibt jeden Puls-Moment der Seite */
   --aw-ease:        var(--ease-soft);   /* bestehendes Token, kein neues */
+  --aw-plate:       rgb(var(--bg-void-rgb) / .74);  /* Textplatte: Void-Ton des aktiven Themes */
 }
 
 /* ============================================================
@@ -114,20 +143,86 @@ html.aw-quiet-active #aw-sky::after { opacity: 1; }
 }
 
 /* ============================================================
-   3 · Ruheraum-Sektion: bewusst die leerste Section der Seite —
+   3 · Textplatten — das Lesbarkeits-System dieser Seite
+   (Begründung im Kopfkommentar). Die Platte ist nur NACHTS gefüllt:
+   tags trägt die Betonplatte der Sektion (scene-day.css), eine
+   dunkle Inline-Fläche wäre dort ein Fremdkörper. Padding/Radius
+   bleiben in beiden Modi stehen, damit der Tag/Nacht-Wechsel das
+   Layout nicht verschiebt.
+   ============================================================ */
+.txplate {
+  display: inline;
+  padding: .16em .44em;
+  border-radius: .5em;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+.txfit {
+  width: fit-content;
+  padding: .14em .5em;
+  border-radius: .5em;
+}
+:root:not(.day-mode) :is(.txplate, .txfit) { background: var(--aw-plate); }
+
+/* Überschriften-Platte: EIN Schild statt geklonter Zeilenstreifen.
+   Nachgemessen: bei line-height 1.08 sind die Inline-Fragmente einer
+   umbrechenden H2 höher als der Zeilenvorschub (Schriftkasten ~1.17em
+   + Padding) — die halbtransparenten Streifen überlappten sich um 5px
+   und bildeten dunkle Nähte. Als fit-content-Block gibt es genau eine
+   Fläche entlang der längsten Zeile, nahtlos bei jeder Breite. */
+.h2.txplate { display: block; width: fit-content; padding: .12em .34em; border-radius: .4em; }
+
+/* Eyebrows als schmale Pille: fit-content statt Zeilenriegel; der
+   26px-Strich (::before aus takeoff.css) bleibt Teil der Pille. */
+.aw-sec .eyebrow {
+  width: fit-content;
+  padding: .38em .8em .38em .62em;
+  border-radius: 999px;
+}
+:root:not(.day-mode) .aw-sec .eyebrow { background: rgb(var(--bg-void-rgb) / .66); }
+
+/* Intro-Zeilen: der Block-Mantel trägt Maß und Abstand (ein inline
+   gestelltes p ignoriert margin-top/max-width), die Platte läuft im
+   Inneren mit dem Umbruch mit. Etwas mehr Zeilenluft, damit zwischen
+   den Plattenstreifen die Szene durchscheint statt einer Vollfläche. */
+.aw-introw { max-width: 640px; margin-top: 16px; }
+.aw-introw .section-intro { margin-top: 0; line-height: 1.75; }
+.phero .aw-introw { margin-top: 14px; }
+
+/* Große radiale Trägerflächen aus scene-night.css hier abschalten —
+   `.section-head + .section-intro` steht NUR wegen der Spezifität in
+   der Liste (hebt :is() auf (0,2,0), gesamt (0,5,0) > (0,4,0)). */
+:root:not(.day-mode) .aw-sec :is(
+  .section-head, .section-intro, .section-head + .section-intro,
+  .aw-recognition, .aw-reasons-intro, .aw-reasons-list, .aw-reasons-closing,
+  .aw-principle, .m-rows, .m-row, .glog, .aw-spiking, .aw-quiet-line,
+  .lu-note, .faq-body, .transmission, .vcard
+)::before { content: none; }
+
+/* ============================================================
+   4 · Ruheraum-Sektion: bewusst die leerste Section der Seite —
    keine Karten-Optik, keine Icons, keine Chips. Die Leere ist die
-   Aussage.
+   Aussage. Beim Erreichen (html.aw-quiet-active, IO in
+   AwarenessAurora) hebt sich zusätzlich zum Horizont-Leuchtfeuer
+   ein weicher violetter Saum um die Textplatte — Zustandswechsel
+   mit langsamer Transition, kein Loop (Research-42: langsam, wenig).
    ============================================================ */
 .aw-quiet { padding-block: clamp(56px, 11vh, 120px); }
 .aw-quiet .wrap { max-width: 540px; text-align: center; }
-.aw-quiet .eyebrow { justify-content: center; }
+.aw-quiet .eyebrow { justify-content: center; margin-inline: auto; }
 .aw-quiet-line {
   font-family: var(--font-display); font-weight: 600;
-  font-size: clamp(19px, 2.6vw, 24px); line-height: 1.5; color: var(--ink-dim);
+  font-size: clamp(19px, 2.6vw, 24px); line-height: 1.7; color: var(--ink-dim);
+  transition: box-shadow 1.6s var(--aw-ease);
+}
+html.aw-quiet-active:not(.day-mode) .aw-quiet-line {
+  box-shadow:
+    0 0 0 1px rgb(var(--aw-violet-rgb) / .16),
+    0 0 44px 8px rgb(var(--aw-violet-rgb) / .14);
 }
 
 /* ============================================================
-   4 · Mikrointeraktion: Pointer-Glow auf den Team-Kacheln. Ohne JS
+   5 · Mikrointeraktion: Pointer-Glow auf den Team-Kacheln. Ohne JS
    (keine Portierung des pointermove-Listeners, s. Kopfkommentar)
    bleibt --mx/--my auf dem CSS-Default (50% 50%) stehen — der Hover
    zeigt dann einen ruhigen, zentrierten Glow statt einem, der dem
@@ -142,8 +237,12 @@ html.aw-quiet-active #aw-sky::after { opacity: 1; }
 }
 .aware .atile:hover::after { opacity: 1; }
 
+/* Luft zwischen Weste-Zeile und Team-Panel: die Kachel-Gruppe klebte
+   exakt an der Trennlinie der Erkennungszeile (gemessen 0px Abstand). */
+.aw-sec .aware { margin-top: clamp(22px, 4vw, 34px); }
+
 /* ============================================================
-   5 · "So erkennst du uns" — Weste-Icon + Text
+   6 · "So erkennst du uns" — Weste-Icon + Text
    ============================================================ */
 .aw-recognition {
   display: flex; align-items: center; gap: clamp(18px, 4vw, 30px); flex-wrap: wrap;
@@ -154,21 +253,24 @@ html.aw-quiet-active #aw-sky::after { opacity: 1; }
   width: clamp(72px, 15vw, 104px); height: auto; flex: none;
   filter: drop-shadow(0 8px 20px rgb(var(--aw-violet-rgb) / .35));
 }
-.aw-recognition p { color: var(--ink-dim); max-width: 520px; flex: 1 1 260px; }
+/* Der Block-Mantel ist das Flex-Kind (ein inline-p würde als Flex-Kind
+   blockifiziert und die Platte liefe über die volle Spaltenbreite). */
+.aw-rec-txt { flex: 1 1 260px; max-width: 520px; }
+.aw-recognition p { color: var(--ink-dim); line-height: 1.75; }
 
 /* ============================================================
-   6 · "Wobei du zu uns kommen kannst"
+   7 · "Wobei du zu uns kommen kannst"
    ============================================================ */
 .aw-reasons { margin-top: clamp(28px, 5vw, 40px); }
 .aw-reasons .eyebrow { margin-bottom: 12px; }
-.aw-reasons-intro { font-family: var(--font-display); font-weight: 600; font-size: 17px; margin-bottom: 14px; }
-.aw-reasons-list { display: grid; gap: 9px; margin: 0 0 16px; padding-left: 0; list-style: none; max-width: 560px; }
-.aw-reasons-list li { position: relative; padding-left: 22px; color: var(--ink-dim); font-size: 15px; }
-.aw-reasons-list li::before { content: "→"; position: absolute; left: 0; color: var(--aw-violet-tint); }
+.aw-reasons-intro { font-family: var(--font-display); font-weight: 600; font-size: 17px; }
+.aw-reasons-list { display: grid; gap: 9px; margin: 14px 0 16px; padding-left: 0; list-style: none; max-width: 560px; }
+.aw-reasons-list li { position: relative; padding-left: 28px; color: var(--ink-dim); font-size: 15px; }
+.aw-reasons-list li::before { content: "→"; position: absolute; left: 9px; top: .14em; color: var(--aw-violet-tint); }
 .aw-reasons-closing { font-style: italic; color: var(--ink-dim); font-size: 14.5px; }
 
 /* ============================================================
-   7 · Grundsätze — Manifest-Kacheln mit Nummern-Wasserzeichen, plus
+   8 · Grundsätze — Manifest-Kacheln mit Nummern-Wasserzeichen, plus
    Eskalations-Kasten. Eigenständiger Look (nicht .atile), weil dies
    der inhaltliche Kern der Seite ist.
    ============================================================ */
@@ -201,11 +303,31 @@ html.aw-quiet-active #aw-sky::after { opacity: 1; }
   border: 1px solid rgb(var(--aw-violet-rgb) / .2);
   padding: 22px 20px 18px;
 }
+/* Nachts stand die Karte bisher auf der radialen Trägerfläche (jetzt
+   abgeschaltet) — der Void-Ton wandert stattdessen als unterste
+   Hintergrundschicht in die Karte selbst: gleiche Lesbarkeit, exakt
+   entlang der Kartenkante statt 34px darüber hinaus. Tags unverändert. */
+:root:not(.day-mode) .aw-sec .aw-principle {
+  background:
+    linear-gradient(rgb(var(--aw-violet-rgb) / .07), rgb(var(--aw-violet-rgb) / .07)),
+    rgb(var(--bg-void-rgb) / .58);
+}
 .aw-principle .aw-num {
   position: absolute; z-index: -1; top: -10px; right: 6px;
   font-family: var(--font-display); font-weight: 800; font-size: 56px; line-height: 1;
   color: rgb(var(--aw-violet-rgb) / .16);
   pointer-events: none;
+}
+/* Veredelung (Tier l): die Wasserzeichen-Nummern atmen im doppelten
+   Seiten-Herzschlag (8s) — kaum wahrnehmbar, aber die Karten leben.
+   Tier s und reduced-motion erledigt die globale Bremse in takeoff.css. */
+@keyframes aw-num-breathe {
+  0%, 100% { opacity: .55; }
+  50%      { opacity: 1; }
+}
+:root[data-fx="l"] .aw-sec .aw-num {
+  color: rgb(var(--aw-violet-rgb) / .22);
+  animation: aw-num-breathe calc(var(--aw-breath) * 2) var(--aw-ease) infinite;
 }
 .aw-principle b { display: block; margin-bottom: 8px; font-family: var(--font-display); font-weight: 700; font-size: 16.5px; }
 .aw-principle p { color: var(--ink-dim); font-size: 14.5px; margin: 0; }
@@ -216,14 +338,31 @@ html.aw-quiet-active #aw-sky::after { opacity: 1; }
   border: 1px solid rgb(var(--aw-violet-rgb) / .28);
   background: linear-gradient(120deg, rgb(var(--aw-violet-rgb) / .1), transparent 75%);
 }
+:root:not(.day-mode) .aw-sec .aw-consequence {
+  background:
+    linear-gradient(120deg, rgb(var(--aw-violet-rgb) / .1), transparent 75%),
+    rgb(var(--bg-void-rgb) / .5);
+}
 .aw-consequence .aw-label {
   display: block; font-family: var(--font-mono); font-size: 11px; letter-spacing: .18em; text-transform: uppercase;
   color: var(--aw-violet-tint); margin-bottom: 8px;
 }
 .aw-consequence p { color: var(--ink-dim); font-size: 14.5px; margin: 0; }
 
+/* Veredelung: Einflug der Grundsatz-Karten über das geteilte
+   .reveal-System (SceneReveals setzt .in; Tier-/reduced-motion-Gates
+   liegen in takeoff.css). Hier nur die Staffelung — 90ms-Schritte wie
+   STAGGER_MS im geteilten Muster. Nur bei erlaubter Bewegung, damit
+   reduced-motion keine nachtröpfelnden Verzögerungen sieht. */
+@media (prefers-reduced-motion: no-preference) {
+  .aw-principles > .reveal:nth-child(2) { transition-delay: 90ms; }
+  .aw-principles > .reveal:nth-child(3) { transition-delay: 180ms; }
+  .aw-principles > .reveal:nth-child(4) { transition-delay: 270ms; }
+  .aw-consequence.reveal { transition-delay: 180ms; }
+}
+
 /* ============================================================
-   8 · Notfallnummern — Tap-Grid (≥44px), plus ruhiger Leuchtring um
+   9 · Notfallnummern — Tap-Grid (≥44px), plus ruhiger Leuchtring um
    die 112 (derselbe Herzschlag wie Himmel/Notruf).
    ============================================================ */
 .aw-tel-grid { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(212px, 1fr)); margin-top: 24px; }
@@ -256,8 +395,23 @@ html.aw-quiet-active #aw-sky::after { opacity: 1; }
   animation: aw-breathe var(--aw-breath) var(--aw-ease) infinite;
 }
 
+/* Meldewege ("Am Event / Danach / Grundsatz"): vorher nackte Zeilen mit
+   je EIGENER Trägerfläche — .m-rows UND .m-row standen beide in der
+   scene-night-Liste, die Flächen stapelten sich doppelt und malten 23px
+   über die Nachbarzeile. Jetzt ein ruhiges gerahmtes Panel in der
+   Familie der Notfall-Kacheln; das Subgrid der Label-Wert-Liste bleibt
+   unangetastet (Padding verschiebt alle dd gleich weit — gemeinsame
+   Textkante bleibt). */
+.aw-sec .aw-report {
+  max-width: 720px; margin-top: 28px;
+  padding: 18px 20px;
+  border: 1px solid var(--bg-hairline);
+  border-radius: var(--radius);
+}
+:root:not(.day-mode) .aw-sec .aw-report { background: rgb(var(--bg-void-rgb) / .55); }
+
 /* ============================================================
-   9 · Substanzen & Gesundheit
+   10 · Substanzen & Gesundheit
    ============================================================ */
 .aw-substances {
   margin-top: 34px; max-width: 680px;
@@ -285,47 +439,68 @@ html.aw-quiet-active #aw-sky::after { opacity: 1; }
 }
 
 /* ============================================================
-   10 · K.-o.-Tropfen-Hinweis — reiner Text, dezenter Kantenstrich
-   statt Warnfarbe (kein Rot/Blaulicht, siehe Anti-Kitsch).
+   11 · K.-o.-Tropfen-Hinweis — reiner Text, dezenter Kantenstrich
+   statt Warnfarbe (kein Rot/Blaulicht, siehe Anti-Kitsch). Die
+   Zeichenliste bekommt eigene Striche statt Browser-Discs, damit
+   die Marker AUF den Textplatten sitzen und nicht frei in der Szene.
    ============================================================ */
 .aw-spiking {
   margin-top: 28px; max-width: 640px;
   padding-left: 18px;
   border-left: 2px solid rgb(var(--aw-violet-rgb) / .4);
 }
-.aw-spiking h3 { font-family: var(--font-display); font-weight: 700; font-size: 16.5px; margin-bottom: 10px; }
-.aw-spiking ul { margin: 0 0 12px; padding-left: 18px; color: var(--ink-dim); font-size: 14.5px; display: grid; gap: 6px; }
+.aw-spiking h3 { font-family: var(--font-display); font-weight: 700; font-size: 16.5px; }
+.aw-spiking ul { margin: 10px 0 12px; padding-left: 0; list-style: none; color: var(--ink-dim); font-size: 14.5px; display: grid; gap: 6px; }
+.aw-spiking li { position: relative; padding-left: 26px; }
+.aw-spiking li::before { content: "–"; position: absolute; left: 9px; color: var(--aw-violet-tint); }
 .aw-spiking .aw-action { font-weight: 600; color: var(--ink); font-size: 14.5px; }
 
-/* Teilen-Knopf-Zeile (Hilfe-Infos vorab an die Crew schicken) */
-.aw-share-row { display: flex; justify-content: flex-end; margin: -6px 0 26px; }
+/* Teilen-Knopf-Zeile (Hilfe-Infos vorab an die Crew schicken).
+   Kein negativer Rand mehr — der Knopf rutschte damit in die
+   Trägerflächen-Zone der Kopfzeile (Auftrag B: Luft lassen). */
+.aw-share-row { display: flex; justify-content: flex-end; margin: 0 0 26px; }
 @media (max-width: 480px) { .aw-share-row { justify-content: flex-start; } }
 
 /* ============================================================
-   11 · Sicher hin & zurück — Venue/Transit/Extras aus nextEvent(),
+   12 · Sicher hin & zurück — Venue/Transit/Extras aus nextEvent(),
    Heimweg-Tipps. .vcard/.route-row/.chips kommen 1:1 aus takeoff.css
    (Duplikat ist ok, Konflikt nicht — hier nur Abstaende ergaenzt).
+   Die vcard-Zeilen sind Grid-Kinder → .txfit statt .txplate.
    ============================================================ */
 .aw-home .vcard { margin-top: 22px; }
 .aw-home .chips { margin-top: 10px; }
 .aw-hometips { margin-top: 20px; display: grid; gap: 8px; padding-left: 0; list-style: none; max-width: 520px; }
-.aw-hometips li { position: relative; padding-left: 20px; color: var(--ink-dim); font-size: 14.5px; }
+.aw-hometips li { position: relative; padding-left: 26px; color: var(--ink-dim); font-size: 14.5px; }
 .aw-hometips li::before {
-  content: ""; position: absolute; left: 0; top: .55em; width: 6px; height: 6px; border-radius: 50%;
+  content: ""; position: absolute; left: 9px; top: .62em; width: 6px; height: 6px; border-radius: 50%;
   background: var(--aw-violet-tint);
 }
 
 /* ============================================================
-   12 · FAQ — nutzt das bestehende details.faq/.faq-body aus
-   takeoff.css, nur Breite/Abstand hier ergaenzt.
+   13 · FAQ — nutzt das bestehende details.faq/.faq-body aus
+   takeoff.css (Rahmen ohne Grund). Nachts bekommt der Rahmen hier
+   einen Void-Grund in Kartenstärke — gewollte Fläche entlang der
+   eigenen Kante, kein 34px-Überstand.
    ============================================================ */
 .aw-faq { max-width: 760px; margin-top: 26px; }
+:root:not(.day-mode) .aw-faq details.faq { background: rgb(var(--bg-void-rgb) / .5); }
+
+/* Hausregel-Chips: gleiche Logik — der Chip-Rahmen bekommt nachts
+   einen eigenen Grund, statt dass eine Sammelfläche hinter der
+   ganzen Chip-Wolke liegt. */
+:root:not(.day-mode) .aw-sec .glog .chip { background: rgb(var(--bg-void-rgb) / .6); }
+
+/* Transmission: gerahmtes Panel (gestrichelte Kante) — nachts mit
+   eigenem Grund statt Trägerfläche. Abstand vorher als Inline-Style
+   im Markup, jetzt hier. */
+.aw-sec .aw-tx { margin-top: 28px; }
+:root:not(.day-mode) .aw-sec .aw-tx { background: rgb(var(--bg-void-rgb) / .5); }
 
 /* Kleine Fussnotiz (Stand/Status) — nutzt .lu-note aus takeoff.css */
 .aw-meta-note { margin-top: 36px; }
 
 /* ============================================================
-   13 · Mobile-Sicherheit
+   14 · Mobile-Sicherheit
    ============================================================ */
 @media (max-width: 480px) {
   .aw-recognition { flex-direction: column; align-items: flex-start; text-align: left; }

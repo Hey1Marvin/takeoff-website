@@ -710,4 +710,5 @@ export const en: Record<Key, string> = {
   "crew.portalArtist": "Your set",
   "crew.portalPartner": "Partner area",
   "crew.uebergabe": "Handover",
+  "crew.rechte": "Roles & permissions",
 };

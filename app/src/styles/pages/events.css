@@ -290,3 +290,114 @@
   .board-clock { margin-left: auto; }
   .board-actions { justify-content: center; }
 }
+
+/* ============================================================
+   13 · Event-Detailseite — fehlendes Innenpolster nachziehen
+   `.wrap` + `.section` sind im Detail-Body auf einem einzigen Element
+   kombiniert (`<div class="wrap section">`, 1:1 aus dem Prototyp
+   uebernommen — prototype/event-*.html hat dieselbe Kombination). Beide
+   Klassen haben dieselbe Spezifitaet (je eine Klasse); `.section`s
+   Padding-Shorthand (`padding: … 0` in takeoff.css) steht dort HINTER
+   `.wrap`s `padding-inline` und setzt padding-left/right dabei explizit
+   auf 0 — die Quellreihenfolge entscheidet, `.wrap`s Innenpolster verliert
+   komplett. Ergebnis unbehoben: Ueberschriften, Absaetze, Lineup/Stats/
+   Galerie und der Zurueck-Link liefen kantenbuendig bis an den
+   Bildschirmrand (nachgemessen: rect.left 0px bei 360/768/1440px Breite)
+   UND loesten bei ~768px Breite (Lineup+Stats+Galerie zusammen im
+   0-Polster-Zustand) einen horizontalen Overflow von 16px aus
+   (scrollWidth 784 statt 768 — mit dem Polster zurueck exakt 0 Overflow).
+   Einzige Stelle im ganzen Code, die beide Klassen so kombiniert (siehe
+   events/[slug]/page.tsx) — deshalb hier behoben, nicht in takeoff.css.
+   events.css muss dafuer ueberhaupt erst auf der Detailseite importiert
+   werden (war zuvor gar nicht eingebunden). */
+main > .wrap.section {
+  padding-inline: var(--pad);
+}
+
+/* ============================================================
+   14 · Trägerfläche verengen — Flight Log
+   Der geteilte Nacht-Carrier (scene-night.css, `:is(...) .flog::before`)
+   deckt `.flog` als GANZES Element ab — bei mehreren Missionen 800-1000px
+   hoch, ein Radialverlauf zentriert auf die Blockmitte. Zwei Probleme:
+   erstens eine grossflaechige dunkle Platte genau dort, wo enge, textnahe
+   Flaechen gewuenscht sind (Referenzbeispiel: exakt diese Flight-Log-
+   Notizen). Zweitens ein echter Lesbarkeits-Bug: weil der Verlauf zur
+   Blockmitte hin am dunkelsten ist und zum Rand auf 0 ausblendet, bekommen
+   die ERSTE und LETZTE Zeile einer laengeren Liste spuerbar WENIGER
+   Deckung als die mittleren — genau umgekehrt zu dem, was der Carrier
+   eigentlich leisten soll.
+   Ersetzt durch enge Inline-Flaechen direkt an Datum/Name/Ort/Notiz, die
+   mit dem Text mitlaufen (auch bei Zeilenumbruch, dank
+   box-decoration-break). Jede Zeile traegt ihre eigene Lesbarkeit, egal
+   wie lang die Liste ist. */
+.txplate {
+  display: inline;
+  padding: .1em .35em;
+  border-radius: .3em;
+  background: rgb(var(--bg-void-rgb) / .75);
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
+/* Tagmodus traegt Text schon ueber die helle Saeule/Sektionsflaeche
+   (scene-day.css) — dieselbe dunkle Plakette waere dort ein Fremdkoerper. */
+:root.day-mode .txplate { background: none; padding: 0; }
+
+/* .fnote hat `flex-basis:100%` (takeoff.css) und ist damit als Flex-Item
+   ein VOLLBREITER Block — die Plakette sitzt deshalb auf einem inneren
+   <span> (siehe EventsFlightLog.tsx), sonst waere sie wieder genau der
+   Vollflaechen-Riegel, den wir vermeiden wollen. Der grosse Carrier wird
+   dafuer nachts gezielt abgeschaltet — nur fuer diese Liste (#flightlog),
+   nicht sitesweit (die :is()-Liste in scene-night.css bleibt fuer alle
+   anderen Seiten unangetastet). */
+:root:not(.day-mode) #flightlog .flog::before { content: none; }
+
+/* .fstatus/.fpin(-reset) bekommen keine Textkontur wie .txplate (Pillen/
+   Buttons, kein Fliesstext) — stattdessen eine eigene, ebenso enge
+   Flaechenfarbe, nur nachts, wo sie sonst ohne jede Deckung direkt auf
+   Marsboden/Strandhimmel staenden. */
+:root:not(.day-mode) .fstatus { background: rgb(var(--bg-void-rgb) / .55); }
+:root:not(.day-mode) .fpin-reset,
+:root:not(.day-mode) .fpin .fp-ico { background: rgb(var(--bg-void-rgb) / .45); }
+
+/* ============================================================
+   15 · Veredelung — Abflugtafel „Power-On"
+   Einmaliger, dezenter Einlauf fuer .board-frame beim ersten
+   Sichtbarwerden (EventsBoardPower.tsx setzt die Klasse ueber einen
+   IntersectionObserver; FX-Tier/reduced-motion sind dort bereits vor dem
+   Klassenwechsel geprueft — .board-frame bleibt ohne JS oder bei Tier "s"
+   dauerhaft im normalen Ruhezustand sichtbar, kein Hidden-by-default).
+   Drei Ebenen laufen gemeinsam und LANGSAM (1,2s, ein Durchgang, kein
+   Flackern): Helligkeit faengt gedaempft an und hellt sich auf, die
+   Randfarbe wandert vom Akzent zur Ruhefarbe, ein Leuchtsaum baut sich auf
+   und klingt wieder ab. Start- und Endzustand sind IDENTISCH mit dem
+   Ruhezustand von .board-frame — nach Ablauf bleibt optisch nichts anders
+   als vorher.
+   ============================================================ */
+.board-frame.board-power-on {
+  animation: board-power-on 1.2s cubic-bezier(.2, .7, .25, 1) both;
+}
+@keyframes board-power-on {
+  from {
+    filter: brightness(.7) saturate(.85);
+    border-color: rgb(var(--acc-3-rgb) / .6);
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / .06), 0 18px 40px rgb(0 0 0 / .35), 0 0 0 rgb(var(--acc-3-rgb) / 0);
+  }
+  60% {
+    filter: brightness(1.06) saturate(1.05);
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / .06), 0 18px 40px rgb(0 0 0 / .35), 0 0 32px rgb(var(--acc-3-rgb) / .26);
+  }
+  to {
+    filter: brightness(1) saturate(1);
+    border-color: var(--bg-hairline);
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / .06), 0 18px 40px rgb(0 0 0 / .35), 0 0 0 rgb(var(--acc-3-rgb) / 0);
+  }
+}
+/* Doppelt genaeht: EventsBoardPower.tsx haengt die Klasse ohnehin nur bei
+   Tier m/l ohne reduced-motion an. Diese Bremsen greifen zusaetzlich,
+   falls der Tier-/Praeferenzwechsel mitten in der laufenden Animation
+   passiert — die globale [data-fx="s"]-Regel in takeoff.css wuerde die
+   Laufzeit nur auf .001s stauchen, nicht die Animation ganz abschalten. */
+:root[data-fx="s"] .board-power-on { animation: none; }
+@media (prefers-reduced-motion: reduce) {
+  .board-power-on { animation: none; }
+}
