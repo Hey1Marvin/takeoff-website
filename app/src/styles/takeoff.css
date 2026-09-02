@@ -163,6 +163,82 @@
   --w-micro:   400;   /* Mikro-Labels (Space Mono, nicht variabel) */
   --w-micro-b: 700;   /* Mikro-Labels fett (Space Mono)            */
 
+  /* ---- Abstandsleiter (It. 14) ----
+     Vorher gab es keine. Abstaende standen als clamp()-Literale verstreut
+     im Blatt und wurden in den Seiten per style={{paddingTop: 0}} und
+     style={{marginTop: 22}} nachgebogen — allein awareness/page.tsx traegt
+     fuenf solcher Korrekturen, und vier Seiten haben je eine eigene
+     Sektions-Konvention (0 / clamp(24..) / clamp(20,3vh,34) / keine).
+     Das ist die Ursache von "mal zu eng, mal ohne Bezug": ohne Leiter
+     entscheidet jede Seite neu.
+
+     Die Leiter waechst ungefaehr im Quartsprung (Faktor ~1.33) und ist
+     fluide — dieselbe Stufe ist auf dem Telefon enger als auf dem
+     Schreibtisch, ohne dass die Reihenfolge kippt. */
+  --sp-1: clamp(4px,  0.5vw,  6px);
+  --sp-2: clamp(8px,  1vw,   10px);
+  --sp-3: clamp(12px, 1.4vw, 16px);
+  --sp-4: clamp(16px, 2vw,   22px);
+  --sp-5: clamp(22px, 2.8vw, 30px);
+  --sp-6: clamp(30px, 3.8vw, 42px);
+  --sp-7: clamp(40px, 5.2vw, 60px);
+  --sp-8: clamp(54px, 7vw,   84px);
+  --sp-9: clamp(70px, 12vh, 130px);
+
+  /* Rollen statt Zahlen: wer eine Sektion baut, denkt nicht in Stufen.
+     --sp-head-body ist bewusst GROSS gegen den frueheren Wert. Gemessen
+     bei 1440x900: zwischen zwei Sektionen lagen 216px, zwischen einer
+     Ueberschrift und ihrem Inhalt nur 45px — Verhaeltnis 1:4.8. Auf
+     niedrigen Fenstern wurde es schlimmer, weil 5vh schneller einbricht
+     als 12vh. Genau das liest sich als "die Headline klebt am Kasten
+     darunter". Jetzt rund 1:2.5. */
+  --sp-section:   var(--sp-9);   /* Sektion gegen Sektion              */
+  --sp-head-body: var(--sp-7);   /* Ueberschriftenblock gegen Inhalt   */
+  --sp-block:     var(--sp-6);   /* Block gegen Block in einer Sektion */
+  --sp-card:      var(--sp-4);   /* Rasterluecken, Karteninnenabstand  */
+  --sp-tight:     var(--sp-3);   /* Zeile gegen Zeile                  */
+
+  /* ---- Stapelordnung (It. 14) ----
+     Vorher gab es keine Skala: was oben liegt, entschied die DOM-Reihen-
+     folge und vereinzelte Literale (1, 2, 100, 120, 130). Das ist die
+     zweite Ursache der gemeldeten Ueberlappungen.
+     Die negativen Werte gehoeren den Szenen-Ebenen und stehen zur
+     Vollstaendigkeit hier, gesetzt werden sie in ihren eigenen Regeln. */
+  --z-scene:   -3;   /* Sternfeld, Himmel, Boden                     */
+  --z-veil:    -1;   /* Korn, Vignette, Traegerflaechen              */
+  --z-content:  0;   /* normaler Inhalt                              */
+  --z-heading:  1;   /* Ueberschriften — ueber Geschwisterplatten    */
+  --z-deco:     2;   /* Deko-Items, Wasserzeichen, Badges auf Karten */
+  --z-sticky:  90;   /* klebende Leisten im Inhalt                   */
+  --z-chrome: 100;   /* Topbar                                       */
+  --z-panel:  120;   /* Mission Control                              */
+  --z-toast:  130;   /* Meldungen — immer zuoberst                   */
+
+  /* ---- Schatten (It. 14) ----
+     Drei Schichten statt einer, nach dem Rezept aus Research 42: enge
+     helle Lichtkante, mittlerer Tiefenschatten, weiter Halo mit hoechstens
+     .25 Deckkraft. Auf dunklem Grund traegt die LICHTKANTE die Tiefe —
+     ein dunkler Innenschatten ist auf --bg-void schlicht unsichtbar.
+     Vorher stand jede Kombination als Literal in ihrer Komponente. */
+  --shadow-1:
+    inset 0 1px 0 rgb(255 255 255 / .05),
+    0 2px 6px rgb(0 0 0 / .28);
+  --shadow-2:
+    inset 0 1px 0 rgb(255 255 255 / .06),
+    0 8px 20px rgb(0 0 0 / .32),
+    0 18px 40px rgb(0 0 0 / .22);
+  --shadow-3:
+    inset 0 1px 0 rgb(255 255 255 / .08),
+    0 12px 28px rgb(0 0 0 / .38),
+    0 30px 70px rgb(0 0 0 / .25);
+
+  /* Glas: `saturate()` ist der Schritt, den fast alle Rezepte weglassen —
+     reiner Blur mittelt die Farben hinter dem Glas Richtung Grau. Und ohne
+     das -webkit-Praefix rendert Safari/iOS UEBERHAUPT keinen Blur, die
+     Flaeche faellt dort auf ihre Grundfarbe zurueck. Als Token, damit es
+     keine vierte Glasflaeche ohne diese Zeilen mehr gibt. */
+  --glass-blur: blur(14px) saturate(160%);
+
   --ease-out: cubic-bezier(.16, 1, .3, 1);
   --ease-soft: cubic-bezier(.65, 0, .35, 1);
   color-scheme: dark;
@@ -1059,8 +1135,13 @@ html { scroll-padding-top: calc(var(--topbar-h) + 14px); }
 /* ============================================================
    Sections
    ============================================================ */
-.section { padding: clamp(70px, 12vh, 130px) 0; position: relative; }
-.section-head { margin-bottom: clamp(30px, 5vh, 54px); }
+.section { padding: var(--sp-section) 0; position: relative; }
+/* Nachgemessen bei 1440x900 (scripts/design-audit.mjs): Sektion gegen
+   Sektion 216px, Ueberschrift gegen ihren Inhalt 45px — Verhaeltnis 1:4.8.
+   Auf niedrigen Fenstern wurde es schlechter, weil der alte Wert an 5vh
+   haengt und schneller einbricht als die 12vh der Sektion. Genau das liest
+   sich als "die Headline klebt am Kasten darunter". Jetzt rund 1:2.5. */
+.section-head { margin-bottom: var(--sp-head-body); }
 .eyebrow {
   font-family: var(--font-mono); font-size: 12px;
   letter-spacing: .3em; text-transform: uppercase;
@@ -1083,6 +1164,75 @@ html { scroll-padding-top: calc(var(--topbar-h) + 14px); }
     0 0 28px rgb(var(--acc-1-rgb) / .2);
 }
 .section-intro { max-width: 640px; color: var(--ink-dim); margin-top: 16px; }
+
+/* ============================================================
+   Textplatte — das Lesbarkeits-Mittel des Systems (It. 14)
+
+   Ueber Marsboden und Strandhorizont ist der Hintergrund hell; dort faellt
+   Kleinschrift auf 2.7:1. Die Antwort darauf ist NICHT eine grossflaechige
+   Platte hinter dem halben Bildschirm — die deckt die Szene zu, und genau
+   das war die Ansage: der Text bekommt Grund, nicht der Bildschirm.
+
+   Deshalb eine Flaeche, die dem Text eng anliegt und mit dem Zeilenumbruch
+   mitlaeuft. `box-decoration-break: clone` gibt jedem Zeilenfragment sein
+   eigenes Stueck Grund samt Radius, statt einen Riegel um den ganzen Block
+   zu ziehen.
+
+   Drei Varianten, weil ein Textlauf drei Formen haben kann:
+     .txplate   echtes Inline — laeuft mit dem Umbruch mit. Der Normalfall.
+     .txfit     Block auf fit-content — fuer Grid-/Flex-Kinder, die sich
+                nicht inline stellen lassen (ein inline gesetztes Flex-Item
+                wird blockifiziert, dann greift clone nicht mehr).
+     .h2.txplate / h1.txplate   EIN Schild statt geklonter Streifen. Bei
+                line-height 1.08 (.h2) ist der Schriftkasten hoeher als der
+                Zeilenvorschub — geklonte Streifen einer umbrechenden
+                Ueberschrift ueberlappen sich dann um ~5px und bilden dunkle
+                Naehte. Als fit-content-Block gibt es genau eine Flaeche.
+                Das Polster ist an die Schriftgroesse gekoppelt (.2em statt
+                eines festen Werts), damit Unterlaengen von Unbounded 800
+                gedeckt sind — mit .12em ragten sie heraus.
+
+   VORHER dreimal ungescopet definiert (pages/awareness.css, pages/events.css,
+   pages/home.css) mit drei verschiedenen Polstern, Radien und Deckwerten.
+   Seiten-CSS wird in Next global gebuendelt: nach einer Client-Navigation
+   lagen alle drei Blaetter gleichzeitig im Dokument und die Quellreihenfolge
+   entschied, wie eine Platte aussieht — also der Navigationsweg des Besuchers.
+   Jetzt einmal hier.
+
+   Farbe ueber --bg-void-rgb: im Tag-Modus loest das Token nach hell auf, die
+   Platte traegt dann helle Schrift-auf-hell. Das waere falsch — tags liegt
+   der Text ohnehin auf der hellen Saeule (scene-day.css). Deshalb ist die
+   Fuellung nachtgebunden, Polster und Radius bleiben in beiden Modi stehen,
+   damit der Tag/Nacht-Wechsel das Layout nicht verschiebt.
+   ============================================================ */
+.txplate {
+  display: inline;
+  padding: .16em .44em;
+  border-radius: .5em;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+.txfit {
+  display: block;
+  width: fit-content;
+  padding: .14em .5em;
+  border-radius: .5em;
+}
+:is(h1, h2, h3, .h2).txplate {
+  display: block;
+  width: fit-content;
+  padding: .2em .36em;
+  border-radius: .34em;
+  -webkit-box-decoration-break: slice;
+  box-decoration-break: slice;
+}
+:root:not(.day-mode) :is(.txplate, .txfit) {
+  background: rgb(var(--bg-void-rgb) / .74);
+}
+/* Tags traegt die Saeule; eine zweite Plakette darauf waere ein hellerer
+   Kasten auf hellem Grund — sichtbar als blasses Rechteck hinter jedem
+   Textlauf. Polster bleibt, Fuellung geht. */
+:root.day-mode :is(.txplate, .txfit) { background: none; }
 
 /* Missionen (Event-Karten) */
 .missions { position: relative; }
@@ -1335,11 +1485,21 @@ html { scroll-padding-top: calc(var(--topbar-h) + 14px); }
 .toast.show { opacity: 1; transform: translate(-50%, 0); }
 
 /* Chrome-Genre-Band (Zwischen-Element) */
+/* KEIN Aussenabstand auf .band und .stats — bewusst, mit Grund:
+   Im Tagmodus malt jedes direkte Kind von <main> seine eigene helle Spalte
+   (scene-day.css). Ein margin zwischen zwei Kindern ist damit kein Abstand,
+   sondern ein LOCH: dort scheint der schwarze Seitengrund durch, und quer
+   ueber die helle Seite liegt ein schwarzer Streifen. Genau das ist beim
+   Versuch passiert, den Baendern mehr Luft zu geben (It. 14, im Screenshot
+   gesehen und wieder zurueckgenommen).
+   Die Baender sind Zwischenelemente und bekommen je eine halbe Sektionsluft
+   von ihren Nachbarn — das ist ihre Rolle, kein Mangel. Wer hier mehr Luft
+   will, bringt sie INNEN unter (padding), nie aussen. */
 .band {
   overflow: hidden;
   border-top: 1px solid var(--bg-hairline);
   border-bottom: 1px solid var(--bg-hairline);
-  padding: 18px 0;
+  padding: var(--sp-4) 0;
   white-space: nowrap;
   mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
 }
@@ -1360,8 +1520,8 @@ html { scroll-padding-top: calc(var(--topbar-h) + 14px); }
 /* Stats-Band (Zwischen-Element) */
 .stats {
   display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 18px;
-  padding: 34px 0;
+  gap: var(--sp-card);
+  padding: var(--sp-6) 0;   /* innen, nie aussen — siehe .band oben */
   border-top: 1px solid var(--bg-hairline);
   border-bottom: 1px solid var(--bg-hairline);
   text-align: center;

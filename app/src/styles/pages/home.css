@@ -159,17 +159,9 @@
    Regeln hier tragen deshalb .hm-sec/.home-flog (>= (0,4,0)), damit die
    Log-Leisten der Startseite in jeder Lade-Reihenfolge ihre eigenen
    Werte behalten. */
-.hm-sec .home-flog .txplate {
-  display: inline;
-  padding: .16em .5em .18em;
-  border-radius: 8px;
-  background: rgb(var(--bg-void-rgb) / .74);
-  -webkit-box-decoration-break: clone;
-  box-decoration-break: clone;
-}
-:root:not(.day-mode) .hm-sec .home-flog .txplate {
-  background: rgb(var(--bg-void-rgb) / .74);
-}
+/* Form, Polster und Fuellung kommen seit It. 14 aus takeoff.css — hier
+   stand die dritte Kopie. Es bleibt nur, was diese Liste eigen macht
+   (die Datumsmarke und der Zustand des Links, siehe unten). */
 /* Der kleine Eigenzug des Logs: jedes Datum traegt links eine 2px-Marke
    in der Leitfarbe — dieselbe Farbe, mit der die Zeitlinie oben beginnt.
    Datumsleiste und Linie lesen sich so als ein Instrument. */

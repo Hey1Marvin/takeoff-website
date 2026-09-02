@@ -21,6 +21,38 @@ export interface EventTheme {
   patch: string;
 }
 
+/* ============================================================
+   Medien — die Instagram-Clips des Kollektivs.
+
+   `rolle` steuert die Darstellung, nicht die Datei: `teaser` laeuft
+   im Kopf einer Seite als stumme Schleife, `portrait` ist ein
+   Wortbeitrag (Ton traegt), `galerie` ist ein Mitschnitt.
+   `orientation` kommt aus der Datei und entscheidet das Raster —
+   Instagram liefert 9:16, die Rave-Mitschnitte sind quer.
+   ============================================================ */
+export interface MediaItem {
+  kind: "video" | "image";
+  rolle: "teaser" | "galerie" | "portrait";
+  src: string;
+  poster: string;
+  caption: string;
+  /** Hat der Clip hoerenswerten Ton? Steuert den Ton-Schalter. */
+  ton: boolean;
+  orientation: "hoch" | "quer";
+  /** Sekunden — fuer die Anzeige, nicht fuer die Steuerung. */
+  dauer: number;
+}
+
+/* Ein Set/Podcast. `platform` + `id` genuegen dem Player; `url` ist der
+   Ausweichweg fuer alle, die das Embed nicht laden wollen. */
+export interface MediaSet {
+  title: string;
+  meta: string;
+  platform: "soundcloud" | "youtube";
+  id: string;
+  url: string;
+}
+
 export interface TakeoffEvent {
   slug: string;
   visible: boolean;
@@ -47,6 +79,10 @@ export interface TakeoffEvent {
   raLink?: string;
   /* Nur intern, nie gerendert (Contract: internalNote). */
   internalNote?: string;
+  /** Videos zum Event — Teaser, Galerie, DJ-Vorstellungen. */
+  media?: MediaItem[];
+  /** Sets, die bei diesem Event gespielt wurden. */
+  sets?: MediaSet[];
 }
 
 export interface Artist {
@@ -57,7 +93,9 @@ export interface Artist {
   genres: string;
   since?: string;
   bio: string;
-  sets: { title: string; meta: string }[];
+  sets: MediaSet[];
+  /** Videos zur Person. */
+  media?: MediaItem[];
   appearances: string[];   // Event-Slugs
   page?: string;
   visible?: boolean;
@@ -131,4 +169,6 @@ export interface Db {
   news: NewsPost[];
   history: HistoryEntry[];
   pages: Record<string, unknown>;
+  /** Medien, die einer Seite gehoeren statt einem Datensatz (z. B. kollektiv). */
+  media?: Record<string, MediaItem[]>;
 }

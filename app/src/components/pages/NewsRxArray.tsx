@@ -38,7 +38,7 @@ export default function NewsRxArray() {
     <svg
       id="rx-array"
       ref={ref}
-      className="rx-array"
+      className="rx-array scene-deco"
       viewBox="0 0 640 480"
       preserveAspectRatio="xMaxYMin meet"
       aria-hidden="true"

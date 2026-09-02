@@ -19,16 +19,23 @@
    Braucht Playwright. Ist es nicht installiert:  npx playwright install chromium
    ============================================================ */
 
-import { createRequire } from "node:module";
-const require_ = createRequire(import.meta.url);
-
 /* Playwright ist bewusst KEINE Projekt-Abhaengigkeit — es soll nicht ins
    Bundle und nicht in die Installation jedes Mitarbeitenden. Deshalb hier
    der Reihe nach suchen und sonst freundlich aussteigen. */
 async function ladeChromium() {
   const orte = ["playwright", "playwright-core", "@playwright/test"];
   for (const o of orte) {
-    try { return (await import(require_.resolve(o))).chromium; } catch { /* weiter */ }
+    /* Per Spezifizierer importieren (nicht per aufgeloestem Pfad!): nur so
+       greift Node die "exports"-Bedingungen des Pakets und liefert die
+       benannten Exporte. require_.resolve(o) liefert den rohen CJS-Haupt-
+       eintrag, der "chromium" nur dynamisch re-exportiert — cjs-module-lexer
+       kann das nicht statisch erkennen, .chromium landet als undefined,
+       kein Fehler, die Schleife bricht trotzdem sofort ab. */
+    try {
+      const mod = await import(o);
+      const chromium = mod.chromium ?? mod.default?.chromium;
+      if (chromium) return chromium;
+    } catch { /* weiter */ }
   }
   try {
     const { globSync } = await import("node:fs");

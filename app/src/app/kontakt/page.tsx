@@ -170,14 +170,20 @@ export default async function KontaktPage() {
           <p className="section-intro">{page.hero.intro}</p>
           <p className="fs-status">
             <span className="fs-dot" aria-hidden="true" />
-            <span>{page.station.statusNote}</span> · <KontaktClock /> Uhr Potsdam
+            {/* Extra Hülle noetig: .fs-status ist display:inline-flex, direkte
+                Flex-Items werden von der Blockification-Regel der Flexbox-Spec
+                automatisch zu display:block gezwungen (nachgemessen) — genau
+                das wuerde .txplate seinen inline-Charakter nehmen und
+                box-decoration-break wirkungslos machen. Eine Ebene tiefer
+                greift die Regel nicht mehr. */}
+            <span><span className="txplate">{page.station.statusNote} · <KontaktClock /> Uhr Potsdam</span></span>
           </p>
         </div>
       </section>
 
       <section className="section" style={{ paddingTop: "clamp(20px, 3vh, 34px)" }}>
         <div className="wrap">
-          <header className="section-head">
+          <header className="section-head reveal">
             <p className="eyebrow">Anliegen-Wegweiser</p>
             <h2 className="h2">Wonach suchst du?</h2>
             <p className="section-intro">Wähl dein Anliegen — wir sagen dir, welcher Kanal am besten passt, und bauen dir die Mail direkt vor.</p>
@@ -188,7 +194,7 @@ export default async function KontaktPage() {
 
       <section className="section" style={{ paddingTop: "clamp(20px, 3vh, 34px)" }}>
         <div className="wrap">
-          <header className="section-head">
+          <header className="section-head reveal">
             <p className="eyebrow">Funkkanäle</p>
             <h2 className="h2">Wähl deinen Kanal</h2>
           </header>
@@ -209,7 +215,7 @@ export default async function KontaktPage() {
 
       <section className="section" style={{ paddingTop: "clamp(20px, 3vh, 34px)" }}>
         <div className="wrap">
-          <header className="section-head">
+          <header className="section-head reveal">
             <p className="eyebrow">Kanal-Vergleich</p>
             <h2 className="h2">Was passt zu dir?</h2>
             <p className="section-intro">Für Vertrauliches: lieber Mail. Für schnelle Fragen: Telegram — aber öffentlich, alle lesen mit.</p>
@@ -238,7 +244,7 @@ export default async function KontaktPage() {
 
       <section className="section" style={{ paddingTop: "clamp(20px, 3vh, 34px)" }}>
         <div className="wrap" style={{ maxWidth: 760 }}>
-          <header className="section-head">
+          <header className="section-head reveal">
             <p className="eyebrow">Bevor du schreibst</p>
             <h2 className="h2">Häufig gefragt</h2>
           </header>

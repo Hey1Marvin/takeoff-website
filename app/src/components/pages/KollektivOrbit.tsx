@@ -16,7 +16,11 @@ export default function KollektivOrbit({ foundedDate }: { foundedDate: string })
   const [days] = useState(() => daysSince(foundedDate));
   return (
     <p className="bp-orbit">
-      <i className="bp-orbit-dot" aria-hidden="true" />T+ <b>{days}</b> Tage im Orbit
+      <i className="bp-orbit-dot" aria-hidden="true" />
+      {/* .txplate: der Zaehler sitzt direkt auf der Szene (kein Vorfahre
+          in scene-night.css's Traegerflaechen-Liste) — enge Fläche statt
+          gar keiner, siehe kollektiv.css. */}
+      <span className="txplate">T+ <b>{days}</b> Tage im Orbit</span>
     </p>
   );
 }

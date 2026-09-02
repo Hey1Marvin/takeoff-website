@@ -73,11 +73,12 @@ public/img|fonts              Assets (selbst gehostet, nichts von CDNs)
 `src/styles/pages/<slug>.css` + `src/components/pages/<Slug>*`). Geteilte Dateien
 (layout, takeoff.css, lib/) verändert nur der Orchestrator.
 
-## Portierungs-Referenz
+## Der Prototyp ist eingefroren (ab It. 14)
 
-Der Prototyp (`../prototype/`) ist die visuelle Spezifikation: gleiche CSS-Klassen,
-gleiche Inhalte. Beim Portieren NICHT neu designen — HTML→JSX, Seiten-JS→Client-
-Komponenten, Daten→Gateway-Aufrufe. Optik maximal behutsam anfassen.
+`../prototype/` wird **nicht mehr angefasst** — auch nicht für Design-Experimente.
+Er ist eingefrorene visuelle Referenz und wird ausschließlich gelesen. Die
+Portierung ist abgeschlossen; die Regel „beim Portieren nicht neu designen" gilt
+damit nicht mehr. **In `app/` wird gestaltet.**
 
 ## Ausblick (mitdenken, nicht vorbauen)
 
@@ -115,5 +116,7 @@ NUR der Orchestrator. Bewährtes Muster: Agents legen Dateien ab, die noch
 niemand importiert — der Build bleibt dabei grün und die Optik unverändert —,
 und der Orchestrator verdrahtet sie danach in einzeln prüfbaren Schritten.
 
-Das Repository ist **kein Git-Repository**: es gibt kein `git revert`. Vor
-Schritten, die Bestehendes verändern, eine Kopie von `app/src` anlegen.
+Das Repository **ist** seit dem 02.09.2026 ein Git-Repository. Vor größeren
+Umbauten also: eigener Branch, Zwischenstände committen. Der Crew-Bereich liegt
+bewusst außerhalb der Versionskontrolle (Wurzel-`.gitignore`) — dort schützt nur
+eine Kopie.

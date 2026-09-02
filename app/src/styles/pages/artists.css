@@ -36,6 +36,18 @@
   mask-image: linear-gradient(180deg, transparent, #000 14%, #000 82%, transparent);
   -webkit-mask-image: linear-gradient(180deg, transparent, #000 14%, #000 82%, transparent);
 }
+/* BUGFIX (live auf 3210 nachgestellt): #freqwave ist ein direktes <main>-Kind
+   (kein Fragment-Wrapper) und faellt damit unter scene-day.css' Tag-Regel
+   ":root.day-mode main > *:not(.hero):not(.ehero) { background-color:
+   rgb(var(--bg-void-rgb) / .88) }". Bei jedem anderen Abschnitt ist das
+   gewollt (die Betonplatte), hier trifft es aber ein `position:fixed;
+   inset:0`-Element — die Flaeche deckt dadurch NICHT nur diesen einen
+   Abschnitt, sondern dauerhaft den GESAMTEN Viewport ab (nachgemessen:
+   rgba(230 231 238 / .976) im Tag+Mars-Theme) und loescht sogar den
+   Schleier-Uebergang im Footer (takeoff.css: linear-gradient transparent ->
+   --bg-void), weil davor schon nichts mehr durchscheint. #freqwave (ID)
+   schlaegt deren Spezifitaet zuverlaessig, ohne scene-day.css anzufassen. */
+#freqwave { background-color: transparent; }
 
 /* ---------- 2) Mini-EQ auf den Resident-Karten (Karten-Hover) ----------
    Vier kleine Balken oben rechts in der .mcard (dort sitzt bei Event-Karten
@@ -169,3 +181,52 @@
   box-shadow: 0 0 8px rgb(var(--acc-3-rgb) / .8), 0 0 2px rgb(255 255 255 / .8);
 }
 @keyframes aorbit-spin { to { transform: rotate(360deg); } }
+
+/* ---------- 8) Flight Log (Artist-Detail) — BUGFIX + enge Traegerflaeche ----------
+   `.flog::before` ist zwischen zwei geteilten Dateien umkaempft:
+     - takeoff.css gibt der Zeitleiste ihre verbindende Linie darueber
+       (2px breit, Akzent-Verlauf, left:28px/top:8px/bottom:8px).
+     - scene-night.css traegt `.flog` zugleich in der Nacht-Traegerflaeche-
+       Liste ein und generiert AUF DEMSELBEN ::before eine grosse, weich
+       auslaufende Flaeche (siehe AGENTS.md "Fallen": ":is() erbt die
+       Spezifitaet seines staerksten Arguments" — genau dieser Fall).
+   Live auf 3210 nachgemessen: nachts gewinnt scene-night.css fuer JEDE
+   gemeinsame Eigenschaft (hoehere Spezifitaet), die Linie verliert Position
+   UND Farbverlauf und rutscht auf die grossen Minus-Insets der Flaeche
+   (getComputedStyle: background wechselt vollstaendig von
+   `linear-gradient(var(--acc-1), ...)` auf den radialen Plattenverlauf,
+   inset von 28px/8px/8px auf -30.7px/-23px). Tagsueber ungestoert (dort
+   generiert scene-night.css gar nichts), der Fehler ist rein naechtlich.
+   Betrifft denselben Klassennamen auch auf /kollektiv (Logbuch) — Root-
+   Cause-Patchvorschlag fuer scene-night.css/takeoff.css in den Orchestrator-
+   Notes, hier nur der lokale Fix fuer /artists/[slug].
+
+   Der Fix nutzt den freien Wechsel gleich fuer Aufgabe 2 (Traegerflaechen
+   verengen): statt EINER Flaeche hinter der GANZEN Liste (moeglich lang bei
+   vielen Auftritten — exakt das vom Auftraggeber genannte Flight-Log-
+   Beispiel) bekommen Datum/Name/Venue je eine enge, inline mitlaufende
+   Flaeche direkt am Text (.txplate). */
+:root:not(.day-mode) .flog::before {
+  content: "" !important;
+  position: absolute !important;
+  left: 28px !important; right: auto !important;
+  top: 8px !important; bottom: 8px !important;
+  width: 2px !important; height: auto !important;
+  z-index: auto !important;
+  border-radius: 0 !important;
+  background: linear-gradient(180deg, var(--acc-1), rgb(var(--acc-2-rgb) / .1)) !important;
+}
+
+/* .txplate: enge Traegerflaeche direkt am Text (Aufgabe 2) — Inline-Ebene,
+   laeuft mit Zeilenumbruechen mit (box-decoration-break), statt einer
+   Flaeche hinter dem ganzen Block. Nur nachts aktiv: tagsueber traegt schon
+   die Sektionsplatte (scene-day.css) die Lesbarkeit, eine zweite Flaeche
+   waere dort nur ein zusaetzlicher Kasten obendrauf. */
+:root:not(.day-mode) .txplate {
+  display: inline;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+  padding: .1em .35em;
+  border-radius: 6px;
+  background: rgb(var(--bg-void-rgb) / .74);
+}

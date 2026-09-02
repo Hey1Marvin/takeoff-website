@@ -78,21 +78,29 @@ export default function KollektivHistory({ history }: { history: HistoryEntry[] 
     <ul className="flog" id="flog-list" ref={ref}>
       {history.map((entry, i) => (
         <li key={`${entry.patch}-${entry.date}`}>
+          {/* .txplate (takeoff.css, geteilte Utility seit It. 14): enge
+              Traegerflaeche direkt am Text statt einer Vollflaechen-Box
+              hinter der ganzen Liste — gleiches Muster wie events-flog
+              (EventsFlightLog.tsx). Nur .fdate/.fname/.fvenue/.fnote, nicht
+              .fpatch (eigener Kreis-Hintergrund) oder .bp-dim (eigenes
+              Badge). */}
           <span className="fpatch" aria-hidden="true">{entry.patch}</span>
-          <span className="fdate">{entry.date}</span>
-          <span className="fname">{entry.name}</span>
-          <span className="fvenue">{entry.venue}</span>
+          <span className="fdate txplate">{entry.date}</span>
+          <span className="fname txplate">{entry.name}</span>
+          <span className="fvenue txplate">{entry.venue}</span>
           {SPEC_TAGS[entry.patch] && (
             <span className="bp-dim" aria-hidden="true">{SPEC_TAGS[entry.patch]}</span>
           )}
           <span className="fnote">
-            {entry.note}
-            {i === lastIdx && (
-              <>
-                {" "}Weiter geht&apos;s im{" "}
-                <Link href={pageHref("events", "flightlog")} style={{ color: "var(--acc-3-tint)" }}>Flight Log</Link>.
-              </>
-            )}
+            <span className="txplate">
+              {entry.note}
+              {i === lastIdx && (
+                <>
+                  {" "}Weiter geht&apos;s im{" "}
+                  <Link href={pageHref("events", "flightlog")} style={{ color: "var(--acc-3-tint)" }}>Flight Log</Link>.
+                </>
+              )}
+            </span>
           </span>
         </li>
       ))}

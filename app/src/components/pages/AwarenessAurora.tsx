@@ -49,7 +49,7 @@ export default function AwarenessAurora() {
         </filter>
       </svg>
       {/* Himmels-Ebene: liegt ÜBER #stars, Sternenhimmel bleibt sichtbar (mix-blend-mode: screen) */}
-      <div id="aw-sky" aria-hidden="true"><div className="aw-sky-inner" /></div>
+      <div id="aw-sky" className="scene-deco" aria-hidden="true"><div className="aw-sky-inner" /></div>
     </>
   );
 }

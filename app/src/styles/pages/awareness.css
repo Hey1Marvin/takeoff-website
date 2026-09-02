@@ -150,19 +150,11 @@ html.aw-quiet-active #aw-sky::after { opacity: 1; }
    bleiben in beiden Modi stehen, damit der Tag/Nacht-Wechsel das
    Layout nicht verschiebt.
    ============================================================ */
-.txplate {
-  display: inline;
-  padding: .16em .44em;
-  border-radius: .5em;
-  -webkit-box-decoration-break: clone;
-  box-decoration-break: clone;
-}
-.txfit {
-  width: fit-content;
-  padding: .14em .5em;
-  border-radius: .5em;
-}
-:root:not(.day-mode) :is(.txplate, .txfit) { background: var(--aw-plate); }
+/* .txplate/.txfit stehen seit It. 14 in takeoff.css. Hier bleibt nur der
+   Eigenton dieser Seite: das Violett der Warnwesten statt des neutralen
+   Void — der einzige Grund, warum die Awareness-Seite ueberhaupt eine
+   eigene Plattenfarbe braucht. */
+:root:not(.day-mode) .aw-sec :is(.txplate, .txfit) { background: var(--aw-plate); }
 
 /* Überschriften-Platte: EIN Schild statt geklonter Zeilenstreifen.
    Nachgemessen: bei line-height 1.08 sind die Inline-Fragmente einer
@@ -170,7 +162,9 @@ html.aw-quiet-active #aw-sky::after { opacity: 1; }
    + Padding) — die halbtransparenten Streifen überlappten sich um 5px
    und bildeten dunkle Nähte. Als fit-content-Block gibt es genau eine
    Fläche entlang der längsten Zeile, nahtlos bei jeder Breite. */
-.h2.txplate { display: block; width: fit-content; padding: .12em .34em; border-radius: .4em; }
+/* Die Ueberschriften-Variante steht jetzt in takeoff.css (mit .2em
+   Polster statt .12em — bei Unbounded 800 ragten die Unterlaengen sonst
+   ueber die Platte hinaus). Hier nichts mehr noetig. */
 
 /* Eyebrows als schmale Pille: fit-content statt Zeilenriegel; der
    26px-Strich (::before aus takeoff.css) bleibt Teil der Pille. */

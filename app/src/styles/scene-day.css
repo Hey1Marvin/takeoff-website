@@ -437,7 +437,27 @@
    Abdeckung vollstaendig, und weil es NUR die direkten Kinder sind, koennen
    sich zwei Platten auch nicht uebereinanderlegen.
    Ausgenommen sind die beiden Heroes: dort soll man die Welt sehen. */
-:root.day-mode main > *:not(.hero):not(.ehero) {
+/* `:not(.scene-deco)` seit It. 14 — nachgemessen auf /awareness:
+   sechs Seiten rendern ihre Signatur-Deko als ERSTES direktes Kind von
+   <main>, vollflaechig und `position: fixed`:
+     #aw-sky (Awareness) · #freqwave (Artists) · .tg-field/#tg-dial (Musik)
+     #rx-array (News) · .fs-ground (Kontakt) · .kt-orbit (Team)
+   Die Regel hier zielt auf Leseflaechen, traf aber auch diese Ebenen und
+   legte ihnen im Tagmodus einen zu 88% deckenden HELLEN Grund unter. Auf
+   /awareness kommt `mix-blend-mode: screen` dazu — die Deko-Ebene riss die
+   ganze Szene Richtung Weiss und legte sich nachweisbar 80-136px hoch ueber
+   „Lila Weste, offenes Ohr" und „Feiern, auf das ihr euch verlassen koennt."
+   Der Ausschluss haengt an der Klasse `scene-deco`, die diese sechs
+   Komponenten tragen — NICHT an `aria-hidden`. Das war der erste Versuch und
+   er ging daneben: `.band` (das Genre-Laufband der Startseite) ist ebenfalls
+   `aria-hidden`, aber ein vollbreites Element IM Lesefluss. Ohne seine helle
+   Spalte lag im Tagmodus ein schwarzer Riegel quer ueber die Seite — im
+   Screenshot gesehen, nicht erschlossen. `scene-deco` benennt genau das
+   Gemeinte: eine vollflaechige, fixierte Ebene HINTER dem Inhalt.
+   Wer eine neue solche Ebene baut, setzt die Klasse — sonst bekommt sie im
+   Tagmodus einen hellen Grund untergeschoben.
+   Gepruefte Wirkung: 8 verbleibende Ueberlappungen -> 0. */
+:root.day-mode main > *:not(.hero):not(.ehero):not(.scene-deco) {
   background-color: rgb(var(--bg-void-rgb) / .88);
 }
 
@@ -449,7 +469,7 @@
    schrumpft die Platte auf die Inhaltsspalte. Links und rechts steht die
    Szene, in der Mitte der Text auf hellem Grund.
    Die uebrigen Seiten sind Lesestrecken und bleiben durchgehend hell. */
-:root.day-mode.scene-edges main > *:not(.hero):not(.ehero) {
+:root.day-mode.scene-edges main > *:not(.hero):not(.ehero):not(.scene-deco) {
   background-color: transparent;
   background-image: var(--day-column);
 }
@@ -460,18 +480,26 @@
 }
 /* Das Laufband gehoert dazu: es soll genauso auf der mittleren Spalte
    sitzen wie das Wabenraster darueber, nicht als durchgehender Riegel quer
-   durchs Bild.
+   durchs Bild. Frueher wurde dafuer das ELEMENT auf Spaltenbreite gesetzt
+   (width: min(100%, --maxw)) — damit fielen Haarlinien, Laufschrift und
+   Grund zusammen.
 
-   Der Hintergrund allein reichte dafuer nicht: das Element selbst war
-   weiterhin fensterbreit (gemessen 1440 gegen 1120 px Spalte), also liefen
-   seine beiden Haarlinien und die Laufschrift links und rechts ueber die
-   weisse Spalte hinaus. Deshalb wird das Element SELBST auf die Spalte
-   gesetzt — dann fallen Linien, Schrift und Grund zusammen. Der Verlauf in
-   --day-column rechnet ab 50% der Elementbreite und deckt ein maxw-breites
-   Element vollstaendig. */
+   Seit die Spalte eine Feder hat (--day-feather), ist das falsch: der
+   Verlauf rechnet ab 50% der ELEMENTbreite, seine Auslaufzonen liegen damit
+   ausserhalb eines maxw-breiten Kastens und werden abgeschnitten. Im
+   Screenshot sichtbar als harte Senkrechte am Laufband, waehrend die
+   Sektionen darueber und darunter weich auslaufen.
+   Das Band bleibt deshalb fensterbreit wie jede Sektion und bekommt
+   dieselbe gefederte Spalte. Seine Haarlinien und die Laufschrift laufen
+   trotzdem nicht ins Dunkel: `.band` traegt bereits eine waagerechte
+   `mask-image` (takeoff.css), die das Element samt Raendern zu beiden
+   Seiten ausblendet. */
 :root.day-mode.scene-edges main > .band {
-  width: min(100%, var(--maxw));
-  margin-inline: auto;
+  mask-image: linear-gradient(90deg,
+      transparent 0,
+      #000 calc(50% - var(--maxw) / 2),
+      #000 calc(50% + var(--maxw) / 2),
+      transparent 100%);
 }
 /* Das Wabenraster haengt mit inset:0 an der fensterbreiten Sektion und lief
    damit ebenfalls ueber die Spalte hinaus. Gleiche Korrektur, nur ueber die
@@ -608,7 +636,7 @@
    durch: aus dem hellen Beton wird ein Grau. Vor dem Weltall sind die
    Platten deshalb nahezu deckend — die Ansage war "alle Elemente heller",
    und das Weltall zeigt sich im Hero, nicht hinter dem Fliesstext. */
-:root.day-mode:not([data-theme="mars"]):not([data-theme="strand"]) main > *:not(.hero):not(.ehero) {
+:root.day-mode:not([data-theme="mars"]):not([data-theme="strand"]) main > *:not(.hero):not(.ehero):not(.scene-deco) {
   background-color: rgb(var(--bg-void-rgb) / .975);
 }
 /* Auch im Space-Theme ist die Spalte durchscheinend — ausdrueckliche Vorgabe.
@@ -618,13 +646,26 @@
    deutlich dunkler erscheinen lassen als vor dem Marsboden — die Seite haette
    dann je nach Theme einen anderen Grundton. Der hoehere Wert gleicht das aus.
    Sichtbar bleibt, was hier sichtbar sein soll: die Sterne. */
-:root.day-mode.scene-edges:not([data-theme="mars"]):not([data-theme="strand"]) main > *:not(.hero):not(.ehero) {
+/* KORREKTUR It. 14 — die Feder fehlte genau hier.
+   Die vier Stops standen paarweise auf DERSELBEN Position
+   (`0` und `.86` beide bei `calc(50% - var(--maxw)/2)`), und ein Verlauf
+   zwischen zwei gleichen Positionen ist kein Verlauf, sondern eine Kante:
+   ein harter Sprung von rgb(230 231 238 / .86) auf durchsichtig, exakt bei
+   +/-560px von der Mitte. Sichtbar wurde das erst beim Scrollen, weil der
+   Hero ueber `:not(.hero)` ausgenommen ist und stattdessen eine weiche
+   radiale Lichtinsel bekommt (weiter unten) — der erste Bildschirm lief
+   also sauber aus, und ab der ersten Sektion stand das Rechteck da.
+   Mars und Strand hatten die Feder von Anfang an (--day-column, oben);
+   nur das Space-Theme ueberschrieb sie hier ersatzlos.
+   Der hoehere Deckwert .86 bleibt — seine Begruendung steht darueber und
+   gilt weiter. Neu ist allein der Auslauf ueber --day-feather. */
+:root.day-mode.scene-edges:not([data-theme="mars"]):not([data-theme="strand"]) main > *:not(.hero):not(.ehero):not(.scene-deco) {
   background-color: transparent;
   background-image: linear-gradient(90deg,
-      rgb(var(--bg-void-rgb) / 0)   calc(50% - var(--maxw) / 2),
+      rgb(var(--bg-void-rgb) / 0)   calc(50% - var(--maxw) / 2 - var(--day-feather)),
       rgb(var(--bg-void-rgb) / .86) calc(50% - var(--maxw) / 2),
       rgb(var(--bg-void-rgb) / .86) calc(50% + var(--maxw) / 2),
-      rgb(var(--bg-void-rgb) / 0)   calc(50% + var(--maxw) / 2));
+      rgb(var(--bg-void-rgb) / 0)   calc(50% + var(--maxw) / 2 + var(--day-feather)));
 }
 :root.day-mode:not([data-theme="mars"]):not([data-theme="strand"]) .topbar {
   background: rgb(var(--bg-void-rgb) / .975);

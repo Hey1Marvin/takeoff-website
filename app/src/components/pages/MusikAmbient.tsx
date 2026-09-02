@@ -24,8 +24,8 @@ const NOTCHES: { genre: string; angle: number }[] = [
 export default function MusikAmbient() {
   return (
     <>
-      <div className="tg-field" aria-hidden="true" />
-      <svg id="tg-dial" className="tg-dial" viewBox="0 0 640 340" aria-hidden="true" focusable="false">
+      <div className="tg-field scene-deco" aria-hidden="true" />
+      <svg id="tg-dial" className="tg-dial scene-deco" viewBox="0 0 640 340" aria-hidden="true" focusable="false">
         <defs>
           <radialGradient id="tg-hub-grad" cx="50%" cy="50%" r="50%">
             <stop offset="0%" stopColor="var(--acc-1-tint)" stopOpacity=".85" />

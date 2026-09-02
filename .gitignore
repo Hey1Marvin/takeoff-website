@@ -75,3 +75,6 @@ backups/
 Thumbs.db
 *.swp
 *~
+
+# ---- Messergebnisse der Gestaltungspruefung (Screenshots, ~100 MB) ----
+app/.design-audit/

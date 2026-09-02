@@ -86,7 +86,7 @@ export default async function ArtistDetail(
       {a.sets.length > 0 && (
         <section className="section" style={{ paddingTop: 0 }}>
           <div className="wrap">
-            <header className="section-head">
+            <header className="section-head reveal">
               <p className="eyebrow">Hören</p>
               <h2 className="h2">Sets</h2>
             </header>
@@ -116,17 +116,17 @@ export default async function ArtistDetail(
       {apps.length > 0 && (
         <section className="section" style={{ paddingTop: 0 }}>
           <div className="wrap">
-            <header className="section-head">
+            <header className="section-head reveal">
               <p className="eyebrow">Flight Log</p>
               <h2 className="h2">Bei takeoff <span className="glow">gespielt</span></h2>
             </header>
             <ul className="flog">
               {apps.map(e => (
-                <li key={e.slug}>
+                <li key={e.slug} className="reveal">
                   <span className="fpatch" aria-hidden="true">{e.patchNo ?? "M?"}</span>
-                  <span className="fdate">{fmtDate(e.date)}</span>
-                  <span className="fname" translate="no">{e.title}</span>
-                  <span className="fvenue" translate="no">{e.venue.name}</span>
+                  <span className="fdate txplate">{fmtDate(e.date)}</span>
+                  <span className="fname txplate" translate="no">{e.title}</span>
+                  <span className="fvenue txplate" translate="no">{e.venue.name}</span>
                 </li>
               ))}
             </ul>

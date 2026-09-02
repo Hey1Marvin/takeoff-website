@@ -67,11 +67,51 @@
    dem bestehenden .flog::before (Farbverlauf/Position bleiben unangetastet
    in style.css). Default --bp-flog-p:1 = voll gezeichnet (Tier S/kein JS). */
 .flog::before { transform: scaleY(var(--bp-flog-p, 1)); transform-origin: top; }
+
+/* Bug (live nachgestellt, per getComputedStyle bestaetigt): .flog::before
+   ist in takeoff.css die Zeitstrahl-Linie (Farbverlauf, 2px, left:28px).
+   scene-night.css haengt an GENAU demselben Pseudo-Element zusaetzlich die
+   sitesweite Trägerfläche an — .flog steht dort in der :is()-Liste, weil
+   die Flightlog-VORSCHAU auf der Startseite eine braucht. Beide Regeln
+   treffen also dasselbe ::before und gewinnen je Einzel-Property gegen-
+   einander (hoehere Spezifitaet bei scene-night.css): background wird zur
+   dunklen Ellipse, inset ersetzt left/top/bottom, z-index:-1 und
+   border-radius:26px kommen dazu. Nachgemessen: top/bottom bleiben beide
+   gesetzt und ohne eigene Hoehe gestreckt -> statt der duennen Linie stand
+   dort nachts ein ~530-600px hoher dunkler Blob, und die Linie selbst war
+   unsichtbar. Genau die "Traegerflaeche zu gross"-Wirkung, hier als
+   Kollisions-Nebenwirkung statt Absicht. scene-night.css ist geteilte
+   Datei (siehe notes) — hier mit ID-Spezifitaet zurueckerobert: die Linie
+   bekommt ihre Geometrie und ihren Verlauf zurueck (inkl. der 640px-
+   Variante aus style.css), .fnote traegt seine Lesbarkeit stattdessen
+   ueber die enge .txplate-Flaeche weiter unten. */
+#flog-list::before {
+  inset: auto;
+  top: 8px; bottom: 8px; left: 28px; right: auto;
+  width: 2px; height: auto;
+  border-radius: 0;
+  z-index: 0;
+  background: linear-gradient(180deg, var(--acc-1), rgb(var(--acc-2-rgb) / .1));
+}
+@media (max-width: 640px) {
+  #flog-list::before { left: 24px; }
+}
 .bp-dim {
   font-family: var(--font-mono); font-size: 10px; letter-spacing: .1em; text-transform: uppercase;
   color: var(--acc-3); border: 1px solid rgb(var(--acc-3-rgb) / .35);
   background: rgb(var(--acc-3-rgb) / .06); border-radius: 4px; padding: 2px 6px;
 }
+
+/* ---------- Enge Text-Traegerflaeche ("Traegerflaechen verengen") ----------
+   .txplate ist seit It. 14 EINE geteilte Utility in takeoff.css (dort
+   vollstaendig dokumentiert: inline, box-decoration-break:clone, Fuellung
+   nur nachts ueber --bg-void-rgb). Hier bewusst NICHT lokal neu definiert —
+   genau diese Streuung (drei leicht verschiedene Polster/Radien je Seite)
+   ist der Fehler, den die Konsolidierung in takeoff.css beheben sollte.
+   Verwendung auf dieser Seite: .fnote im Logbuch (Analogon zu den
+   Flight-Log-Notizen der Startseite) und der Orbit-Zaehler — beide sitzen
+   auf der rohen Szene ohne Karte/Panel und bekommen die Klasse direkt im
+   JSX (KollektivHistory.tsx, KollektivOrbit.tsx). */
 
 /* ---------- 3) Herzstueck: Rig-Diagramm ---------- */
 .bp-rig-wrap { max-width: 960px; }
@@ -143,6 +183,17 @@
   border-radius: 999px;
   background: linear-gradient(90deg, rgb(var(--acc-3-rgb) / .55), var(--acc-3));
 }
+/* Veredelung: die Balken wachsen einmalig auf ihre Zielbreite, sobald das
+   Kassenbuch in den Sichtbereich scrollt (KollektivSpend.tsx, gleiches
+   static->armed->drawn-Muster wie KollektivRig/KollektivStats). Tier
+   s/reduced-motion/kein JS: die Grundregel oben bleibt unangetastet in
+   Kraft, die Balken stehen sofort auf --pct — kein leerer Ladezustand. */
+.bp-spend.is-armed .bp-spend-fill {
+  width: 0%;
+  transition: width 1s var(--ease-out);
+  transition-delay: calc(var(--i, 0) * 90ms);
+}
+.bp-spend.is-drawn .bp-spend-fill { width: var(--pct, 0%); }
 .bp-spend-pct {
   font-family: var(--font-mono); font-size: 12px; text-align: right;
   color: var(--ink-faint); font-variant-numeric: tabular-nums;

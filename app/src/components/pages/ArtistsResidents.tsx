@@ -4,8 +4,21 @@
    Markup-Aenderung. Dazu ein Genre-Filter als Chip-Toggle-Leiste (Muster:
    Mission-Control-Buttons, aria-pressed traegt den Zustand). Aufklapp-
    Verhalten der Karten kommt unveraendert aus dem geteilten ExpandCard
-   (Muster-Portierung des data-expand-Bausteins). */
+   (Muster-Portierung des data-expand-Bausteins).
+
+   Veredelung: der Genre-Wechsel laeuft, wo verfuegbar, durch die native
+   View Transitions API (document.startViewTransition) statt hart
+   umzuschalten — das Grid blendet weich zwischen den beiden Filterstaenden
+   um (Chrome/Edge/neuere Firefox/Safari; wo nicht unterstuetzt, schaltet
+   der Filter unveraendert hart um, kein Bruch). Strikt FX-Tier/reduced-
+   motion-gated in JS, weil der globale CSS-Kill-Switch (takeoff.css,
+   `:root[data-fx="s"] *`) die ::view-transition-*-Pseudobaum-Elemente
+   nicht erreicht (kein Nachfahre im normalen Dokumentbaum). React 19
+   batcht setState normalerweise ueber den naechsten Tick hinweg — ohne
+   flushSync waere die DOM-Aenderung beim Snapshot des Browsers noch nicht
+   passiert und die Transition liefe leer. */
 import { useMemo, useState } from "react";
+import { flushSync } from "react-dom";
 import Link from "next/link";
 import ExpandCard from "@/components/ExpandCard";
 import { artistHref } from "@/lib/site";
@@ -41,6 +54,20 @@ export default function ArtistsResidents({
 }) {
   const [selected, setSelected] = useState(ALL);
 
+  function selectGenre(next: string) {
+    const fx = document.documentElement.dataset.fx ?? "m";
+    const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (fx === "s" || reduced || !document.startViewTransition) {
+      setSelected(next);
+      return;
+    }
+    const transition = document.startViewTransition(() => flushSync(() => setSelected(next)));
+    /* .ready lehnt ab, wenn ein schnellerer Klick eine laufende Transition
+       ueberholt (realistischer Fall bei mehreren Chips hintereinander) —
+       ohne Catch waere das ein "Uncaught (in promise)" in der Konsole. */
+    transition.ready.catch(() => {});
+  }
+
   const tokens = useMemo(() => {
     const seen = new Set<string>();
     const out: string[] = [];
@@ -57,12 +84,12 @@ export default function ArtistsResidents({
   return (
     <>
       {tokens.length > 1 && (
-        <div className="genre-filter" role="group" aria-label={filterAria}>
+        <div className="genre-filter reveal" role="group" aria-label={filterAria}>
           <button
             type="button"
             className={`chip${selected === ALL ? " hot" : ""}`}
             aria-pressed={selected === ALL}
-            onClick={() => setSelected(ALL)}
+            onClick={() => selectGenre(ALL)}
           >
             {allLabel}
           </button>
@@ -72,7 +99,7 @@ export default function ArtistsResidents({
               type="button"
               className={`chip${selected === tok ? " hot" : ""}`}
               aria-pressed={selected === tok}
-              onClick={() => setSelected(tok)}
+              onClick={() => selectGenre(tok)}
             >
               {tok}
             </button>

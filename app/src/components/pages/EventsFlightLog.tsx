@@ -89,7 +89,7 @@ export default function EventsFlightLog({
       <div className="board-cols board-cols--sub" aria-hidden="true">
         <span>Gate</span><span>Datum</span><span>Mission</span><span>Ort</span><span>Status</span>
       </div>
-      <ul className="flog">
+      <ul className="flog events-flog">
         {events.map(e => (
           <li key={e.slug} className="reveal">
             <span className="fpatch" aria-hidden="true">{e.patchNo}</span>

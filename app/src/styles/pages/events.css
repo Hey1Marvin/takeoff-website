@@ -330,17 +330,8 @@ main > .wrap.section {
    mit dem Text mitlaufen (auch bei Zeilenumbruch, dank
    box-decoration-break). Jede Zeile traegt ihre eigene Lesbarkeit, egal
    wie lang die Liste ist. */
-.txplate {
-  display: inline;
-  padding: .1em .35em;
-  border-radius: .3em;
-  background: rgb(var(--bg-void-rgb) / .75);
-  box-decoration-break: clone;
-  -webkit-box-decoration-break: clone;
-}
-/* Tagmodus traegt Text schon ueber die helle Saeule/Sektionsflaeche
-   (scene-day.css) — dieselbe dunkle Plakette waere dort ein Fremdkoerper. */
-:root.day-mode .txplate { background: none; padding: 0; }
+/* .txplate/.txfit stehen seit It. 14 in takeoff.css — hier stand eine
+   dritte, ungescopete Kopie mit eigenem Polster und Deckwert. */
 
 /* .fnote hat `flex-basis:100%` (takeoff.css) und ist damit als Flex-Item
    ein VOLLBREITER Block — die Plakette sitzt deshalb auf einem inneren
@@ -349,7 +340,14 @@ main > .wrap.section {
    dafuer nachts gezielt abgeschaltet — nur fuer diese Liste (#flightlog),
    nicht sitesweit (die :is()-Liste in scene-night.css bleibt fuer alle
    anderen Seiten unangetastet). */
-:root:not(.day-mode) #flightlog .flog::before { content: none; }
+/* Achtung Spezifitaet: hier stand `#flightlog .flog::before` — eine ID.
+   Die id "flightlog" gibt es auch auf der STARTSEITE, und Seiten-CSS wird
+   global gebuendelt: nach einer Client-Navigation /events -> / schlug die
+   ID-Regel (1,3,0) jede Klassenregel der Startseite (home.css: (0,5,0))
+   und loeschte dort die 2px-Zeitlinie des Flight Logs. Beim harten Neuladen
+   war alles in Ordnung — der klassische "kann ich nicht nachstellen"-Fehler.
+   Jetzt an die Seitenklasse gebunden statt an die id. */
+:root:not(.day-mode) .flog.events-flog::before { content: none; }
 
 /* .fstatus/.fpin(-reset) bekommen keine Textkontur wie .txplate (Pillen/
    Buttons, kein Fliesstext) — stattdessen eine eigene, ebenso enge

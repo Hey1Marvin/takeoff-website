@@ -1,0 +1,49 @@
+# Zuordnung der Instagram-Videos → Website.
+# Reihenfolge = Download-Reihenfolge (ls -tr InstaReels/*.mp4), so wie sie
+# InstaReels/Description.md beschreibt. Nr. 41 fehlt bewusst: laut Marvin irrelevant.
+#
+# gruppe: live=Mitschnitt (klein kodieren) · sprache=Wortbeitrag (Ton wichtig)
+#         motion=animierter Teaser/Intro · hero=Startseiten-Hintergrund
+# nr  name                                gruppe   ton  beschreibung
+1	kollektiv-diy-erklaervideo	sprache	ja	Wie wir alles selbst bauen — mit Dank an den Stadtjugendring
+2	event-free-entry-rave-teaser-a	motion	ja	„Cute Date Idea" — Teaser zum Free Entry Rave am 17.01.
+3	event-pride-teaser	motion	ja	Animierter Teaser zur Pride-Party im KuZe
+4	event-free-entry-rave-teaser-b	motion	ja	Animierter Teaser mit den DJ-Ankündigungen zum 17.01.
+5	event-mariokart-trailer	motion	ja	Trailer zum Mario-Kart-Rave mit Ausschnitten
+6	mariokart-molly-01	live	nein	mølly (on molly) am Pult, von hinten in die Menge
+7	mariokart-molly-02	live	nein	mølly (on molly) aus der Menge aufs Pult
+8	mariokart-molly-03	live	nein	mølly (on molly) — Lichter über der Menge
+9	mariokart-molly-04	hero	nein	Aus der Menge aufs Pult — Leute im Vordergrund
+10	mariokart-molly-05	live	nein	mølly (on molly) von der anderen Ecke
+11	mariokart-molly-06	live	nein	Blick von der Seite aufs Pult
+12	mariokart-mimi404-01	live	nein	MIMI404 am Pult, von hinten in die Menge
+13	mariokart-mimi404-02	live	nein	MIMI404 — Blick über das Pult in die Menge
+14	mariokart-mimi404-03	live	nein	MIMI404 vom Pult aus in die Menge
+15	mariokart-mimi404-04	live	nein	MIMI404 aus der Menge
+16	mariokart-mimi404-05	live	nein	MIMI404 am Pult, seitlich
+17	mariokart-mimi404-06	live	nein	MIMI404 aus der Menge gefilmt
+18	mariokart-mimi404-07	live	nein	MIMI404 von hinten über die Menge
+19	mariokart-mimi404-08	live	nein	Blick von weiter hinten aufs Pult
+20	mariokart-mimi404-09	live	nein	MIMI404 von der Seite
+21	mariokart-mimi404-10	live	nein	MIMI404 seitlich aus der Menge
+22	mariokart-senaida-01	live	nein	SENAIDA und Partnerin B2B, von hinten in die Menge
+23	mariokart-senaida-02	live	nein	Die beiden von der Seite
+24	mariokart-senaida-03	live	nein	Aus der Menge auf die beiden
+25	mariokart-senaida-04	live	nein	Von hinter den beiden in die Menge
+26	mariokart-senaida-05	live	nein	Die beiden seitlich am Pult
+27	mariokart-senaida-06	live	nein	Die beiden von vorn
+28	mariokart-senaida-07	live	nein	Die beiden am Pult
+29	mariokart-fernseher	motion	ja	Der Fernseher mit Mario Kart mitten im Rave
+30	portrait-senaida	sprache	ja	SENAIDA stellt sich vor — Gewinnerin des DJ-Contests
+31	artists-jojo-platzhalter-interview	sprache	ja	JOJO und DJ Platzhalter über ihren Sound
+32	kollektiv-boxbau-subwoofer	motion	ja	Der zweite Subwoofer entsteht — drei Tage vor dem Event
+33	portrait-b2b-duo	sprache	ja	Zwei DJs, die B2B gespielt haben, stellen sich vor
+34	portrait-carotin	sprache	ja	Caro Tin stellt sich vor
+35	event-mariokart-meme-a	motion	ja	Meme-Teaser zum 27.09.
+36	event-mariokart-meme-b	motion	ja	Zweiter Meme-Teaser zum 27.09.
+37	mariokart-deko	motion	ja	Die Deko-Karte wird angebracht
+38	event-spartacus-nacht-recap	motion	ja	Recap der Spartacus-Nacht am 09.05.
+39	event-mariokart-intro	motion	ja	Animiertes Intro mit allen DJ-Namen
+40	artist-jojo-auflegen	live	nein	JOJO legt auf — Tageslicht
+42	event-out-of-space-intro	motion	ja	Animiertes Intro zum Nil-Rave am 11.01.
+43	event-sky-high-intro	motion	ja	Animiertes Intro zum allerersten Rave — takeoff-Thema

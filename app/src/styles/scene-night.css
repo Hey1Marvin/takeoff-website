@@ -92,7 +92,7 @@
    Die Karten (.mcard, .next-card) sind bereits deckend und brauchen nichts.
    ============================================================ */
 :root:not(.day-mode) :is(
-  .section-head, .stats, .flog, .note, .aw-note, .crew-grid, .sound-list,
+  .section-head, .stats, .flog, .note, .aw-note, .crewgrid, .sound-list,
   .section-intro, .section-head + .section-intro,
   .faq-body, .transmission, .m-rows, .aw-principle, .lu-note,
   .glog-panel,
@@ -109,7 +109,7 @@
                                   hinter den Sektionsgrund fallen zu lassen */
 }
 :root:not(.day-mode) :is(
-  .section-head, .stats, .flog, .note, .aw-note, .crew-grid, .sound-list,
+  .section-head, .stats, .flog, .note, .aw-note, .crewgrid, .sound-list,
   .section-intro, .section-head + .section-intro,
   .faq-body, .transmission, .m-rows, .aw-principle, .lu-note,
   /* --- ab It. 13 nachgetragen ---------------------------------------------
@@ -151,6 +151,69 @@
       rgb(var(--bg-void-rgb) / .12) 91%,
       rgb(var(--bg-void-rgb) / 0)   100%);
 }
+/* ============================================================
+   Nacht · Ueberschriften stehen UEBER den Traegerflaechen (It. 14)
+
+   Das Problem, nachgemessen ueber alle Routen (scripts/design-audit.mjs):
+   383 Ueberlappungen, alle nach demselben Muster. Die Traegerflaeche oben
+   ragt bauartbedingt 20-34px ueber ihr Element hinaus — der Verlauf
+   braucht diesen Weg zum Auslaufen, sonst wird er als Kasten sichtbar.
+   Gleichzeitig macht `position: relative` + `isolation: isolate` aus dem
+   Traeger einen positionierten Stapelkontext: er wird damit NACH jedem
+   nicht positionierten Geschwister gemalt, das vor ihm steht.
+
+   Folge: die Platte eines Elements legt sich ueber die Ueberschrift
+   DARUEBER. Gemessen zum Beispiel:
+     · .section-intro ueber h1 im .phero        20px, auf 6 Routen (48x)
+     · .glog-panel ueber h3.odl-title           51px, /artists
+     · .kt-dept-intro ueber h3.kt-dept-title    28px, /team
+     · .lineup/.glog/.vcard ueber h3            16px, Event-Seiten
+     · .m-row ueber .mcard h3                   bis 67px, /, /events
+
+   Bisher wurde das pro Seite mit `content: none` abgeschaltet — auf der
+   Startseite (home.css) und der Awareness-Seite (awareness.css). Das
+   loest es nur dort, wo jemand hingeschaut hat, und kostet jedes Mal
+   einen Override mit fuenf Klassen gegen die (0,4,0) der :is()-Liste.
+
+   Hier steht die Ursache statt der Symptome: Ueberschriften bekommen
+   selbst einen Stapelrang. Damit malen sie ueber jede Geschwisterplatte,
+   egal welche Klasse die traegt und egal auf welcher Seite. Die Platte
+   behaelt ihren Ueberstand und damit ihren weichen Auslauf — sie liegt
+   nur nicht mehr VOR dem Text, sondern dahinter.
+
+   `z-index: 1` statt `isolation: isolate`: die Ueberschrift soll ueber
+   die Platte, aber keinen eigenen Kontext aufmachen — sonst faellt ein
+   `.glow`-Textschatten oder ein `background-clip: text`-Verlauf darin
+   aus der gemeinsamen Ebene heraus.
+   ============================================================ */
+:root:not(.day-mode) main :is(h1, h2, h3, h4, .h2, .etitle, .wordmark) {
+  position: relative;
+  z-index: 1;
+}
+
+/* Und die Platten, die es nie haette geben duerfen: in einer deckenden
+   Karte liegt bereits Grund unter dem Text (.mcard/.next-card/.setcard/
+   .ccard sind vollflaechig eingefaerbt, takeoff.css). Die Platte fuegt
+   dort keine Lesbarkeit hinzu, sie zieht nur eine zweite dunkle Ellipse
+   ueber den Karteninhalt — auf der Startseite bis zu 67px hoch quer
+   ueber den Eventnamen im aufgeklappten Briefing.
+   Spezifitaet: (0,2,0) + (0,1,0) + (0,2,0) = (0,5,0) und damit ueber der
+   (0,4,0) der Basisliste (die ihr staerkstes Argument
+   `.section-head + .section-intro` auf zwei Klassen hebt). */
+:root:not(.day-mode) :is(.mcard, .next-card, .setcard, .ccard, .m-more-inner) :is(
+  .section-head, .stats, .flog, .note, .aw-note, .crewgrid, .sound-list,
+  .section-intro, .section-head + .section-intro,
+  .faq-body, .transmission, .m-rows, .aw-principle, .lu-note,
+  .glog-panel,
+  .aw-reasons-list, .aw-reasons-intro, .aw-reasons-closing, .aw-recognition,
+  .kt-dept-head, .kt-dept-intro,
+  .m-row,
+  .vcard, .bc-venue-note, .bc-patch-teaser,
+  .tg-tap-readout,
+  .lineup, .eblock, .glog,
+  .aw-spiking, .aw-quiet-line
+)::before { content: none; }
+
 /* Auf schmalen Schirmen steht ohnehin kaum Szene neben dem Text — dort
    darf die Flaeche bis an den Rand laufen, sonst franst sie im Nichts aus. */
 @media (max-width: 720px) {
@@ -165,7 +228,7 @@
      `.section-intro` bleibt zusaetzlich stehen — mobil sollen ausdruecklich
      ALLE Intros die Flaeche bekommen, nicht nur die nach einem Head. */
   :root:not(.day-mode) :is(
-    .section-head, .stats, .flog, .note, .aw-note, .crew-grid, .sound-list,
+    .section-head, .stats, .flog, .note, .aw-note, .crewgrid, .sound-list,
     .section-intro, .section-head + .section-intro,
     .faq-body, .transmission, .m-rows, .aw-principle, .lu-note,
     .glog-panel,

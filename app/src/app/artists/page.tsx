@@ -136,7 +136,7 @@ export default async function ArtistsPage() {
 
       <section className="section" id="residents" style={{ paddingTop: "clamp(30px, 5vh, 50px)" }}>
         <div className="wrap">
-          <header className="section-head">
+          <header className="section-head reveal">
             <p className="eyebrow">{content.residents.eyebrow}</p>
             <h2 className="h2">Residents</h2>
           </header>
@@ -151,7 +151,7 @@ export default async function ArtistsPage() {
 
       <section className="section" id="sets" style={{ paddingTop: 0 }}>
         <div className="wrap">
-          <header className="section-head">
+          <header className="section-head reveal">
             <p className="eyebrow">{content.sets.eyebrow}</p>
             <h2 className="h2">Sets &amp; <span className="glow">Podcast</span></h2>
           </header>
@@ -167,7 +167,7 @@ export default async function ArtistsPage() {
 
       <section className="section" id="gaeste" style={{ paddingTop: 0 }}>
         <div className="wrap">
-          <header className="section-head">
+          <header className="section-head reveal">
             <p className="eyebrow">{content.gaeste.eyebrow}</p>
             <h2 className="h2">Schon bei uns <span className="glow">gefunkt</span></h2>
             <p className="section-intro">{content.gaeste.intro}</p>

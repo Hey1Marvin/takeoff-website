@@ -234,7 +234,19 @@
         "patch": "heart"
       },
       "image": "/img/placeholders/stage-violet.svg",
-      "page": "event-pride.html"
+      "page": "event-pride.html",
+      "media": [
+        {
+          "kind": "video",
+          "rolle": "teaser",
+          "src": "/media/event-pride-teaser.mp4",
+          "poster": "/media/event-pride-teaser.jpg",
+          "caption": "Animierter Teaser zur Pride-Party im KuZe",
+          "ton": true,
+          "orientation": "hoch",
+          "dauer": 25
+        }
+      ]
     },
     {
       "slug": "free-entry-rave",
@@ -291,15 +303,37 @@
         "accentRgb": "207 196 242",
         "patch": "star"
       },
-      "image": "/img/placeholders/neon-tubes.svg"
+      "image": "/img/placeholders/neon-tubes.svg",
+      "media": [
+        {
+          "kind": "video",
+          "rolle": "teaser",
+          "src": "/media/event-free-entry-rave-teaser-a.mp4",
+          "poster": "/media/event-free-entry-rave-teaser-a.jpg",
+          "caption": "„Cute Date Idea\" — Teaser zum Free Entry Rave am 17.01.",
+          "ton": true,
+          "orientation": "hoch",
+          "dauer": 35
+        },
+        {
+          "kind": "video",
+          "rolle": "teaser",
+          "src": "/media/event-free-entry-rave-teaser-b.mp4",
+          "poster": "/media/event-free-entry-rave-teaser-b.jpg",
+          "caption": "Animierter Teaser mit den DJ-Ankündigungen zum 17.01.",
+          "ton": true,
+          "orientation": "hoch",
+          "dauer": 18
+        }
+      ]
     },
     {
       "slug": "groesstes-event",
       "visible": true,
       "state": "past",
       "patchNo": "M4",
-      "title": "Unser größtes Event",
-      "subtitle": "",
+      "title": "Mario Kart Rave",
+      "subtitle": "Rave on Rainbow",
       "date": "2025-09-27",
       "weekday": "SA",
       "doors": "",
@@ -327,14 +361,336 @@
           "name": "SENAIDA"
         }
       ],
-      "brief": "Unser bis dahin größtes Event — angekündigt als genau das.",
+      "brief": "Unser bis dahin größtes Event — Mario Kart auf der Leinwand, Fragezeichen-Blöcke über dem Pult und ein DJ-Contest, dessen Gewinnerinnen den Abend B2B zu Ende gespielt haben.",
       "theme": {
         "preset": "space",
         "accent": "#a18fe0",
         "accentRgb": "161 143 224",
         "patch": "star"
       },
-      "image": "/img/placeholders/crowd-blue.svg"
+      "image": "/img/placeholders/crowd-blue.svg",
+      "media": [
+        {
+          "kind": "video",
+          "rolle": "teaser",
+          "src": "/media/event-mariokart-trailer.mp4",
+          "poster": "/media/event-mariokart-trailer.jpg",
+          "caption": "Trailer zum Mario-Kart-Rave mit Ausschnitten",
+          "ton": true,
+          "orientation": "hoch",
+          "dauer": 31
+        },
+        {
+          "kind": "video",
+          "rolle": "teaser",
+          "src": "/media/event-mariokart-intro.mp4",
+          "poster": "/media/event-mariokart-intro.jpg",
+          "caption": "Animiertes Intro mit allen DJ-Namen",
+          "ton": true,
+          "orientation": "hoch",
+          "dauer": 21
+        },
+        {
+          "kind": "video",
+          "rolle": "galerie",
+          "src": "/media/mariokart-fernseher.mp4",
+          "poster": "/media/mariokart-fernseher.jpg",
+          "caption": "Der Fernseher mit Mario Kart mitten im Rave",
+          "ton": true,
+          "orientation": "hoch",
+          "dauer": 9
+        },
+        {
+          "kind": "video",
+          "rolle": "galerie",
+          "src": "/media/mariokart-deko.mp4",
+          "poster": "/media/mariokart-deko.jpg",
+          "caption": "Die Deko-Karte wird angebracht",
+          "ton": true,
+          "orientation": "hoch",
+          "dauer": 19
+        },
+        {
+          "kind": "video",
+          "rolle": "galerie",
+          "src": "/media/mariokart-molly-01.mp4",
+          "poster": "/media/mariokart-molly-01.jpg",
+          "caption": "mølly (on molly) am Pult, von hinten in die Menge",
+          "ton": false,
+          "orientation": "quer",
+          "dauer": 14
+        },
+        {
+          "kind": "video",
+          "rolle": "galerie",
+          "src": "/media/mariokart-molly-02.mp4",
+          "poster": "/media/mariokart-molly-02.jpg",
+          "caption": "mølly (on molly) aus der Menge aufs Pult",
+          "ton": false,
+          "orientation": "quer",
+          "dauer": 34
+        },
+        {
+          "kind": "video",
+          "rolle": "galerie",
+          "src": "/media/mariokart-molly-03.mp4",
+          "poster": "/media/mariokart-molly-03.jpg",
+          "caption": "mølly (on molly) — Lichter über der Menge",
+          "ton": false,
+          "orientation": "quer",
+          "dauer": 19
+        },
+        {
+          "kind": "video",
+          "rolle": "galerie",
+          "src": "/media/mariokart-molly-04.mp4",
+          "poster": "/media/mariokart-molly-04.jpg",
+          "caption": "Aus der Menge aufs Pult — Leute im Vordergrund",
+          "ton": false,
+          "orientation": "quer",
+          "dauer": 18
+        },
+        {
+          "kind": "video",
+          "rolle": "galerie",
+          "src": "/media/mariokart-molly-05.mp4",
+          "poster": "/media/mariokart-molly-05.jpg",
+          "caption": "mølly (on molly) von der anderen Ecke",
+          "ton": false,
+          "orientation": "quer",
+          "dauer": 45
+        },
+        {
+          "kind": "video",
+          "rolle": "galerie",
+          "src": "/media/mariokart-molly-06.mp4",
+          "poster": "/media/mariokart-molly-06.jpg",
+          "caption": "Blick von der Seite aufs Pult",
+          "ton": false,
+          "orientation": "quer",
+          "dauer": 16
+        },
+        {
+          "kind": "video",
+          "rolle": "galerie",
+          "src": "/media/mariokart-mimi404-01.mp4",
+          "poster": "/media/mariokart-mimi404-01.jpg",
+          "caption": "MIMI404 am Pult, von hinten in die Menge",
+          "ton": false,
+          "orientation": "quer",
+          "dauer": 21
+        },
+        {
+          "kind": "video",
+          "rolle": "galerie",
+          "src": "/media/mariokart-mimi404-02.mp4",
+          "poster": "/media/mariokart-mimi404-02.jpg",
+          "caption": "MIMI404 — Blick über das Pult in die Menge",
+          "ton": false,
+          "orientation": "quer",
+          "dauer": 18
+        },
+        {
+          "kind": "video",
+          "rolle": "galerie",
+          "src": "/media/mariokart-mimi404-03.mp4",
+          "poster": "/media/mariokart-mimi404-03.jpg",
+          "caption": "MIMI404 vom Pult aus in die Menge",
+          "ton": false,
+          "orientation": "quer",
+          "dauer": 16
+        },
+        {
+          "kind": "video",
+          "rolle": "galerie",
+          "src": "/media/mariokart-mimi404-04.mp4",
+          "poster": "/media/mariokart-mimi404-04.jpg",
+          "caption": "MIMI404 aus der Menge",
+          "ton": false,
+          "orientation": "quer",
+          "dauer": 33
+        },
+        {
+          "kind": "video",
+          "rolle": "galerie",
+          "src": "/media/mariokart-mimi404-05.mp4",
+          "poster": "/media/mariokart-mimi404-05.jpg",
+          "caption": "MIMI404 am Pult, seitlich",
+          "ton": false,
+          "orientation": "quer",
+          "dauer": 25
+        },
+        {
+          "kind": "video",
+          "rolle": "galerie",
+          "src": "/media/mariokart-mimi404-06.mp4",
+          "poster": "/media/mariokart-mimi404-06.jpg",
+          "caption": "MIMI404 aus der Menge gefilmt",
+          "ton": false,
+          "orientation": "quer",
+          "dauer": 15
+        },
+        {
+          "kind": "video",
+          "rolle": "galerie",
+          "src": "/media/mariokart-mimi404-07.mp4",
+          "poster": "/media/mariokart-mimi404-07.jpg",
+          "caption": "MIMI404 von hinten über die Menge",
+          "ton": false,
+          "orientation": "quer",
+          "dauer": 11
+        },
+        {
+          "kind": "video",
+          "rolle": "galerie",
+          "src": "/media/mariokart-mimi404-08.mp4",
+          "poster": "/media/mariokart-mimi404-08.jpg",
+          "caption": "Blick von weiter hinten aufs Pult",
+          "ton": false,
+          "orientation": "quer",
+          "dauer": 17
+        },
+        {
+          "kind": "video",
+          "rolle": "galerie",
+          "src": "/media/mariokart-mimi404-09.mp4",
+          "poster": "/media/mariokart-mimi404-09.jpg",
+          "caption": "MIMI404 von der Seite",
+          "ton": false,
+          "orientation": "quer",
+          "dauer": 13
+        },
+        {
+          "kind": "video",
+          "rolle": "galerie",
+          "src": "/media/mariokart-mimi404-10.mp4",
+          "poster": "/media/mariokart-mimi404-10.jpg",
+          "caption": "MIMI404 seitlich aus der Menge",
+          "ton": false,
+          "orientation": "quer",
+          "dauer": 12
+        },
+        {
+          "kind": "video",
+          "rolle": "galerie",
+          "src": "/media/mariokart-senaida-01.mp4",
+          "poster": "/media/mariokart-senaida-01.jpg",
+          "caption": "SENAIDA und Partnerin B2B, von hinten in die Menge",
+          "ton": false,
+          "orientation": "quer",
+          "dauer": 14
+        },
+        {
+          "kind": "video",
+          "rolle": "galerie",
+          "src": "/media/mariokart-senaida-02.mp4",
+          "poster": "/media/mariokart-senaida-02.jpg",
+          "caption": "Die beiden von der Seite",
+          "ton": false,
+          "orientation": "quer",
+          "dauer": 20
+        },
+        {
+          "kind": "video",
+          "rolle": "galerie",
+          "src": "/media/mariokart-senaida-03.mp4",
+          "poster": "/media/mariokart-senaida-03.jpg",
+          "caption": "Aus der Menge auf die beiden",
+          "ton": false,
+          "orientation": "quer",
+          "dauer": 12
+        },
+        {
+          "kind": "video",
+          "rolle": "galerie",
+          "src": "/media/mariokart-senaida-04.mp4",
+          "poster": "/media/mariokart-senaida-04.jpg",
+          "caption": "Von hinter den beiden in die Menge",
+          "ton": false,
+          "orientation": "quer",
+          "dauer": 18
+        },
+        {
+          "kind": "video",
+          "rolle": "galerie",
+          "src": "/media/mariokart-senaida-05.mp4",
+          "poster": "/media/mariokart-senaida-05.jpg",
+          "caption": "Die beiden seitlich am Pult",
+          "ton": false,
+          "orientation": "quer",
+          "dauer": 19
+        },
+        {
+          "kind": "video",
+          "rolle": "galerie",
+          "src": "/media/mariokart-senaida-06.mp4",
+          "poster": "/media/mariokart-senaida-06.jpg",
+          "caption": "Die beiden von vorn",
+          "ton": false,
+          "orientation": "quer",
+          "dauer": 33
+        },
+        {
+          "kind": "video",
+          "rolle": "galerie",
+          "src": "/media/mariokart-senaida-07.mp4",
+          "poster": "/media/mariokart-senaida-07.jpg",
+          "caption": "Die beiden am Pult",
+          "ton": false,
+          "orientation": "hoch",
+          "dauer": 16
+        },
+        {
+          "kind": "video",
+          "rolle": "portrait",
+          "src": "/media/portrait-senaida.mp4",
+          "poster": "/media/portrait-senaida.jpg",
+          "caption": "SENAIDA stellt sich vor — Gewinnerin des DJ-Contests",
+          "ton": true,
+          "orientation": "hoch",
+          "dauer": 30
+        },
+        {
+          "kind": "video",
+          "rolle": "portrait",
+          "src": "/media/portrait-b2b-duo.mp4",
+          "poster": "/media/portrait-b2b-duo.jpg",
+          "caption": "Zwei DJs, die B2B gespielt haben, stellen sich vor",
+          "ton": true,
+          "orientation": "hoch",
+          "dauer": 24
+        },
+        {
+          "kind": "video",
+          "rolle": "portrait",
+          "src": "/media/portrait-carotin.mp4",
+          "poster": "/media/portrait-carotin.jpg",
+          "caption": "Caro Tin stellt sich vor",
+          "ton": true,
+          "orientation": "hoch",
+          "dauer": 40
+        },
+        {
+          "kind": "video",
+          "rolle": "galerie",
+          "src": "/media/event-mariokart-meme-a.mp4",
+          "poster": "/media/event-mariokart-meme-a.jpg",
+          "caption": "Meme-Teaser zum 27.09.",
+          "ton": true,
+          "orientation": "hoch",
+          "dauer": 25
+        },
+        {
+          "kind": "video",
+          "rolle": "galerie",
+          "src": "/media/event-mariokart-meme-b.mp4",
+          "poster": "/media/event-mariokart-meme-b.jpg",
+          "caption": "Zweiter Meme-Teaser zum 27.09.",
+          "ton": true,
+          "orientation": "hoch",
+          "dauer": 18
+        }
+      ]
     },
     {
       "slug": "spartacus-nacht",
@@ -386,7 +742,35 @@
         "accentRgb": "224 79 180",
         "patch": "star"
       },
-      "image": "/img/placeholders/dj-magenta.svg"
+      "image": "/img/placeholders/dj-magenta.svg",
+      "media": [
+        {
+          "kind": "video",
+          "rolle": "teaser",
+          "src": "/media/event-spartacus-nacht-recap.mp4",
+          "poster": "/media/event-spartacus-nacht-recap.jpg",
+          "caption": "Recap der Spartacus-Nacht am 09.05.",
+          "ton": true,
+          "orientation": "hoch",
+          "dauer": 14
+        }
+      ],
+      "sets": [
+        {
+          "title": "DJ Platzhalter 09.05. @ Takeoff",
+          "meta": "Liveset · SoundCloud",
+          "platform": "soundcloud",
+          "id": "dj-platzhalter-0905",
+          "url": "https://soundcloud.com/takeoff-potsdam/dj-platzhalter-0905"
+        },
+        {
+          "title": "Molly (on molly) 09.05. @ Takeoff",
+          "meta": "Gast-Set · SoundCloud",
+          "platform": "soundcloud",
+          "id": "molly-on-molly-0905",
+          "url": "https://soundcloud.com/takeoff-potsdam/molly-on-molly-0905"
+        }
+      ]
     },
     {
       "slug": "out-of-space",
@@ -443,7 +827,19 @@
         "accentRgb": "111 201 232",
         "patch": "star"
       },
-      "image": "/img/placeholders/crowd-blue.svg"
+      "image": "/img/placeholders/crowd-blue.svg",
+      "media": [
+        {
+          "kind": "video",
+          "rolle": "teaser",
+          "src": "/media/event-out-of-space-intro.mp4",
+          "poster": "/media/event-out-of-space-intro.jpg",
+          "caption": "Animiertes Intro zum Nil-Rave am 11.01.",
+          "ton": true,
+          "orientation": "hoch",
+          "dauer": 23
+        }
+      ]
     },
     {
       "slug": "sky-high",
@@ -484,7 +880,28 @@
         "accentRgb": "111 201 232",
         "patch": "star"
       },
-      "image": "/img/placeholders/neon-tubes.svg"
+      "image": "/img/placeholders/neon-tubes.svg",
+      "media": [
+        {
+          "kind": "video",
+          "rolle": "teaser",
+          "src": "/media/event-sky-high-intro.mp4",
+          "poster": "/media/event-sky-high-intro.jpg",
+          "caption": "Animiertes Intro zum allerersten Rave — takeoff-Thema",
+          "ton": true,
+          "orientation": "hoch",
+          "dauer": 36
+        }
+      ],
+      "sets": [
+        {
+          "title": "Cyonic | Takeoff: SkyHigh – Opening",
+          "meta": "Opening-Set · YouTube",
+          "platform": "youtube",
+          "id": "en6MHLd2ZTo",
+          "url": "https://www.youtube.com/watch?v=en6MHLd2ZTo"
+        }
+      ]
     }
   ],
   "artists": [
@@ -498,14 +915,53 @@
       "bio": "Bio & Foto folgen — mit Einverständnis, wie sich das gehört.",
       "sets": [
         {
-          "title": "JOJO | takeoff Podcast #1",
-          "meta": "Serie · YouTube & SoundCloud"
+          "title": "Djojo | Takeoff",
+          "meta": "Podcast #1 · YouTube",
+          "platform": "youtube",
+          "id": "bAaNDe4k4b4",
+          "url": "https://www.youtube.com/watch?v=bAaNDe4k4b4"
+        },
+        {
+          "title": "Djojo @ Takeoff",
+          "meta": "Podcast #1 · SoundCloud",
+          "platform": "soundcloud",
+          "id": "djojo-takeoff-podcast",
+          "url": "https://soundcloud.com/takeoff-potsdam/djojo-takeoff-podcast"
+        },
+        {
+          "title": "Jojo live hard trance jam",
+          "meta": "Liveset · YouTube",
+          "platform": "youtube",
+          "id": "p0nduaeveQc",
+          "url": "https://www.youtube.com/watch?v=p0nduaeveQc"
         }
       ],
       "appearances": [
         "free-entry-rave"
       ],
-      "page": "artist-jojo.html"
+      "page": "artist-jojo.html",
+      "media": [
+        {
+          "kind": "video",
+          "rolle": "portrait",
+          "src": "/media/artist-jojo-auflegen.mp4",
+          "poster": "/media/artist-jojo-auflegen.jpg",
+          "caption": "JOJO legt auf — Tageslicht",
+          "ton": false,
+          "orientation": "hoch",
+          "dauer": 14
+        },
+        {
+          "kind": "video",
+          "rolle": "portrait",
+          "src": "/media/artists-jojo-platzhalter-interview.mp4",
+          "poster": "/media/artists-jojo-platzhalter-interview.jpg",
+          "caption": "JOJO und DJ Platzhalter über ihren Sound",
+          "ton": true,
+          "orientation": "hoch",
+          "dauer": 37
+        }
+      ]
     },
     {
       "slug": "platzhalter",
@@ -517,15 +973,37 @@
       "bio": "Nico — hat takeoff 2024 mit aufgebaut. Der Name ist Programm, die Bio kommt trotzdem noch.",
       "sets": [
         {
-          "title": "DJ Platzhalter — Live @ Spartacus",
-          "meta": "09.05. · Liveset"
+          "title": "DJ Platzhalter 09.05. @ Takeoff",
+          "meta": "09.05. · Liveset",
+          "platform": "soundcloud",
+          "id": "dj-platzhalter-0905",
+          "url": "https://soundcloud.com/takeoff-potsdam/dj-platzhalter-0905"
+        },
+        {
+          "title": "Cyonic B2B DJ Platzhalter @ Feel Festival",
+          "meta": "Sunset Beach Set · YouTube",
+          "platform": "youtube",
+          "id": "6b92_9k5c2M",
+          "url": "https://www.youtube.com/watch?v=6b92_9k5c2M"
         }
       ],
       "appearances": [
         "spartacus-nacht",
         "sky-high"
       ],
-      "page": "artist-platzhalter.html"
+      "page": "artist-platzhalter.html",
+      "media": [
+        {
+          "kind": "video",
+          "rolle": "portrait",
+          "src": "/media/artists-jojo-platzhalter-interview.mp4",
+          "poster": "/media/artists-jojo-platzhalter-interview.jpg",
+          "caption": "JOJO und DJ Platzhalter über ihren Sound",
+          "ton": true,
+          "orientation": "hoch",
+          "dauer": 37
+        }
+      ]
     },
     {
       "slug": "cyonic",
@@ -537,8 +1015,18 @@
       "bio": "Von der ersten Mission an dabei. Spezialität: B2B-Sets.",
       "sets": [
         {
-          "title": "Cyonic B2B Niico — Out of Space",
-          "meta": "11.01. · Liveset"
+          "title": "Cyonic | Takeoff: SkyHigh – Opening",
+          "meta": "Sky High · YouTube",
+          "platform": "youtube",
+          "id": "en6MHLd2ZTo",
+          "url": "https://www.youtube.com/watch?v=en6MHLd2ZTo"
+        },
+        {
+          "title": "Cyonic B2B DJ Platzhalter @ Feel Festival",
+          "meta": "Sunset Beach Set · YouTube",
+          "platform": "youtube",
+          "id": "6b92_9k5c2M",
+          "url": "https://www.youtube.com/watch?v=6b92_9k5c2M"
         }
       ],
       "appearances": [
@@ -795,5 +1283,29 @@
       "note": "Jedes Event bekommt sein eigenes Universum."
     }
   ],
-  "pages": {}
+  "pages": {},
+  "media": {
+    "kollektiv": [
+      {
+        "kind": "video",
+        "rolle": "teaser",
+        "src": "/media/kollektiv-diy-erklaervideo.mp4",
+        "poster": "/media/kollektiv-diy-erklaervideo.jpg",
+        "caption": "Wie wir alles selbst bauen — mit Dank an den Stadtjugendring",
+        "ton": true,
+        "orientation": "hoch",
+        "dauer": 77
+      },
+      {
+        "kind": "video",
+        "rolle": "galerie",
+        "src": "/media/kollektiv-boxbau-subwoofer.mp4",
+        "poster": "/media/kollektiv-boxbau-subwoofer.jpg",
+        "caption": "Der zweite Subwoofer entsteht — drei Tage vor dem Event",
+        "ton": true,
+        "orientation": "hoch",
+        "dauer": 8
+      }
+    ]
+  }
 }

@@ -266,3 +266,54 @@
 :root.js[data-fx="m"] .fs-blip.fs-blip-in, :root.js[data-fx="l"] .fs-blip.fs-blip-in {
   opacity: 1;
 }
+
+/* ============================================================
+   10 · Enge Inline-Trägerfläche ("Design-Politur"-Batch)
+
+   .fs-status (Hero-Statuszeile: Punkt · Empfangsbereit-Text · Uhrzeit) sitzt
+   direkt in .phero — die einzige Stelle auf dieser Seite, die weder von der
+   zentralen scene-night.css-Liste (.section-head/.section-intro/…) noch von
+   einem eigenen Chip wie .fs-tag gedeckt ist. Über Mars/Strand + Nacht kann
+   dort dieselbe zu helle Bodenfläche stehen, die scene-night.css fuer
+   .section-intro nachgemessen hat (Luminanz .05–.06, Kleinschrift faellt auf
+   ~2.7:1). Statt einer Box quer durchs Hero: eine Flaeche NUR hinter dem
+   Textlauf selbst, inline, laeuft mit Zeilenumbruch mit (box-decoration-break)
+   — exakt das Muster, das der Auftrag fuer "enge Traegerflaechen" verlangt.
+   Nur nachts aktiv: tags deckt bereits die Sektions-Platte aus
+   scene-day.css (`main > *:not(.hero):not(.ehero)`), dort waere ein
+   zusaetzlicher dunkler Chip nur ein Fremdkoerper auf hellem Grund. */
+.txplate {
+  display: inline;
+  padding: .1em .35em;
+  border-radius: .3em;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+:root:not(.day-mode) .txplate {
+  background: rgb(7 6 15 / .72);
+}
+
+/* ============================================================
+   11 · Radar-Einflug beim Scrollen (Veredelung — animation-timeline: view())
+
+   Zweite Ergaenzung neben dem Section-Head-.reveal (siehe page.tsx): der
+   Dial "faehrt hoch", waehrend er ins Bild scrollt — reine Scroll-Kopplung
+   ohne IntersectionObserver, der Browser treibt selbst an (kein rAF, keine
+   JS-Kosten). Gleiches Prinzip wie der ditem-Parallax in SceneReveals.tsx,
+   dort ebenfalls bewusst nur Tier "l" (volle Show). Grundzustand ist voll
+   sichtbar/skaliert — "Fallback zuerst": ohne @supports oder unter Tier m/s
+   bleibt der Dial einfach so stehen, wie er heute schon steht, nichts
+   verschwindet. Ruehrt nur opacity/transform an, genau wie die anderen
+   FX-gegateten Effekte dieser Datei. */
+@supports (animation-timeline: view()) {
+  :root[data-fx="l"] .fs-radar {
+    animation-name: fs-radar-in;
+    animation-timeline: view();
+    animation-range: entry 0% entry 60%;
+    animation-fill-mode: both;
+  }
+}
+@keyframes fs-radar-in {
+  from { opacity: .35; transform: scale(.86); }
+  to   { opacity: 1; transform: scale(1); }
+}

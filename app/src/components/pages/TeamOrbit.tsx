@@ -28,7 +28,7 @@ export default function TeamOrbit({
   counts: { flugdeck: number; boden: number; bau: number };
 }) {
   return (
-    <div className="kt-orbit" aria-hidden="true">
+    <div className="kt-orbit scene-deco" aria-hidden="true">
       <svg viewBox="0 0 480 420" preserveAspectRatio="xMinYMin meet" focusable="false">
         <g transform="translate(150,190)">
           <circle className="kt-ring kt-ring-fallback" r="160" />

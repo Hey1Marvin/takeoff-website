@@ -86,5 +86,5 @@ export default function ArtistsWaveCanvas() {
     };
   }, []);
 
-  return <canvas id="freqwave" ref={ref} aria-hidden="true" className="freqwave" />;
+  return <canvas id="freqwave" ref={ref} aria-hidden="true" className="freqwave scene-deco" />;
 }

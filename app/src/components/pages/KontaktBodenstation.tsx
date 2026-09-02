@@ -50,7 +50,7 @@ export default function KontaktBodenstation({
 
   return (
     <>
-      <div className="fs-ground" aria-hidden="true" ref={groundRef}>
+      <div className="fs-ground scene-deco" aria-hidden="true" ref={groundRef}>
         <div className="fs-roofline" />
         <svg className="fs-rig" viewBox="0 0 220 240" overflow="visible">
           <defs>

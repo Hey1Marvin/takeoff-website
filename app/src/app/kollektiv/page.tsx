@@ -8,6 +8,7 @@ import KollektivRig from "@/components/pages/KollektivRig";
 import KollektivHistory from "@/components/pages/KollektivHistory";
 import KollektivOrbit from "@/components/pages/KollektivOrbit";
 import KollektivStats, { type StatCell } from "@/components/pages/KollektivStats";
+import KollektivSpend from "@/components/pages/KollektivSpend";
 import "@/styles/pages/kollektiv.css";
 import { pageHref } from "@/lib/site";
 
@@ -222,20 +223,7 @@ export default async function KollektivPage() {
           <h2 className="h2">Wohin das Geld <span className="glow">fliegt</span></h2>
           <p className="section-intro">{'„Nicht-Verlust-orientiert" ist kein Slogan — hier ist, wofür Einnahmen draufgehen.'}</p>
         </header>
-        <div className="bp-spend">
-          {page.spendChart.items.map(item => {
-            const pct = Math.max(0, Math.min(100, item.percent));
-            return (
-              <div className="bp-spend-row" key={item.label}>
-                <span className="bp-spend-label">{item.label}</span>
-                <span className="bp-spend-track">
-                  <span className="bp-spend-fill" style={{ "--pct": `${pct}%` } as CSSProperties} />
-                </span>
-                <span className="bp-spend-pct">{pct}%</span>
-              </div>
-            );
-          })}
-        </div>
+        <KollektivSpend items={page.spendChart.items} />
         <p className="lu-note">{page.spendChart.note}</p>
       </BpSheet>
 
