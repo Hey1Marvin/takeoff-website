@@ -1,0 +1,72 @@
+/* ============================================================
+   Impressum & Datenschutz — „Bordhandbuch"
+
+   Die nuechternste Variante der Site (Konzept 50 §E): Mono-Dokument-
+   nummern, technisches Schriftfeld, kein Effekt, keine Bewegung. Genau
+   diese Zurueckhaltung IST hier die Gestaltung — eine Rechtsseite, die
+   sich schmueckt, wirkt unserioes.
+
+   Warum ueberhaupt ein eigenes Blatt: die beiden Seiten hatten bisher
+   gar keins und trugen ihre gesamte Gestaltung als Inline-`style` im JSX
+   (maxWidth, borderTop, marginTop, Farben auf Links, opacity). Das war
+   die letzte Stelle der Site, an der Abstaende und Farben nicht aus den
+   Tokens kamen.
+
+   Alles haengt an `.lg-page`. Seiten-CSS wird global gebuendelt.
+   ============================================================ */
+
+.lg-page .lg-body { max-width: 74ch; }
+
+/* Der Hero traegt oben schon reichlich Luft; die Dokumentsektion setzt
+   direkt darunter an. Ersetzt das frueher inline gesetzte
+   `paddingTop: clamp(24px,4vh,40px)`. */
+.lg-page.lg-sec { padding-top: var(--sp-5); }
+
+/* ---------- Schriftfeld ----------
+   Wie das Titelfeld einer technischen Zeichnung: Dokumentnummer, Stand,
+   Geltung. Sagt auf einen Blick, was fuer ein Papier man vor sich hat. */
+.lg-page .lg-stamp {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2) var(--sp-5);
+  margin-top: var(--sp-5);
+  padding: var(--sp-3) 0;
+  border-top: 1px solid var(--bg-hairline);
+  border-bottom: 1px solid var(--bg-hairline);
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: var(--track-label);
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+.lg-page .lg-stamp b {
+  color: var(--ink-dim);
+  font-weight: var(--w-micro-b);
+}
+
+/* ---------- Der Satzspiegel ----------
+   `.m-rows` ist der Subgrid-Vertrag des Systems (eine Label-Spalte, alle
+   Werte auf einer Linie). Hier nur Rahmen und Abstand. */
+.lg-page .lg-rows {
+  margin-top: var(--sp-6);
+  border-top: 1px solid var(--bg-hairline);
+}
+
+.lg-page .lg-note {
+  margin-top: var(--sp-5);
+  font-size: 13.5px;
+  color: var(--ink-faint);
+}
+
+.lg-page .lg-tx { margin-top: var(--sp-6); }
+
+/* Links im Fliesstext dieser Seiten: Tintenfarbe statt Akzent, aber
+   unterstrichen — auf einer Rechtsseite muss ein Link als Link lesbar
+   sein, ohne dass Neon ins Dokument kommt. */
+.lg-page .lg-rows a {
+  color: var(--ink);
+  text-decoration: underline;
+  text-underline-offset: .2em;
+  text-decoration-color: rgb(var(--acc-3-rgb) / .5);
+}
+.lg-page .lg-rows a:hover { text-decoration-color: var(--acc-3); }

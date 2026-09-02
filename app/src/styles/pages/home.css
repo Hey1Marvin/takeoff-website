@@ -229,3 +229,18 @@
   .missions .ditem.big { left: .8vw; }
   .missions .ditem.big svg { width: 48px; }
 }
+
+/* ---------- Aufgeklapptes Briefing: die Trennkante ----------
+   Sie kam bis It. 14 aus `events.css` — dort stand `.mcard .m-more-inner`
+   UNGESCOPET und wirkte deshalb auf jede Karte der Site, auch auf die
+   Missionskarten hier. Beim Aufraeumen der Events-Seite ist sie dort
+   weggefallen (zu Recht: ein Seitenblatt darf keine fremden Seiten
+   gestalten). Auf der Startseite war sie aber sichtbar und gewollt — die
+   Kante sagt, wo das Briefing anfaengt. Also hier, an `.hm-sec` gebunden.
+   Geprueft: von den fuenf entfernten `.mcard`-Regeln greift nur diese auf
+   der Startseite; `.chips`, `.route-row`, `.note-line` und `.m-share`
+   kommen in den Missionskarten gar nicht vor. */
+.hm-sec .mcard .m-more-inner {
+  border-top: 1px dashed rgb(var(--card-acc-rgb) / .35);
+  padding-top: var(--sp-3);
+}

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { pageContent, settings } from "@/lib/data";
 import { LangLock } from "@/components/I18nProvider";
+import "@/styles/pages/legal.css";
 
 export const metadata: Metadata = {
   title: "Datenschutz · takeoff potsdam",
@@ -27,41 +28,44 @@ export default async function DatenschutzPage() {
   if (!page) return null;
 
   return (
-    // data-lang-lock: Rechtsseite, bleibt immer Deutsch — Orchestrator
-    // liest dieses Attribut beim Verdrahten des DE/EN-Umschalters
-    // (siehe prototype/datenschutz.html Kopfkommentar zu data-lang-lock).
-    <div data-lang-lock="1">
-      {/* Sperrt die Seite auf Deutsch. Das Attribut oben am <div> dokumentiert
-          die Absicht; wirksam wird sie erst ueber <LangLock />, denn der
-          I18nProvider prueft <html> — dort sitzt die Sperre im Prototyp auch
-          (prototype/impressum.html: <html data-lang-lock>). */}
+    /* Fragment statt eines umschliessenden <div>: der Tagmodus faerbt
+       `main > *` ein und nimmt `.hero`/`.ehero` aus. Lag die ganze Seite in
+       EINEM div, traf die Regel genau dieses div, die Ausnahme lief ins
+       Leere und die helle Platte lag auch ueber dem Hero. Die Sprachsperre
+       haengt an <LangLock />, nicht am Markup. */
+    <>
       <LangLock />
-      <section className="phero">
+      <section className="phero lg-page">
         <div className="wrap">
           <p className="eyebrow">{page.hero.eyebrow}</p>
           <h1>{page.hero.h1}</h1>
           <p className="section-intro">{page.hero.intro}</p>
+          <div className="lg-stamp">
+            <span>Dok <b translate="no">DOC-02</b></span>
+            <span>Tracking <b>keins</b></span>
+            <span>Sprache <b>Deutsch</b></span>
+          </div>
         </div>
       </section>
 
-      <section className="section" style={{ paddingTop: "clamp(24px, 4vh, 40px)" }}>
-        <div className="wrap" style={{ maxWidth: 720 }}>
-          <dl className="m-rows" style={{ borderTop: "1px solid var(--bg-hairline)" }}>
+      <section className="section lg-page lg-sec">
+        <div className="wrap lg-body">
+          <dl className="m-rows lg-rows">
             {page.rows.map(row => (
               <div className="m-row" key={row.label}>
                 <dt>{row.label}</dt>
                 <dd>
                   {row.text}
                   {row.label === "Deine Rechte" && (
-                    <> — schreib an <a href={`mailto:${s.email}`} style={{ color: "var(--ink)" }} translate="no">{s.email}</a></>
+                    <> — schreib an <a href={`mailto:${s.email}`} translate="no">{s.email}</a></>
                   )}
                 </dd>
               </div>
             ))}
           </dl>
-          <p className="section-intro" style={{ marginTop: 20, fontSize: 13.5, opacity: .7 }}>{page.protoNote}</p>
+          <p className="lg-note">{page.protoNote}</p>
         </div>
       </section>
-    </div>
+    </>
   );
 }

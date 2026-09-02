@@ -580,7 +580,7 @@
    var(--bg-void) und var(--acc-2-rgb) — sie loest damit von selbst wieder
    auf die Nachtwerte auf. Aendert jemand spaeter die Nacht-Wortmarke,
    zieht der Tag-Modus automatisch mit. */
-:root.day-mode :is(.wordmark, .nav-brand) {
+:root.day-mode .wordmark {
   --chrome-hi:     var(--nite-chrome-hi);
   --chrome-mid:    var(--nite-chrome-mid);
   --chrome-lo:     var(--nite-chrome-lo);
@@ -588,8 +588,27 @@
   --bg-void:       var(--nite-bg-void);
   --acc-2-rgb:     var(--nite-acc-2-rgb);
 }
-/* .nav-brand bleibt aussen vor: es sitzt in der Kopfleiste, und die ist ein
-   dunkler Anker — dort gilt weiter die Nacht-Rampe. */
+
+/* KORREKTUR It. 14 — die Wortmarke in der Kopfleiste war tags fast unsichtbar.
+   Hier stand `.nav-brand` mit in der Liste oben, begruendet mit „die
+   Kopfleiste ist ein dunkler Anker". Das stimmt nicht (mehr): weiter oben in
+   dieser Datei bekommt `.topbar` im Tagmodus `rgb(var(--bg-void-rgb) / .975)`
+   — und `--bg-void` ist tags HELL. Nachgemessen bei 1440px:
+     Kopfleiste rgb(230 231 238) · Marke im Mittel rgb(196 198 205)
+   Das sind rund 1.35:1. Die Marke stand hell auf hell.
+
+   Sie bekommt deshalb die TAG-Rampe, und zwar ueber `--chrome-sweep`: die
+   Originalregel in takeoff.css baut ihren Verlauf aus hi/mid/hi/lo/mid — alles
+   helle Stops. Selbst mit Tag-Tokens waere sie hell geblieben, weil
+   `--chrome-shadow` (#23283C) darin gar nicht vorkommt. Der Sweep hat die
+   harte Horizontkante samt Schattenstop und ist genau dafuer da (er traegt
+   im Tagmodus schon `.stats b`).
+   Die Kontur laeuft mit: nachts trennt sie die Marke vom durchscheinenden
+   Bodenbild, tags braucht sie den hellen Grund als Gegenstueck. */
+:root.day-mode .nav-brand {
+  background-image: var(--chrome-sweep);
+  -webkit-text-stroke-color: var(--bg-void);
+}
 /* Der Event-Titel ist dieselbe Schrift und dieselbe Rolle wie die
    Wortmarke — also derselbe Griff: Nacht-Tokens zurueck, Originalregel
    bleibt unberuehrt. */
