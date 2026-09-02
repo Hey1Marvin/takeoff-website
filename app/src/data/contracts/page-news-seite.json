@@ -1,0 +1,35 @@
+{
+  "$contract": "page-news-seite",
+  "version": 1,
+  "label": "News-Seite (Kopftexte)",
+  "labelPlural": "News-Seite (Kopftexte)",
+  "icon": "newspaper",
+  "description": "Nur der Kopfbereich (Hero) der News-Seite. Die einzelnen Meldungen selbst legst du über den Contract „News-Meldung“ an — sie erscheinen hier automatisch, neueste zuerst.",
+  "storage": { "scope": "page", "slug": "news" },
+  "fields": [
+    {
+      "key": "hero.eyebrow",
+      "type": "text",
+      "label": "Kicker über der Überschrift",
+      "default": "Mission Log",
+      "help": "Kurzes Wort über der großen Überschrift, z. B. „Mission Log“."
+    },
+    {
+      "key": "hero.h1",
+      "type": "text",
+      "label": "Überschrift",
+      "required": true,
+      "default": "Was gerade passiert",
+      "help": "Große Überschrift ganz oben auf der Seite. Das letzte Wort wird auf der Seite automatisch leuchtend hervorgehoben."
+    },
+    {
+      "key": "hero.intro",
+      "type": "richtextLite",
+      "label": "Einleitungstext",
+      "required": true,
+      "default": "Kein Blog, kein Geschwafel — kurze Funksprüche aus der Werkstatt und von den Floors. Ausführliche Posts gibt's auf Instagram, hier verlinkt.",
+      "help": "Kurzer Absatz direkt unter der Überschrift. **Fett** möglich, Absätze mit Leerzeile."
+    }
+  ],
+  "actions": ["edit"]
+}

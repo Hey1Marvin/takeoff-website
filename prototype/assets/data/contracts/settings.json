@@ -1,0 +1,95 @@
+{
+  "$contract": "settings",
+  "version": 1,
+  "label": "Einstellungen",
+  "labelPlural": "Einstellungen",
+  "icon": "sliders",
+  "description": "Globale Website-Einstellungen: Kontakt- & Social-Links, HUD-Ticker, nächstes Event und Standard-Animationsverhalten. Ein Formular, keine Liste.",
+  "storage": { "scope": "db", "collection": "settings" },
+  "fields": [
+    {
+      "key": "siteName",
+      "type": "text",
+      "label": "Seitenname",
+      "required": true,
+      "help": "Name des Kollektivs, erscheint z. B. im Logo-Bereich."
+    },
+    {
+      "key": "claim",
+      "type": "text",
+      "label": "Claim",
+      "help": "Kurzer Slogan unter dem Namen, z. B. „rave kollektiv · potsdam · est. 2024“."
+    },
+    {
+      "key": "email",
+      "type": "text",
+      "label": "Kontakt-E-Mail",
+      "required": true
+    },
+    {
+      "key": "telegram",
+      "type": "text",
+      "label": "Telegram-Link"
+    },
+    {
+      "key": "instagram",
+      "type": "text",
+      "label": "Instagram-Link"
+    },
+    {
+      "key": "soundcloud",
+      "type": "text",
+      "label": "SoundCloud-Link"
+    },
+    {
+      "key": "tiktok",
+      "type": "text",
+      "label": "TikTok-Link"
+    },
+    {
+      "key": "nextEventSlug",
+      "type": "relation",
+      "collection": "events",
+      "displayField": "title",
+      "label": "Nächstes Event",
+      "help": "Bestimmt, welches Event auf der Startseite als „Next Launch“ hervorgehoben wird — inklusive dessen Hintergrund-Thema (Space/Mars/Strand/…)."
+    },
+    {
+      "key": "showEvents",
+      "type": "multiselect",
+      "collection": "events",
+      "displayField": "title",
+      "label": "Events in der Kurzübersicht",
+      "help": "Events, die in der Startseiten-Auswahl auftauchen (Mehrfachauswahl)."
+    },
+    {
+      "key": "hudTicker",
+      "type": "list",
+      "label": "Lauftext (HUD-Ticker)",
+      "of": [
+        { "key": "value", "type": "text", "label": "Text", "required": true, "help": "z. B.: SA 12.09. OPEN AIR „FREIRÄUME“ · BASTION AM SCHILLERPLATZ · 16:00 · FREE" }
+      ],
+      "help": "Kurzmeldungen für das laufende Band im Kopfbereich — ein Eintrag pro Meldung, Reihenfolge = Laufreihenfolge."
+    },
+    {
+      "key": "fxDefault",
+      "type": "select",
+      "label": "Animations-Standard",
+      "default": "m",
+      "options": [
+        { "value": "s", "label": "Ruhig — keine Animationen/kein Canvas" },
+        { "value": "m", "label": "Dezent (Standard)" },
+        { "value": "l", "label": "Volle Show" }
+      ],
+      "help": "Standard-Animationsstufe für neue Besucher:innen bzw. wenn die Geräteleistung nicht automatisch erkannt wird."
+    },
+    {
+      "key": "groundEnabled",
+      "type": "toggle",
+      "label": "Bodenebene",
+      "default": true,
+      "help": "Deko-Bodenebene (z. B. Mars-Oberfläche bei Themen-Events) global an- oder ausschalten."
+    }
+  ],
+  "actions": ["edit"]
+}

@@ -1,0 +1,37 @@
+{
+  "$contract": "page-generic",
+  "version": 1,
+  "label": "Seite ohne eigenen Contract",
+  "labelPlural": "Seiten ohne eigenen Contract",
+  "icon": "file",
+  "description": "Generischer Fallback: Greift automatisch für jede assets/data/pages/<slug>.json, die keinen eigenen page-<slug>.json-Contract hat (z. B. events, artists, kalender, team, musik). Nichts einzurichten — jede neue Seiten-Datei ist damit sofort bearbeitbar.",
+  "storage": { "scope": "page" },
+  "fallback": true,
+  "help": "Dieser Contract legt keine feste Feldliste fest (siehe \"fields\": [] unten) — stattdessen leitet der Formular-Generator die Felder bei jedem Aufruf direkt aus der tatsächlichen JSON-Struktur der jeweiligen Seiten-Datei ab. Sobald eine Seite einen eigenen page-<slug>.json-Contract bekommt (siehe z. B. page-awareness.json, page-kollektiv.json), hat dieser Vorrang vor der generischen Ableitung.",
+  "inference": [
+    {
+      "jsType": "string",
+      "fieldType": "text",
+      "label": "Textfeld",
+      "description": "Jeder String-Wert wird ein einzeiliges Textfeld."
+    },
+    {
+      "jsType": "array",
+      "fieldType": "list",
+      "label": "Liste",
+      "description": "Jedes Array wird eine wiederholbare Liste — Einträge lassen sich hinzufügen, umsortieren und löschen. Sind die Einträge selbst Objekte, bekommt jedes darin enthaltene Feld automatisch ein passendes Formularfeld nach denselben Regeln."
+    },
+    {
+      "jsType": "object",
+      "fieldType": "group",
+      "label": "Gruppe",
+      "description": "Jedes Unter-Objekt wird eine eingerückte Feld-Gruppe mit eigener Überschrift, rekursiv nach denselben Regeln aufgelöst."
+    }
+  ],
+  "labelOverrides": {
+    "key": "_labels",
+    "description": "Optional am Anfang der jeweiligen Seiten-Datei: \"_labels\": { \"pfad.zum.feld\": \"Schöner deutscher Name\" } übersteuert die sonst technischen, aus dem JSON-Schlüssel abgeleiteten Feldbeschriftungen. \"_labels\" selbst erscheint nicht als Formularfeld."
+  },
+  "fields": [],
+  "actions": ["edit"]
+}

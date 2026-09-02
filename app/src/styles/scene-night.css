@@ -1,0 +1,187 @@
+/* ============================================================
+   scene-night.css — Nachtmodus: Lesegrund hinter dem Text
+
+   HERKUNFT
+   1:1 portiert aus `prototype/assets/css/style.css`, Zeilen 271–379
+   (Abschnitte „Nachtmodus — Lesegrund hinter dem Text" und
+   „Nacht · Traegerflaeche eng am Baustein"). Werte, Verlaeufe und
+   Kommentare wurden woertlich uebernommen — die Kommentare enthalten die
+   nachgemessenen Begruendungen (Luminanzen, Kontrastwerte) und sind der
+   eigentliche Wert dieser Datei.
+
+   ZWECK
+   Alles, was im STANDARD-Nachtmodus greift: die `scene-edges`-Vignette und
+   die eng anliegenden radialen Traegerflaechen hinter den Textbausteinen.
+   Diese Regeln wirken SOFORT auf jeder Seite — im Gegensatz zu
+   `scene-day.css`, das erst nach einem Nutzerklick (`:root.day-mode`)
+   ueberhaupt etwas tut.
+
+   KASKADE — WICHTIG
+   Diese Datei MUSS in `layout.tsx` NACH `takeoff.css` importiert werden
+   (und `scene-day.css` wiederum nach dieser). Der Prototyp begruendet das
+   an seiner Zeile 385 selbst: `:root.day-mode` hat exakt dieselbe
+   Spezifitaet wie `:root[data-theme=…]` und wie die Theme-Selektoren im
+   P3-Block — es entscheidet allein die Quellreihenfolge. Steht die Datei
+   davor, sitzen auf P3-Schirmen weiter die Nacht-Akzente.
+   ============================================================ */
+
+/* ============================================================
+   Nachtmodus — Lesegrund hinter dem Text
+
+   Nachgemessen gegen den TATSAECHLICH gerenderten Hintergrund (Schrift
+   transparent gesetzt, Pixel abgetastet) reicht der reine Seitengrund als
+   Bezugsgroesse nicht: hinter dem Text liegt fix der Himmel ODER das
+   Bodenfoto, und der Marsboden kommt auf Luminanz .06, der Strandhorizont
+   auf .05. Dort faellt Kleinschrift (--ink-faint) auf 2.7:1 und der
+   Neonakzent als 12px-Label auf 2.9:1 — genau das "manche Schriften
+   verschwinden etwas".
+
+   Auf den ruhigen LESESEITEN (Kollektiv, Artists, Awareness, Team, News,
+   Recht ...) bekommt der Text deshalb denselben Griff wie im Tag-Modus, nur
+   invers: eine halbdurchsichtige DUNKLE Flaeche ueber die volle Breite.
+
+   NICHT auf Startseite, Eventuebersicht und Event-Detailseiten. Dort ist
+   ausdruecklich kein Balken gewuenscht — diese drei leben von der Szene.
+   Fuer die Event-Seiten uebernimmt ein Schleier ueber den Hintergrund-
+   ebenen die Arbeit (siehe unten); die Startseite bleibt unangetastet und
+   traegt allein ueber die angehobene Textrampe (--ink-faint, .flog .fpatch,
+   Panel-Deckung).
+   ============================================================ */
+/* ENTFERNT. Die ganzflaechige dunkle Platte lag ueber die volle Breite hinter
+   jedem Abschnitt und hat den Sternenhimmel auf den Leseseiten flaechig
+   zugedeckt — ausdruecklich unerwuenscht. An ihre Stelle tritt dieselbe eng
+   anliegende Traegerflaeche, die auf der Startseite schon steht (siehe
+   naechster Block): sie haelt den Text lesbar, ohne die Szene zu mattieren. */
+
+/* Event-Seiten: kein Kasten, sondern ein Schleier ueber den Hintergrund-
+   Ebenen. Er liegt auf derselben Ebene wie die Vignette (z-index -1, also
+   ueber den Canvas-Ebenen und unter dem Inhalt) und dunkelt Boden, Meer und
+   Himmel gleichmaessig ab. Die Szene bleibt vollstaendig sichtbar, sie
+   verliert nur die Helligkeit, die der Schrift im Weg stand.
+   Die Vignette selbst muss dabei mitgeschrieben werden — sie steht in
+   derselben Deklaration und ginge sonst verloren. */
+/* Die Startseite bekommt denselben Schleier, nur schwaecher. Kein Balken,
+   kein Kasten — die Szene bleibt vollstaendig da, sie verliert nur den
+   Spitzenwert an Helligkeit, an dem die Kleinschrift zerfiel (Marsboden
+   Luminanz .054 -> .026). Im Space-Theme ist der Himmel ohnehin schwarz,
+   dort sieht man davon nichts. */
+/* KEINE ganzflaechige Abdunklung mehr. Der flache Schleier (.42 auf der
+   Startseite, .55 auf den Event-Seiten) hat zwar den Text getragen, aber
+   dafuer die ganze Szene mattiert — Marsboden, Brandung und Sternenhimmel
+   wurden gleichmaessig grau, und der Hintergrund wirkte insgesamt zu
+   dunkel. Nur die Vignette bleibt: die ist Objektiv, nicht Schleier.
+   Die Traegerflaeche wandert stattdessen eng an die einzelnen Bausteine
+   (siehe naechster Block). */
+:root.scene-edges:not(.day-mode)::after {
+  background:
+    radial-gradient(ellipse 78% 74% at 50% 46%,
+        rgb(0 0 0 / 0) 0%, rgb(0 0 0 / .06) 55%, rgb(0 0 0 / .20) 78%, rgb(0 0 0 / .42) 100%);
+}
+
+/* ============================================================
+   Nacht · Traegerflaeche eng am Baustein
+   (nur Startseite und Missionsseiten, nur nachts)
+
+   Statt eines Riegels quer durchs Bild bekommt jeder Textblock eine eigene,
+   eng anliegende Flaeche. Entscheidend ist, dass sie KEINE sichtbare Kante
+   hat: der Verlauf ist in der Mitte deckend und laeuft zum Rand hin auf
+   null aus, das Element ist ausserdem groesser als sein Inhalt. Dadurch
+   liest es als Tiefe im Bild und nicht als grauer Kasten — ein Kasten waere
+   genau das, was die Szene kaputtmacht.
+
+   Die Karten (.mcard, .next-card) sind bereits deckend und brauchen nichts.
+   ============================================================ */
+:root:not(.day-mode) :is(
+  .section-head, .stats, .flog, .note, .aw-note, .crew-grid, .sound-list,
+  .section-intro, .section-head + .section-intro,
+  .faq-body, .transmission, .m-rows, .aw-principle, .lu-note,
+  .glog-panel,
+  .aw-reasons-list, .aw-reasons-intro, .aw-reasons-closing, .aw-recognition,
+  .kt-dept-head, .kt-dept-intro,
+  .m-row,
+  .vcard, .bc-venue-note, .bc-patch-teaser,
+  .tg-tap-readout,
+  .lineup, .eblock, .glog,
+  .aw-spiking, .aw-quiet-line        /* Safety-Texte — muessen lesbar sein   */
+) {
+  position: relative;
+  isolation: isolate;          /* haelt das -1 im Element, statt es
+                                  hinter den Sektionsgrund fallen zu lassen */
+}
+:root:not(.day-mode) :is(
+  .section-head, .stats, .flog, .note, .aw-note, .crew-grid, .sound-list,
+  .section-intro, .section-head + .section-intro,
+  .faq-body, .transmission, .m-rows, .aw-principle, .lu-note,
+  /* --- ab It. 13 nachgetragen ---------------------------------------------
+     Nachgemessen, nicht geraten: ein Skript hat je Seite die Textknoten
+     gesucht, die weder selbst noch ueber einen Vorfahren eine Flaeche haben
+     (scratchpad/diag.mjs). Genau die stehen hier. Gewaehlt ist jeweils die
+     ENGSTE sinnvolle Ebene — `.kt-dept-head` statt `.kt-dept`,
+     `.tg-tap-readout` statt `.tg-tap` —, damit eine Textzeile eine Flaeche
+     bekommt und nicht ein halber Bildschirm dunkel wird. */
+  .glog-panel,
+  .aw-reasons-list, .aw-reasons-intro, .aw-reasons-closing, .aw-recognition,
+  .kt-dept-head, .kt-dept-intro,
+  .m-row,
+  .vcard, .bc-venue-note, .bc-patch-teaser,
+  .tg-tap-readout,
+  .lineup, .eblock, .glog,
+  .aw-spiking, .aw-quiet-line        /* Safety-Texte — muessen lesbar sein   */
+)::before {
+  content: "";
+  position: absolute;
+  /* Groesser als der Inhalt: der Verlauf braucht Weg zum Auslaufen, sonst
+     schneidet er an der Textkante ab und wird doch wieder als Kasten
+     sichtbar. */
+  /* Waagerecht nie weiter hinaus als der Seitenrand breit ist. Ohne die
+     max()-Deckelung ragt die Flaeche mit 4.5vw ueber einen Rand von 4vw
+     hinaus (--pad) und erzeugt zwischen ~720 und ~1120px Breite ein paar
+     Pixel horizontalen Overflow — im Prototyp unbemerkt, hier nachgemessen.
+     max() zweier negativer Werte nimmt den kleineren Ueberstand. Sichtbar
+     ist der Unterschied nicht: der Verlauf steht am Rand ohnehin bei 0. */
+  inset: clamp(-34px, -3vw, -20px)
+         max(clamp(-52px, -4.5vw, -26px), calc(-1 * var(--pad)));
+  z-index: -1;
+  pointer-events: none;
+  border-radius: 26px;
+  background: radial-gradient(ellipse 92% 88% at 50% 50%,
+      rgb(var(--bg-void-rgb) / .86) 0%,
+      rgb(var(--bg-void-rgb) / .80) 42%,
+      rgb(var(--bg-void-rgb) / .46) 74%,
+      rgb(var(--bg-void-rgb) / .12) 91%,
+      rgb(var(--bg-void-rgb) / 0)   100%);
+}
+/* Auf schmalen Schirmen steht ohnehin kaum Szene neben dem Text — dort
+   darf die Flaeche bis an den Rand laufen, sonst franst sie im Nichts aus. */
+@media (max-width: 720px) {
+  /* `.section-head + .section-intro` steht hier NUR wegen der Spezifitaet.
+     :is() erbt die Spezifitaet seines staerksten Arguments: die Basisregel
+     oben enthaelt `.section-head + .section-intro` (zwei Klassen), diese
+     Liste kaeme mit lauter Einzelklassen auf eine Stufe weniger — die
+     Basisregel gewinnt dann trotz spaeterer Position, und die schmale
+     Variante greift nie. Folge im Prototyp (style.css:339/347 gegen 370,
+     dort unbemerkt): die Flaeche ragt mit -26px ueber den 18px-Seitenrand
+     hinaus und erzeugt 8px horizontalen Overflow auf jeder Seite.
+     `.section-intro` bleibt zusaetzlich stehen — mobil sollen ausdruecklich
+     ALLE Intros die Flaeche bekommen, nicht nur die nach einem Head. */
+  :root:not(.day-mode) :is(
+    .section-head, .stats, .flog, .note, .aw-note, .crew-grid, .sound-list,
+    .section-intro, .section-head + .section-intro,
+    .faq-body, .transmission, .m-rows, .aw-principle, .lu-note,
+    .glog-panel,
+    .aw-reasons-list, .aw-reasons-intro, .aw-reasons-closing, .aw-recognition,
+    .kt-dept-head, .kt-dept-intro,
+    .m-row,
+    .vcard, .bc-venue-note, .bc-patch-teaser,
+    .tg-tap-readout,
+    .lineup, .eblock, .glog,
+  .aw-spiking, .aw-quiet-line        /* Safety-Texte — muessen lesbar sein   */
+  )::before {
+    inset: -20px -18px;
+    background: radial-gradient(ellipse 130% 96% at 50% 50%,
+        rgb(var(--bg-void-rgb) / .82) 0%,
+        rgb(var(--bg-void-rgb) / .74) 58%,
+        rgb(var(--bg-void-rgb) / .30) 86%,
+        rgb(var(--bg-void-rgb) / 0)   100%);
+  }
+}

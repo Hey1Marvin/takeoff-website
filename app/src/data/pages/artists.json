@@ -1,0 +1,36 @@
+{
+  "hero": {
+    "eyebrow": "Frequenzen",
+    "intro": "Die Menschen hinterm Pult — Residents, Gäste und der takeoff-Podcast. Bei uns gibt's keine Headliner-Hierarchie, nur gute Musik."
+  },
+  "residents": {
+    "eyebrow": "Crew Select",
+    "filterAllLabel": "Alle",
+    "filterAria": "Nach Genre filtern"
+  },
+  "sets": {
+    "eyebrow": "Aufzeichnungen",
+    "randomLabel": "Random Transmission",
+    "randomHint": "Ein Klick, ein zufälliges Set aus dem Archiv.",
+    "randomEmpty": "Noch keine Sets im Archiv — check bald wieder rein.",
+    "consentText": "Demo: Hier würde jetzt der Player laden (Zwei-Klick, DSGVO-freundlich). Kein Klick = kein Tracking."
+  },
+  "gaeste": {
+    "eyebrow": "Gäste-Log",
+    "intro": "Danke an alle, die unsere Nächte mitgeprägt haben — ein Klick zeigt, wann wir zusammen gefunkt haben.",
+    "appearanceLabel": "Aufgetreten bei",
+    "appearanceEmpty": "Termin wird noch zugeordnet."
+  },
+  "opendecks": {
+    "label": "Open Decks",
+    "title": "Du willst bei uns auflegen?",
+    "text": "Schick uns dein Demo — wir hören uns alles an.",
+    "checklist": [
+      "Set-Link (SoundCloud/Mixcloud, 20–30 Min)",
+      "2–3 Termine, an denen du Zeit hättest",
+      "Ein, zwei Sätze zu dir & deinem Sound"
+    ],
+    "mailSubject": "Open Decks Bewerbung",
+    "ctaLabel": "Demo schicken"
+  }
+}

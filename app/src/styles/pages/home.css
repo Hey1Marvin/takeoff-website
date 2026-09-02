@@ -1,0 +1,89 @@
+/* ============================================================
+   Startseite — nur echte Lücken
+
+   Die Startseite ist die Seite, für die das Design-System geschrieben
+   wurde: .hero, .wordmark, .tminus, .next-card, .scroll-hint, .mcard,
+   .band, .setgrid, .crewgrid, .stats, .aware, .flog und .ditem stehen
+   vollständig in takeoff.css und werden hier NICHT wiederholt.
+
+   Was hier steht, gibt es dort aus einem Grund nicht: die Hero-Intro war
+   im Prototyp eine GSAP-Timeline (main.js Z. 5929–5938), also gar kein
+   CSS. GSAP wird bewusst nicht installiert — die Timeline ist deshalb
+   hier als Keyframe-Staffel nachgebaut.
+   ============================================================ */
+
+/* ---------- Hero-Intro ----------
+   1:1 dieselbe Choreografie wie die GSAP-Timeline, nur ohne Bibliothek:
+
+     gsap.timeline({ defaults: { ease: "expo.out" } })
+       .from(".wordmark",       { y: 60, opacity: 0, duration: 1.1 })
+       .from(".hero .pretitle", { opacity: 0, y: 10,  duration: .6  }, "-=.7")
+       .from(".hero .tagline",  { opacity: 0, y: 14,  duration: .6  }, "-=.45")
+       .from(".tminus",         { opacity: 0, scale: .94, duration: .55 }, "-=.35")
+       .from(".next-card",      { opacity: 0, y: 30,  duration: .7  }, "-=.3")
+       .from(".scroll-hint",    { opacity: 0,         duration: .5  }, "-=.2");
+
+   Die relativen Positionen ("-=.7") sind zu absoluten Startzeiten
+   aufgelöst — daraus werden die animation-delay-Werte:
+
+     wordmark     0.00s  ·  1.10s
+     pretitle     0.40s  ·  0.60s
+     tagline      0.55s  ·  0.60s
+     tminus       0.80s  ·  0.55s
+     next-card    1.05s  ·  0.70s
+     scroll-hint  1.55s  ·  0.50s
+
+   `expo.out` entspricht cubic-bezier(.16, 1, .3, 1) — das steht als
+   --ease-out schon im Design-System. `both` als fill-mode ersetzt
+   gsap.from(): der Startzustand gilt schon vor dem Delay, sonst blitzte
+   der Endzustand für einen Sekundenbruchteil auf.
+
+   Läuft nur einmal beim Laden (keine iteration-count), nur in den
+   FX-Stufen m/l und nie bei reduzierter Bewegung. In Stufe "s" steht der
+   Hero sofort fertig da — genau wie im Prototyp, wo buildScrollFX() dort
+   ohne GSAP vorzeitig aussteigt. */
+
+/* Eigener Träger für die Wortmarken-Bewegung.
+   Die Animation kann NICHT auf .wordmark selbst liegen: dort läuft in den
+   Stufen m/l bereits `sheen` (der wandernde Chromglanz), und hero-video.css
+   schaltet genau diese eine animation-Eigenschaft im Video-Zustand ab
+   (`:root[data-video="on"] .wordmark { animation: none; }`). Eine zweite
+   Animation auf demselben Element würde entweder die erste ersetzen oder
+   vom Video-Zustand mit abgeräumt — die Marke bliebe dann unsichtbar.
+   Im Prototyp gab es das Problem nicht, weil GSAP inline-Transforms setzt
+   statt CSS-Animationen. */
+.hero-mark { display: block; }
+
+@media (prefers-reduced-motion: no-preference) {
+  :root[data-fx="m"] .hero-mark,
+  :root[data-fx="l"] .hero-mark {
+    animation: hero-in-mark 1.1s var(--ease-out) 0s both;
+  }
+  :root[data-fx="m"] .hero .pretitle,
+  :root[data-fx="l"] .hero .pretitle {
+    animation: hero-in-up-10 .6s var(--ease-out) .4s both;
+  }
+  :root[data-fx="m"] .hero .tagline,
+  :root[data-fx="l"] .hero .tagline {
+    animation: hero-in-up-14 .6s var(--ease-out) .55s both;
+  }
+  :root[data-fx="m"] .hero .tminus,
+  :root[data-fx="l"] .hero .tminus {
+    animation: hero-in-pop .55s var(--ease-out) .8s both;
+  }
+  :root[data-fx="m"] .hero .next-card,
+  :root[data-fx="l"] .hero .next-card {
+    animation: hero-in-up-30 .7s var(--ease-out) 1.05s both;
+  }
+  :root[data-fx="m"] .hero .scroll-hint,
+  :root[data-fx="l"] .hero .scroll-hint {
+    animation: hero-in-fade .5s var(--ease-out) 1.55s both;
+  }
+}
+
+@keyframes hero-in-mark  { from { opacity: 0; transform: translateY(60px); } to { opacity: 1; transform: none; } }
+@keyframes hero-in-up-10 { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+@keyframes hero-in-up-14 { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+@keyframes hero-in-up-30 { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: none; } }
+@keyframes hero-in-pop   { from { opacity: 0; transform: scale(.94);      } to { opacity: 1; transform: none; } }
+@keyframes hero-in-fade  { from { opacity: 0; } to { opacity: 1; } }

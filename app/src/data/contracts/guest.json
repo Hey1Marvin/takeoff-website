@@ -1,0 +1,23 @@
+{
+  "$contract": "guest",
+  "version": 1,
+  "label": "Gast",
+  "labelPlural": "Gäste",
+  "icon": "star",
+  "description": "Gast-DJs & Acts ohne eigenes Profil (z. B. aus alten Lineups). Für ein volles Profil mit Bio/Bild stattdessen einen Artist anlegen.",
+  "storage": { "scope": "db", "collection": "guests", "key": "name" },
+  "fields": [
+    {
+      "key": "name",
+      "type": "text",
+      "label": "Name",
+      "required": true,
+      "help": "Name des Gast-Acts, wie er auf Lineups & Rückblicken erscheint, z. B. „mølly (on molly)“."
+    }
+  ],
+  "list": {
+    "columns": ["name"],
+    "sort": "name"
+  },
+  "actions": ["create", "edit", "delete"]
+}

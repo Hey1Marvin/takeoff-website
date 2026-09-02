@@ -1,0 +1,60 @@
+{
+  "hero": {
+    "eyebrow": "Funkkontakt",
+    "h1": "Sag Hallo.",
+    "intro": "Ein Postfach, echte Menschen dahinter. Wir sind ehrenamtlich — gib uns ein paar Tage, dann kommt was zurück. Für schnelle Fragen rund um Events ist Telegram der Turbo."
+  },
+  "station": {
+    "label": "Bodenstation Potsdam",
+    "statusNote": "Empfangsbereit · Antwort meist in 2–5 Tagen",
+    "sendPulseToast": "Signal unterwegs 📡",
+    "copyToast": "Adresse kopiert ✓"
+  },
+  "topics": [
+    { "id": "allgemein", "label": "Allgemein", "text": "Alles, was sonst nirgends reinpasst.", "channel": "mail", "mailSubject": "Allgemeine Frage", "mailBody": "", "responseNote": "meist 2–5 Tage" },
+    { "id": "booking", "label": "Booking / Artists", "text": "Kurze Vorstellung, Demo-Link, Wunschtermine — wir schreiben zurück.", "channel": "mail", "mailSubject": "Booking", "mailBody": "Kurz zu mir:\nDemo-Link:\nWunschtermine:", "responseNote": "meist 2–5 Tage", "linkLabel": "Booking-Facts ansehen", "linkHref": "kollektiv.html#booking" },
+    { "id": "presse", "label": "Presse / Partner", "text": "Betreff „Presse“ reicht — das Fact-Sheet gibt's schon jetzt.", "channel": "mail", "mailSubject": "Presse", "mailBody": "", "responseNote": "meist 2–5 Tage", "linkLabel": "Fact-Sheet ansehen", "linkHref": "kollektiv.html#booking" },
+    { "id": "awareness", "label": "Awareness", "text": "Ist auf einem Event etwas passiert? Wir lesen sensibel und vertraulich.", "channel": "mail", "mailSubject": "Awareness", "mailBody": "", "responseNote": "vertraulich, meist 1–3 Tage", "linkLabel": "Notfall & Soforthilfe", "linkHref": "awareness.html#hilfe" },
+    { "id": "fundsachen", "label": "Fundsachen", "text": "Event, ungefähres Wann/Wo und eine kurze Beschreibung reichen.", "channel": "mail", "mailSubject": "Fundsache", "mailBody": "Event:\nWo/wann gefunden:\nBeschreibung:", "responseNote": "meist 2–5 Tage" },
+    { "id": "mitmachen", "label": "Mitmachen", "text": "Bar, Einlass, Awareness, Deko, Sani — schau bei den offenen Rollen vorbei.", "channel": "mail", "mailSubject": "Mitmachen", "mailBody": "Ich möchte mitmachen bei:\n(Bar / Einlass / Awareness / Deko-Bau / Sani)", "responseNote": "meist 2–5 Tage", "linkLabel": "Offene Rollen ansehen", "linkHref": "kollektiv.html#mitmachen" },
+    { "id": "schnell", "label": "Schnell & öffentlich", "text": "Für unkomplizierte Fragen rund ums nächste Event.", "channel": "telegram", "responseNote": "oft schneller — aber alle lesen mit" }
+  ],
+  "channels": [
+    { "label": "Allgemein", "text": "", "link": "mailto:info@takeoff-potsdam.de" },
+    { "label": "Booking / Artists", "text": "Demo-Link oder Anfrage per Mail — Betreff „Booking“. Fact-Sheet siehe Kollektiv-Seite.", "link": "kollektiv.html#booking" },
+    { "label": "Presse / Partner", "text": "Mail mit Betreff „Presse“ · Presskit folgt.", "link": "kollektiv.html#booking" },
+    { "label": "Awareness", "text": "Ist auf einem Event etwas passiert? Schreib uns — wir lesen sensibel und vertraulich.", "link": "awareness.html#hilfe" },
+    { "label": "Fundsachen", "text": "Was liegen geblieben? Sag uns Event + Beschreibung.", "link": "" },
+    { "label": "Mitmachen", "text": "Bar, Einlass, Awareness, Deko, Sani — schau bei den offenen Rollen vorbei.", "link": "kollektiv.html#mitmachen" },
+    { "label": "Schnell", "text": "", "link": "https://t.me/takeoffpotsdam" }
+  ],
+  "channelCompare": [
+    { "name": "E-Mail", "value": "info@takeoff-potsdam.de", "note": "privat · ehrenamtlich, meist 2–5 Tage" },
+    { "name": "Telegram", "value": "@takeoffpotsdam", "note": "öffentliche Gruppe · oft schneller, aber alle lesen mit" },
+    { "name": "Instagram", "value": "@takeoff.potsdam", "note": "DMs werden unregelmäßig gecheckt" }
+  ],
+  "faq": [
+    { "q": "Wie schnell bekomme ich eine Antwort?", "a": "Wir sind ehrenamtlich unterwegs — meist 2–5 Tage per Mail, Telegram oft schneller. Vor Events kann es etwas länger dauern." },
+    { "q": "Ist die Telegram-Gruppe privat?", "a": "Nein, es ist eine offene Gruppe — alle Mitglieder lesen mit. Für sensible Themen lieber Mail schreiben." },
+    { "q": "Was gehört in eine Booking-Mail?", "a": "Demo-Link, eine kurze Vorstellung und 2–3 Wunschtermine, Betreff „Booking“. Das Fact-Sheet gibt's auf der Kollektiv-Seite." },
+    { "q": "Ist meine Awareness-Nachricht vertraulich?", "a": "Ja — wir lesen sensibel und geben nichts ungefragt weiter. Bei akuten Notfällen: 112 oder das Team direkt vor Ort." },
+    { "q": "Warum gibt's kein Kontaktformular?", "a": "Bewusst nicht — kein Tracking, kein Drittanbieter-Backend. Mail oder Telegram, echte Menschen antworten." }
+  ],
+  "vcard": {
+    "buttonLabel": "Als Kontakt speichern (.vcf)",
+    "orgName": "takeoff Potsdam",
+    "note": "Speichert Mail, Telegram & Instagram direkt in deine Kontakte-App."
+  },
+  "_labels": {
+    "hero.h1": "Überschrift",
+    "station.statusNote": "Bodenstation-Statuszeile",
+    "station.sendPulseToast": "Sende-Puls-Toast",
+    "station.copyToast": "Kopier-Toast (E-Mail-Adresse)",
+    "topics": "Anliegen-Wegweiser — ein Eintrag pro Themen-Chip",
+    "channels": "Funkkanäle (Radar & Liste)",
+    "channelCompare": "Kanal-Vergleich (E-Mail/Telegram/Instagram)",
+    "faq": "Kontakt-FAQ",
+    "vcard.buttonLabel": "vCard-Button-Beschriftung",
+    "vcard.note": "vCard-Hinweistext"
+  }
+}

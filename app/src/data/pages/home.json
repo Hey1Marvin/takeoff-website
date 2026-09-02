@@ -1,0 +1,123 @@
+{
+  "_labels": {
+    "hero": "Hero (erster Bildschirm)",
+    "hero.taglineHtml": "Tagline (HTML: <br> und <b> erlaubt)",
+    "missions": "Abschnitt „Nächste Missionen“",
+    "missions.rowLabels": "Zeilen-Beschriftungen im Briefing",
+    "band": "Genre-Laufband",
+    "sound": "Abschnitt „Unser Sound“",
+    "crew": "Abschnitt „Wer hier funkt“",
+    "foundedDate": "Gründungsdatum (speist die Stats-Zahl „gegründet“)",
+    "stats": "Zahlen-Band",
+    "awareness": "Awareness-Block",
+    "flightlog": "Abschnitt „Bisherige Missionen“",
+    "secrets": "Versteckte Sammel-Items (Easter Egg)"
+  },
+
+  "hero": {
+    "taglineHtml": "Wir bauen unsere Anlage selbst, unsere Deko selbst und unsere Nächte selbst.<br><b>Trance · Hard Trance · Bounce</b> — ehrenamtlich, DIY, für alle.",
+    "tminusLabel": "T-Minus",
+    "tminusAria": "Countdown zum nächsten Event",
+    "ctaMissionLabel": "Nächste Missionen →",
+    "ctaTelegramLabel": "Telegram · Presale & Infos",
+    "scrollHint": "Scroll für Boarding"
+  },
+
+  "missions": {
+    "eyebrow": "Flugplan",
+    "titleHtml": "Nächste <span class=\"glow\">Missionen</span>",
+    "intro": "Jedes takeoff-Event hat ein Thema — und die ganze Seite zieht sich das passende Gewand an. Tippe eine Karte an für das Briefing.",
+    "headLinkLabel": "Alle Events & Flight Log",
+    "headLinkHref": "/events",
+    "toggleLabel": "Briefing",
+    "statusLabels": {
+      "announced": "Announced",
+      "tba": "TBA 🤫",
+      "prep": "In Vorbereitung"
+    },
+    "rowLabels": {
+      "boarding": "Boarding",
+      "landing": "Landeplatz",
+      "entry": "Eintritt",
+      "sound": "Sound",
+      "status": "Status",
+      "motto": "Motto"
+    },
+    "ctaMissionPage": "Zur Missionsseite",
+    "ctaTelegram": "Telegram · Updates",
+    "emptyText": "Gerade ist keine Mission angekündigt — im Telegram erfährst du es zuerst."
+  },
+
+  "band": {
+    "genres": ["Trance", "Hard Trance", "Bounce", "Techno"]
+  },
+
+  "sound": {
+    "eyebrow": "Frequenzen",
+    "titleHtml": "Unser <span class=\"glow\">Sound</span>",
+    "intro": "Von hypnotisch bis hart: Das läuft bei uns — und das sind die Menschen hinterm Pult. Sets & Podcasts gibt's auf SoundCloud und YouTube.",
+    "headLinkLabel": "Alle Artists & Sets",
+    "headLinkHref": "/artists",
+    "genres": [
+      { "label": "Trance", "hot": true },
+      { "label": "Hard Trance", "hot": true },
+      { "label": "Hard Bounce" },
+      { "label": "Techno" },
+      { "label": "Hardtekk" },
+      { "label": "Psytrance" }
+    ],
+    "maxSets": 3,
+    "playAriaTemplate": "Set abspielen: {title}",
+    "consentNote": "Demo: Hier würde jetzt der SoundCloud-Player laden (Zwei-Klick, DSGVO-freundlich). Kein Klick = kein Tracking."
+  },
+
+  "crew": {
+    "eyebrow": "Crew Select",
+    "titleHtml": "Wer hier <span class=\"glow\">funkt</span>",
+    "intro": "Residents, Licht, Sound, Awareness, Deko — takeoff ist Kollektivarbeit. (Prototyp: Platzhalter-Avatare, echte Profile folgen mit Consent.)",
+    "headLinkLabel": "Mehr übers Kollektiv",
+    "headLinkHref": "/kollektiv",
+    "maxItems": 6
+  },
+
+  "foundedDate": "2024-06-15",
+
+  "stats": {
+    "founded": { "mode": "auto", "label": "gegründet" },
+    "missions": { "mode": "auto", "label": "Missionen" },
+    "systemsBuilt": { "mode": "manual", "value": "02", "label": "Anlagen selbstgebaut" },
+    "volunteerPercent": { "mode": "manual", "value": "100%", "label": "ehrenamtlich" }
+  },
+
+  "awareness": {
+    "eyebrow": "Awareness",
+    "titleHtml": "Feiern, auf das ihr euch<br>verlassen könnt.",
+    "tiles": [
+      { "icon": "heart",  "title": "Awareness-Team", "text": "Ansprechbar die ganze Nacht — erkennbar an der lila Weste." },
+      { "icon": "cross",  "title": "Ersthelfer*innen", "text": "Auf jedem Event dabei. Hilfe holen hat nie Konsequenzen." },
+      { "icon": "water",  "title": "Free Water", "text": "Kostenloses Wasser, immer. Passt aufeinander auf." },
+      { "icon": "camera", "title": "Fotoverbot", "text": "Kein Foto ohne Frage — was im Dunkeln passiert, bleibt da." }
+    ],
+    "note": {
+      "text": "Alle sind willkommen. Diskriminierung, Übergriffe und Grenzverletzungen sind es nicht — dann fliegst du. Mehr dazu:",
+      "links": [
+        { "label": "Awareness-Konzept", "href": "/awareness" },
+        { "label": "Hilfe & Drogennotfälle", "href": "/awareness#hilfe" },
+        { "label": "Hausregeln", "href": "/awareness#regeln" }
+      ]
+    }
+  },
+
+  "flightlog": {
+    "eyebrow": "Flight Log",
+    "titleHtml": "Bisherige <span class=\"glow\">Missionen</span>",
+    "maxItems": 6
+  },
+
+  "secrets": {
+    "ariaLabel": "Verstecktes Item",
+    "foundTemplate": "✨ Versteck gefunden — {found}/{total} Themes",
+    "allFound": "🦄 Alle 3 Verstecke gefunden — Crew-Material!",
+    "alreadyFound": "Schon entdeckt 🤫 — wechsel mal das Theme …"
+  }
+}

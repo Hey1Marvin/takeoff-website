@@ -1,0 +1,32 @@
+{
+  "_labels": {
+    "hero.h1": "Haupttitel",
+    "provider.name": "Anbieter (Name)",
+    "provider.legalFormNote": "Hinweis zur Rechtsform",
+    "address.line": "Anschrift",
+    "visdp": "Verantwortlich i. S. d. § 18 Abs. 2 MStV",
+    "credits.text": "Bild- & Font-Credits"
+  },
+
+  "hero": {
+    "eyebrow": "Rechtliches",
+    "h1": "Impressum",
+    "intro": "Pflichtangaben nach § 5 TMG / § 18 MStV. Die Rechtsform von takeoff ist noch in Klärung — bis dahin stehen hier Platzhalter."
+  },
+
+  "provider": {
+    "name": "takeoff Kollektiv",
+    "legalFormNote": "Rechtsform in Klärung"
+  },
+
+  "address": {
+    "line": "c/o [wird ergänzt] · Potsdam"
+  },
+
+  "visdp": "[wird ergänzt]",
+
+  "credits": {
+    "label": "Credits",
+    "text": "Mondkarten: NASA/GSFC Scientific Visualization Studio (CGI Moon Kit, gemeinfrei). Mars-Boden: Courtesy NASA/JPL-Caltech (gemeinfrei). Schriften: Planet Kosmos (Planet Typography), Unbounded, Space Grotesk, Space Mono (SIL OFL). Diese Seite lädt nichts von Drittservern."
+  }
+}

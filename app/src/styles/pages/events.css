@@ -1,0 +1,292 @@
+/* ============================================================
+   events.css — "Abflugtafel" (Departures Board)
+   Seiten-Signaturmotiv für /events. Lädt NACH takeoff.css, nutzt
+   ausschließlich bestehende Tokens (--font-mono, --bg-hairline,
+   --acc-*, --radius*). Keine neue Palette, kein neuer Font.
+
+   1:1-Portierung aus prototype/assets/css/pages/events.css — keine
+   Bildpfade enthalten (nur Inline-SVG-Datenurls), daher keine
+   assets/img/-Ersetzung nötig.
+   ============================================================ */
+
+/* ============================================================
+   1 · Board-Header (Instrumenten-Bezel)
+   ============================================================ */
+.board-frame {
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--bg-hairline);
+  background: linear-gradient(175deg, var(--bg-raised), var(--bg-base));
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / .06), 0 18px 40px rgb(0 0 0 / .35);
+  padding: clamp(14px, 3vw, 22px) clamp(16px, 4vw, 28px);
+  margin-bottom: clamp(22px, 4vh, 38px);
+  position: relative;
+  overflow: hidden;
+}
+/* Scanline-Andeutung — 2px Zeilenabstand, 2,5 % Deckkraft. Bewusst kein
+   Phosphor-Gruen, kein Glitch: das Board bleibt im Chrome-Vokabular der
+   Seite statt in CRT-Kitsch zu kippen. */
+.board-frame::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: repeating-linear-gradient(0deg, rgb(255 255 255 / .025) 0 1px, transparent 1px 3px);
+}
+.board-toprow { display: flex; align-items: center; gap: 14px; }
+.board-code {
+  font-family: var(--font-mono); font-weight: 700; font-size: 12px;
+  letter-spacing: var(--track-wide);
+  padding: 4px 8px; border-radius: 5px;
+  border: 1px solid var(--bg-hairline); background: var(--bg-overlay);
+  color: var(--ink-dim); flex: none;
+}
+.board-title {
+  font-family: var(--font-display); font-weight: 800;
+  font-size: clamp(15px, 2vw, 19px); flex: 1;
+  min-width: 0;
+}
+.board-clock {
+  font-family: var(--font-mono); font-variant-numeric: tabular-nums;
+  font-size: clamp(16px, 2.4vw, 22px); color: var(--ink);
+  text-shadow: 0 0 5px rgb(var(--acc-3-rgb) / .35);
+  flex: none;
+}
+.board-cols {
+  display: grid; grid-template-columns: 4.5em 5em 1fr 1fr 6em;
+  gap: 8px; margin-top: 12px; padding-top: 10px;
+  border-top: 1px solid var(--bg-hairline);
+  font-family: var(--font-mono); font-size: 10.5px;
+  letter-spacing: var(--track-label); text-transform: uppercase;
+  color: var(--ink-faint);
+}
+.board-cols span:last-child { text-align: right; }
+.board-cols--sub { margin: 0 0 10px; }
+/* Unter ~700px faellt .card-grid auf 1 Spalte — die 5-Spalten-Kopfzeile
+   wuerde dort nichts mehr rahmen und nur Zeilenumbrueche produzieren. */
+@media (max-width: 700px) { .board-cols { display: none; } }
+
+/* Kleine Zeile fuers Kalender-Abo direkt unter dem Board — bewusst
+   AUSSERHALB des aria-hidden-Blocks, damit sie fokussierbar bleibt. */
+.board-actions { display: flex; justify-content: flex-end; margin: -8px 0 22px; }
+.board-actions .btn { padding: 9px 16px; font-size: 11px; }
+
+/* ============================================================
+   2 · Ambient-Wasserzeichen (Signatur-Hintergrundmotiv)
+   Zusätzlich zum Sternenhimmel, nicht statt ihm — eigener Layer nur
+   innerhalb der beiden Board-Sections. Tile: kleine "Flap-Zelle" mit
+   Scharnierlinie.
+   ============================================================ */
+#kommend, #flightlog { position: relative; isolation: isolate; }
+#kommend::before, #flightlog::before {
+  content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='46' height='46' viewBox='0 0 46 46'%3E%3Crect x='9' y='13' width='28' height='20' rx='3' fill='none' stroke='%237761d1' stroke-opacity='0.05'/%3E%3Cline x1='9' y1='23' x2='37' y2='23' stroke='%237761d1' stroke-opacity='0.05'/%3E%3C/svg%3E");
+  mask-image: linear-gradient(180deg, transparent, #000 14%, #000 86%, transparent);
+}
+#flightlog::before { filter: saturate(.7) brightness(.9); } /* "angekommen" = ruhiger als "kommend" */
+
+/* ============================================================
+   3 · Gate-Tag (reines CSS, kein JS-Zähler nötig)
+   ============================================================ */
+.card-grid { counter-reset: gate; }
+.mcard { counter-increment: gate; }
+.gate-tag {
+  position: absolute; top: 20px; left: 24px; z-index: 1;
+  font-family: var(--font-mono); font-weight: 700; font-size: 10px;
+  letter-spacing: var(--track-label); text-transform: uppercase;
+  padding: 4px 8px; border-radius: 5px;
+  color: var(--card-acc);
+  background: rgb(var(--card-acc-rgb) / .1);
+  border: 1px solid rgb(var(--card-acc-rgb) / .3);
+}
+.gate-tag::before { content: "Gate " counter(gate, decimal-leading-zero); }
+/* .patch beginnt sonst bei padding-top (26px) und läge exakt unter dem
+   Gate-Tag (top:20px, ~24px hoch) — beide sind links ausgerichtet. Statt
+   die Karte neu zu gestalten, rückt nur die Position von .patch um so
+   viel, wie der Tag zusätzlich braucht. */
+#kommend .mcard .patch { margin-top: 28px; }
+
+/* ============================================================
+   4 · Split-Flap-Mechanik (Wort-Ebene, nicht Zeichen-Ebene)
+   .flap-stack stapelt live/incoming exakt übereinander (statt sie als
+   zwei Inline-Boxen nebeneinander zu zeigen) — robuster als grid-
+   auto-placement, weil .status zusätzlich einen ::before-Punkt
+   (Boarding-Puls) trägt, der in einem Grid-Kontext mitplatziert würde.
+   ============================================================ */
+.status, .fstatus { display: inline-flex; align-items: center; gap: 6px; }
+.flap-stack { position: relative; perspective: 240px; }
+.flap-face { display: inline-block; white-space: nowrap; backface-visibility: hidden; }
+.is-flapping .flap-face--live {
+  animation: flap-out .32s cubic-bezier(.5, 0, .75, 0) forwards;
+}
+@keyframes flap-out { to { transform: rotateX(-100deg); opacity: .35; } }
+.flap-face--incoming { display: none; }
+.is-flapping .flap-face--incoming {
+  display: inline-block;
+  position: absolute; inset: 0;
+  animation: flap-in .32s cubic-bezier(.25, 1, .5, 1) .28s forwards;
+}
+@keyframes flap-in { from { transform: rotateX(90deg); opacity: 0; } to { transform: rotateX(0); opacity: 1; } }
+
+/* Puls nur für BOARDING — eigene Keyframes. Nur der zeitlich relevante
+   Zustand bewegt sich dauerhaft; ANNOUNCED/TBA/DEPARTED flappen einmal
+   und stehen still. */
+.mcard .status[data-flap-status="boarding"]::before {
+  content: ""; flex: none; width: 6px; height: 6px; border-radius: 50%;
+  background: var(--card-acc);
+  animation: gate-pulse 2.4s ease-in-out infinite;
+}
+@keyframes gate-pulse { 50% { opacity: .4; } }
+
+/* ============================================================
+   5 · .fstatus — Wiederverwendung von .chip (nur Farbgebung gedämpft,
+   "departed" soll ruhiger lesen als die Pillen bei kommenden Events)
+   ============================================================ */
+.fstatus { border-color: var(--bg-hairline); color: var(--ink-faint); text-transform: uppercase; }
+
+/* ============================================================
+   6 · Boarding-Pass-Anmutung im aufgeklappten Briefing
+   ============================================================ */
+.mcard .m-more-inner { border-top: 1px dashed rgb(var(--card-acc-rgb) / .35); padding-top: 14px; }
+
+/* ============================================================
+   7 · Kartenzusätze: Genre-/Preis-Chips, Anfahrt, Hinweise, CTAs
+   Reine Wiederverwendung globaler Klassen (.chips/.chip/.route-row/
+   .vcard/.lu-note/.btn) — hier nur Abstände, keine neuen Farben.
+   ============================================================ */
+.mcard .chips { margin-top: 12px; }
+.mcard .route-row { margin-top: 14px; }
+.mcard .note-line {
+  margin-top: 12px; padding: 10px 12px;
+  border-radius: 8px;
+  background: rgb(var(--card-acc-rgb) / .06);
+  border: 1px solid rgb(var(--card-acc-rgb) / .18);
+  color: var(--ink-dim); font-size: 13px;
+}
+.mcard .m-share {
+  padding: 11px 18px; font-size: 12px;
+}
+.mcard .m-share svg { width: 14px; height: 14px; }
+
+/* ============================================================
+   8 · Flight-Log-Ergänzungen: Reset-Kopf, "War ich dabei"-Toggle
+   ============================================================ */
+.flog-head {
+  display: flex; flex-wrap: wrap; align-items: flex-end;
+  justify-content: space-between; gap: 14px 24px;
+}
+.fpin-reset {
+  font-family: var(--font-mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase;
+  color: var(--ink-faint);
+  border: 1px solid var(--bg-hairline);
+  border-radius: 999px;
+  padding: 10px 16px;
+  min-height: 44px;
+  transition: color .2s, border-color .2s;
+  flex: none;
+}
+.fpin-reset:hover, .fpin-reset:focus-visible { color: var(--ink); border-color: rgb(var(--acc-2-rgb) / .4); }
+
+.flog .fname { display: inline-block; }
+.flog .fname:hover, .flog .fname:focus-visible { color: var(--acc-1-tint); }
+
+.fpin {
+  flex-basis: 100%;
+  display: inline-flex; align-items: center; gap: 10px;
+  min-height: 44px; margin-top: 2px; padding: 6px 4px;
+  border-radius: 8px;
+  font-family: var(--font-mono); font-size: 12px; letter-spacing: .06em;
+  color: var(--ink-faint);
+  transition: color .2s;
+}
+.fpin:hover, .fpin:focus-visible { color: var(--ink-dim); }
+.fpin .fp-ico {
+  flex: none; width: 22px; height: 22px; border-radius: 50%;
+  display: grid; place-items: center;
+  border: 1px solid var(--bg-hairline);
+  transition: border-color .25s, color .25s, background .25s, transform .25s var(--ease-out);
+}
+.fpin .fp-ico svg { width: 12px; height: 12px; }
+.fpin[aria-pressed="true"] { color: var(--ink); }
+.fpin[aria-pressed="true"] .fp-ico {
+  border-color: var(--acc-1); color: var(--acc-1-tint);
+  background: rgb(var(--acc-1-rgb) / .16);
+  transform: scale(1.08);
+}
+
+/* ============================================================
+   9 · BPM-Tap-Tempo
+   ============================================================ */
+.bpmtool {
+  display: grid; gap: 20px; justify-items: center; text-align: center;
+  max-width: 420px; margin-inline: auto;
+  padding: clamp(28px, 5vw, 44px) clamp(20px, 5vw, 36px);
+  border: 1px solid var(--bg-hairline);
+  border-radius: var(--radius-lg);
+  background: linear-gradient(165deg, var(--bg-2), var(--bg-1));
+}
+.bpm-intro { color: var(--ink-dim); font-size: 14.5px; margin-top: -10px; }
+.bpm-pad {
+  width: clamp(126px, 30vw, 172px); height: clamp(126px, 30vw, 172px);
+  border-radius: 50%;
+  display: grid; place-items: center; gap: 2px; text-align: center;
+  font-family: var(--font-mono); font-weight: 700; letter-spacing: .12em; text-transform: uppercase; font-size: 12.5px;
+  color: var(--ink);
+  background: radial-gradient(circle at 32% 26%, rgb(255 255 255 / .12), rgb(var(--bg-base-rgb) / .94) 68%);
+  border: 1px solid rgb(var(--acc-1-rgb) / .4);
+  box-shadow: inset 0 0 0 3px rgb(var(--acc-1-rgb) / .16), 0 0 22px rgb(var(--acc-1-rgb) / .16);
+  transition: transform .12s var(--ease-out), box-shadow .25s;
+  -webkit-tap-highlight-color: transparent;
+}
+.bpm-pad:active { transform: scale(.94); box-shadow: inset 0 0 0 3px rgb(var(--acc-1-rgb) / .32), 0 0 30px rgb(var(--acc-1-rgb) / .3); }
+.bpm-pad small { font-size: 10px; letter-spacing: .18em; color: var(--ink-faint); font-weight: 400; }
+.bpm-readout { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+.bpm-readout b {
+  display: block; font-size: clamp(30px, 7vw, 44px); font-weight: 700; color: var(--ink);
+  text-shadow: 0 0 6px rgb(var(--acc-1-rgb) / .35);
+}
+.bpm-readout span { font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: var(--ink-faint); }
+.bpm-match { font-family: var(--font-mono); font-size: 13.5px; color: var(--acc-1-tint); min-height: 1.4em; }
+.bpm-reset {
+  font-family: var(--font-mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase;
+  color: var(--ink-faint); text-underline-offset: 3px;
+  padding: 10px 4px; min-height: 44px; display: inline-flex; align-items: center;
+}
+.bpm-reset:hover, .bpm-reset:focus-visible { color: var(--ink-dim); }
+
+/* ============================================================
+   10 · FAQ-Akkordeon (natives details/summary)
+   ============================================================ */
+.faqlist { display: grid; gap: 10px; max-width: 760px; }
+.faqlist details {
+  border: 1px solid var(--bg-hairline);
+  border-radius: var(--radius);
+  background: linear-gradient(165deg, var(--bg-2), var(--bg-1));
+  padding: 0 20px;
+  transition: border-color .25s;
+}
+.faqlist details[open] { border-color: rgb(var(--acc-2-rgb) / .4); }
+.faqlist summary {
+  list-style: none;
+  cursor: pointer;
+  padding: 17px 0;
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  font-family: var(--font-display); font-weight: 700; font-size: 15.5px;
+  -webkit-tap-highlight-color: transparent;
+  min-height: 44px;
+}
+.faqlist summary::marker, .faqlist summary::-webkit-details-marker { content: ""; display: none; }
+.faqlist summary .fq-ico { flex: none; color: var(--acc-3); transition: transform .35s var(--ease-out); }
+.faqlist details[open] summary .fq-ico { transform: rotate(45deg); }
+.faqlist .fq-a { margin: 0 0 18px; color: var(--ink-dim); font-size: 14.5px; max-width: 640px; }
+
+/* ============================================================
+   11 · Standby-Leerzustand (kein Event angekündigt)
+   Reine Wiederverwendung von .transmission/.tx-label/.cta-row/.btn.
+   ============================================================ */
+.standby-state { margin-top: 4px; }
+
+/* ============================================================
+   12 · Mobile-Sicherheit
+   ============================================================ */
+@media (max-width: 480px) {
+  .board-toprow { flex-wrap: wrap; row-gap: 6px; }
+  .board-clock { margin-left: auto; }
+  .board-actions { justify-content: center; }
+}

@@ -1,0 +1,148 @@
+{
+  "_labels": {
+    "hero.h1": "Haupttitel",
+    "principles": "Die 4 Grundsätze",
+    "emergencyNumbers": "Notfallnummern"
+  },
+
+  "hero": {
+    "eyebrow": "Awareness",
+    "h1": "Feiern, auf das ihr euch verlassen könnt.",
+    "intro": "Awareness ist bei uns kein Aushang, sondern gelebte Praxis: eigenes Team, eigene Ersthelfer*innen, Free Water — auf jeder einzelnen Mission. Safer Space, nicht Safe Space. Aber wir tun alles dafür."
+  },
+
+  "teamTiles": [
+    { "icon": "team",   "title": "Awareness-Team", "text": "Ansprechbar die ganze Nacht — erkennbar an der lila Weste. Sprich uns an, wir kümmern uns. Sofort." },
+    { "icon": "sani",   "title": "Sani-Team",       "text": "Ausgebildete Ersthelfer*innen auf jedem Event. Hilfe holen hat nie Konsequenzen — für niemanden." },
+    { "icon": "water",  "title": "Free Water",      "text": "Kostenloses Wasser am Awareness-Point. Trinkt, bevor ihr durstig seid." },
+    { "icon": "camera", "title": "Fotoverbot",      "text": "Kein Foto ohne Frage. Was im Dunkeln passiert, bleibt da." }
+  ],
+
+  "recognition": {
+    "eyebrow": "So erkennst du uns",
+    "text": "Unser Awareness-Team trägt lila Westen — ansprechbar die ganze Nacht, auf jedem Event. Ein eigenes Symbol (z. B. eine kleine Rakete) ist angedacht, aber noch nicht final.",
+    "vestColor": "lila",
+    "icon": "assets/img/pages/awareness/vest.svg",
+    "photo": ""
+  },
+
+  "approachReasons": {
+    "eyebrow": "Wobei du zu uns kommen kannst",
+    "intro": "Es gibt keine „zu kleine“ Sache.",
+    "items": [
+      "Jemand tanzt dich immer wieder an, obwohl du weggehst",
+      "Ein Spruch war drüber",
+      "Dir ist schwindelig oder du fühlst dich komisch",
+      "Du findest deine Leute nicht mehr",
+      "Du willst einfach 10 Minuten Ruhe"
+    ],
+    "closing": "Ohne Fragen, ohne Scham, ohne Drama."
+  },
+
+  "ruheraum": {
+    "eyebrow": "Ruheraum",
+    "line": "Wenn's zu viel wird: eine Bank, Verbandszeug, niemand fragt warum."
+  },
+
+  "principles": [
+    { "title": "Nur Ja heißt Ja",                     "text": "Beim Tanzen, Flirten, Anfassen: Hol dir ein Okay, bevor du loslegst." },
+    { "title": "Du definierst deine Grenze",          "text": "Wo für dich ein Übergriff anfängt, entscheidest du. Niemand sonst." },
+    { "title": "Wir glauben dir",                     "text": "Wenn du zu uns kommst, diskutieren wir nicht deine Wahrnehmung." },
+    { "title": "Was du uns erzählst, bleibt bei uns", "text": "Wir besprechen Vorfälle nur anonymisiert im Team." }
+  ],
+  "consequences": {
+    "text": "Wer Grenzen verletzt, bekommt höchstens eine Ansage — danach: Rauswurf, ohne Diskussion und ohne Ticket-Erstattung. Bei Übergriffen unterstützen wir die betroffene Person auf Wunsch bei einer Anzeige."
+  },
+
+  "reportChannels": {
+    "atEvent": "Sprich das Awareness-Team, die Sanis oder irgendwen von der Crew an — wir sind vernetzt.",
+    "afterEvent": {
+      "email": "info@takeoff-potsdam.de",
+      "subject": "Awareness – Rückmeldung",
+      "responseNote": "Wir melden uns so schnell wir können — meist innerhalb weniger Tage."
+    }
+  },
+
+  "emergencyNumbers": [
+    { "label": "Notruf",                          "number": "112",         "note": "bei jedem medizinischen Notfall, ohne Zögern" },
+    { "label": "Polizei",                         "number": "110",         "note": "" },
+    { "label": "Hilfetelefon Gewalt gegen Frauen", "number": "116016",      "note": "24/7, kostenlos" },
+    { "label": "Hilfetelefon Sexueller Missbrauch","number": "08002255530","note": "" },
+    { "label": "Giftnotruf Berlin-Brandenburg",    "number": "03019240",    "note": "" },
+    { "label": "Weisser Ring",                     "number": "116006",      "note": "Opferhilfe" },
+    { "label": "Heimwegtelefon",                   "number": "03012074182", "note": "Öffnungszeiten vor Launch prüfen" }
+  ],
+
+  "substances": {
+    "toleranceText": "Verkauf und Konsum illegaler Substanzen sind bei takeoff nicht erlaubt und werden nicht geduldet. Wer dealt, fliegt sofort.",
+    "healthText": "Uns ist wichtiger, dass du gesund nach Hause kommst, als dass wir dir Vorträge halten. Risikofreien Konsum gibt es nicht — informier dich bei den Profis:",
+    "links": [
+      { "label": "SONAR – Safer Nightlife Berlin",           "url": "https://safer-nightlife.berlin/" },
+      { "label": "drugchecking.berlin",                       "url": "https://drugchecking.berlin/" },
+      { "label": "chill out e.V. Potsdam",                    "url": "https://www.chillout-pdm.de/" },
+      { "label": "Drogennotdienst – Partydrogensprechstunde", "url": "https://drogennotdienst.de/angebote/beratung-und-reha/partydrogen-safer-nightlife/" }
+    ],
+    "disclaimer": "Diese Seite ist keine Aufforderung zum Konsum. Besitz und Handel sind strafbar. Im Notfall: 112."
+  },
+
+  "spiking": {
+    "title": "K.-o.-Tropfen — worauf achten",
+    "signs": [
+      "Plötzlicher Schwindel, Übelkeit oder Kontrollverlust ohne klaren Grund",
+      "Dein Getränk war unbeaufsichtigt, schmeckt oder riecht komisch",
+      "Jemand in deiner Nähe wirkt plötzlich stark verändert"
+    ],
+    "action": "Sofort zu Awareness-Team oder Sanis — oder 112. Lass Getränke nie unbeaufsichtigt."
+  },
+
+  "gettingHome": {
+    "intro": "Kommt gut nach Hause — Missionsende ist nicht Awareness-Ende.",
+    "tips": [
+      "Geh nicht allein, wenn's sich vermeiden lässt",
+      "Sag jemandem Bescheid, wann du losgehst",
+      "Bei Unsicherheit: Heimwegtelefon 030 12074182"
+    ],
+    "useNextEventVenue": true
+  },
+
+  "houseRules": {
+    "intro": "Wer Grenzen verletzt, fliegt — ohne Diskussion.",
+    "rules": [
+      { "text": "Konsens ist Pflicht", "hot": true },
+      { "text": "Keine Diskriminierung", "hot": true },
+      { "text": "Kein Foto ohne Frage", "hot": false },
+      { "text": "18+ mit Ausweis", "hot": false },
+      { "text": "Zero Tolerance bei K.-o.-Substanzen", "hot": false },
+      { "text": "Awareness ist ansprechbar", "hot": false }
+    ],
+    "venueNote": "Es gelten zusätzlich die Regeln der jeweiligen Location (z. B. der freiLand-Grundkonsens im Spartacus)."
+  },
+
+  "faq": [
+    { "q": "Muss ich zum Awareness-Team, auch wenn es nur eine Kleinigkeit ist?", "a": "Ja. Es gibt keine „zu kleine“ Sache — komm einfach vorbei." },
+    { "q": "Bleibt das anonym, wenn ich etwas melde?", "a": "Ja. Wir besprechen Vorfälle nur anonymisiert im Team und unternehmen nichts ohne dein Okay." },
+    { "q": "Gilt das Fotoverbot auch für meine eigene Story?", "a": "Ja — frag jede Person, bevor sie mit aufs Bild kommt, auch für deine eigene Story." },
+    { "q": "Kann ich beim Awareness-Team mitmachen?", "a": "Immer her damit — schreib uns oder schau auf kollektiv.html#mitmachen vorbei." }
+  ],
+
+  "share": {
+    "label": "Hilfe-Seite teilen",
+    "text": "Awareness bei takeoff: Team, Notfallnummern, Hausregeln.",
+    "copiedToast": "Link kopiert ✓"
+  },
+
+  "transmission": {
+    "label": "Transmission incoming",
+    "text": "Awareness-Konzept als PDF, in Leichter Sprache und auf Englisch — sobald alles mit dem Team final abgestimmt ist."
+  },
+
+  "meta": {
+    "lastReviewed": "2026-09-02",
+    "statusNote": "Wird laufend mit dem ganzen Team abgestimmt — nichts hier ist final."
+  },
+
+  "images": {
+    "heroBg": "",
+    "vestIcon": "assets/img/pages/awareness/vest.svg"
+  }
+}

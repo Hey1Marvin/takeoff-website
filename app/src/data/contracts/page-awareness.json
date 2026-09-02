@@ -1,0 +1,123 @@
+{
+  "$contract": "page-awareness",
+  "version": 1,
+  "label": "Awareness-Seite",
+  "labelPlural": "Awareness-Seite",
+  "icon": "shield",
+  "description": "Alle Texte der Awareness-Seite: Einleitung, Prinzipien-Kacheln, Hilfe-Zeilen, Hausregeln und frei erweiterbare Themen-Bausteine (z. B. Ruheraum, lila Weste, Free Water).",
+  "storage": { "scope": "page", "slug": "awareness" },
+  "fields": [
+    {
+      "key": "hero.eyebrow",
+      "type": "text",
+      "label": "Kicker über der Überschrift",
+      "default": "Awareness",
+      "help": "Kurzes Wort über der großen Überschrift, z. B. „Awareness“."
+    },
+    {
+      "key": "hero.h1",
+      "type": "text",
+      "label": "Überschrift",
+      "required": true,
+      "default": "Feiern, auf das ihr euch verlassen könnt.",
+      "help": "Große Überschrift ganz oben auf der Seite."
+    },
+    {
+      "key": "hero.intro",
+      "type": "richtextLite",
+      "label": "Einleitungstext",
+      "required": true,
+      "default": "Awareness ist bei uns kein Aushang, sondern gelebte Praxis: eigenes Team, eigene Ersthelfer*innen, Free Water — auf jeder einzelnen Mission. Wir sagen ehrlich: Safer Space, nicht Safe Space. Aber wir tun alles dafür.",
+      "help": "Kurzer Absatz direkt unter der Überschrift — erklärt in 2–3 Sätzen, was Awareness bei takeoff bedeutet. **Fett** möglich, Absätze mit Leerzeile."
+    },
+    {
+      "key": "principles",
+      "type": "list",
+      "label": "Prinzipien-Kacheln",
+      "help": "Die kleinen Kacheln ganz oben auf der Seite (z. B. „Awareness-Team“, „Free Water“). Reihenfolge im Formular = Reihenfolge auf der Seite. Neue Kachel einfach hinzufügen — sie erscheint automatisch, kein Programmieren nötig.",
+      "of": [
+        {
+          "key": "icon",
+          "type": "select",
+          "label": "Symbol",
+          "required": true,
+          "options": [
+            { "value": "heart", "label": "Herz" },
+            { "value": "cross", "label": "Kreuz (Erste Hilfe)" },
+            { "value": "droplet", "label": "Tropfen (Wasser)" },
+            { "value": "camera", "label": "Kamera durchgestrichen (Fotoverbot)" },
+            { "value": "shield", "label": "Schild" },
+            { "value": "hand", "label": "Hand" }
+          ],
+          "help": "Welches Symbol vor dem Titel erscheint."
+        },
+        { "key": "title", "type": "text", "label": "Titel", "required": true, "help": "z. B. „Awareness-Team“." },
+        { "key": "text", "type": "richtextLite", "label": "Text", "required": true, "help": "Kurzer Erklärtext für diese Kachel. **Fett** für einzelne wichtige Sätze möglich." }
+      ],
+      "default": [
+        { "icon": "heart", "title": "Awareness-Team", "text": "Ansprechbar die ganze Nacht — erkennbar gekennzeichnet. Sprich uns an, wir kümmern uns. Sofort." },
+        { "icon": "cross", "title": "Sani-Team", "text": "Ausgebildete Ersthelfer*innen auf jedem Event. **Hilfe holen hat nie Konsequenzen — für niemanden.**" },
+        { "icon": "droplet", "title": "Free Water", "text": "Kostenloses Wasser am Awareness-Point. Trinkt, bevor ihr durstig seid — und passt aufeinander auf." },
+        { "icon": "camera", "title": "Fotoverbot", "text": "Kein Foto ohne Frage. Ausnahmen nur nach Absprache — was im Dunkeln passiert, bleibt da." }
+      ]
+    },
+    {
+      "key": "help",
+      "type": "list",
+      "label": "Hilfe-Zeilen („Wenn's ernst wird“)",
+      "help": "Die Zeilen der Notfall-Tabelle. Stichwort links, Erklärung rechts, Link optional (z. B. Notruf-Nummer oder Mail-Adresse).",
+      "of": [
+        { "key": "label", "type": "text", "label": "Stichwort", "required": true, "help": "z. B. „Notruf“, „Am Event“, „Danach“, „Grundsatz“." },
+        { "key": "text", "type": "richtextLite", "label": "Erklärung", "required": true, "help": "**Fett** für den wichtigsten Teilsatz möglich." },
+        { "key": "link", "type": "text", "label": "Link (optional)", "help": "z. B. „tel:112“ oder „mailto:info@takeoff-potsdam.de“ — leer lassen, wenn die Zeile keinen Link braucht." }
+      ],
+      "default": [
+        { "label": "Notruf", "text": "**112** — bei jedem medizinischen Notfall, ohne Zögern.", "link": "tel:112" },
+        { "label": "Am Event", "text": "Awareness-Team & Sanis ansprechen — oder irgendwen von der Crew, wir sind vernetzt.", "link": "" },
+        { "label": "Danach", "text": "Ist etwas passiert? Schreib uns.", "link": "mailto:info@takeoff-potsdam.de" },
+        { "label": "Grundsatz", "text": "**Hilfe holen hat nie Konsequenzen.** Für niemanden. Nie.", "link": "" }
+      ]
+    },
+    {
+      "key": "rules",
+      "type": "list",
+      "label": "Hausregeln (Kurz-Chips)",
+      "help": "Kurze Stichpunkte, erscheinen als Chips. „Betont darstellen“ hebt eine Regel farblich hervor — für die wichtigsten Regeln (z. B. Konsens, Diskriminierung).",
+      "of": [
+        { "key": "text", "type": "text", "label": "Regel", "required": true, "help": "Kurzer Stichpunkt, z. B. „Konsens ist Pflicht“." },
+        { "key": "hot", "type": "toggle", "label": "Betont darstellen", "default": false }
+      ],
+      "default": [
+        { "text": "Konsens ist Pflicht", "hot": true },
+        { "text": "Keine Diskriminierung", "hot": true },
+        { "text": "Kein Foto ohne Frage", "hot": false },
+        { "text": "18+ mit Ausweis", "hot": false },
+        { "text": "Zero Tolerance bei K.-o.-Substanzen", "hot": false },
+        { "text": "Awareness ist ansprechbar", "hot": false }
+      ]
+    },
+    {
+      "key": "infoBlocks",
+      "type": "list",
+      "label": "Themen-Bausteine (z. B. Ruheraum, lila Weste, Free Water)",
+      "help": "Frei erweiterbare Infoblöcke für einzelne Awareness-Themen — zusätzlich zu den Prinzipien-Kacheln oben. Neuen Baustein einfach hinzufügen, wenn ein neues Thema erklärt werden soll (z. B. Ruheraum, Erkennung am Awareness-Team, Free Water).",
+      "of": [
+        { "key": "title", "type": "text", "label": "Titel", "required": true, "help": "z. B. „Ruheraum“ oder „Lila Weste“." },
+        { "key": "text", "type": "richtextLite", "label": "Text", "required": true, "help": "1–3 Sätze Erklärung. **Fett** und Absätze möglich." }
+      ],
+      "default": [
+        { "title": "Ruheraum", "text": "Auf ausgewählten Events gibt's einen ruhigen Rückzugsort abseits vom Floor — zum Durchatmen, Runterkommen oder wenn dir kurz alles zu viel wird. Frag das Awareness-Team, wo er gerade ist." },
+        { "title": "Lila Weste", "text": "Unser Awareness-Team erkennst du an der lila Weste. Ansprechbar die ganze Nacht — sprich uns einfach an, wir kümmern uns." },
+        { "title": "Free Water", "text": "Kostenloses Trinkwasser am Awareness-Point auf jedem Event. Trinkt, bevor ihr durstig seid — und passt aufeinander auf." }
+      ]
+    },
+    {
+      "key": "closingText",
+      "type": "richtextLite",
+      "label": "Abschluss-Text (unter den Hausregeln)",
+      "default": "Wer Grenzen verletzt, fliegt — ohne Diskussion. Es gelten zusätzlich die Regeln der jeweiligen Location (z. B. der freiLand-Grundkonsens im Spartacus). Das vollständige Awareness-Konzept veröffentlichen wir hier, sobald es mit dem ganzen Team abgestimmt ist.",
+      "help": "Schlusswort direkt unter den Hausregeln-Chips. **Fett** und Absätze möglich."
+    }
+  ],
+  "actions": ["edit"]
+}

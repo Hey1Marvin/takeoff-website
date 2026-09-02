@@ -1,0 +1,230 @@
+/* ============================================================
+   kontakt.css — Signatur-Motiv "Bodenstation Potsdam"
+
+   Zu Hause statt im All: eine selbstgebaute Dach-Antenne empfängt und
+   beantwortet die Funksprüche der Crew — das erdgebundene Gegenstück zum
+   "Bordcomputer" im Menü. Bewusst ein Amateurfunk-Rig (Spanndrähte,
+   sichtbare Halterung), kein Militär-/Überwachungsradar — DIY, warm,
+   "von uns", passend zur Werkstatt-Historie des Kollektivs.
+
+   Läuft komplett über --acc-1 (Tokenkommentar in style.css: "Leitfarbe:
+   Signal" — für eine Funkkontakt-Seite kein Zufall), --acc-3 (kühler
+   Gegenpol: Nachthimmel/Metall) und die Chrome-Rampe. Keine neuen
+   Hex-Werte, damit Mars-/Strand-Theme die Szene automatisch mitfärben.
+   Lädt NACH style.css, nur additive `fs-`-Selektoren (Klassen/IDs geprüft
+   gegen style.css, kollektiv.css, events.css — keine Kollision).
+   ============================================================ */
+
+/* ============================================================
+   1 · Bodenstations-Szene (zusätzlich zum Sternenhimmel, nicht statt ihm)
+   ============================================================ */
+.fs-ground {
+  position: fixed; inset: auto 0 0 0; z-index: -2;
+  height: clamp(210px, 30vh, 380px);
+  pointer-events: none; isolation: isolate;
+  transform: translateY(var(--fs-drift, 0px));
+}
+.fs-roofline {
+  position: absolute; inset: auto 0 0 0; height: clamp(64px, 11vh, 120px);
+  background: var(--bg-void);
+  /* Abstrakte Dachkante (Polygon) — bewusst keine Stadt-Silhouette/Wahrzeichen */
+  clip-path: polygon(0 100%, 0 40%, 20% 40%, 26% 22%, 32% 22%, 32% 40%, 60% 40%, 68% 12%, 76% 12%, 76% 40%, 100% 40%, 100% 100%);
+  box-shadow: 0 -1px 0 rgb(var(--acc-3-rgb) / .18);
+}
+.fs-rig { position: absolute; right: 8%; bottom: clamp(50px, 9vh, 100px); width: clamp(130px, 15vw, 210px); height: auto; }
+.fs-wire, .fs-strut {
+  fill: none; stroke: rgb(var(--acc-3-rgb) / .45); stroke-width: 1.4;
+  vector-effect: non-scaling-stroke;
+}
+.fs-pole { fill: none; stroke: var(--chrome-mid); stroke-width: 2.2; vector-effect: non-scaling-stroke; }
+.fs-beacon, .fs-feed { fill: var(--acc-1); }
+.fs-beacon { animation: pulse 2.6s ease-in-out infinite; } /* @keyframes pulse aus style.css wiederverwendet */
+.fs-tag {
+  position: absolute; left: 4%; bottom: 14px;
+  font-family: var(--font-mono); font-size: 10px; letter-spacing: var(--track-label);
+  text-transform: uppercase;
+  color: var(--ink-faint); opacity: .8;
+}
+
+/* Dish-Bewegung: Scan statt Spin (Anti-Kitsch — echte Bodenstationsantennen
+   tracken langsam/oszillierend, kein Diskolicht-Dauerspin). Die Ruhehaltung
+   (leicht schräg, nicht mittig — wirkt "in Betrieb", nicht wie ein Reset)
+   ist der UNBEDINGTE Grundzustand, nicht nur eine Tier-s-Sonderregel: so
+   steht die Dish auch ganz ohne JS (kein data-fx-Attribut gesetzt) korrekt
+   geparkt, statt in ihre symmetrische SVG-Ausgangslage zu fallen. */
+.fs-dish { transform: rotate(9deg); }
+:root[data-fx="m"] .fs-dish, :root[data-fx="l"] .fs-dish {
+  animation: fs-scan var(--fs-scan-dur, 16s) ease-in-out infinite;
+}
+:root[data-fx="l"] { --fs-scan-dur: 11s; }
+@keyframes fs-scan { 0%, 100% { transform: rotate(9deg); } 50% { transform: rotate(-7deg); } }
+
+/* ============================================================
+   2 · Sende-Puls — Ping-Ringe an der Dish
+   ============================================================ */
+.fs-ring-fx { fill: none; stroke: var(--acc-1); stroke-width: 1.6; opacity: 0; transform-origin: 108px 110px; }
+.fs-ground.is-sending .fs-ring-fx {
+  animation: fs-ring-out 1.15s var(--ease-out) 1;
+  animation-delay: calc(var(--i, 0) * .22s);
+}
+@keyframes fs-ring-out { from { opacity: .85; r: 4; } to { opacity: 0; r: 60; } }
+
+/* ============================================================
+   3 · Hero-Statuszeile
+   ============================================================ */
+.fs-status {
+  margin-top: 12px;
+  display: inline-flex; align-items: center; gap: 8px;
+  font-family: var(--font-mono); font-size: 12.5px; color: var(--ink-dim);
+}
+.fs-dot {
+  width: 6px; height: 6px; border-radius: 50%; flex: none;
+  background: var(--acc-1);
+  box-shadow: 0 0 7px rgb(var(--acc-1-rgb) / .8);
+  animation: pulse 2.6s ease-in-out infinite;
+}
+/* .phero h1 traegt hier erstmals einen .glow-Span (style.css definiert den
+   3-Schicht-Glow bisher nur unter .h2) — gleiche Optik, hier fuer die
+   Hero-Ueberschrift ergaenzt (Duplikat ok, siehe DATA.md). */
+.phero h1 .glow {
+  color: var(--acc-1-tint);
+  text-shadow: 0 0 6px rgb(var(--acc-1-rgb) / .5), 0 0 28px rgb(var(--acc-1-rgb) / .2);
+}
+
+/* ============================================================
+   4 · Anliegen-Wegweiser (Themen-Chips + Empfehlung)
+   ============================================================ */
+.fs-router { display: grid; gap: 22px; margin-top: 8px; }
+.fs-topics .chip {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-height: 44px; padding: 10px 18px;
+  transition: color .25s, border-color .25s, background .25s;
+}
+.fs-topics .chip:hover, .fs-topics .chip:focus-visible {
+  color: var(--ink); border-color: rgb(var(--acc-1-rgb) / .6); background: rgb(var(--acc-1-rgb) / .1);
+}
+.fs-topics .chip.is-active {
+  color: var(--bg-void); border-color: transparent;
+  background: linear-gradient(165deg, var(--chrome-hi), var(--chrome-mid) 55%, var(--chrome-lo));
+}
+.fs-reco { transition: border-color .3s; }
+.fs-reco .fs-reco-line { margin: 0; font-family: var(--font-mono); font-size: 13.5px; color: var(--ink-dim); }
+.fs-reco .fs-reco-line b { color: var(--acc-1-tint); font-weight: var(--w-strong); }
+.fs-reco .fs-reco-text { margin: 10px 0 0; color: var(--ink-dim); }
+.fs-reco .cta-row { justify-content: center; margin-top: 18px; }
+.fs-reco .fs-ch-tag { margin-right: 4px; }
+
+/* ============================================================
+   5 · Funkkanäle — Radar + Liste (zwei Ansichten derselben Daten)
+   ============================================================ */
+.fs-funk { display: grid; gap: 28px; margin-top: 4px; }
+@media (min-width: 860px) {
+  .fs-funk { grid-template-columns: .9fr 1.1fr; align-items: center; gap: 40px; }
+}
+@media (max-width: 859px) { .fs-radar { max-width: 190px; margin-bottom: 4px; } }
+
+.fs-radar { position: relative; width: min(100%, 300px); aspect-ratio: 1; margin-inline: auto; }
+/* Ohne explizite Groesse faellt eine <svg> mit viewBox auf ihre
+   Default-Intrinsicgroesse zurueck (haeufige CSS/SVG-Falle) — .fs-radar
+   selbst ist per aspect-ratio bereits korrekt groess, die Face-SVG muss sie
+   nur noch ausfuellen. */
+.fs-radar-face { display: block; width: 100%; height: 100%; }
+.fs-ring { fill: none; stroke: rgb(var(--acc-3-rgb) / .22); }
+.fs-cross { stroke: rgb(var(--acc-3-rgb) / .14); }
+
+.fs-sweep {
+  position: absolute; inset: 0; border-radius: 50%; overflow: hidden;
+  -webkit-mask-image: radial-gradient(circle, #000 96%, transparent 98%);
+  mask-image: radial-gradient(circle, #000 96%, transparent 98%);
+}
+.fs-sweep::before, .fs-sweep::after {
+  content: ""; position: absolute; inset: -2%;
+  background: conic-gradient(from 0deg, rgb(var(--acc-1-rgb) / .4), transparent 26%);
+  /* Ruhehaltung als unbedingter Grundzustand — dieselbe Logik wie bei
+     .fs-dish oben: greift auch ganz ohne data-fx-Attribut (kein JS). */
+  transform: rotate(50deg);
+}
+.fs-sweep::after {
+  opacity: .35;
+  background: conic-gradient(from -22deg, rgb(var(--acc-1-rgb) / .35), transparent 18%);
+}
+:root[data-fx="m"] .fs-sweep::before, :root[data-fx="l"] .fs-sweep::before,
+:root[data-fx="m"] .fs-sweep::after,  :root[data-fx="l"] .fs-sweep::after {
+  animation: fs-spin var(--fs-sweep-dur, 15s) linear infinite;
+}
+:root[data-fx="l"] { --fs-sweep-dur: 9s; }
+@keyframes fs-spin { to { transform: rotate(410deg); } }
+
+.fs-blips { position: absolute; inset: 0; pointer-events: none; }
+.fs-blip {
+  position: absolute; top: 50%; left: 50%; width: 8px; height: 8px; margin: -4px;
+  border-radius: 50%; background: var(--acc-1);
+  box-shadow: 0 0 8px rgb(var(--acc-1-rgb) / .8);
+  transform: rotate(var(--ang, 0deg)) translate(46%) rotate(calc(-1 * var(--ang, 0deg)));
+  transition: transform .3s var(--ease-out), box-shadow .3s;
+}
+:root[data-fx="m"] .fs-blip, :root[data-fx="l"] .fs-blip {
+  animation: pulse 2.4s ease-in-out infinite; animation-delay: var(--dl, 0s);
+}
+.fs-blip.is-active { box-shadow: 0 0 0 5px rgb(var(--acc-1-rgb) / .22), 0 0 14px rgb(var(--acc-1-rgb) / .9); }
+
+/* Kanalzeilen — Erweiterung von .m-row ("Duplikat ist ok, Konflikt nicht") */
+.fs-ch-tag {
+  font-family: var(--font-mono); font-size: 10px; font-weight: var(--w-head); letter-spacing: var(--track-label);
+  color: var(--acc-1-tint); border: 1px solid rgb(var(--acc-1-rgb) / .4); background: rgb(var(--acc-1-rgb) / .08);
+  border-radius: 5px; padding: 2px 6px; margin-right: 8px;
+}
+.fs-ch-link {
+  color: var(--acc-3-tint); font-size: 13px; white-space: nowrap;
+  border-bottom: 1px solid transparent; transition: border-color .25s;
+}
+.fs-ch-link:hover, .fs-ch-link:focus-visible { border-color: rgb(var(--acc-3-rgb) / .6); }
+.fs-sig { display: inline-flex; gap: 2px; margin-left: 10px; vertical-align: middle; }
+.fs-sig i { display: block; width: 3px; border-radius: 1px; background: rgb(var(--acc-3-rgb) / .45); }
+.fs-sig i:nth-child(1) { height: 6px; }
+.fs-sig i:nth-child(2) { height: 9px; }
+.fs-sig i:nth-child(3) { height: 12px; }
+.fs-sig i:nth-child(4) { height: 15px; }
+:root[data-fx="m"] .fs-sig i, :root[data-fx="l"] .fs-sig i {
+  animation: fs-sig-idle 2.6s ease-in-out infinite; animation-delay: calc(var(--n, 0) * .12s);
+}
+@keyframes fs-sig-idle { 50% { transform: scaleY(.6); } }
+.fs-ch-row:hover .fs-sig i, .fs-ch-row:focus-within .fs-sig i { background: var(--acc-3); }
+/* CH-04 (Awareness): bewusst KEIN Signal-Wackeln — ein ernstes Anliegen
+   soll nicht wie ein Mini-Spiel aussehen (siehe Anti-Kitsch-Liste). */
+.fs-ch-calm .fs-sig { display: none; }
+
+/* ============================================================
+   6 · Kanal-Vergleich
+   ============================================================ */
+.fs-compare {
+  display: grid; gap: 14px; margin-top: 26px;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+}
+.fs-compare-item {
+  display: grid; gap: 6px;
+  border-radius: var(--radius);
+  background: rgb(var(--acc-3-rgb) / .06);
+  border: 1px solid rgb(var(--acc-3-rgb) / .2);
+  padding: 18px;
+}
+.fs-compare-item b { font-family: var(--font-display); font-weight: var(--w-head); font-size: 15.5px; }
+.fs-compare-item span { font-family: var(--font-mono); font-size: 13px; color: var(--ink-dim); }
+.fs-compare-item small { color: var(--ink-faint); font-size: 12px; line-height: 1.5; }
+
+.fs-vcard { margin-top: 24px; }
+.fs-vcard .lu-note { margin-top: 10px; }
+#fs-copy-btn svg, #fs-vcard-btn svg { width: 15px; height: 15px; flex: none; }
+
+/* ============================================================
+   7 · FAQ (details.faq aus style.css, nur Abstand ergänzt)
+   ============================================================ */
+.fs-faqlist { margin-top: 24px; }
+
+/* ============================================================
+   8 · Mobile-Sicherheit
+   ============================================================ */
+@media (max-width: 480px) {
+  .fs-tag { display: none; } /* zu schmal fuer HUD-Label + Antenne nebeneinander */
+  .fs-compare-item { text-align: left; }
+}

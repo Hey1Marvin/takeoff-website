@@ -1,0 +1,183 @@
+/* ============================================================
+   team.css — Signaturmotiv "Orbit-Stationsplan"
+   Seiten-CSS für team.html. Lädt NACH style.css, nutzt ausschließlich
+   bestehende Tokens (--acc-1/2/3, --chrome-*, --font-mono, --bg-hairline,
+   --ease-out). Keine neue Palette, kein neuer Font, keine Canvas-Ebene.
+
+   Kernidee: kollektiv.html zeigt WER an Bord ist (Crew Select, flache
+   Liste). team.html zeigt WO im Schiff jede Rolle sitzt — die Crew wird
+   nach Bereich (Flugdeck / Bodencrew / Bau & Gastgeber) gruppiert, und
+   ein Orbit-Stationsplan im Hintergrund zeichnet genau diese Gliederung
+   als Ringe: ein Ring pro Bereich, ein äußerer, blasser Ring als Platz
+   für künftige Rollen. Reines SVG/CSS (kein Canvas, kein rAF-Loop) — der
+   Sternenhimmel bleibt darunter immer sichtbar (DATA.md, 02.09.).
+
+   Datei-Regeln (DATA.md): nur additive, seitengescopte Selektoren unter
+   dem Praefix `kt-`. Geprueft: kollisionsfrei mit style.css/kollektiv.css
+   (bp-)/awareness.css (aw-)/news.css (rx-)/kontakt.css (fs-)/events.css/
+   admin.css (admin-, board-, bpm-, fpin, flap-, rx- nicht verwendet dort).
+   ============================================================ */
+
+/* ---------- Bereichs-Akzente (Design-Entscheidung, keine neue Palette) ----
+   Jeder Bereich bekommt EINEN der drei bestehenden Akzente als ruhige
+   Wiedererkennung zwischen Hintergrund-Ringen und Karten-Hover — keine
+   neuen Hexwerte, kein Regenbogen (max. drei gedämpfte Töne gleichzeitig,
+   nie alle gleichzeitig laut). Space/Mars/Strand faerben automatisch mit,
+   weil alles ueber --acc-1/2/3 laeuft. */
+:root {
+  --kt-flugdeck-rgb: var(--acc-1-rgb);
+  --kt-boden-rgb:    var(--acc-3-rgb);
+  --kt-bau-rgb:      var(--acc-2-rgb);
+}
+
+/* ============================================================
+   1 · Orbit-Stationsplan — Hintergrund-Signaturmotiv (Ambient)
+   Fixed, hinter dem Inhalt, oben links im Bildfeld. Chrome/Akzent bei
+   niedriger Deckkraft, damit die Sternen weiterhin durchscheinen — additiv
+   zum Himmel, nicht statt ihm (DATA.md). Tier S: fertiges Standbild, kein
+   Sweep. Technik/Werte angelehnt an das bestehende Empfangsschuessel-Motiv
+   in news.css (.rx-array), hier als Orbit-Diagramm statt Radar-Schuessel.
+   ============================================================ */
+.kt-orbit {
+  position: fixed; top: 0; left: 0; z-index: -1;
+  width: min(50vw, 600px); height: min(52vh, 460px);
+  opacity: .16;
+  mask-image: radial-gradient(closest-side at 33% 42%, #000 0%, #000 42%, transparent 86%);
+  -webkit-mask-image: radial-gradient(closest-side at 33% 42%, #000 0%, #000 42%, transparent 86%);
+  pointer-events: none;
+}
+.kt-orbit svg { width: 100%; height: 100%; overflow: visible; }
+@media (max-width: 640px) {
+  .kt-orbit { width: 78vw; height: 44vh; opacity: .11; top: -4vh; left: -12vw; }
+}
+/* Dezentes Toenen von #stars ist laut DATA.md (02.09.) erlaubt — Ausblenden
+   nicht. Der Sternenhimmel bleibt immer sichtbar, nur minimal gedaempft,
+   damit die Ringe mehr Kontur bekommen. */
+#stars { filter: brightness(.95); }
+
+.kt-ring { fill: none; stroke-width: 1.4; vector-effect: non-scaling-stroke; }
+.kt-ring-flugdeck { stroke: rgb(var(--kt-flugdeck-rgb) / .55); }
+.kt-ring-boden    { stroke: rgb(var(--kt-boden-rgb) / .55); }
+.kt-ring-bau      { stroke: rgb(var(--kt-bau-rgb) / .55); }
+.kt-ring-fallback { stroke: var(--ink-faint); stroke-opacity: .35; stroke-dasharray: 2 5; }
+.kt-hub {
+  fill: var(--chrome-hi); opacity: .8;
+  animation: pulse 2.6s ease-in-out infinite; /* @keyframes pulse aus style.css wiederverwendet */
+}
+.kt-tick { stroke: var(--chrome-mid); stroke-width: 1; opacity: .5; vector-effect: non-scaling-stroke; }
+.kt-ring-label {
+  font-family: var(--font-mono); font-size: 9.5px; letter-spacing: .14em;
+  fill: var(--ink-faint);
+}
+.kt-orbit-dots circle { fill: var(--chrome-hi); opacity: .75; }
+
+/* Sweep — Tier L: rotiert dauerhaft, langsam (Orbit statt Radar: ruhiger
+   Zyklus als news.css' 14s-Empfangsschuessel-Sweep). Tier M: oszilliert
+   sanft, ein einzelner gedrosselter Zyklus (kein Dauer-Wettrennen mehrerer
+   Elemente — "kein Weihnachtsbeleuchtungs-Effekt"). Tier S: unsichtbar,
+   die Ringe stehen als fertig komponiertes Standbild. */
+.kt-sweep { display: none; transform-origin: 0 0; }
+.kt-sweep line { stroke: rgb(var(--acc-1-rgb) / .4); stroke-width: 1.2; stroke-linecap: round; }
+:root[data-fx="l"] .kt-sweep { display: block; animation: kt-sweep-rot 34s linear infinite; }
+:root[data-fx="m"] .kt-sweep { display: block; animation: kt-sweep-scan 22s ease-in-out infinite; }
+@keyframes kt-sweep-rot  { to { transform: rotate(360deg); } }
+@keyframes kt-sweep-scan { 0%, 100% { transform: rotate(-26deg); } 50% { transform: rotate(26deg); } }
+
+/* ============================================================
+   2 · Kennzahlen-Leiste — reine Wiederverwendung von .stats (style.css),
+   kein eigenes CSS noetig. Kurzer Abstand zur Hero-Section.
+   ============================================================ */
+#team-stats { margin-top: clamp(6px, 1.5vh, 18px); }
+
+/* ============================================================
+   3 · Bereiche (Flugdeck / Bodencrew / Bau & Gastgeber)
+   ============================================================ */
+.kt-dept + .kt-dept { margin-top: clamp(38px, 6.5vh, 64px); }
+.kt-dept-head { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 12px; }
+.kt-dept-dot {
+  width: 9px; height: 9px; border-radius: 50%; flex: none;
+  align-self: center;
+  background: var(--dept-dot, var(--acc-2));
+  box-shadow: 0 0 9px var(--dept-dot, var(--acc-2));
+}
+.kt-dept[data-dept="flugdeck"] .kt-dept-dot { --dept-dot: var(--acc-1); }
+.kt-dept[data-dept="boden"]    .kt-dept-dot { --dept-dot: var(--acc-3); }
+.kt-dept[data-dept="bau"]      .kt-dept-dot { --dept-dot: var(--acc-2); }
+.kt-dept-title {
+  font-family: var(--font-display); font-weight: var(--w-head);
+  font-size: clamp(19px, 2.6vw, 24px);
+}
+.kt-dept-sub {
+  font-family: var(--font-mono); font-size: 10.5px; letter-spacing: .16em;
+  text-transform: uppercase; color: var(--ink-faint);
+}
+.kt-dept-intro { margin: 6px 0 18px; color: var(--ink-dim); font-size: 14.5px; }
+.kt-dept[hidden] { display: none; }
+
+/* Karten-Grid teilt sich .crewgrid mit kollektiv.html (Duplikat ist ok,
+   Konflikt nicht — DATA.md). data-dept steuert nur die Hover-/Fokusfarbe,
+   damit sie den Hintergrund-Ring ihres Bereichs aufgreift; die Karte selbst
+   bleibt in Ruhe (kein Bereichs-Regenbogen im Grundzustand). */
+.kt-grid[data-dept="flugdeck"] .ccard:hover, .kt-grid[data-dept="flugdeck"] .ccard:focus-visible, .kt-grid[data-dept="flugdeck"] .ccard.kt-touched { border-color: rgb(var(--kt-flugdeck-rgb) / .65); }
+.kt-grid[data-dept="boden"] .ccard:hover,    .kt-grid[data-dept="boden"] .ccard:focus-visible,    .kt-grid[data-dept="boden"] .ccard.kt-touched    { border-color: rgb(var(--kt-boden-rgb) / .65); }
+.kt-grid[data-dept="bau"] .ccard:hover,      .kt-grid[data-dept="bau"] .ccard:focus-visible,      .kt-grid[data-dept="bau"] .ccard.kt-touched      { border-color: rgb(var(--kt-bau-rgb) / .65); }
+/* Kurzer Klick-/Tap-Puls (Tastatur/Touch bekommen dieselbe Rueckmeldung wie
+   :hover) — auch die Auffang-Gruppe (kein data-dept-Treffer oben) braucht
+   eine sichtbare Reaktion, sonst wirkt ein Button, der "nichts tut", wie ein
+   Bedienfehler. */
+.ccard.kt-touched { border-color: rgb(var(--acc-1-rgb) / .65); transition: border-color .3s, transform .3s var(--ease-out); }
+
+/* .ccard wird hier zu <button>/<a> (echtes, fokussierbares Bedienelement —
+   dieselbe Konvention wie .setcard in style.css). Die Basiswerte (Border,
+   Radius, Padding, Hintergrund, text-align) kommen unveraendert aus
+   style.css' .ccard-Regel; button/a erben ueber die globalen Resets
+   (Z. 993-994) bereits Farbe/Font/kein Rahmen. Grid-Items werden laut
+   CSS-Spec automatisch blockifiziert, "width:100%" ist daher nicht noetig. */
+.ccard { cursor: pointer; }
+.ccard:disabled { cursor: default; }
+
+/* "seit <Jahr>"-Tag (Artist-Verlinkung) — kleine Pille unter der Rolle.
+   Eigene Regel noetig, weil .ccard span (style.css, Spezifitaet 0,1,1)
+   sonst dieselbe blasse Mono-Zeile wie die Rollenangabe waere und der Tag
+   optisch verschwaende. .ccard .kt-since hat Spezifitaet 0,2,0 (zwei
+   Klassen) und gewinnt daher bereits ohne !important. */
+.ccard .kt-since {
+  display: inline-flex; margin: 8px auto 0; width: auto;
+  padding: 2px 9px; border-radius: 999px;
+  border: 1px solid rgb(var(--acc-3-rgb) / .35);
+  background: rgb(var(--acc-3-rgb) / .08);
+  color: var(--acc-3-tint);
+  font-size: 10px; letter-spacing: .1em;
+}
+/* Karten-Deep-Link ("Profil & Sets →", "Awareness-Konzept →" …) — sichtbarer
+   Call-to-Action statt reinem Hover-Zufallsfund; wichtig fuer Awareness/
+   Sani-Karten (DATA.md-Auftrag: auf einen Blick erkennbar, auch nachts). */
+.ccard .kt-cardlink {
+  display: block; margin-top: 10px;
+  color: var(--acc-1-tint); font-size: 11px; letter-spacing: .08em;
+}
+a.ccard:hover .kt-cardlink, a.ccard:focus-visible .kt-cardlink { text-decoration: underline; text-underline-offset: 3px; }
+
+/* ============================================================
+   5 · Foto-Board — Wiederverwendung von .gallery-grid/.gph (wie
+   kollektiv.html "Fotowand"), Rollen-Tag statt Nummerierung.
+   ============================================================ */
+.kt-slot-tag {
+  position: absolute; top: 6px; left: 8px;
+  font-family: var(--font-mono); font-size: 9.5px; letter-spacing: .1em;
+  color: rgb(var(--acc-2-rgb) / .6);
+}
+.gph { position: relative; }
+
+/* ============================================================
+   6 · Mobile-Sicherheit
+   ============================================================ */
+@media (max-width: 480px) {
+  .kt-dept-head { gap: 3px 9px; }
+}
+
+/* Tages-Modus: keine eigene Regel noetig — jede Farbe hier laeuft ueber
+   --acc-1/2/3, --chrome-*, --ink-*, die alle unter :root.day-mode bereits
+   umdefiniert sind (selbes Prinzip wie kollektiv.css/news.css, siehe deren
+   Kopfkommentare: "keine eigene Regel noetig"). Geprueft per Browser-Vorschau
+   in beiden Modi. */

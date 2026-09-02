@@ -1,0 +1,66 @@
+# ============================================================
+# Was NICHT nach GitHub geht.
+#
+# Das Repo ist oeffentlich. Alles hier drin bleibt bewusst lokal —
+# entweder weil es Geheimnisse enthaelt, weil es dem Kollektiv
+# gehoert und nicht der Oeffentlichkeit, oder weil es das Repo
+# unnoetig aufblaeht.
+# ============================================================
+
+# ---- Abhaengigkeiten und Build-Artefakte (1,36 GB) ----
+node_modules/
+.next/
+out/
+build/
+*.tsbuildinfo
+
+# ---- Geheimnisse und lokale Daten ----
+.env
+.env.*
+!.env.example
+.data/
+*.sqlite
+*.sqlite3
+*.db
+
+# ---- Interne Wissensbasis: bleibt beim Kollektiv ----
+research/
+
+# ---- Crew-Bereich: enthaelt das interne Betriebshandbuch
+#      (Barschicht-Runbooks, Kassenzaehlung, Notfallablauf).
+#      Kommt spaeter in ein privates Repo, nicht hierher.
+#      ACHTUNG: src/proxy.ts importiert aus lib/intern und muss
+#      deshalb mit ausgeschlossen bleiben, sonst laesst sich ein
+#      Klon dieses Repos nicht bauen. ----
+app/src/app/(intern)/
+app/src/lib/intern/
+app/src/components/intern/
+app/src/data/intern/
+app/src/styles/intern/
+app/src/proxy.ts
+app/scripts/crew-*
+app/scripts/verify-crew.mjs
+app/scripts/_env.mjs
+
+# ---- Arbeitsanweisungen der KI-Sitzungen, keine Projektdoku.
+#      CLAUDE.md nennt Klarnamen hinter Kuenstler-Pseudonymen
+#      ("DJ Platzhalter = ..."), beide halten eine ungeklaerte
+#      Schriftlizenz schriftlich fest. Bleiben lokal.
+#      app/AGENTS.md bleibt dagegen DRIN — echte Entwicklerdoku
+#      (Kommandos, Vertraege, bekannte Fallen), geprueft: keine
+#      Namen, keine Lizenzfragen. ----
+/CLAUDE.md
+/MIGRATION.md
+
+# ---- Heruntergeladenes Referenzmaterial (157 MB, fremdes Urheberrecht) ----
+InstaReels/
+
+# ---- Lokale Sicherungskopien ----
+backups/
+.crew-verify
+
+# ---- Betriebssystem / Editor ----
+.DS_Store
+Thumbs.db
+*.swp
+*~

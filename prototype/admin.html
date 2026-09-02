@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>takeoff — Verwaltung (Prototyp)</title>
+  <meta name="description" content="takeoff — Settings-Seite des Design-Prototyps. Events, Artists, Partner, Team, News, History und alle Seitentexte bearbeiten.">
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛠️</text></svg>">
+  <link rel="stylesheet" href="assets/css/style.css">
+  <link rel="stylesheet" href="assets/css/pages/admin.css">
+</head>
+<body class="admin-body">
+  <a class="skip-link" href="#admin-content">Zum Inhalt springen</a>
+
+  <!-- ============ KOPFBEREICH ============ -->
+  <header class="admin-head" role="banner">
+    <div class="admin-head-row">
+      <a class="admin-brand" href="index.html" aria-label="takeoff — zur Website">
+        <span class="admin-brand-mark">takeoff</span>
+        <span class="admin-brand-sub">Verwaltung</span>
+      </a>
+      <a class="admin-back" href="index.html">← Zur Website</a>
+    </div>
+
+    <p class="admin-notice">
+      <strong>Prototyp — noch ohne Login.</strong>
+      Änderungen landen als Entwurf in <strong>deinem Browser</strong> und sind sofort in der öffentlichen Vorschau sichtbar;
+      „Exportieren" erzeugt die Datei fürs Repo bzw. später für Supabase. Niemand sonst sieht deinen Entwurf, und ein Neuladen
+      auf einem anderen Gerät zeigt ihn nicht.
+    </p>
+
+    <div class="admin-draftbar" id="admin-draftbar">
+      <div class="admin-draft-status" id="admin-draft-status" aria-live="polite">
+        <span class="dot" id="admin-draft-dot" aria-hidden="true"></span>
+        <span id="admin-draft-text">Entwurf wird geprüft …</span>
+      </div>
+      <p class="admin-draft-explainer">Alles, was du hier änderst, bleibt ein Entwurf, bis jemand „Exportieren" nutzt und die Datei ins Projekt zurücklegt.</p>
+      <div class="admin-draft-actions">
+        <button type="button" class="btn btn-ghost" id="admin-btn-export">Exportieren</button>
+        <button type="button" class="btn btn-danger-ghost" id="admin-btn-discard">Entwurf verwerfen</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ============ LAYOUT: SIDEBAR + INHALT ============ -->
+  <div class="admin-shell">
+    <nav class="admin-sidebar" id="admin-sidebar" aria-label="Bearbeitbare Bereiche">
+      <p class="admin-sidebar-loading" id="admin-sidebar-loading">Bereiche werden geladen …</p>
+    </nav>
+
+    <main class="admin-content" id="admin-content">
+      <p class="admin-content-loading">Formular-Generator startet …</p>
+    </main>
+  </div>
+
+  <!-- Live-Region für Kurzmeldungen ("Gespeichert ✓") -->
+  <div class="toast" id="admin-toast" role="status" aria-live="polite"></div>
+
+  <!-- Gemeinsame Bildvorschläge für alle Bild-Felder -->
+  <datalist id="admin-image-suggestions">
+    <option value="assets/img/placeholders/crowd-blue.svg">
+    <option value="assets/img/placeholders/dj-magenta.svg">
+    <option value="assets/img/placeholders/mars-dust.svg">
+    <option value="assets/img/placeholders/neon-tubes.svg">
+    <option value="assets/img/placeholders/openair-gold.svg">
+    <option value="assets/img/placeholders/stage-violet.svg">
+    <option value="assets/img/placeholders/water-cyan.svg">
+    <option value="assets/img/placeholders/werkstatt.svg">
+    <option value="assets/img/moon-color.webp">
+    <option value="assets/img/moon-height.webp">
+    <option value="assets/img/ground-mars-day.webp">
+    <option value="assets/img/ground-mars-night.webp">
+  </datalist>
+
+  <template id="admin-tpl-row"></template>
+
+  <noscript>
+    <p class="admin-noscript">Die Verwaltung braucht JavaScript, um Formulare zu erzeugen und Entwürfe zu speichern — bitte aktivieren.</p>
+  </noscript>
+
+  <script defer src="assets/js/data.js"></script>
+  <script defer src="assets/js/pages/admin-fields.js"></script>
+  <script defer src="assets/js/pages/admin.js"></script>
+</body>
+</html>

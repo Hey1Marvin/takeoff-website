@@ -1,0 +1,25 @@
+{
+  "_labels": {
+    "hero.h1": "Haupttitel",
+    "rows": "Datenschutz-Punkte",
+    "protoNote": "Prototyp-Hinweis"
+  },
+
+  "hero": {
+    "eyebrow": "Rechtliches",
+    "h1": "Datenschutz",
+    "intro": "Die Kurzfassung: Diese Seite setzt keine Cookies, lädt nichts von Drittservern und legt keine Profile an. Die Langfassung folgt unten — sie ist erfreulich kurz."
+  },
+
+  "rows": [
+    { "label": "Cookies", "text": "Keine. Deine FX-/Theme-Wahl bleibt nur lokal in deinem Browser (localStorage, verlässt dein Gerät nie)." },
+    { "label": "Tracking", "text": "Keins. Keine Analytics-Pixel, keine Fingerprints, keine Werbenetzwerke." },
+    { "label": "Drittserver", "text": "Schriften, Bilder, Skripte: alles liegt bei uns. SoundCloud/YouTube/Instagram laden erst nach deinem Klick (Zwei-Klick-Lösung)." },
+    { "label": "Karten", "text": "Keine eingebetteten Karten — Routen öffnen als Link in deiner eigenen Karten-App." },
+    { "label": "Server-Logs", "text": "Technisch übliche Zugriffslogs beim Hoster [Details folgen mit Hosting-Entscheidung]." },
+    { "label": "Deine Rechte", "text": "Auskunft, Berichtigung, Löschung." },
+    { "label": "Fotos", "text": "Auf Events gilt Fotoverbot; veröffentlichte Fotos nur mit Einverständnis. Du bist auf einem Bild und willst das nicht? Eine Mail genügt — wir nehmen es runter." }
+  ],
+
+  "protoNote": "[Prototyp-Gerüst — die finale Datenschutzerklärung wird vor Launch juristisch geprüft.]"
+}

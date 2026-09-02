@@ -1,0 +1,277 @@
+/* ============================================================
+   Hintergrundvideo im Hero — Gestaltung
+
+   Portierung von prototype/assets/css/hero-video.css. Eigene Datei, in
+   src/app/page.tsx NACH takeoff.css importiert. Sie faerbt nichts um, was es
+   vorher schon gab; sie legt eine Ebene dazu und nimmt im Video-Zustand
+   an zwei Stellen Bewegung zurueck.
+
+   Ebenenlage (bewusst, nicht zufaellig):
+     -3  body::before   statischer Sternen-Fallback
+     -2  #stars ...     Canvas-Ebenen (Himmel, Wolken, Boden, Glanz)
+     -1  .hero-video    DIESE Ebene
+     -1  body::after    Filmkorn  ) beide spaeter im Baum, liegen also
+     -1  html::after    Vignette  ) UEBER dem Video
+      0  .hero          Hintergrund (--hero-tint) + Inhalt
+
+   Der negative z-index ist der ganze Trick: .hero ist zwar
+   `position: relative`, hat aber keinen z-index, kein transform und kein
+   filter — also KEINEN eigenen Stapelkontext. Das Video faellt damit in
+   die -1-Schicht des Wurzelkontexts und bekommt Korn, Vignette und den
+   Hero-Dunst gratis obendrauf. Genau das bindet es ins Bild ein, statt es
+   als Fremdkoerper dahinter zu stellen. Wuerde .hero je einen
+   Stapelkontext bekommen (transform, filter, isolation, opacity < 1),
+   verschwaende das Video hinter dem Hero-Hintergrund — dann muesste diese
+   Ebene auf z-index 0 und Korn/Vignette lokal nachgebaut werden.
+   ============================================================ */
+
+/* ---------- Die Ebene ----------
+   Nur Geometrie ueber Prozent und Tokens, KEINE in JS gerechneten Pixel:
+   Handys aendern die Viewporthoehe beim Ein- und Ausfahren der Adressleiste
+   staendig, und `.hero` selbst haengt an 100svh. Weil die Ebene absolut im
+   Hero sitzt, folgt sie jeder Groessenaenderung von allein — Resize und
+   Drehen brauchen keine einzige Zeile JavaScript. */
+.hero-video {
+  position: absolute;
+  /* Oben unter die Kopfleiste hinausziehen: der Hero beginnt erst unter der
+     Topbar, ein dort endendes Video haette eine sichtbare Oberkante. So
+     laeuft es unter die durchscheinende, weichgezeichnete Leiste. */
+  inset: calc(-1 * var(--topbar-h)) 0 0 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+  /* Eigener Stapelkontext, damit `mix-blend-mode` der Farbebene nur mit dem
+     Video mischt und nicht mit dem Sternenhimmel dahinter. */
+  isolation: isolate;
+
+  /* Auslauf nach unten. Ein Video, das am Ende des ersten Bildschirms hart
+     aufhoert, liest sich als eingeklebtes Rechteck. Die Maske loest es auf,
+     und zwar in den echten Seitengrund samt Sternen — anders als ein
+     deckender Verlauf, der an derselben Stelle ein blindes Band erzeugt
+     haette.
+     Die Kurve ist nicht linear: oben steht das Video, ab der Mitte faellt
+     es, und dort wo die Event-Karte sitzt ist es weg. Die Karte behaelt
+     damit exakt den Kontrast, den sie ohne Video hat. */
+  /* Die Kurve steht in einer eigenen Eigenschaft, weil sie an zwei Stellen
+     gebraucht wird: nachts auf dem Container, tagsueber auf dem Video darin
+     (siehe Tag-Modus weiter unten). */
+  --hv-mask: linear-gradient(180deg,
+      #000 0%, #000 38%, rgb(0 0 0 / .78) 56%,
+      rgb(0 0 0 / .34) 76%, rgb(0 0 0 / 0) 93%);
+  -webkit-mask-image: var(--hv-mask);
+  mask-image: var(--hv-mask);
+
+  /* Stellschrauben. Sie stehen hier oben, damit Tag-Modus und Themes sie
+     einzeln ueberschreiben koennen, statt die Regeln zu verdoppeln. */
+  --hv-sat:      .16;   /* Restsaettigung des Rohmaterials       */
+  --hv-bright:   .34;   /* Helligkeit                            */
+  --hv-contrast: 1.22;  /* Zeichnung in den Silhouetten          */
+  --hv-tint:     .62;   /* Staerke der Farbangleichung an acc-*  */
+  --hv-scrim:    .56;   /* Grunddeckung der Abdunkelung          */
+
+  /* Ohne JS gibt es diese Ebene gar nicht (sie ist leer und wird von
+     hero-video.js gefuellt). Der Klassen-Gate ist trotzdem gesetzt: er ist
+     die Zusage der Seite, dass CSS nur mit laufendem JS etwas verbirgt oder
+     zeigt. */
+  display: none;
+}
+:root.js[data-video="on"] .hero-video { display: block; }
+
+/* ---------- Das Video ---------- */
+.hero-video video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  /* `cover` ist der Grund, warum Resize und Drehen nichts kaputt machen
+     koennen: das 16:9-Material wird auf jedes Seitenverhaeltnis beschnitten,
+     nie verzerrt. Der Bildausschnitt sitzt etwas ueber der Mitte — dort
+     stehen im Rohmaterial die Koepfe und die Buehne, unten ist nur Boden. */
+  object-fit: cover;
+  object-position: 50% 38%;
+  /* Entsaettigen und abdunkeln. Das Rohmaterial ist warmes Buehnenlicht; die
+     Seite ist kalt-platinfarben. Unbehandelt konkurriert es mit der
+     Wortmarke, statt ihr einen Grund zu geben. */
+  filter:
+    saturate(var(--hv-sat))
+    contrast(var(--hv-contrast))
+    brightness(var(--hv-bright));
+}
+/* Aufblenden liegt auf der WRAPPER-Ebene, nicht auf dem <video>: das Poster
+   wird vom Video-Element selbst gezeichnet, eine Deckkraft von 0 auf dem
+   Element haette also auch das Poster verschluckt — und damit genau den
+   Zweck des Posters. So blenden Poster und Video gemeinsam auf, und der
+   spaetere Wechsel vom Poster zum ersten Videobild ist unsichtbar, weil das
+   Poster dieses Bild ist. */
+.hero-video { opacity: 0; transition: opacity .9s var(--ease-out, ease-out); }
+.hero-video.is-ready { opacity: 1; }
+
+/* ---------- Farbangleichung (Duotone) ----------
+   `mix-blend-mode: color` nimmt Farbton und Saettigung von hier und die
+   Helligkeit vom Video darunter. Genau das ist ein Duotone — und es ist der
+   einzige Weg, fremdes Material wirklich in einen Farbkorridor zu ziehen.
+   `hue-rotate` haette nur den vorhandenen (warmen) Ton gedreht und dabei
+   jede Hautfarbe mitgenommen.
+   Der Verlauf laeuft von der Stuetzfarbe in die Leitfarbe und zurueck, in
+   derselben Richtung wie der Chromverlauf der Wortmarke (172°) — das
+   Bild bekommt dieselbe Lichtachse wie die Marke. */
+.hero-video::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(172deg,
+      var(--acc-2) 0%, var(--acc-1) 46%, var(--acc-2) 100%);
+  mix-blend-mode: color;
+  opacity: var(--hv-tint);
+}
+
+/* ---------- Abdunkelung ----------
+   Zwei Aufgaben in einer Ebene: die Wortmarke braucht einen ruhigen dunklen
+   Grund, und die Mitte des Bildes soll heller stehen bleiben als die Raender,
+   damit es nach Licht aussieht und nicht nach Schleier.
+   Der lineare Anteil sorgt fuer den Kontrast, der radiale fuer die Form. */
+.hero-video::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(120% 78% at 50% 30%,
+        rgb(var(--bg-void-rgb) / .20) 0%,
+        rgb(var(--bg-void-rgb) / .42) 62%,
+        rgb(var(--bg-void-rgb) / .76) 100%),
+    linear-gradient(180deg,
+        rgb(var(--bg-void-rgb) / calc(var(--hv-scrim) + .18)) 0%,
+        rgb(var(--bg-void-rgb) / var(--hv-scrim)) 34%,
+        rgb(var(--bg-void-rgb) / calc(var(--hv-scrim) + .22)) 100%);
+}
+
+/* ---------- Tag-Modus: der Hero wird zur Nachtinsel ----------
+   Erster Versuch war ein heller Schleier ueber dem Video, damit der dunkle
+   Tagestext lesbar bleibt. Das war falsch und wurde verworfen: das Video
+   verschwand darunter zum Wasserzeichen, und ein aufgehelltes Nachtvideo
+   sieht nach Fehler aus, nicht nach Absicht. Ein weisser Schleier gehoert
+   nur dorthin, wo GAR KEIN Video liegt.
+
+   Stattdessen der Griff, den das Blatt fuer genau diesen Fall schon hat:
+   Kopfleiste, Footer und Panel bleiben tagsueber dunkel, indem dort die
+   --nite-*-Tokens lokal zurueckgesetzt werden (siehe "Nacht-Spiegel fuer
+   die dunklen Anker" in style.css). Der Hero mit Video ist derselbe Fall —
+   ein dunkler Anker in einer hellen Seite. Das Video bekommt also exakt die
+   Nachtbehandlung, und die lose Typografie darueber ihre Nachtfarben.
+
+   Zwei Dinge bleiben dabei bewusst unangetastet:
+   · die Wortmarke — sie sieht tagsueber ohnehin schon aus wie nachts
+     (style.css setzt ihr die Chrome-Nachttokens zurueck), sie passt also
+     ohne Zutun.
+   · die Event-Karte — sie ist tags eine helle Karte mit hartem Versatz.
+     Eine helle Karte auf dunklem Bild ist keine Stoerung, sondern der
+     Kontrast, von dem die Karte lebt. Deshalb endet der Token-Reset vor
+     ihr, statt den ganzen Hero umzuhaengen.
+   Die --nite-*-Werte wechseln mit dem Theme mit; Mars und Strand bekommen
+   also ihre eigene Nachtstimmung, nicht die vom Weltall. */
+:root.day-mode .hero-video {
+  --bg-void-rgb: var(--nite-void-rgb);
+  --acc-1: var(--nite-acc-1);
+  --acc-2: var(--nite-acc-2);
+
+  /* Der weiche Auslauf nach unten wandert im Tag-Modus vom Container auf das
+     Video selbst. Grund: nachts blendet das Video in den dunklen Seitengrund
+     aus — das Bild loest sich auf, nichts kippt. Tagsueber liegt darunter
+     der HELLE Seitengrund, und die Typografie darueber ist inzwischen hell.
+     Derselbe Auslauf haette dort helle Schrift auf hellem Grund ergeben.
+     Also: der Hero wird zum dunklen Anker mit sauberer Unterkante — genau
+     wie Kopfleiste, Footer und Panel, die tagsueber ebenfalls dunkel
+     bleiben. Das Video blendet weiterhin weich aus, nur eben in diese
+     dunkle Platte statt ins Nichts. */
+  -webkit-mask-image: none;
+  mask-image: none;
+  background: var(--nite-bg-void);
+}
+:root.day-mode .hero-video video,
+:root.day-mode .hero-video::before {
+  -webkit-mask-image: var(--hv-mask);
+  mask-image: var(--hv-mask);
+}
+/* Die Lichtinsel unter dem Hero muss weg.
+   Im Tag-Modus mit Space-Theme legt style.css eine fast deckende helle
+   Platte in den Hero-Hintergrund ("Lichtinsel"): dunkler Tagestext braucht
+   vor dem schwarzen Weltall einen hellen Grund. Diese Platte liegt UEBER
+   dem Video (sie ist der Hintergrund von .hero, das Video sitzt auf
+   z-index -1) — sie war der weisse Schleier, der das Video verschluckt hat.
+   Im Video-Zustand uebernimmt das Video diese Aufgabe, nur andersherum:
+   es gibt dem Text einen DUNKLEN Grund. Also bleibt nur der zarte
+   Hero-Dunst stehen.
+   Die drei :not() sind kein Ziergrat — die Originalregel gilt nur fuers
+   Space-Theme und traegt genau diese Spezifitaet; ohne sie verliert diese
+   Regel. Mars und Strand haben tagsueber gar keine Platte im Hero und
+   brauchen deshalb keinen Gegenpart. */
+:root.day-mode[data-video="on"]:not([data-theme="mars"]):not([data-theme="strand"]) .hero {
+  background: var(--hero-tint);
+}
+
+:root.day-mode[data-video="on"] .hero :is(.pretitle, .tagline, .tminus, .scroll-hint) {
+  --ink:       var(--nite-ink);
+  --ink-dim:   var(--nite-ink-dim);
+  --ink-faint: var(--nite-ink-faint);
+  --acc-3:     var(--nite-acc-3);
+  --acc-3-rgb: var(--nite-acc-3-rgb);
+}
+
+/* ---------- Themes ----------
+   Mars und Strand haben eigene Akzente; der Duotone zieht automatisch mit,
+   weil er auf --acc-1/--acc-2 sitzt. Nur die Dosis wird nachgezogen: Mars
+   ist warm-orange und traegt mehr Faerbung, ohne dass es kitschig wird;
+   Strand ist gelb/cyan und wuerde bei gleicher Dosis giftig. */
+:root[data-theme="mars"] .hero-video   { --hv-tint: .70; }
+:root[data-theme="strand"] .hero-video { --hv-tint: .48; --hv-scrim: .56; }
+
+/* ---------- Schmale Schirme ----------
+   Auf dem Handy steht die Wortmarke relativ groesser im Bild und der
+   Hero ist hoch und schmal — der Ausschnitt zeigt dadurch mehr Publikum
+   und weniger Buehne. Etwas dunkler und etwas frueher auslaufend, sonst
+   wird es unruhig hinter dem Text. */
+@media (max-width: 700px) {
+  .hero-video {
+    --hv-bright: .34;
+    --hv-scrim:  .58;
+    --hv-mask: linear-gradient(180deg,
+        #000 0%, #000 30%, rgb(0 0 0 / .72) 48%,
+        rgb(0 0 0 / .28) 70%, rgb(0 0 0 / 0) 88%);
+  }
+}
+
+/* ---------- Der Boden bleibt im ersten Bildschirm weg ----------
+   Mars und Strand malen einen Horizont in eine eigene, fixierte Canvas-Ebene
+   am unteren Bildrand. Genau dort laeuft das Video weich aus — der Boden
+   schaute also unter dem Video hervor, und zwei Landschaften uebereinander
+   lesen sich als zwei Bilder, nicht als eines. Im Video-Zustand ist das
+   Video die Buehne; der Boden kommt erst, wenn man ihn auch braucht.
+
+   `hv-cover` setzt hero-video.js, solange der Hero den Bildschirm noch
+   ueberwiegend fuellt (aus dem IntersectionObserver, der ohnehin schon
+   laeuft — kein Scroll-Listener, keine Layout-Lesung). Beim Wegscrollen
+   blendet der Boden weich ein, statt zu erscheinen.
+   Nur Deckkraft, kein `display`: das laeuft auf dem Compositor und kostet
+   pro Bild nichts, und main.js zeichnet unveraendert weiter. */
+:is(#horizon, #glints, #props) {
+  transition: opacity .5s var(--ease-out, ease-out);
+}
+:root[data-video="on"].hv-cover :is(#horizon, #glints, #props) { opacity: 0; }
+
+/* ---------- Bewegung dosieren ----------
+   Im Video-Zustand tobt hinter der Marke ein Publikum. Kommen dazu noch der
+   wandernde Chromglanz und der tropfende Scroll-Hinweis, konkurrieren drei
+   Bewegungen um dieselbe Stelle — und die Wortmarke verliert, weil ihre
+   Bewegung die feinste von dreien ist. Beide werden im Video-Zustand
+   angehalten; die Marke steht dann als ruhiges, festes Metall vor dem
+   bewegten Bild. Das ist der Kontrast, den man will: Buehne bewegt, Marke
+   still. Ohne Video bleibt alles wie bisher. */
+:root[data-video="on"] .wordmark { animation: none; }
+:root[data-video="on"] .scroll-hint::after { animation: none; }
+
+/* ---------- Fokus/Umriss der Video-Schalter ----------
+   Nichts Eigenes noetig: die Knoepfe erben .mctrl button vollstaendig.
+   Diese Regel existiert nur, damit die Zeile bei fehlendem JS nicht
+   sinnlos dasteht — hero-video.js entfernt das Attribut nie, es setzt es
+   nur; ohne JS steht kein data-video auf <html>. */
+:root:not(.js) .mctrl .row-video { display: none; }

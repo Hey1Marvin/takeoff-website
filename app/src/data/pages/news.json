@@ -1,0 +1,118 @@
+{
+  "hero": {
+    "eyebrow": "Mission Log",
+    "h1": "Was gerade passiert",
+    "intro": "Kein Blog, kein Geschwafel — kurze Funksprüche aus der Werkstatt und von den Floors. Ausführliche Posts gibt's auf Instagram, hier verlinkt."
+  },
+  "status": {
+    "prefix": "Letzte Transmission",
+    "todayLabel": "heute",
+    "dayLabel": "vor 1 Tag",
+    "daysTemplate": "vor {days} Tagen",
+    "fallback": "Empfangsbereit — der neueste Funkspruch steht unten."
+  },
+  "terminal": {
+    "label": "Eingehend",
+    "typewriter": true,
+    "charMs": 24
+  },
+  "stats": {
+    "totalLabel": "Funksprüche gesamt",
+    "topBadgeLabel": "häufigstes Badge",
+    "sinceLabel": "letzte Übertragung"
+  },
+  "filter": {
+    "allLabel": "Alle",
+    "countTemplate": "{shown} von {total} Funksprüchen",
+    "emptyText": "Nichts mit diesem Badge — versuch „Alle“.",
+    "badgeOrder": ["Announcement", "Baulog", "Recap", "Podcast", "Save-the-Date", "Teaser"],
+    "badgeIcons": {
+      "Announcement": "megaphone",
+      "Baulog": "wrench",
+      "Recap": "camera",
+      "Podcast": "headphones",
+      "Save-the-Date": "star",
+      "Teaser": "eye"
+    }
+  },
+  "yearDivider": { "template": "— {year} —" },
+  "crosslinks": {
+    "n5": { "eventSlug": "freiraeume", "href": "event-freiraeume.html", "label": "Zum Event „Freiräume“" },
+    "n4": { "eventSlug": "marsmission", "href": "event-marsmission.html", "label": "Zur Marsmission-Seite" },
+    "n3": { "eventSlug": "pride", "href": "event-pride.html", "label": "Zur Pride-Party-Seite" },
+    "n2": { "artistSlug": "jojo", "href": "artist-jojo.html", "label": "Zu JOJOs Artist-Seite" },
+    "n1": { "href": "kollektiv.html#history", "label": "Kollektiv-Log", "i18nKey": "link.kollektiv_log" }
+  },
+  "countdown": {
+    "template": "→ in {days} Tagen",
+    "tomorrowLabel": "→ morgen",
+    "todayLabel": "→ heute!"
+  },
+  "share": {
+    "buttonLabel": "Teilen",
+    "copiedToast": "Link kopiert ✓",
+    "telegramIntent": true,
+    "telegramLabel": "Telegram"
+  },
+  "instaCard": {
+    "buttonLabel": "Instagram-Post ansehen · lädt erst nach Klick",
+    "consentNote": "Zwei-Klick-Schutz: Erst nach diesem Klick lädt Instagram nach (DSGVO-freundlich) — im Prototyp nur simuliert."
+  },
+  "channelCta": {
+    "eyebrow": "Auf dem Laufenden bleiben",
+    "title": "Telegram zuerst.",
+    "text": "Ankündigungen und Tageslage-Updates landen zuerst im Kanal — die Website fasst zusammen, wenn Zeit ist.",
+    "ctaLabel": "Telegram beitreten",
+    "ctaHref": "https://t.me/takeoffpotsdam"
+  },
+  "crossPromo": {
+    "historyLabel": "Die ganze Geschichte im Kollektiv-Log →",
+    "historyHref": "kollektiv.html#history",
+    "calendarLabel": "Alle Termine im Kalender →",
+    "calendarHref": "kalender.html"
+  },
+  "feedback": {
+    "eyebrow": "Warst du dabei?",
+    "prompt": "Wie war die letzte Mission?",
+    "linkLabel": "Kurz Feedback schicken →",
+    "mailSubjectTemplate": "Feedback – {event}",
+    "mailTo": "info@takeoff-potsdam.de"
+  },
+  "faq": [
+    { "q": "Wie oft postet ihr hier?", "a": "Unregelmäßig — wenn's was zu sagen gibt. Für Tagesaktuelles: Telegram." },
+    { "q": "Warum weniger als auf Instagram?", "a": "Hier stehen nur Kurzfassungen mit Link — die ausführlichen Posts bleiben auf Instagram." },
+    { "q": "Kann ich hier kommentieren?", "a": "Nein — schreib uns lieber direkt, siehe Kontakt oder Telegram." }
+  ],
+  "emptyState": {
+    "eyebrow": "Funkstille",
+    "title": "Noch keine Übertragung",
+    "text": "Kein Funkspruch gerade — aber Telegram weiß es zuerst, wenn sich das ändert.",
+    "ctaLabel": "Telegram beitreten",
+    "ctaHref": "https://t.me/takeoffpotsdam"
+  },
+  "statusBanner": {
+    "active": false,
+    "label": "Lage-Update",
+    "text": "",
+    "href": ""
+  },
+  "feed": {
+    "available": false,
+    "label": "RSS/Funkfeed",
+    "note": "Kommt mit dem Backend — bis dahin: Telegram."
+  },
+  "images": {
+    "heroBg": "",
+    "ogFallback": "assets/img/placeholders/neon-tubes.svg"
+  },
+  "_labels": {
+    "hero.eyebrow": "Kicker über der Überschrift",
+    "hero.h1": "Überschrift (letztes Wort leuchtet automatisch)",
+    "hero.intro": "Intro-Text unter der Überschrift",
+    "channelCta.title": "Telegram-CTA-Titel",
+    "channelCta.text": "Telegram-CTA-Text",
+    "feedback.prompt": "Feedback-Frage",
+    "statusBanner.active": "Lage-Banner einblenden (an/aus)",
+    "statusBanner.text": "Text im Lage-Banner"
+  }
+}

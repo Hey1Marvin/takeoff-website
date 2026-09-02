@@ -1,0 +1,244 @@
+/* ============================================================
+   kalender.css — Signatur-Motiv "Bordchronometer"
+
+   /kalender wird zum Chronographen-Instrument des Schiffs: Hauptzifferblatt
+   (Bordzeit) + zwei Subdials (T-Minus/T-Plus) im Hero, dazu Manifest-Zeilen
+   (Zeitleiste), Monatsgitter und Landeplatz-Kacheln. Kein neuer Ort (kein
+   "Set" wie Mars-Boden/Strand-Horizont) — ein Instrument, wie awareness.css'
+   "ZUSTAND desselben Himmels" fürs Leuchtfeuer-Motiv: hier ein Bauteil des
+   Schiffs statt eines Orts.
+
+   Farbrolle wie im Tokenkommentar von takeoff.css: --acc-3 (kühler
+   Gegenpol) trägt alles Ambiente/Strukturelle (Dial-Ring, T-Plus,
+   Monatsgitter-Marker), --acc-1 (Leitfarbe/Signal) ist reserviert für
+   "jetzt lebt gerade"-Momente (Sweep, Heute-Marker, T-Minus). Keine dritte
+   gleichberechtigte Akzentfarbe, keine neuen Hex-Werte — nur bestehende
+   Tokens. Chrome-Rampe für die grossen Ziffern (wie .wordmark/.stats b).
+
+   Portierungshinweis: Aus dem Prototyp bewusst NICHT übernommen —
+   die edge-to-edge SVG-"Bordskala" (reine Deko-Brücke ohne Informations-
+   wert) und die Sekunden-genauen Delta-Chips je Zeile (T–5T/LIVE). Beides
+   ist Zusatz-Politur ohne Funktionswert; die Kern-Uhr (Bordzeit + T-Minus/
+   T-Plus) und die dynamische Zeitleiste bleiben vollständig. `.day-mode`-
+   Regeln des Prototyps fehlen ebenfalls — Tag/Nacht-Umschaltung ist app-weit
+   noch nicht implementiert (kein `.day-mode` irgendwo im Stack), macht
+   hier also noch keinen Unterschied.
+   ============================================================ */
+
+/* ============================================================
+   1 · Dial-Ring (.bc-dial) — riesiger, angeschnittener Zifferring hinter
+   dem Hero. Technik wie .missions::before (takeoff.css): SVG-Data-URI,
+   Farbe fest verdrahtet statt var() — Data-URIs können keine Custom
+   Properties lesen, faerbt deshalb bewusst nicht mit den Themes. Liegt auf
+   demselben z-index wie #stars (-2), aber spaeter im DOM: überlagert den
+   Himmel, ohne Grain/Vignette (z-index -1) zu verdecken.
+   ============================================================ */
+.bc-dial {
+  position: fixed; inset: 0; z-index: -2; pointer-events: none;
+  mix-blend-mode: screen;
+  background-repeat: no-repeat;
+  background-position: 50% -30vh;
+  background-size: 1500px 1500px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 400'%3E%3Ccircle cx='200' cy='200' r='188' fill='none' stroke='%2352b1e0' stroke-opacity='0.16'/%3E%3Cpath d='M200.0 34.0 L200.0 12.0 M218.6 23.0 L219.7 13.0 M237.0 25.9 L239.1 16.1 M255.0 30.7 L258.1 21.2 M272.4 37.4 L276.5 28.3 M283.0 56.2 L294.0 37.2 M304.6 56.0 L310.5 47.9 M319.1 67.7 L325.8 60.3 M332.3 80.9 L339.7 74.2 M344.0 95.4 L352.1 89.5 M343.8 117.0 L362.8 106.0 M362.6 127.6 L371.7 123.5 M369.3 145.0 L378.8 141.9 M374.1 163.0 L383.9 160.9 M377.0 181.4 L387.0 180.3 M366.0 200.0 L388.0 200.0 M377.0 218.6 L387.0 219.7 M374.1 237.0 L383.9 239.1 M369.3 255.0 L378.8 258.1 M362.6 272.4 L371.7 276.5 M343.8 283.0 L362.8 294.0 M344.0 304.6 L352.1 310.5 M332.3 319.1 L339.7 325.8 M319.1 332.3 L325.8 339.7 M304.6 344.0 L310.5 352.1 M283.0 343.8 L294.0 362.8 M272.4 362.6 L276.5 371.7 M255.0 369.3 L258.1 378.8 M237.0 374.1 L239.1 383.9 M218.6 377.0 L219.7 387.0 M200.0 366.0 L200.0 388.0 M181.4 377.0 L180.3 387.0 M163.0 374.1 L160.9 383.9 M145.0 369.3 L141.9 378.8 M127.6 362.6 L123.5 371.7 M117.0 343.8 L106.0 362.8 M95.4 344.0 L89.5 352.1 M80.9 332.3 L74.2 339.7 M67.7 319.1 L60.3 325.8 M56.0 304.6 L47.9 310.5 M56.2 283.0 L37.2 294.0 M37.4 272.4 L28.3 276.5 M30.7 255.0 L21.2 258.1 M25.9 237.0 L16.1 239.1 M23.0 218.6 L13.0 219.7 M34.0 200.0 L12.0 200.0 M23.0 181.4 L13.0 180.3 M25.9 163.0 L16.1 160.9 M30.7 145.0 L21.2 141.9 M37.4 127.6 L28.3 123.5 M56.2 117.0 L37.2 106.0 M56.0 95.4 L47.9 89.5 M67.7 80.9 L60.3 74.2 M80.9 67.7 L74.2 60.3 M95.4 56.0 L89.5 47.9 M117.0 56.2 L106.0 37.2 M127.6 37.4 L123.5 28.3 M145.0 30.7 L141.9 21.2 M163.0 25.9 L160.9 16.1 M181.4 23.0 L180.3 13.0' fill='none' stroke='%2352b1e0' stroke-opacity='0.10'/%3E%3C/svg%3E");
+  mask-image: radial-gradient(closest-side, #000 55%, transparent 100%);
+}
+@media (max-width: 640px) {
+  .bc-dial { background-position: 50% -18vh; background-size: 900px 900px; }
+}
+
+/* ============================================================
+   2 · Sweep (.bc-sweep) — leiser, phasensynchroner Sekundenzeiger-Schein
+   ueber dem Dial. Reines CSS (conic-gradient), kein Canvas, kein rAF —
+   Tier s friert ihn ueber die globale animation-duration-Regel automatisch
+   ein, wird hier zusaetzlich explizit ausgeblendet. conic-gradient statt
+   Data-URI heisst: theme-faehig ueber --acc-1-rgb.
+   ============================================================ */
+.bc-sweep {
+  position: fixed; inset: -20vmax; z-index: -2; pointer-events: none;
+  mix-blend-mode: screen;
+  background: conic-gradient(from 0deg at 50% 50%,
+      transparent 0deg, rgb(var(--acc-1-rgb) / .07) 4deg, transparent 13deg, transparent 360deg);
+  animation: bc-spin 60s linear infinite;
+  animation-play-state: paused;   /* Client-Komponente startet erst nach Phasen-Sync */
+}
+@keyframes bc-spin { to { transform: rotate(360deg); } }
+:root[data-fx="s"] .bc-sweep { display: none; }
+:root[data-fx="m"] .bc-sweep { opacity: .55; }   /* dezent: gleiche Bewegung, leiser */
+
+/* ============================================================
+   3 · Zifferblatt & Subdials (Hero-Cluster)
+   .tminus/.label/.clock bleiben 1:1 aus takeoff.css (nur Optik).
+   ============================================================ */
+.bc-phero .cta-row { justify-content: center; }
+.bc-subnote { margin: 12px auto 0; max-width: 460px; text-align: center; color: var(--ink-faint); font-size: 13px; }
+
+.bc-cluster {
+  display: grid; justify-items: center; gap: clamp(8px, 1.6vh, 16px);
+  margin-top: clamp(20px, 3.4vh, 38px);
+}
+.bc-face {
+  position: relative;
+  display: inline-flex; align-items: baseline; gap: .12em;
+  font-family: var(--font-mono); font-weight: 700;
+  font-size: clamp(48px, 12vw, 128px); line-height: 1;
+  font-variant-numeric: tabular-nums; white-space: nowrap;
+  background: linear-gradient(172deg, var(--chrome-hi), var(--chrome-mid) 45%, var(--chrome-lo) 75%, var(--chrome-hi));
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  -webkit-text-stroke: .006em var(--bg-void); paint-order: stroke fill;
+  filter: drop-shadow(0 0 26px rgb(var(--acc-3-rgb) / .22));
+}
+/* Kleine Luenetten-Andeutung direkt um die Ziffern — der literale Instrument-Bezel */
+.bc-face::before {
+  content: ""; position: absolute; inset: clamp(-16px, -3vw, -30px) clamp(-26px, -6vw, -54px);
+  z-index: -1; border-radius: 999px;
+  border: 1px solid rgb(var(--acc-3-rgb) / .18);
+}
+.bc-sec {
+  font-size: .3em; color: var(--acc-3-tint);
+  text-shadow: 0 0 8px rgb(var(--acc-3-rgb) / .4);
+}
+.bc-sec[hidden] { display: none; }
+:root[data-fx="l"] .bc-sec {
+  animation: bc-tick .4s steps(3, end);
+}
+@keyframes bc-tick { 0% { opacity: .3; transform: translateY(-.06em); } 100% { opacity: 1; transform: none; } }
+.bc-caption {
+  font-family: var(--font-mono); font-size: 10.5px; letter-spacing: .28em;
+  text-transform: uppercase; color: var(--ink-faint);
+}
+
+.bc-sub { display: flex; flex-wrap: wrap; justify-content: center; gap: clamp(20px, 4vw, 48px); }
+.bc-sub .tminus { margin: 0; }
+.bc-sub .tminus.tplus .clock { color: var(--ink-dim); text-shadow: none; }
+.bc-sub .tminus.tplus .label { color: var(--acc-2); }
+.bc-sub .tminus .clock small { font-size: .48em; }
+
+/* ============================================================
+   4 · Kalender-Quick-Add pro Zeile (.bc-caladd) — Google-Link + .ics-
+   Knopf direkt an der Manifest-Zeile. Zurückhaltende Text-Links statt
+   weiterer Chip-Pillen, damit die Zeile nicht überladen wirkt.
+   ============================================================ */
+.bc-caladd {
+  display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 4px 14px;
+  margin-top: 6px;
+}
+.bc-caladd a, .bc-caladd button {
+  font-family: var(--font-mono); font-size: 11px; letter-spacing: .03em;
+  color: var(--acc-3-tint); border-bottom: 1px dotted rgb(var(--acc-3-rgb) / .45);
+  padding-bottom: 1px; transition: color .2s, border-color .2s;
+}
+.bc-caladd a:hover, .bc-caladd button:hover,
+.bc-caladd a:focus-visible, .bc-caladd button:focus-visible { color: var(--ink); border-color: var(--ink); }
+.bc-caladd.is-tba { display: block; text-align: right; font-size: 12.5px; color: var(--ink-faint); }
+
+/* ============================================================
+   5 · Zeitleiste — Jahres-/Heute-Trenner, Toolbar, Filter, Leerzustand
+   ============================================================ */
+.bc-toolbar {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
+  gap: 12px 20px; margin: 4px 0 18px;
+}
+.bc-filterbar { display: flex; flex-wrap: wrap; gap: 8px; }
+.bc-filterbar .chip {
+  min-height: 44px; box-sizing: border-box; cursor: pointer;
+  display: inline-flex; align-items: center;
+}
+.bc-toolbar .btn { padding: 10px 18px; font-size: 11.5px; }
+
+.m-row.bc-year, .m-row.bc-today { border-bottom: none; padding-top: 28px; margin-top: 2px; }
+.m-rows > .m-row.bc-year:first-child, .m-rows > .m-row.bc-today:first-child { padding-top: 0; margin-top: 0; }
+.m-row.bc-year dt, .m-row.bc-today dt {
+  font-family: var(--font-display); font-weight: 700; font-size: 15px;
+  letter-spacing: 0; text-transform: none; color: var(--ink);
+}
+.m-row.bc-year dd, .m-row.bc-today dd {
+  font-family: var(--font-mono); font-size: 10.5px; letter-spacing: .16em; text-transform: uppercase;
+}
+.m-row.bc-today dt { display: inline-flex; align-items: center; gap: 8px; color: var(--acc-1-tint); }
+.m-row.bc-today dt::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--acc-1); flex: none; }
+:root[data-fx="m"] .m-row.bc-today dt::before,
+:root[data-fx="l"] .m-row.bc-today dt::before { animation: pulse 2.2s ease-in-out infinite; }
+
+.m-row[hidden] { display: none; }
+.bc-empty { margin-top: 18px; color: var(--ink-dim); font-size: 14.5px; }
+.bc-empty[hidden] { display: none; }
+
+/* ---------- Patch-Fortschritts-Teaser: sitzt am Ende der Zeitleiste. ---------- */
+.bc-patch-teaser { margin-top: clamp(20px, 3vh, 30px); text-align: center; }
+.bc-patch-teaser a {
+  font-family: var(--font-mono); font-size: 12.5px; letter-spacing: .06em;
+  color: var(--ink-dim); border-bottom: 1px solid var(--bg-hairline);
+  padding-bottom: 3px; transition: color .25s, border-color .25s;
+}
+.bc-patch-teaser a:hover, .bc-patch-teaser a:focus-visible { color: var(--ink); border-color: rgb(var(--acc-1-rgb) / .5); }
+
+/* ============================================================
+   6 · Monatsgitter "Wann geht's los" (.bc-months) — nur Monate mit
+   Terminen, keine toten Monate. "Heute" = --acc-1 (Signal-Konvention),
+   Eventtage = --acc-3 (strukturelle Markierung).
+   ============================================================ */
+.bc-months {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 18px; margin-top: clamp(20px, 3vh, 32px);
+}
+.bc-month { border: 1px solid var(--bg-hairline); border-radius: var(--radius); padding: clamp(16px, 2.4vw, 22px); }
+.bc-month-head { display: flex; align-items: baseline; justify-content: space-between; }
+.bc-month-head b { font-family: var(--font-display); font-weight: 700; font-size: 16px; text-transform: capitalize; }
+.bc-month-head span { font-family: var(--font-mono); font-size: 12px; color: var(--ink-faint); }
+.bc-weekdays {
+  display: grid; grid-template-columns: repeat(7, 1fr); margin-top: 16px;
+  font-family: var(--font-mono); font-size: 9.5px; letter-spacing: .1em;
+  text-transform: uppercase; color: var(--ink-faint); text-align: center;
+}
+.bc-month-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-top: 6px; }
+.bc-day {
+  aspect-ratio: 1; display: grid; place-items: center; border-radius: 6px;
+  font-family: var(--font-mono); font-size: 11.5px; font-variant-numeric: tabular-nums;
+  color: var(--ink-dim);
+}
+.bc-day.is-pad { visibility: hidden; }
+a.bc-day { color: var(--ink-dim); transition: background .2s, border-color .2s, color .2s; }
+.bc-day.has-event {
+  color: var(--ink); border: 1px solid rgb(var(--acc-3-rgb) / .5);
+  background: rgb(var(--acc-3-rgb) / .10); font-weight: 700;
+}
+a.bc-day.has-event:hover, a.bc-day.has-event:focus-visible {
+  border-color: var(--acc-3); background: rgb(var(--acc-3-rgb) / .2); color: var(--ink);
+}
+.bc-day.is-today { box-shadow: 0 0 0 1.5px var(--acc-1) inset; color: var(--ink); }
+.bc-months-empty { margin-top: clamp(20px, 3vh, 32px); color: var(--ink-dim); font-size: 14.5px; }
+
+/* ============================================================
+   7 · Venue-Kurzverzeichnis (.bc-venues) — dedupliziertes .vcard-Paar
+   (.vcard/.vname/.vaddr/.vhint 1:1 aus takeoff.css) + Editorial-Notiz.
+   ============================================================ */
+.bc-venues {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 18px; margin-top: clamp(20px, 3vh, 32px);
+}
+/* Spalte, damit die Routen-Knoepfe unten andocken: die beiden Karten sind im
+   Raster gleich hoch, ihre Notiztexte aber unterschiedlich lang — sonst sitzen
+   die Knopfreihen 24px versetzt. */
+.bc-venue {
+  border: 1px solid var(--bg-hairline); border-radius: var(--radius);
+  padding: clamp(18px, 3vw, 26px);
+  display: flex; flex-direction: column;
+}
+.bc-venue .route-row { margin-top: auto; padding-top: 16px; }
+.bc-venue-note { margin-top: 10px; color: var(--ink-dim); font-size: 14px; }
+
+.bc-venue .route-row .btn { padding: 10px 18px; font-size: 11.5px; }
+
+/* ============================================================
+   8 · Mobile-Feintuning
+   ============================================================ */
+@media (max-width: 560px) {
+  .bc-toolbar { align-items: stretch; }
+  .bc-toolbar .btn { justify-content: center; }
+  .bc-caladd { justify-content: flex-start; }
+  .bc-caladd.is-tba { text-align: left; }
+}
+@media (max-width: 480px) {
+  .m-row dd { text-align: left; }
+  .bc-face { font-size: clamp(40px, 15vw, 72px); }
+}

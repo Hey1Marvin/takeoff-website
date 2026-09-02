@@ -1,0 +1,301 @@
+/* ============================================================
+   news.css — Signaturmotiv "Bodenstation"
+   Seiten-CSS für news.html. Lädt NACH style.css, nutzt ausschließlich
+   bestehende Tokens (--acc-1 "Signal", --chrome-*, --font-mono,
+   --bg-hairline, --ease-out). Keine neue Palette, kein neuer Font.
+
+   Kernidee: Die Marsmission HAT einen Boden (man steht drauf) — News
+   EMPFÄNGT nur (man steht davor). Die Antwort auf "Mars-Boden" ist
+   deshalb keine zweite Landschaft, sondern die Gegenstelle: eine
+   Bodenstation, die aus dem Orbit lauscht. Darunter wird die Karten-
+   Liste zur Konsole (Scanline + Signalbalken statt Deko).
+
+   Datei-Regeln (DATA.md): nur additive, seitengescopte Selektoren
+   unter dem Praefix `rx-` (Receive — Gegenstueck zu `.transmission`/
+   `tx-`). Geprueft: kollisionsfrei mit style.css/events.css/
+   kollektiv.css/main.js.
+   ============================================================ */
+
+/* ============================================================
+   1 · Bodenstation — Empfangsschuessel (Signaturmotiv, Ambient)
+   Fixed, hinter dem Inhalt, hoch im Bildfeld (nicht mittig). Chrome
+   statt Akzentfarbe, damit sie als Hardware liest, nicht als
+   Leuchtreklame — Sweep/Ringe tragen dagegen --acc-1 ("Signal",
+   style.css Zeile 74 kommentiert genau so).
+   ============================================================ */
+.rx-array {
+  position: fixed; top: 0; right: 0; z-index: -2;
+  width: min(52vw, 640px); height: min(56vh, 480px);
+  opacity: .17;
+  mask-image: radial-gradient(closest-side at 70% 32%, #000 0%, #000 45%, transparent 88%);
+  -webkit-mask-image: radial-gradient(closest-side at 70% 32%, #000 0%, #000 45%, transparent 88%);
+  pointer-events: none;
+}
+@media (max-width: 640px) {
+  .rx-array { width: 72vw; height: 40vh; opacity: .11; top: -3vh; right: -10vw; }
+}
+/* Dezentes Toenen von #stars ist laut DATA.md (02.09.) erlaubt — Ausblenden nicht.
+   Der Sternenhimmel bleibt IMMER sichtbar, nur leicht gedaempft, damit die
+   Schuessel-Silhouette mehr traegt. */
+#stars { filter: brightness(.94); }
+
+/* Sweep-Strahl — Tier L: rotiert dauerhaft. Tier M: oszilliert sanft.
+   Tier S: unsichtbar (kein display:block), die Schuessel steht dort als
+   fertig komponiertes Standbild — s = statisch schoen, kein leerer Fleck. */
+.rx-sweep line { stroke: rgb(var(--acc-1-rgb) / .35); stroke-width: 1.5; stroke-linecap: round; }
+.rx-sweep { display: none; transform-origin: 0 0; }
+:root[data-fx="l"] .rx-sweep { display: block; animation: rx-sweep-rot 14s linear infinite; }
+:root[data-fx="m"] .rx-sweep { display: block; animation: rx-sweep-scan 10s ease-in-out infinite; }
+@keyframes rx-sweep-rot  { to { transform: rotate(360deg); } }
+@keyframes rx-sweep-scan { 0%, 100% { transform: rotate(-38deg); } 50% { transform: rotate(38deg); } }
+
+/* Signal-Ringe — drei gestaffelte Ringe (Tier L, Dauerloop), ein vierter
+   "Burst"-Ring feuert einmalig (Typewriter-Ende, JS setzt .rx-pulse). */
+.rx-ring { fill: none; stroke: rgb(var(--acc-1-rgb) / .45); stroke-width: 1.5; opacity: 0; }
+.rx-ring--burst { opacity: 0; }
+:root[data-fx="l"] .rx-ring:not(.rx-ring--burst) {
+  animation: rx-ring-pulse 4.8s ease-out infinite;
+  animation-delay: var(--rx-delay, 0s);
+}
+/* Tier M: kein Dauerloop — nur der einmalige "Power-On"-Puls beim ersten
+   Sichtbarwerden (JS setzt kurzzeitig .rx-array.rx-poweron) plus der
+   Typing-Burst, den beide Tiers (M/L) bekommen. */
+.rx-array.rx-poweron .rx-ring:not(.rx-ring--burst) { animation: rx-ring-pulse 1.6s ease-out 2; }
+.rx-array.rx-pulse .rx-ring--burst { animation: rx-ring-pulse .9s ease-out 1; opacity: 1; }
+@keyframes rx-ring-pulse { 0% { transform: scale(.6); opacity: .55; } 80%, 100% { transform: scale(1.55); opacity: 0; } }
+
+/* ============================================================
+   2 · Konsole — Scanline-Layer ueber den Karten-Sections
+   Exakt die in events.css etablierte Technik (2,5 % Deckkraft, kein
+   Phosphor-Gruen, kein Glitch) — hier vom Rand-Detail zum tragenden
+   Motiv ausgebaut, weil die ganze Seite ein Empfangsgeraet ist.
+   ============================================================ */
+.rx-console { position: relative; isolation: isolate; }
+.rx-console::before {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: repeating-linear-gradient(0deg, rgb(var(--acc-3-rgb) / .03) 0 1px, transparent 1px 3px);
+}
+.rx-live {
+  display: inline-flex; align-items: center; gap: 8px; margin-bottom: 14px;
+  font-family: var(--font-mono); font-size: 11px; font-weight: 700; letter-spacing: .26em;
+  text-transform: uppercase; color: var(--acc-1-tint);
+}
+.rx-live-dot {
+  width: 7px; height: 7px; border-radius: 50%; background: currentColor;
+  box-shadow: 0 0 8px rgb(var(--acc-1-rgb) / .8);
+  animation: pulse 2.2s ease-in-out infinite; /* @keyframes pulse: aus style.css, wiederverwendet */
+}
+
+/* Eingehend-Karte: groesser, mit Signal-Rahmen — Kontrast zum dichten Log */
+#rx-latest .ncard {
+  padding: clamp(22px, 4vw, 32px) clamp(22px, 4vw, 30px);
+  box-shadow: 0 0 0 1px rgb(var(--acc-1-rgb) / .22), 0 20px 50px rgb(0 0 0 / .4);
+}
+.rx-headline {
+  font-family: var(--font-display); font-weight: 700;
+  font-size: clamp(22px, 3.4vw, 30px); line-height: 1.15; margin: 4px 0 8px;
+}
+
+/* Typewriter-Cursor — nur die Eingehend-Headline, einmalig (siehe news.js) */
+.rx-typing::after {
+  content: ""; display: inline-block; width: .09em; height: .95em; margin-left: 2px;
+  background: var(--acc-1-tint); vertical-align: -.1em;
+  animation: blink 1s steps(1) infinite;
+}
+@keyframes blink { 50% { opacity: 0; } }
+.rx-locked::after { animation: blink .35s steps(1) 2; }
+
+/* ============================================================
+   3 · Statuszeile & Signal-Stats-Readout (Terminal-HUD unter dem Intro)
+   Echte, aus Daten berechnete Werte — keine Fantasie-Techno-Statuszeile.
+   ============================================================ */
+.rx-status {
+  margin-top: 18px;
+  font-family: var(--font-mono); font-size: 12.5px; color: var(--ink-faint);
+}
+.rx-readout {
+  display: flex; flex-wrap: wrap; gap: 20px 34px;
+  margin-top: 16px; padding: 14px 0;
+  border-top: 1px solid var(--bg-hairline); border-bottom: 1px solid var(--bg-hairline);
+}
+.rx-ro-item { display: flex; flex-direction: column; gap: 3px; }
+.rx-ro-item i {
+  font-style: normal; font-family: var(--font-mono); font-size: 10px;
+  letter-spacing: .18em; text-transform: uppercase; color: var(--ink-faint);
+}
+.rx-ro-item b {
+  font-family: var(--font-mono); font-weight: 700; font-size: 15px;
+  color: var(--ink); font-variant-numeric: tabular-nums;
+}
+
+/* Lage-Banner-Slot — Schema+Render-Slot fuer SPAETER, standardmaessig
+   inaktiv/hidden (statusBanner.active:false in news.json). */
+.rx-banner {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 10px;
+  margin-top: 14px; padding: 10px 16px;
+  border: 1px solid rgb(var(--acc-1-rgb) / .4);
+  border-radius: 999px;
+  background: rgb(var(--acc-1-rgb) / .1);
+  font-size: 13.5px;
+}
+.rx-banner b {
+  font-family: var(--font-mono); font-size: 10.5px; font-weight: 700;
+  letter-spacing: .18em; text-transform: uppercase; color: var(--acc-1-tint);
+}
+.rx-banner a { color: var(--ink); text-decoration: underline; text-underline-offset: 2px; }
+
+/* ============================================================
+   4 · Signalbalken — Alter der Meldung als Bild ("Signal wird schwaecher"),
+   reines CSS ueber :nth-of-type (nicht :nth-child — die Jahres-Trennlinien
+   sind eigene <p>-Elemente zwischen den <article>-Karten und duerfen die
+   Zaehlung nicht verschieben).
+   ============================================================ */
+.rx-sig { display: inline-flex; align-items: flex-end; gap: 2px; height: 11px; }
+.rx-sig i { width: 3px; border-radius: 1px; background: var(--ink-faint); display: block; transition: background .25s; }
+.rx-sig i:nth-child(1) { height: 35%; }
+.rx-sig i:nth-child(2) { height: 58%; }
+.rx-sig i:nth-child(3) { height: 80%; }
+.rx-sig i:nth-child(4) { height: 100%; }
+#rx-latest .rx-sig i,
+#rx-log article.ncard:nth-of-type(1) .rx-sig i { background: rgb(var(--n-acc)); }
+#rx-log article.ncard:nth-of-type(2) .rx-sig i:nth-child(-n+3) { background: rgb(var(--n-acc)); }
+#rx-log article.ncard:nth-of-type(3) .rx-sig i:nth-child(-n+2) { background: rgb(var(--n-acc)); }
+#rx-log article.ncard:nth-of-type(4) .rx-sig i:nth-child(-n+1) { background: rgb(var(--n-acc)); }
+/* ab dem 5. Log-Eintrag: alle Balken bleiben in ink-faint (verblasstes Signal) */
+.ncard:hover .rx-sig i { background: rgb(var(--n-acc)); } /* Mikrointeraktion: "reinhoeren" beim Hover */
+
+/* Jahres-Trennlinie im Archiv — dezente Mono-Marke, kein </p> im Grid,
+   damit die Karten-Zaehlung (:nth-of-type) unberuehrt bleibt. */
+.rx-yearmark {
+  margin: 4px 0 2px; text-align: center;
+  font-family: var(--font-mono); font-size: 11px; font-weight: 700; letter-spacing: .3em;
+  text-transform: uppercase; color: var(--ink-faint);
+}
+
+/* Hover-Feinschliff: .ncard traegt in style.css nur `border-color` in der
+   Transition-Liste — `transform` als Duplikat zu ergaenzen ist laut
+   DATA.md ok ("Duplikat ist ok, Konflikt nicht"). */
+.ncard { transition: border-color .3s, transform .3s var(--ease-out); }
+.ncard:hover { transform: translateY(-2px); }
+
+/* Consent-Note — 1:1-Pendant zu .setcard .consent-note (style.css) */
+.rx-consent {
+  display: none; margin-top: 10px; padding-top: 10px; font-size: 13px; color: var(--ink-dim);
+  border-top: 1px dashed rgb(var(--acc-3-rgb) / .3);
+}
+.ncard.asked .rx-consent { display: block; }
+
+/* ============================================================
+   5 · Kanal-Filter — echtes Werkzeug, nicht Deko. Chrome-Fill-Konvention
+   von .mctrl button[aria-pressed="true"] wiederverwendet statt neuer Farbe.
+   ============================================================ */
+.rx-channels { display: flex; flex-wrap: wrap; gap: 8px; margin: 18px 0 12px; }
+.rx-ch {
+  font-family: var(--font-mono); font-size: 11.5px; letter-spacing: .1em; text-transform: uppercase;
+  min-height: 44px; padding: 9px 14px; border-radius: 999px; border: 1px solid var(--bg-hairline);
+  color: var(--ink-dim); display: inline-flex; align-items: center; gap: 6px;
+  transition: color .2s, border-color .2s, background .2s;
+}
+.rx-ch svg { width: 14px; height: 14px; flex: none; }
+.rx-ch:hover { color: var(--ink); border-color: rgb(var(--acc-2-rgb) / .5); }
+.rx-ch[aria-pressed="true"] {
+  background: linear-gradient(168deg, var(--chrome-hi), var(--chrome-mid) 46%, var(--chrome-lo));
+  color: var(--bg-void); border-color: transparent; font-weight: 700;
+}
+.rx-ch-n { opacity: .65; font-weight: 400; }
+.rx-count { font-family: var(--font-mono); font-size: 12px; color: var(--ink-faint); margin-bottom: 16px; }
+@keyframes rx-retune { 0% { opacity: .5; } 100% { opacity: 1; } }
+.rx-console.rx-retune #rx-log { animation: rx-retune .2s ease-out; } /* kurzer "Blip" beim Umschalten */
+
+/* ============================================================
+   6 · Permalink & Teilen, Cross-Links + Live-Countdown
+   ============================================================ */
+.rx-share { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.rx-share-btn, .rx-share-tg {
+  display: inline-flex; align-items: center; gap: 6px; min-height: 44px;
+  font-family: var(--font-mono); font-size: 11.5px; letter-spacing: .08em; text-transform: uppercase;
+  padding: 7px 14px; border-radius: 999px;
+  border: 1px solid rgb(var(--acc-1-rgb) / .4); color: var(--acc-1-tint);
+  transition: border-color .2s, background .2s;
+}
+.rx-share-btn svg { width: 13px; height: 13px; }
+.rx-share-btn:hover, .rx-share-tg:hover,
+.rx-share-btn:focus-visible, .rx-share-tg:focus-visible {
+  border-color: rgb(var(--acc-1-rgb) / .7); background: rgb(var(--acc-1-rgb) / .1);
+}
+
+.rx-links { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; margin-top: 14px; }
+/* .rx-cross nutzt bewusst die bestehende .head-link (style.css) unveraendert —
+   keine eigene Regel noetig, gleiche Optik wie ueberall sonst auf der Seite. */
+.rx-cross { margin-top: 0; }
+.rx-cd {
+  font-family: var(--font-mono); font-size: 11px; font-weight: 700; letter-spacing: .06em;
+  color: var(--acc-1-tint);
+}
+
+/* ============================================================
+   7 · Feedback zur letzten Mission (unter dem juengsten Recap)
+   ============================================================ */
+.rx-feedback {
+  margin-top: 12px; padding-top: 10px; font-size: 13.5px; color: var(--ink-dim);
+  border-top: 1px dashed rgb(var(--acc-1-rgb) / .3);
+}
+.rx-feedback b {
+  display: block; margin-bottom: 4px;
+  font-family: var(--font-mono); font-size: 10.5px; font-weight: 700;
+  letter-spacing: .2em; text-transform: uppercase; color: var(--acc-1-tint);
+}
+.rx-feedback a { color: var(--acc-1-tint); border-bottom: 1px dotted rgb(var(--acc-1-rgb) / .5); }
+.rx-feedback a:hover, .rx-feedback a:focus-visible { color: var(--ink); }
+
+/* ============================================================
+   8 · Leerzustand — reine Wiederverwendung von .transmission/.tx-label/
+   .cta-row/.btn (siehe events.css .standby-state, gleiches Prinzip).
+   ============================================================ */
+.rx-empty { margin-top: 20px; }
+
+/* ============================================================
+   9 · FAQ — bewaehrtes .m-row-Muster, fuer Prosa-Antworten angepasst
+   (Duplikat der Ausrichtungs-Overrides aus kollektiv.css' .bp-faq,
+   DATA.md: "Duplikat ist ok, Konflikt nicht").
+   ============================================================ */
+.rx-faq { display: grid; gap: 4px; max-width: 720px; margin: 0 auto; }
+.rx-faq .m-row { flex-direction: column; align-items: flex-start; gap: 6px; }
+.rx-faq .m-row dt {
+  font-family: var(--font-display); font-weight: 700; font-size: 15px;
+  letter-spacing: normal; text-transform: none; color: var(--ink);
+}
+.rx-faq .m-row dd { text-align: left; color: var(--ink-dim); font-size: 14px; }
+
+/* ============================================================
+   10 · Kanal-CTA & Quer-Verweise (redaktioneller Abschlussblock)
+   ============================================================ */
+.rx-cta {
+  border-radius: var(--radius-lg);
+  border: 1px solid rgb(var(--acc-1-rgb) / .25);
+  background: linear-gradient(170deg, rgb(var(--bg-raised-rgb) / .8), rgb(var(--bg-base-rgb) / .9));
+  padding: clamp(26px, 5vw, 42px);
+  text-align: center;
+}
+.rx-cta .eyebrow { justify-content: center; }
+.rx-cta h2 { font-family: var(--font-display); font-weight: 800; font-size: clamp(22px, 3.4vw, 30px); margin-top: 6px; }
+.rx-cta p { max-width: 480px; margin: 12px auto 0; color: var(--ink-dim); }
+.rx-cta .cta-row { justify-content: center; }
+.rx-promo {
+  display: flex; flex-wrap: wrap; justify-content: center; gap: 14px 28px;
+  margin-top: 22px; padding-top: 20px; border-top: 1px solid var(--bg-hairline);
+}
+.rx-promo a {
+  display: inline-flex; align-items: center; min-height: 44px;
+  font-family: var(--font-mono); font-size: 12.5px; letter-spacing: .06em; color: var(--ink-dim);
+  border-bottom: 1px solid transparent; transition: color .2s, border-color .2s;
+}
+.rx-promo a:hover, .rx-promo a:focus-visible { color: var(--acc-1-tint); border-color: rgb(var(--acc-1-rgb) / .5); }
+
+/* ============================================================
+   11 · Mobile-Sicherheit
+   ============================================================ */
+@media (max-width: 480px) {
+  .rx-readout { gap: 14px 26px; }
+  .rx-channels { gap: 6px; }
+}

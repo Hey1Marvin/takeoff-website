@@ -1,0 +1,54 @@
+{
+  "$contract": "page-kontakt",
+  "version": 1,
+  "label": "Kontakt-Seite",
+  "labelPlural": "Kontakt-Seite",
+  "icon": "mail",
+  "description": "Hero-Texte und Kanal-Zeilen der Kontakt-Seite (Allgemein, Booking, Presse, Awareness, Fundsachen, Telegram). Die allgemeine Kontakt-Mail sowie Telegram-/Social-Links selbst pflegst du zentral im Contract „Einstellungen“.",
+  "storage": { "scope": "page", "slug": "kontakt" },
+  "fields": [
+    {
+      "key": "hero.eyebrow",
+      "type": "text",
+      "label": "Kicker über der Überschrift",
+      "default": "Funkkontakt",
+      "help": "Kurzes Wort über der großen Überschrift, z. B. „Funkkontakt“."
+    },
+    {
+      "key": "hero.h1",
+      "type": "text",
+      "label": "Überschrift",
+      "required": true,
+      "default": "Sag Hallo.",
+      "help": "Große Überschrift ganz oben auf der Seite."
+    },
+    {
+      "key": "hero.intro",
+      "type": "richtextLite",
+      "label": "Einleitungstext",
+      "required": true,
+      "default": "Ein Postfach, echte Menschen dahinter. Wir sind ehrenamtlich — gib uns ein paar Tage, dann kommt was zurück. Für schnelle Fragen rund um Events ist Telegram der Turbo.",
+      "help": "Kurzer Absatz direkt unter der Überschrift. **Fett** möglich, Absätze mit Leerzeile."
+    },
+    {
+      "key": "channels",
+      "type": "list",
+      "label": "Kontakt-Kanäle",
+      "help": "Die Zeilen der Kontakt-Tabelle. Stichwort links, Erklärung und/oder Link rechts. Neue Zeile einfach hinzufügen — z. B. für ein weiteres Anliegen.",
+      "of": [
+        { "key": "label", "type": "text", "label": "Stichwort", "required": true, "help": "z. B. „Allgemein“, „Booking / Artists“, „Presse / Partner“." },
+        { "key": "text", "type": "richtextLite", "label": "Erklärung (optional)", "help": "z. B. Demo-Link oder Anfrage per Mail — Betreff „Booking“. Leer lassen, wenn der Link für sich steht." },
+        { "key": "link", "type": "text", "label": "Link (optional)", "help": "z. B. „mailto:info@takeoff-potsdam.de“ oder „https://t.me/takeoffpotsdam“ — leer lassen, wenn die Zeile keinen Link braucht." }
+      ],
+      "default": [
+        { "label": "Allgemein", "text": "", "link": "mailto:info@takeoff-potsdam.de" },
+        { "label": "Booking / Artists", "text": "Demo-Link oder Anfrage per Mail — Betreff „Booking“.", "link": "" },
+        { "label": "Presse / Partner", "text": "Mail mit Betreff „Presse“ · Presskit folgt.", "link": "" },
+        { "label": "Awareness", "text": "Ist auf einem Event etwas passiert? Schreib uns — wir lesen sensibel und vertraulich.", "link": "" },
+        { "label": "Fundsachen", "text": "Was liegen geblieben? Sag uns Event + Beschreibung.", "link": "" },
+        { "label": "Schnell", "text": "Fragen einfach in die Telegram-Gruppe reinschreiben.", "link": "https://t.me/takeoffpotsdam" }
+      ]
+    }
+  ],
+  "actions": ["edit"]
+}

@@ -1,0 +1,30 @@
+{
+  "entities": [
+    "event.json",
+    "artist.json",
+    "partner.json",
+    "team.json",
+    "news.json",
+    "history.json",
+    "guest.json",
+    "settings.json"
+  ],
+  "pages": [
+    "artists",
+    "awareness",
+    "datenschutz",
+    "events",
+    "home",
+    "impressum",
+    "kalender",
+    "kollektiv",
+    "kontakt",
+    "musik",
+    "news",
+    "team"
+  ],
+  "pageContracts": {
+    "_comment": "Optionale, explizite Zuordnung Seiten-Slug -> Contract-Datei, für Fälle, in denen der Dateiname nicht dem Muster page-<slug>.json folgt (z. B. hier: news -> page-news-seite.json, zur Abgrenzung von der News-Meldungen-Entity news.json). Fehlt ein Slug hier, probiert admin.js automatisch page-<slug>.json und fällt sonst auf die generische Ableitung (page-generic.json) zurück — diese Tabelle ist ein Override, keine Pflicht.",
+    "news": "page-news-seite.json"
+  }
+}

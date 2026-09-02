@@ -1,0 +1,62 @@
+{
+  "$contract": "news",
+  "version": 1,
+  "label": "News-Meldung",
+  "labelPlural": "News",
+  "icon": "megaphone",
+  "description": "Kurzmeldungen für die News-Seite — Ankündigungen, Baulog-Updates, Recaps.",
+  "storage": { "scope": "db", "collection": "news", "key": "id" },
+  "fields": [
+    {
+      "key": "id",
+      "type": "text",
+      "label": "Interne Kennung",
+      "required": true,
+      "help": "Eindeutige ID, z. B. „n5“ — beim Anlegen automatisch vorgeschlagen, danach nicht mehr ändern."
+    },
+    {
+      "key": "badge",
+      "type": "text",
+      "label": "Badge",
+      "required": true,
+      "help": "Kurzes Label über der Meldung, z. B. „Announcement“, „Baulog“, „Recap“, „Podcast“. Frei wählbar."
+    },
+    {
+      "key": "accentRgb",
+      "type": "color",
+      "label": "Akzentfarbe",
+      "default": "111 201 232",
+      "help": "Farbe für Rahmen/Badge dieser Meldung."
+    },
+    {
+      "key": "date",
+      "type": "date",
+      "label": "Datum",
+      "required": true
+    },
+    {
+      "key": "title",
+      "type": "text",
+      "label": "Titel",
+      "required": true
+    },
+    {
+      "key": "text",
+      "type": "richtextLite",
+      "label": "Text",
+      "required": true,
+      "help": "Der Meldungstext. **Fett** möglich, Absätze mit Leerzeile."
+    },
+    {
+      "key": "instaUrl",
+      "type": "text",
+      "label": "Instagram-Link",
+      "help": "Link zum zugehörigen Instagram-Post (optional)."
+    }
+  ],
+  "list": {
+    "columns": ["title", "badge", "date"],
+    "sort": "date"
+  },
+  "actions": ["create", "edit", "delete"]
+}

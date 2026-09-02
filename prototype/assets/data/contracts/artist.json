@@ -1,0 +1,91 @@
+{
+  "$contract": "artist",
+  "version": 1,
+  "label": "Artist",
+  "labelPlural": "Artists",
+  "icon": "headphones",
+  "description": "DJs & Acts des Kollektivs. Einmal global angelegt, können sie im Lineup beliebiger Events ausgewählt werden.",
+  "storage": { "scope": "db", "collection": "artists", "key": "slug" },
+  "fields": [
+    {
+      "key": "slug",
+      "type": "text",
+      "label": "URL-Kennung",
+      "required": true,
+      "help": "Eindeutige Kurz-ID für Links, z. B. „cyonic“ (keine Leerzeichen, keine Umlaute, nur Kleinbuchstaben/Bindestriche)."
+    },
+    {
+      "key": "visible",
+      "type": "toggle",
+      "label": "Sichtbar",
+      "default": true,
+      "help": "Artist öffentlich auf der Website anzeigen. Ausschalten blendet Karte & Profil aus, ohne den Eintrag zu löschen."
+    },
+    {
+      "key": "name",
+      "type": "text",
+      "label": "Name",
+      "required": true,
+      "help": "Künstlername, z. B. „Cyonic“."
+    },
+    {
+      "key": "initials",
+      "type": "text",
+      "label": "Initialen",
+      "help": "Kürzel für die runde Profil-Kachel, z. B. „CY“ (2 Zeichen empfohlen)."
+    },
+    {
+      "key": "role",
+      "type": "text",
+      "label": "Rolle",
+      "help": "z. B. „Resident“, „Resident · Mitgründer“."
+    },
+    {
+      "key": "genres",
+      "type": "text",
+      "label": "Genres",
+      "help": "Musikrichtungen als Text, z. B. „Techno · Trance“."
+    },
+    {
+      "key": "since",
+      "type": "text",
+      "label": "Aktiv seit",
+      "help": "Jahr, z. B. „2024“."
+    },
+    {
+      "key": "bio",
+      "type": "richtextLite",
+      "label": "Bio",
+      "help": "Kurzbiografie fürs Profil. **Fett** möglich, Absätze mit Leerzeile."
+    },
+    {
+      "key": "sets",
+      "type": "list",
+      "label": "Sets & Mixe",
+      "of": [
+        { "key": "title", "type": "text", "label": "Titel", "required": true, "help": "z. B. „JOJO | takeoff Podcast #1“." },
+        { "key": "meta", "type": "text", "label": "Zusatzinfo", "help": "z. B. „Serie · YouTube & SoundCloud“ oder „09.05. · Liveset“." }
+      ],
+      "help": "Verlinkte Sets/Mixe/Podcast-Folgen dieses Acts, in Anzeige-Reihenfolge."
+    },
+    {
+      "key": "appearances",
+      "type": "multiselect",
+      "collection": "events",
+      "displayField": "title",
+      "label": "Auftritte",
+      "help": "Events, bei denen dieser Act aufgetreten ist bzw. auftritt (Mehrfachauswahl)."
+    },
+    {
+      "key": "page",
+      "type": "text",
+      "label": "Eigene Artist-Seite",
+      "help": "Pfad zu einer individuell gestalteten Profilseite, z. B. „artist-cyonic.html“. Leer lassen für die Standard-Ansicht."
+    }
+  ],
+  "list": {
+    "columns": ["name", "role", "genres", "visible"],
+    "sort": "name"
+  },
+  "actions": ["create", "edit", "toggleVisible", "delete"]
+}

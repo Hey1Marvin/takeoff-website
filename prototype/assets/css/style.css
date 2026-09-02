@@ -1,0 +1,2945 @@
+/* ============================================================
+   takeoff — Design-Prototyp · "Chrome Odyssey"
+   Tokens → Themes → Tiers → Base → Komponenten
+   ============================================================ */
+
+/* ---------- Fonts ---------- */
+@font-face {
+  font-family: "Planet Kosmos";
+  src: url("../fonts/planetkosmos.ttf") format("truetype");
+  font-display: swap;
+}
+@font-face {
+  font-family: "Unbounded";
+  src: url("../fonts/unbounded-400_900.woff2") format("woff2");
+  font-weight: 400 900;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Space Grotesk";
+  src: url("../fonts/spacegrotesk-300_700.woff2") format("woff2");
+  font-weight: 300 700;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Space Mono";
+  src: url("../fonts/spacemono-400.woff2") format("woff2");
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Space Mono";
+  src: url("../fonts/spacemono-700.woff2") format("woff2");
+  font-weight: 700;
+  font-display: swap;
+}
+
+/* ============================================================
+   Design-Tokens
+
+   Aufbau: Neutralrampe (6 Stufen) -> Akzent + Tints -> Chrome -> Iridescence.
+   Alle Neutraltoene liegen auf Hue 249 (blauviolett) — ein einziger
+   Farbkorridor statt zusammengewuerfelter Grautoene. Die Kontrastwerte in
+   den Kommentaren sind gegen --bg-void gerechnet und nachgemessen.
+   ============================================================ */
+:root {
+  /* ---- Neutralrampe: vorher 3 Stufen, das war zu wenig zum Abstufen ---- */
+  --bg-void:      #07080e;        /* Seitengrund                          */
+  --bg-base:      #0c0f17;        /* 1.04:1  Panels, Overlays             */
+  --bg-surface:   #131520;        /* 1.09:1  Karten                       */
+  --bg-raised:    #1b1f2c;        /* 1.18:1  hervorgehobene Karten        */
+  --bg-overlay:   #272b3a;        /* 1.36:1  Chips, Buttons               */
+  --bg-hairline:  #373b48;        /* 1.72:1  Linien — eigener Ton statt   */
+                                  /*         Akzent-mit-Opacity           */
+  --bg-void-rgb:     7 8 14;
+  --bg-base-rgb:    12 15 23;
+  --bg-surface-rgb: 19 21 32;
+  --bg-raised-rgb:  27 31 44;
+
+  /* Aliasse, damit bestehende Regeln weiterlaufen */
+  --bg-0: var(--bg-void);
+  --bg-1: var(--bg-surface);
+  --bg-2: var(--bg-raised);
+
+  /* ---- Text ---- */
+  --ink:       #f3f4f9;           /* 18.19:1 */
+  --ink-dim:   #adb1c0;           /*  8.46:1 */
+  /* Angehoben von #818595 (5.45:1). Der alte Wert traegt gegen den REINEN
+     Seitengrund, aber nicht gegen das, was tatsaechlich dahinter liegt: der
+     Marsboden erreicht nachgemessen Luminanz .06, und dort fiel dieselbe
+     Schrift auf 2.7:1. Die Platten und der Schleier weiter unten dunkeln den
+     Boden ab, dieser Wert liefert die restliche Reserve. */
+  --ink-faint: #9296a6;           /*  6.79:1 */
+
+  /* ---- Akzente ----
+     EINE Leitfarbe (Magenta, fotografisch belegt durch die Innenflaechen
+     eurer Horn-Tops), zwei Stuetzfarben. Nicht drei gleichberechtigte —
+     genau diese Dreier-Kombination liest sich als Template-Look. */
+  --acc-1: #e04fb4;               /* Leitfarbe: Signal            */
+  --acc-2: #7761d1;               /* Stuetze: Flaechen, Verlaeufe */
+  --acc-3: #52b1e0;               /* Stuetze: kuehler Gegenpol    */
+  --acc-1-rgb: 224 79 180;
+  --acc-2-rgb: 119 97 209;
+  --acc-3-rgb: 82 177 224;
+
+  /* Tints: hohe Lightness bei moderater Saettigung — das ist die Zone,
+     in der Neon leuchtend statt billig wirkt. Nur Tints beruehren Text. */
+  --acc-1-tint: #f69cd5;          /* 10.13:1 */
+  --acc-2-tint: #b6a9ea;          /*  9.38:1 */
+  --acc-3-tint: #a1d7f2;          /* 12.87:1 */
+
+  /* ---- Chrome ----
+     Zweite Anhebung. Mit 4.41:1 / 2.46:1 lagen die dunklen Stops immer noch
+     unter allem, was im Hintergrund hell ist (Mond, Glints, Mars-Tagesboden)
+     und lasen sich dort als Loch statt als Reflexion.
+     Nachgemessen hinter der Wortmarke: 90 % des Untergrunds liegen bei einer
+     Luminanz < .03, 99 % < .22 (nur Mond und Glints darueber). Der neue
+     Schattenstop liegt bei L ~.18 und damit ueber der Flaeche, gegen die
+     Punktlichter schuetzt die neue Kontur.
+     Der Kompromiss: die Rampe verliert Tiefe — hi:shadow faellt von 7.05:1
+     auf 4.27:1 Luminanzkontrast. Vier klar getrennte Stufen bleiben, das
+     liest noch als Metall (nachgeschaut, siehe Nahaufnahme). Flacher darf
+     sie nicht werden, sonst ist es eingefaerbter Text ohne Reflexion. */
+  --chrome-hi:     #f7f8fa;       /* 18.82:1 */
+  --chrome-mid:    #c5c7d0;       /* 11.86:1 */
+  --chrome-lo:     #9298ae;       /*  6.98:1  (vorher #767c93, 4.83:1) */
+  --chrome-shadow: #6f7590;       /*  4.40:1  (vorher #4f5469, 2.67:1) */
+
+  /* ---- Iridescence ----
+     Duennschicht-Interferenz wie ein Oelfilm: Magenta UND Cyan im selben
+     Objekt, blickwinkelabhaengig. Physikalisch begruendet — statt zwei
+     willkuerlicher Neonfarben nebeneinander. */
+  --irid-a: var(--acc-1-tint);
+  --irid-b: var(--acc-2-tint);
+  --irid-c: var(--acc-3-tint);
+  --irid-sweep: linear-gradient(102deg,
+      var(--irid-a) 0%, var(--irid-b) 34%,
+      var(--irid-c) 63%, var(--irid-a) 100%);
+  --irid-veil: linear-gradient(102deg,
+      rgb(var(--acc-1-rgb) / .16) 0%, rgb(var(--acc-2-rgb) / .10) 40%,
+      rgb(var(--acc-3-rgb) / .14) 78%, rgb(var(--acc-1-rgb) / .10) 100%);
+
+  /* Flacher und kuehler als vorher: der Dunst soll Raum andeuten, nicht
+     die Seite einfaerben. Zurueckhaltung liest sich als teuer. */
+  --hero-tint: radial-gradient(125% 92% at 50% -4%,
+      rgb(var(--acc-3-rgb) / .10) 0%, rgb(var(--acc-2-rgb) / .06) 38%, transparent 72%);
+
+  --font-logo: "Planet Kosmos", "Unbounded", system-ui, sans-serif;
+  --font-display: "Unbounded", system-ui, sans-serif;
+  --font-text: "Space Grotesk", system-ui, sans-serif;
+  --font-mono: "Space Mono", ui-monospace, monospace;
+
+  --radius: 14px;
+  --radius-lg: 22px;
+  --maxw: 1120px;
+  --pad: clamp(18px, 4vw, 40px);
+
+  /* Tracking als Token statt nach Gefuehl je Regel. Versalien brauchen
+     Oeffnung, grosse Displaytype braucht negatives Tracking. */
+  --track-micro:  .14em;   /* < 12px Versalien   */
+  --track-label:  .10em;   /* 11–13px Versalien  */
+  --track-wide:   .06em;   /* 14–18px Versalien  */
+  --track-tight: -.015em;  /* >= 48px Displaytype */
+
+  /* ---- Schriftgewichte als Tokens ----
+     Vorher standen rund 40 hartkodierte font-weight-Werte im Blatt. Sie sind
+     jetzt auf sieben Rollen zusammengefasst. Die Werte hier sind exakt die
+     bisherigen — nachts aendert sich dadurch nichts.
+
+     Warum ueberhaupt Tokens: heller Text auf dunklem Grund UEBERSTRAHLT und
+     wirkt dadurch fetter, als er ist. Dieses Blatt ist dark-first gebaut, die
+     Gewichte sind also auf diese Ueberstrahlung eingestellt. Faellt sie im
+     Tag-Modus weg, wirkt derselbe Wert duenner — die Gewichte muessen dort
+     also HOCH, nicht runter. Der Effekt ist unter ~20px am staerksten und bei
+     Displaygraden fast bedeutungslos, die Zuschlaege sind entsprechend
+     gestaffelt (siehe Tag-Modus-Block).
+
+     --w-micro und --w-micro-b bleiben im Tag-Modus unveraendert: Space Mono
+     ist NICHT variabel (nur 400 und 700 statisch), der Sprung 400 -> 700 waere
+     bei 10px grotesk. Das gefuehlte Gewicht entsteht dort ueber engere
+     Laufweite und dunklere Farbe. */
+  --w-body:    400;   /* Fliesstext (Space Grotesk)                */
+  --w-dim:     400;   /* gedimmter Fliesstext                      */
+  --w-med:     500;   /* leichte Auszeichnung im Fliesstext        */
+  --w-strong:  600;   /* halbfette Auszeichnung                    */
+  --w-head:    700;   /* Ueberschriften und Namen (Unbounded)      */
+  --w-display: 800;   /* Displaygrade ab ~30px (Unbounded)         */
+  --w-micro:   400;   /* Mikro-Labels (Space Mono, nicht variabel) */
+  --w-micro-b: 700;   /* Mikro-Labels fett (Space Mono)            */
+
+  --ease-out: cubic-bezier(.16, 1, .3, 1);
+  --ease-soft: cubic-bezier(.65, 0, .35, 1);
+  color-scheme: dark;
+}
+
+/* ---------- Theme: Mars Mission ----------
+   Vorher wechselten nur --bg-1/-2 und die Akzente. --bg-void, alle
+   --chrome-*, --bg-hairline und vor allem --acc-1-tint blieben auf
+   Deep-Space stehen — deshalb stand hier rosa Headline-Text auf orangem
+   Glow. Jetzt wechselt die komplette Rampe mit. */
+:root[data-theme="mars"] {
+  --bg-void:     #0c0710;
+  --bg-base:     #170b16;
+  --bg-surface:  #21101c;
+  --bg-raised:   #2b1624;
+  --bg-overlay:  #3a2130;
+  --bg-hairline: #4d3240;
+  --bg-void-rgb:     12 7 16;
+  --bg-base-rgb:    23 11 22;
+  --bg-surface-rgb: 33 16 28;
+  --bg-raised-rgb:  43 22 36;
+
+  --acc-1: #e85a34;
+  --acc-2: #e0a25c;
+  --acc-3: #e04fb4;
+  --acc-1-rgb: 232 90 52;
+  --acc-2-rgb: 224 162 92;
+  --acc-3-rgb: 224 79 180;
+  --acc-1-tint: #f5b29e;          /* 11.15:1 */
+  --acc-2-tint: #f5cf9e;          /* 13.58:1 */
+  --acc-3-tint: #f59ed5;          /* 10.19:1 */
+
+  --chrome-hi:     #fbf7f6;
+  --chrome-mid:    #d3c6c2;
+  /* Auf dieselbe Luminanzstufe angehoben wie im Space-Theme (siehe dort),
+     Farbton bleibt warm — sonst passt das Chrom nicht zum Marsboden. */
+  --chrome-lo:     #b6968a;
+  --chrome-shadow: #8e6f66;
+
+  --hero-tint: radial-gradient(120% 90% at 50% 0%,
+      rgb(232 90 52 / .15) 0%, rgb(224 79 180 / .05) 45%, transparent 70%);
+}
+
+/* ---------- Theme: Strandparty ---------- */
+:root[data-theme="strand"] {
+  --bg-void:     #060b16;
+  --bg-base:     #0b1322;
+  --bg-surface:  #0f1b2e;
+  --bg-raised:   #15243c;
+  --bg-overlay:  #1e3050;
+  --bg-hairline: #2c4266;
+  --bg-void-rgb:     6 11 22;
+  --bg-base-rgb:    11 19 34;
+  --bg-surface-rgb: 15 27 46;
+  --bg-raised-rgb:  21 36 60;
+
+  --acc-1: #e5c25c;
+  --acc-2: #6fc9e8;
+  --acc-3: #e87a66;
+  --acc-1-rgb: 229 194 92;
+  --acc-2-rgb: 111 201 232;
+  --acc-3-rgb: 232 122 102;
+  --acc-1-tint: #f5e19e;          /* 15.13:1 */
+  --acc-2-tint: #9edef5;          /* 13.33:1 */
+  --acc-3-tint: #f5ac9e;          /* 10.57:1 */
+
+  --chrome-hi:     #f6fafb;
+  --chrome-mid:    #bfcdd6;
+  --chrome-lo:     #8fa2b4;
+  --chrome-shadow: #67798d;
+
+  --hero-tint: radial-gradient(120% 90% at 50% 0%,
+      rgb(111 201 232 / .13) 0%, rgb(229 194 92 / .07) 45%, transparent 70%);
+}
+
+/* ---------- Wide Gamut ----------
+   Chrome und Safari machen bei Farben ausserhalb sRGB naives
+   Per-Channel-Clipping statt des spezifizierten OKLCH-Gamut-Mappings —
+   der Farbton kippt dabei sichtbar. Deshalb wird die sRGB-Basis oben
+   bewusst innerhalb des Gamuts gewaehlt und hier separat eine
+   gesaettigtere P3-Variante gesetzt, statt dem Browser zu vertrauen. */
+@supports (color: color(display-p3 1 1 1)) {
+  @media (color-gamut: p3) {
+    :root {
+      --acc-1: color(display-p3 0.855 0.325 0.706);
+      --acc-2: color(display-p3 0.639 0.565 0.875);
+      --acc-3: color(display-p3 0.451 0.788 0.906);
+    }
+    :root[data-theme="mars"] {
+      --acc-1: color(display-p3 0.894 0.365 0.220);
+      --acc-2: color(display-p3 0.867 0.639 0.376);
+      --acc-3: color(display-p3 0.855 0.325 0.706);
+    }
+    :root[data-theme="strand"] {
+      --acc-1: color(display-p3 0.890 0.761 0.376);
+      --acc-2: color(display-p3 0.451 0.788 0.906);
+      --acc-3: color(display-p3 0.894 0.486 0.412);
+    }
+  }
+}
+
+/* ============================================================
+   Nachtmodus — Lesegrund hinter dem Text
+
+   Nachgemessen gegen den TATSAECHLICH gerenderten Hintergrund (Schrift
+   transparent gesetzt, Pixel abgetastet) reicht der reine Seitengrund als
+   Bezugsgroesse nicht: hinter dem Text liegt fix der Himmel ODER das
+   Bodenfoto, und der Marsboden kommt auf Luminanz .06, der Strandhorizont
+   auf .05. Dort faellt Kleinschrift (--ink-faint) auf 2.7:1 und der
+   Neonakzent als 12px-Label auf 2.9:1 — genau das "manche Schriften
+   verschwinden etwas".
+
+   Auf den ruhigen LESESEITEN (Kollektiv, Artists, Awareness, Team, News,
+   Recht ...) bekommt der Text deshalb denselben Griff wie im Tag-Modus, nur
+   invers: eine halbdurchsichtige DUNKLE Flaeche ueber die volle Breite.
+
+   NICHT auf Startseite, Eventuebersicht und Event-Detailseiten. Dort ist
+   ausdruecklich kein Balken gewuenscht — diese drei leben von der Szene.
+   Fuer die Event-Seiten uebernimmt ein Schleier ueber den Hintergrund-
+   ebenen die Arbeit (siehe unten); die Startseite bleibt unangetastet und
+   traegt allein ueber die angehobene Textrampe (--ink-faint, .flog .fpatch,
+   Panel-Deckung).
+   ============================================================ */
+/* ENTFERNT. Die ganzflaechige dunkle Platte lag ueber die volle Breite hinter
+   jedem Abschnitt und hat den Sternenhimmel auf den Leseseiten flaechig
+   zugedeckt — ausdruecklich unerwuenscht. An ihre Stelle tritt dieselbe eng
+   anliegende Traegerflaeche, die auf der Startseite schon steht (siehe
+   naechster Block): sie haelt den Text lesbar, ohne die Szene zu mattieren. */
+
+/* Event-Seiten: kein Kasten, sondern ein Schleier ueber den Hintergrund-
+   Ebenen. Er liegt auf derselben Ebene wie die Vignette (z-index -1, also
+   ueber den Canvas-Ebenen und unter dem Inhalt) und dunkelt Boden, Meer und
+   Himmel gleichmaessig ab. Die Szene bleibt vollstaendig sichtbar, sie
+   verliert nur die Helligkeit, die der Schrift im Weg stand.
+   Die Vignette selbst muss dabei mitgeschrieben werden — sie steht in
+   derselben Deklaration und ginge sonst verloren. */
+/* Die Startseite bekommt denselben Schleier, nur schwaecher. Kein Balken,
+   kein Kasten — die Szene bleibt vollstaendig da, sie verliert nur den
+   Spitzenwert an Helligkeit, an dem die Kleinschrift zerfiel (Marsboden
+   Luminanz .054 -> .026). Im Space-Theme ist der Himmel ohnehin schwarz,
+   dort sieht man davon nichts. */
+/* KEINE ganzflaechige Abdunklung mehr. Der flache Schleier (.42 auf der
+   Startseite, .55 auf den Event-Seiten) hat zwar den Text getragen, aber
+   dafuer die ganze Szene mattiert — Marsboden, Brandung und Sternenhimmel
+   wurden gleichmaessig grau, und der Hintergrund wirkte insgesamt zu
+   dunkel. Nur die Vignette bleibt: die ist Objektiv, nicht Schleier.
+   Die Traegerflaeche wandert stattdessen eng an die einzelnen Bausteine
+   (siehe naechster Block). */
+:root.scene-edges:not(.day-mode)::after {
+  background:
+    radial-gradient(ellipse 78% 74% at 50% 46%,
+        rgb(0 0 0 / 0) 0%, rgb(0 0 0 / .06) 55%, rgb(0 0 0 / .20) 78%, rgb(0 0 0 / .42) 100%);
+}
+
+/* ============================================================
+   Nacht · Traegerflaeche eng am Baustein
+   (nur Startseite und Missionsseiten, nur nachts)
+
+   Statt eines Riegels quer durchs Bild bekommt jeder Textblock eine eigene,
+   eng anliegende Flaeche. Entscheidend ist, dass sie KEINE sichtbare Kante
+   hat: der Verlauf ist in der Mitte deckend und laeuft zum Rand hin auf
+   null aus, das Element ist ausserdem groesser als sein Inhalt. Dadurch
+   liest es als Tiefe im Bild und nicht als grauer Kasten — ein Kasten waere
+   genau das, was die Szene kaputtmacht.
+
+   Die Karten (.mcard, .next-card) sind bereits deckend und brauchen nichts.
+   ============================================================ */
+:root:not(.day-mode) :is(
+  .section-head, .stats, .flog, .note, .aw-note, .crew-grid, .sound-list,
+  .section-head + .section-intro, .faq-body, .transmission, .m-rows, .aw-principle, .lu-note
+) {
+  position: relative;
+  isolation: isolate;          /* haelt das -1 im Element, statt es
+                                  hinter den Sektionsgrund fallen zu lassen */
+}
+:root:not(.day-mode) :is(
+  .section-head, .stats, .flog, .note, .aw-note, .crew-grid, .sound-list,
+  .section-head + .section-intro, .faq-body, .transmission, .m-rows, .aw-principle, .lu-note
+)::before {
+  content: "";
+  position: absolute;
+  /* Groesser als der Inhalt: der Verlauf braucht Weg zum Auslaufen, sonst
+     schneidet er an der Textkante ab und wird doch wieder als Kasten
+     sichtbar. */
+  inset: clamp(-34px, -3vw, -20px) clamp(-52px, -4.5vw, -26px);
+  z-index: -1;
+  pointer-events: none;
+  border-radius: 26px;
+  background: radial-gradient(ellipse 92% 88% at 50% 50%,
+      rgb(var(--bg-void-rgb) / .86) 0%,
+      rgb(var(--bg-void-rgb) / .80) 42%,
+      rgb(var(--bg-void-rgb) / .46) 74%,
+      rgb(var(--bg-void-rgb) / .12) 91%,
+      rgb(var(--bg-void-rgb) / 0)   100%);
+}
+/* Auf schmalen Schirmen steht ohnehin kaum Szene neben dem Text — dort
+   darf die Flaeche bis an den Rand laufen, sonst franst sie im Nichts aus. */
+@media (max-width: 720px) {
+  :root:not(.day-mode) :is(
+    .section-head, .stats, .flog, .note, .aw-note, .crew-grid, .sound-list,
+    .section-intro, .faq-body, .transmission, .m-rows, .aw-principle, .lu-note
+  )::before {
+    inset: -20px -18px;
+    background: radial-gradient(ellipse 130% 96% at 50% 50%,
+        rgb(var(--bg-void-rgb) / .82) 0%,
+        rgb(var(--bg-void-rgb) / .74) 58%,
+        rgb(var(--bg-void-rgb) / .30) 86%,
+        rgb(var(--bg-void-rgb) / 0)   100%);
+  }
+}
+
+/* ============================================================
+   Tag-Modus  —  "alles hell, aber getoent"
+
+   PLATZ IN DER KASKADE: dieser Block MUSS nach dem P3-Block oben stehen.
+   `:root.day-mode` hat exakt dieselbe Spezifitaet wie `:root[data-theme=...]`
+   und wie die Theme-Selektoren im P3-Block — es entscheidet also allein die
+   Quellreihenfolge. Stuende der Block davor, saessen auf P3-Schirmen weiter
+   die Nacht-Akzente und der Tag-Modus waere genau dort kaputt, wo man ihn
+   am wenigsten testet.
+
+   WARTUNGSHINWEIS: fuer den Tag-Modus gibt es BEWUSST KEINE P3-Varianten.
+   Die Tagfarben sind dunkel und niedrigchromatisch (L unter .25, Chroma
+   moderat) — sie liegen komplett im sRGB-Gamut, P3 wuerde dort nichts
+   gewinnen und nur eine zweite Wahrheit erzeugen. Wer oben im P3-Block
+   kuenftig weitere Tokens ergaenzt, MUSS pruefen, ob sie hier gespiegelt
+   werden muessen: alles, was P3 im Nachtmodus setzt und hier nicht steht,
+   schlaegt sonst in den Tag-Modus durch.
+
+   Die vier Leitplanken:
+   1) Der Grund ist getoent, nicht weiss.
+   2) Dunkle Bloecke bleiben dunkel (Kopfleiste, Footer, Panel, Baender,
+      Sticky-CTA, Overlay-Menue).
+   3) Glow wird Kante: harte Kontur, versetzter harter Schlagschatten,
+      kurzer Kontaktschatten.
+   4) Die Chrome-Rampe wird HELLER Umgebung entsprechend DUNKLER.
+
+   Warum ausgerechnet #E6E7EE ("Beton") und nicht das waermere Papier:
+   die gesamte Neutralrampe der Nacht liegt auf einem einzigen Farbkorridor.
+   Nachgemessen: --bg-void #07080e hat Hue 231, --bg-surface #131520 Hue 231,
+   --bg-hairline #373b48 Hue 226. #E6E7EE liegt bei Hue 232 — es ist damit
+   nicht "ein heller Ton", sondern buchstaeblich das helle Ende derselben
+   Rampe. Ein warmes Papier (Hue ~50) waere ein zweiter, fremder Korridor,
+   und Papier ist ausserdem die Materialsprache von Redaktion und Wellness.
+   Beton ist die Materialsprache der Raeume, in denen diese Partys
+   stattfinden. Die Themes weichen davon ab wie nachts auch: Mars warm,
+   Strand kuehl-blau.
+   ============================================================ */
+:root.day-mode {
+  color-scheme: light;
+
+  /* ---- Neutralrampe, gespiegelt ----
+     Sie steigt nach UNTEN in die Tiefe: der Grund ist die hellste Stufe,
+     Panels und Karten treten dunkler daraus hervor. Umgekehrt (Karten heller
+     als der Grund) landet man zwangslaeufig bei Weiss, und Weiss war
+     ausgeschlossen. */
+  --bg-void:      #E6E7EE;        /* Seitengrund (Beton)                  */
+  --bg-base:      #DFE1EA;        /* Panels, Overlays                     */
+  --bg-surface:   #D7D9E3;        /* Karten                               */
+  --bg-raised:    #CFD2DE;        /* hervorgehobene Karten                */
+  --bg-overlay:   #C3C7D6;        /* Chips, Buttons                       */
+  --bg-hairline:  #A5AABE;        /* Linien — 2.6:1, nur Linien, nie Text */
+  --bg-void-rgb:    230 231 238;
+  --bg-base-rgb:    223 225 234;
+  --bg-surface-rgb: 215 217 227;
+  --bg-raised-rgb:  207 210 222;
+
+  /* ---- Text ---- (Kontrast gegen #E6E7EE, nachgemessen) */
+  --ink:       #1A1526;           /* 14.44:1 */
+  --ink-dim:   #3C4260;           /*  7.96:1 */
+  --ink-faint: #4E5474;           /*  5.99:1 — auf Karten 5.42:1, und auf
+                                     dem gesaettigten Zenit des Tag-Himmels
+                                     (L .652) immer noch 4.94:1. Der Himmel
+                                     ist die dunkelste Flaeche, gegen die im
+                                     Tag-Modus Text stehen kann; die ganze
+                                     Textrampe ist gegen IHN ausgelegt, nicht
+                                     gegen den Seitengrund. */
+
+  /* ---- Akzente ----
+     Die Nacht-Neons tragen auf hellem Grund NICHT: #e04fb4 kommt auf 2.86:1,
+     #7761d1 auf 3.86:1, #52b1e0 auf 1.95:1 — alle unter oder knapp an der
+     3:1-Grenze, die selbst fuer Grosstext gilt. Genau an dieser Stelle werden
+     dark-first-Marken im Light Mode generisch: man behaelt die Neons, sie
+     tragen nicht, also stuetzt man sie mit Rahmen, Schatten und grauen Boxen
+     ab — und ist im Bootstrap-Look. Deshalb dunkle Gegenstuecke mit gleicher
+     Rolle und gleichem Farbort. */
+  --acc-1: #A2005E;               /* 6.31:1  Leitfarbe: Signal            */
+  --acc-2: #5B21B6;               /* 7.28:1  Stuetze: Flaechen, Verlaeufe */
+  --acc-3: #0B3D91;               /* 8.15:1  Stuetze: kuehler Gegenpol    */
+  --acc-1-rgb: 162 0 94;
+  --acc-2-rgb:  91 33 182;
+  --acc-3-rgb:  11 61 145;
+
+  /* Nachts sind die Tints die HELLEREN Varianten, weil sie auf Dunkel Text
+     tragen. Tags ist es genau umgekehrt: sie sind die dunkleren. Die Rolle
+     ("die Variante, die als Text sicher traegt") bleibt dieselbe, die
+     Richtung dreht sich. */
+  --acc-1-tint: #8C0050;          /* 7.42:1 */
+  --acc-2-tint: #4A1A96;          /* 9.19:1 */
+  --acc-3-tint: #0A3376;          /* 9.87:1 */
+
+  /* Das Neon-Magenta bleibt im System — im Tag-Modus aber AUSSCHLIESSLICH
+     als Flaeche: Chip-Grund, Statuspunkt, Fortschrittsbalken, harter
+     Schlagschatten. NIE als Textfarbe (2.86:1). Eigenes Token, damit dieser
+     Unterschied im Code sichtbar ist und nicht in einem Kommentar verhungert. */
+  --acc-face: #e04fb4;
+
+  /* ---- Chrome: DUNKLER, nicht heller ----
+     Der kontraintuitive Teil und die Stelle, an der die meisten scheitern.
+     Chrom ist kein Farbverlauf, sondern eine gespiegelte Umgebung. Nachts
+     spiegelt es Schwarz, Violett und Neon — deshalb ist die Rampe dort hell,
+     sie hebt sich vom dunklen Grund ab. Tags spiegelt dieselbe Oberflaeche
+     eine helle Umgebung: heller Himmel oben, dunkler Boden unten. Eine helle
+     Rampe auf hellem Grund waere ein Loch, kein Metall.
+     --chrome-shadow liegt mit #23283C klar unter #3C4260 (Vorgabe). */
+  --chrome-hi:     #F4F5F9;       /* Spitzlicht Himmel  */
+  --chrome-mid:    #9BA2B8;       /* Himmelsgrau        */
+  --chrome-lo:     #4E5570;       /* Horizontnah        */
+  --chrome-shadow: #23283C;       /* 11.82:1  Bodenspiegelung */
+
+  /* Die harte Horizontkante ist das, was das Auge ueberhaupt erst als
+     SPIEGELUNG liest — ein weicher Verlauf liest als Farbverlauf. Zwei Stops
+     auf demselben Versatz erzeugen sie. Dasselbe Muster steckt schon im
+     Raketen-SVG der Kopfleiste (rk-hull: zwei Stops auf .38). */
+  --chrome-sweep: linear-gradient(174deg,
+      var(--chrome-hi) 0%, var(--chrome-mid) 30%, var(--chrome-hi) 51%,
+      var(--chrome-shadow) 51%,
+      var(--chrome-lo) 68%, var(--chrome-mid) 88%, var(--chrome-shadow) 100%);
+  /* Senkrechte Variante fuer SEHR BREITE Kaesten. Ein Verlauf bei 174 Grad
+     laeuft laengs der Diagonale des Kastens: bei einem 3000 x 56 px breiten
+     Laufband sind das 314 px waagerecht gegen 56 px senkrecht — die Rampe
+     liegt dann praktisch quer und die Horizontkante steht senkrecht im
+     Bild. Bei 180 Grad spannt sie garantiert ueber die Hoehe. Nachts faellt
+     das nicht auf, weil dort alle Chrome-Stops hell sind. */
+  --chrome-sweep-v: linear-gradient(180deg,
+      var(--chrome-mid) 0%, var(--chrome-lo) 24%, var(--chrome-hi) 50%,
+      var(--chrome-shadow) 50%,
+      var(--chrome-lo) 72%, var(--chrome-mid) 100%);
+
+  --hero-tint: radial-gradient(125% 92% at 50% -4%,
+      rgb(var(--acc-3-rgb) / .09) 0%, rgb(var(--acc-2-rgb) / .055) 38%, transparent 72%);
+
+  /* Die zentrierte Platte (siehe unten). Als Verlauf mit harten Stops statt
+     als eigenes Element: so bleibt sie der HINTERGRUND der Sektion, behaelt
+     also deren volle Hoehe samt vertikaler Polsterung, und braucht kein
+     zusaetzliches Markup. Unterhalb von --maxw werden die Stops negativ
+     bzw. groesser als 100 % — die Platte laeuft dann von selbst ueber die
+     ganze Breite, genau richtig fuers Telefon. */
+  --day-column: linear-gradient(90deg,
+      rgb(var(--bg-void-rgb) / 0)   calc(50% - var(--maxw) / 2),
+      rgb(var(--bg-void-rgb) / .78) calc(50% - var(--maxw) / 2),
+      rgb(var(--bg-void-rgb) / .78) calc(50% + var(--maxw) / 2),
+      rgb(var(--bg-void-rgb) / 0)   calc(50% + var(--maxw) / 2));
+
+  /* ---- Schriftgewichte: HOCH, nicht runter ----
+     +50 bis +100. Der Zuschlag ist unter ~20px am groessten und bei
+     Displaygraden fast Null — dort ist die Ueberstrahlung im Verhaeltnis zur
+     Strichstaerke bedeutungslos.
+     Space Mono ist NICHT variabel (nur 400/700 statisch), 400 -> 700 waere bei
+     10px kein Zuschlag, sondern ein Bruch. --w-micro/-b bleiben deshalb, und
+     das gefuehlte Gewicht kommt dort weiter unten aus Laufweite und Farbe.
+     KEINE Transition auf font-weight: sie erzwingt pro Frame ein Re-Layout
+     jedes Textlaufs. Farben duerfen ueberblenden, das Gewicht schnappt. */
+  --w-body:    450;
+  --w-dim:     460;
+  --w-med:     560;
+  --w-strong:  660;
+  --w-head:    760;
+  --w-display: 850;
+
+  /* ---- Nacht-Spiegel fuer die dunklen Anker ----
+     Kopfleiste, Footer, Panel, Baender und Sticky-CTA behalten ihre
+     Nachtfarben. Weil das Blatt diszipliniert ueber Tokens arbeitet, braucht
+     das keine einzige Komponentenregel — es genuegt, dort unten die
+     Nachtwerte wieder zu setzen. Sie stehen hier als --n-* bereit, damit die
+     Zuweisungsregel nur EINMAL geschrieben werden muss statt einmal pro
+     Theme. */
+  --nite-bg-void: #07080e;  --nite-bg-base: #0c0f17;  --nite-bg-surface: #131520;
+  --nite-bg-raised: #1b1f2c; --nite-bg-overlay: #272b3a; --nite-bg-hairline: #373b48;
+  --nite-void-rgb: 7 8 14; --nite-base-rgb: 12 15 23;
+  --nite-surface-rgb: 19 21 32; --nite-raised-rgb: 27 31 44;
+  --nite-ink: #f3f4f9; --nite-ink-dim: #adb1c0; --nite-ink-faint: #818595;
+  --nite-acc-1: #e04fb4; --nite-acc-2: #7761d1; --nite-acc-3: #52b1e0;
+  --nite-acc-1-rgb: 224 79 180; --nite-acc-2-rgb: 119 97 209; --nite-acc-3-rgb: 82 177 224;
+  --nite-acc-1-tint: #f69cd5; --nite-acc-2-tint: #b6a9ea; --nite-acc-3-tint: #a1d7f2;
+  --nite-chrome-hi: #f7f8fa; --nite-chrome-mid: #c5c7d0;
+  --nite-chrome-lo: #9298ae; --nite-chrome-shadow: #6f7590;
+}
+
+/* ---------- Tag · Mars ----------
+   Warm gebrochener Grund. Er ist aus dem Nacht-Mars abgeleitet (#0c0710,
+   Hue 273) und nicht aus dem Beton — sonst klaenge das Theme im Tag-Modus
+   nach Space. */
+:root.day-mode[data-theme="mars"] {
+  --bg-void:      #EFE6E1;
+  --bg-base:      #E9DED8;
+  --bg-surface:   #E2D7D2;
+  --bg-raised:    #DACEC8;
+  --bg-overlay:   #CFC0B8;
+  --bg-hairline:  #B7A49B;
+  --bg-void-rgb:    239 230 225;
+  --bg-base-rgb:    233 222 216;
+  --bg-surface-rgb: 226 215 210;
+  --bg-raised-rgb:  218 206 200;
+
+  --ink:       #201620;           /* 14.27:1 */
+  --ink-dim:   #4A3A48;           /*  8.58:1 */
+  --ink-faint: #5A4C54;           /*  6.61:1 (Zenit 5.34:1) */
+
+  --acc-1: #9A2B00;               /* 6.28:1 */
+  --acc-2: #6B4200;               /* 7.10:1 */
+  --acc-3: #A2005E;               /* 6.33:1 */
+  --acc-1-rgb: 154 43 0;
+  --acc-2-rgb: 107 66 0;
+  --acc-3-rgb: 162 0 94;
+  --acc-1-tint: #8A2400;          /* 7.32:1 */
+  --acc-2-tint: #5C3800;          /* 8.45:1 */
+  --acc-3-tint: #8C0050;          /* 7.65:1 */
+  --acc-face: #e85a34;
+
+  --chrome-hi:     #F7F2EE;
+  --chrome-mid:    #B8A196;
+  --chrome-lo:     #6E5245;
+  --chrome-shadow: #35241C;
+
+  --hero-tint: radial-gradient(120% 90% at 50% 0%,
+      rgb(154 43 0 / .12) 0%, rgb(162 0 94 / .05) 45%, transparent 70%);
+
+  --nite-bg-void: #0c0710; --nite-bg-base: #170b16; --nite-bg-surface: #21101c;
+  --nite-bg-raised: #2b1624; --nite-bg-overlay: #3a2130; --nite-bg-hairline: #4d3240;
+  --nite-void-rgb: 12 7 16; --nite-base-rgb: 23 11 22;
+  --nite-surface-rgb: 33 16 28; --nite-raised-rgb: 43 22 36;
+  --nite-acc-1: #e85a34; --nite-acc-2: #e0a25c; --nite-acc-3: #e04fb4;
+  --nite-acc-1-rgb: 232 90 52; --nite-acc-2-rgb: 224 162 92; --nite-acc-3-rgb: 224 79 180;
+  --nite-acc-1-tint: #f5b29e; --nite-acc-2-tint: #f5cf9e; --nite-acc-3-tint: #f59ed5;
+  --nite-chrome-hi: #fbf7f6; --nite-chrome-mid: #d3c6c2;
+  --nite-chrome-lo: #b6968a; --nite-chrome-shadow: #8e6f66;
+}
+
+/* ---------- Tag · Strand ---------- */
+:root.day-mode[data-theme="strand"] {
+  --bg-void:      #E4E9F0;
+  --bg-base:      #DCE2EB;
+  --bg-surface:   #D5DBE6;
+  --bg-raised:    #CCD4E1;
+  --bg-overlay:   #BEC8D9;
+  --bg-hairline:  #9FADC2;
+  --bg-void-rgb:    228 233 240;
+  --bg-base-rgb:    220 226 235;
+  --bg-surface-rgb: 213 219 230;
+  --bg-raised-rgb:  204 212 225;
+
+  --ink:       #101A2A;           /* 14.31:1 */
+  --ink-dim:   #33445E;           /*  8.08:1 */
+  --ink-faint: #3F5470;           /*  6.72:1 (Zenit 5.30:1) */
+
+  --acc-1: #6B5200;               /* 6.08:1 */
+  --acc-2: #05506B;               /* 7.27:1 */
+  --acc-3: #9A2F1C;               /* 6.15:1 */
+  --acc-1-rgb: 107 82 0;
+  --acc-2-rgb:   5 80 107;
+  --acc-3-rgb: 154 47 28;
+  --acc-1-tint: #5C4600;          /* 7.38:1 */
+  --acc-2-tint: #04455C;          /* 8.56:1 */
+  --acc-3-tint: #87281A;          /* 7.33:1 */
+  --acc-face: #e5c25c;
+
+  --chrome-hi:     #F1F6F8;
+  --chrome-mid:    #94A8B6;
+  --chrome-lo:     #42586B;
+  --chrome-shadow: #1D2B38;
+
+  --hero-tint: radial-gradient(120% 90% at 50% 0%,
+      rgb(5 80 107 / .11) 0%, rgb(107 82 0 / .06) 45%, transparent 70%);
+
+  --nite-bg-void: #060b16; --nite-bg-base: #0b1322; --nite-bg-surface: #0f1b2e;
+  --nite-bg-raised: #15243c; --nite-bg-overlay: #1e3050; --nite-bg-hairline: #2c4266;
+  --nite-void-rgb: 6 11 22; --nite-base-rgb: 11 19 34;
+  --nite-surface-rgb: 15 27 46; --nite-raised-rgb: 21 36 60;
+  --nite-acc-1: #e5c25c; --nite-acc-2: #6fc9e8; --nite-acc-3: #e87a66;
+  --nite-acc-1-rgb: 229 194 92; --nite-acc-2-rgb: 111 201 232; --nite-acc-3-rgb: 232 122 102;
+  --nite-acc-1-tint: #f5e19e; --nite-acc-2-tint: #9edef5; --nite-acc-3-tint: #f5ac9e;
+  --nite-chrome-hi: #f6fafb; --nite-chrome-mid: #bfcdd6;
+  --nite-chrome-lo: #8fa2b4; --nite-chrome-shadow: #67798d;
+}
+
+/* ============================================================
+   Tag · Regel 2 — ALLES hell
+
+   Erste Fassung hatte hier "dunkle Anker": Kopfleiste, Footer, Panel,
+   Baender und Sticky-CTA behielten ihre Nachtfarben. Der Auftraggeber hat
+   das ausdruecklich verworfen — der Tag-Modus ist durchgehend hell. Die
+   Nacht-Spiegeltokens (--nite-*) bleiben trotzdem stehen: sie kosten nichts
+   und sind die Grundlage, falls die Entscheidung noch einmal kippt.
+
+   Weil das Blatt konsequent ueber Tokens arbeitet, folgen die meisten
+   dieser Bloecke automatisch. Nachgearbeitet werden muessen nur die
+   Stellen, an denen dunkle Werte HARTKODIERT im Blatt stehen — Tokens
+   kennen keinen Tag-Modus, feste Hexwerte schon gar nicht.
+   ============================================================ */
+/* Der Sticky-CTA hatte als einziger Block einen festen Hexwert. */
+:root.day-mode .sticky-cta {
+  background: rgb(var(--bg-void-rgb) / .94);
+  border-top-color: rgb(var(--acc-1-rgb) / .45);
+}
+/* Kopfleiste, HUD und Panel sind nachts nur zu 82-90 % deckend, weil
+   dahinter ohnehin nur der schwarze Seitengrund steht. Tagsueber steht dort
+   der Himmel samt Wolken und Sonnenhof: das schlaegt sichtbar durch und
+   nimmt der Leiste die Ruhe. Tags also deckender. Der backdrop-filter
+   faellt damit weg — hinter einer nahezu deckenden Flaeche leistet er
+   nichts und kostet nur Kompositing. */
+/* Nur noch .topbar — der HUD hat seit der Zusammenlegung keine eigene
+   Flaeche mehr, und beide anzusprechen hiess: zwei deckende Flaechen
+   uebereinander. */
+:root.day-mode .topbar {
+  background: rgb(var(--bg-void-rgb) / .94);
+  -webkit-backdrop-filter: none; backdrop-filter: none;
+}
+/* Mars und Strand haben tags ein Landschaftsfoto hinter der Leiste. Warmrotes
+   Gestein schlaegt durch 6 % Restdurchlass sichtbar in den Mono-Text. */
+:root.day-mode:is([data-theme="mars"], [data-theme="strand"]) .topbar {
+  background: rgb(var(--bg-void-rgb) / .96);
+}
+:root.day-mode .mctrl {
+  background: rgb(var(--bg-base-rgb) / .96);
+  -webkit-backdrop-filter: none; backdrop-filter: none;
+  box-shadow: 4px 5px 0 rgb(var(--acc-1-rgb) / .5), 0 2px 0 rgb(26 21 38 / .18);
+}
+/* Die beiden Chrome-Baender leben nachts vom schwarzen Seitengrund. Auf
+   hellem Grund braucht die Rampe eine Kante, sonst franst das Metall in den
+   Himmel aus. Ein duenner Tintenrand, kein Kasten. */
+:root.day-mode :is(.band, .stats) {
+  border-top-color: rgb(var(--acc-2-rgb) / .35);
+  border-bottom-color: rgb(var(--acc-2-rgb) / .35);
+}
+/* Beide Chrome-Baender benutzen nachts eine Rampe, die oben fast weiss
+   beginnt — auf schwarzem Grund ist das der Glanzpunkt. Auf hellem Grund ist
+   es ein Loch: die obere Haelfte jeder Glyphe verschwindet. Sie bekommen
+   deshalb dieselbe gespiegelte Umgebung wie die Wortmarke, samt harter
+   Horizontkante, plus eine Tintenkontur. */
+:root.day-mode .band-track,
+:root.day-mode .stats b { background-image: var(--chrome-sweep-v); }
+/* Gedrueckte Panel-Knoepfe und die Status-Pille im Hover benutzen nachts
+   die Chrome-Rampe mit --bg-void als Schrift. Tags ist --bg-void hell, die
+   Beschriftung stuende also hell auf hellem Metall. Beide werden zum
+   Tintenblock — dasselbe Prinzip wie beim Primaerknopf. */
+/* Alle "gedrueckt"-Zustaende, die nachts die Chrome-Rampe mit --bg-void als
+   Beschriftung benutzen. Tags ist --bg-void hell und die Rampe ebenfalls —
+   nachgemessen 1.00:1, also buchstaeblich unsichtbar. Sie werden alle zum
+   Tintenblock. Der Kanalfilter der News-Seite (.rx-ch) gehoert zu einem
+   anderen Blatt (pages/news.css), das hier nicht angefasst wird; die
+   Korrektur steht deshalb hier. */
+/* .nav-lang, .menu-lang und .nav-day brauchen hier nichts mehr: ihr
+   gedrueckter Zustand benutzt seit der Vereinheitlichung --ink/--bg-void und
+   schlaegt damit von selbst um. Es bleiben das Mission-Control-Panel, das
+   weiterhin die Chrome-Rampe traegt, und der Kanalfilter der News-Seite, der
+   aus einem anderen Blatt kommt. */
+:root.day-mode .mctrl button[aria-pressed="true"]:not(:disabled),
+:root.day-mode .rx-ch[aria-pressed="true"]:not(:disabled) {
+  background: var(--ink); color: var(--bg-void); border-color: var(--ink);
+}
+:root.day-mode .nav-status:hover,
+:root.day-mode .nav-status:focus-visible {
+  background: var(--ink); color: var(--bg-void); border-color: var(--ink);
+}
+:root.day-mode .nav-status:hover .st-tag,
+:root.day-mode .nav-status:focus-visible .st-tag { color: var(--bg-void); }
+/* Keine Kontur auf dem Laufband: bei 56 px Schriftgrad und einer Rampe,
+   die oben bereits im Mittelton beginnt, traegt die Form selbst — und die
+   Kontur erzeugte an den Innenkanten sichtbare Reste. */
+:root.day-mode .band-track .sep { color: var(--acc-1); -webkit-text-fill-color: var(--acc-1); opacity: 1; }
+:root.day-mode .stats b { -webkit-text-stroke: .012em var(--ink); paint-order: stroke fill; }
+/* Der Footer ist tags kein Schlussvorhang mehr, sondern die letzte
+   Betonplatte. Der Verlauf von transparent auf deckend bleibt — er
+   verhindert weiterhin, dass das Seitenende als Kante abschneidet. */
+:root.day-mode footer { border-top-color: rgb(var(--acc-2-rgb) / .4); }
+
+/* ---- Die Platten ----
+
+   Der eine Griff, ohne den der ganze Tag-Modus nicht funktioniert.
+
+   Nachts ist der Seitengrund fast schwarz UND die Himmel-/Bodenebenen sind
+   fast schwarz — heller Text steht ueberall. Tags kippt das: der Text ist
+   dunkel, aber hinter ihm liegen fix Himmel, Wolken, Sonnenhof und (bei
+   Mars und Strand) ein Landschaftsfoto. Nachgemessen reicht das von
+   Luminanz .72 (Wolke im Sonnenhof) bis .03 (Palmensilhouette,
+   Marsgestein). Dunkler Text auf .03 ist unlesbar, und selbst ueber dem
+   Median des Bodens (.30) faellt der gedimmte Fliesstext auf 3.6:1.
+
+   Man koennte den Boden wegblenden — dann waere die Szene weg. Also
+   umgekehrt: der INHALT bekommt einen Grund. Jede Sektion ist eine
+   Betonplatte, der Hero und der Event-Hero bleiben offen. Die Welt sieht
+   man dort, wo sie hingehoert (oben, gross), und der Text steht auf etwas.
+   Das ist ausserdem die ehrlichere Uebersetzung des Nachtzustands: dort
+   liegt der Text auch auf einer geschlossenen Flaeche, sie ist nur
+   zufaellig identisch mit dem Himmel.
+
+   .88 und nicht 1: die Szene bleibt als Wasserzeichen dahinter sichtbar.
+   Nachgerechnet gegen den schlimmsten Fall (Palmensilhouette, sRGB .19):
+   .88*.90 + .12*.19 = .815 -> Luminanz .62, damit traegt selbst
+   --ink-faint noch 4.55:1. */
+/* Direkte Kinder von <main>, nicht `.section`: quer ueber die 19 Seiten
+   haengt der Inhalt mal in einer <section class="section">, mal in einem
+   nackten <div class="wrap">, mal in <div class="wrap section">. Eine Liste
+   von Klassen laesst zwangslaeufig etwas aus — und ausgelassen heisst hier
+   dunkler Text auf dem Bodenfoto. Ueber die direkten Kinder ist die
+   Abdeckung vollstaendig, und weil es NUR die direkten Kinder sind, koennen
+   sich zwei Platten auch nicht uebereinanderlegen.
+   Ausgenommen sind die beiden Heroes: dort soll man die Welt sehen. */
+:root.day-mode main > *:not(.hero):not(.ehero) {
+  background-color: rgb(var(--bg-void-rgb) / .88);
+}
+
+/* ---- Variante mit sichtbarem Rand ----
+   Auf Startseite, Eventuebersicht und Event-Detailseiten (Klasse
+   `scene-edges`, gesetzt in main.js) deckt die durchgehende Platte zu viel
+   zu: der Marsboden mit Rover und Startrampe, die Brandung am Strand, die
+   Sterne im Weltall — genau das, wofuer der Hintergrund gebaut wurde. Dort
+   schrumpft die Platte auf die Inhaltsspalte. Links und rechts steht die
+   Szene, in der Mitte der Text auf hellem Grund.
+   Die uebrigen Seiten sind Lesestrecken und bleiben durchgehend hell. */
+:root.day-mode.scene-edges main > *:not(.hero):not(.ehero) {
+  background-color: transparent;
+  background-image: var(--day-column);
+}
+/* Der Seiten-Hero bringt seinen eigenen Verlauf mit — er muss UEBER der
+   Platte liegen, sonst verschwindet er. */
+:root.day-mode.scene-edges main > .phero {
+  background-image: var(--hero-tint), var(--day-column);
+}
+/* Das Laufband gehoert dazu: es soll genauso auf der mittleren Spalte
+   sitzen wie das Wabenraster darueber, nicht als durchgehender Riegel quer
+   durchs Bild.
+
+   Der Hintergrund allein reichte dafuer nicht: das Element selbst war
+   weiterhin fensterbreit (gemessen 1440 gegen 1120 px Spalte), also liefen
+   seine beiden Haarlinien und die Laufschrift links und rechts ueber die
+   weisse Spalte hinaus. Deshalb wird das Element SELBST auf die Spalte
+   gesetzt — dann fallen Linien, Schrift und Grund zusammen. Der Verlauf in
+   --day-column rechnet ab 50% der Elementbreite und deckt ein maxw-breites
+   Element vollstaendig. */
+:root.day-mode.scene-edges main > .band {
+  width: min(100%, var(--maxw));
+  margin-inline: auto;
+}
+/* Das Wabenraster haengt mit inset:0 an der fensterbreiten Sektion und lief
+   damit ebenfalls ueber die Spalte hinaus. Gleiche Korrektur, nur ueber die
+   Einrueckung statt ueber die Breite. */
+:root.day-mode.scene-edges .missions::before {
+  inset: 0 max(0px, calc((100% - var(--maxw)) / 2));
+}
+/* .missions::before (Wabenraster, z-index -1) haengt ohne eigenen
+   Stapelkontext am Wurzelkontext und faellt damit HINTER den frisch
+   hinzugekommenen Sektionsgrund. `isolation` zieht es wieder herein:
+   negative z-index-Nachfahren werden dann nach dem Hintergrund des
+   Elements gemalt, aber vor seinem Inhalt. */
+:root.day-mode .missions { isolation: isolate; }
+
+/* ============================================================
+   Tag · Regel 1 — Grund, Rauschen, Vignette
+   ============================================================ */
+/* Rauschtextur. Zwei Aenderungen gegenueber der Nacht:
+   · `stitchTiles="stitch"`. Ohne dieses Attribut rechnet feTurbulence an der
+     Kachelkante nicht periodisch weiter — die 240x240-Kacheln zeichnen sich
+     als Raster ab. Auf fast schwarzem Grund bei opacity .045 sieht das
+     niemand, auf hellem Grund sofort. (Die Nacht-Kachel bleibt bewusst
+     unangetastet, damit der Nachtmodus pixelgleich bleibt; wer das dort
+     nachziehen will, tut es als eigene Aenderung mit eigener Sichtpruefung.)
+   · `multiply` statt `overlay`. Overlay hellt auf hellem Grund auf und
+     bleicht die Textur damit aus; multiply setzt sie als Schmutz DRAUF,
+     was auf Beton auch physikalisch die richtige Richtung ist.
+   Deckkraft .055 statt .045: auf Hell faellt Rauschen staerker auf, deshalb
+   liegt der brauchbare Korridor bei .04-.07 statt .05-.12. */
+:root.day-mode body::after {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+  opacity: .055;
+  mix-blend-mode: multiply;
+}
+/* Vignette: nachts .42 am Rand. Auf hellem Grund liest dieselbe Staerke als
+   Dreck statt als Objektiv. Deutlich flacher und mit der Tinte statt mit
+   Schwarz gemischt, damit sie im Farbkorridor bleibt. */
+:root.day-mode::after {
+  background: radial-gradient(ellipse 84% 80% at 50% 44%,
+      rgb(26 21 38 / 0) 0%, rgb(26 21 38 / .03) 58%,
+      rgb(26 21 38 / .09) 80%, rgb(26 21 38 / .17) 100%);
+}
+:root.day-mode ::selection { background: var(--acc-1); color: var(--bg-void); }
+/* Wabenraster hinter den Missionen: der Nachtstrich (#a18fe0) verschwindet
+   auf hellem Grund restlos. Gleiche Geometrie, Tintenstrich. */
+:root.day-mode .missions::before {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='34.64' height='60' viewBox='0 0 34.64 60'%3E%3Cpath d='M17.32 0 34.64 10v20L17.32 40 0 30V10z M17.32 40v20' fill='none' stroke='%231a1526' stroke-opacity='0.10'/%3E%3C/svg%3E");
+}
+
+/* ============================================================
+   Tag · Regel 3 — Glow wird Kante
+
+   Ein additives Leuchten setzt Licht HINZU. Auf hellem Grund ist da kaum
+   noch Weg nach oben, ein Glow verschwindet also schlicht. An seine Stelle
+   treten drei Dinge, die es im Hellen gibt:
+     · eine harte 1px-Kontur,
+     · ein versetzter, harter, gesaettigter Schlagschatten (Siebdruck und
+       Flyer — im Hellen sofort als Rave lesbar, und der Grund, warum dieser
+       Modus nicht nach Wellness aussieht),
+     · ein kurzer Kontaktschatten, damit das Element auf dem Grund AUFLIEGT
+       statt zu schweben.
+   Der Schlagschatten benutzt --acc-face, also das volle Neon-Magenta: als
+   Flaeche darf es das, als Text nicht.
+   ============================================================ */
+/* Wortmarke: Kontur hoch, Glow raus, harter Versatz rein. */
+/* ---- Wortmarke: IDENTISCH zur Nacht ----
+   Zwei Zwischenstaende hat der Auftraggeber verworfen (harter
+   Magenta-Versatz, dann dunkle Chrome-Rampe mit Tintenkontur). Die Ansage
+   ist eindeutig: die Marke sieht im Tag-Modus aus wie nachts.
+
+   Umgesetzt wird das nicht, indem die Regeln oben dupliziert werden,
+   sondern indem hier die NACHT-TOKENS lokal zurueckgesetzt werden. Die
+   Originalregel arbeitet ausschliesslich ueber var(--chrome-*),
+   var(--bg-void) und var(--acc-2-rgb) — sie loest damit von selbst wieder
+   auf die Nachtwerte auf. Aendert jemand spaeter die Nacht-Wortmarke,
+   zieht der Tag-Modus automatisch mit. */
+:root.day-mode :is(.wordmark, .nav-brand) {
+  --chrome-hi:     var(--nite-chrome-hi);
+  --chrome-mid:    var(--nite-chrome-mid);
+  --chrome-lo:     var(--nite-chrome-lo);
+  --chrome-shadow: var(--nite-chrome-shadow);
+  --bg-void:       var(--nite-bg-void);
+  --acc-2-rgb:     var(--nite-acc-2-rgb);
+}
+/* .nav-brand bleibt aussen vor: es sitzt in der Kopfleiste, und die ist ein
+   dunkler Anker — dort gilt weiter die Nacht-Rampe. */
+/* Der Event-Titel ist dieselbe Schrift und dieselbe Rolle wie die
+   Wortmarke — also derselbe Griff: Nacht-Tokens zurueck, Originalregel
+   bleibt unberuehrt. */
+:root.day-mode .ehero .etitle {
+  --chrome-hi:     var(--nite-chrome-hi);
+  --chrome-mid:    var(--nite-chrome-mid);
+  --chrome-lo:     var(--nite-chrome-lo);
+  --chrome-shadow: var(--nite-chrome-shadow);
+  --acc-1-rgb:     var(--nite-acc-1-rgb);
+  -webkit-text-stroke: .01em var(--nite-bg-void);
+  paint-order: stroke fill;
+}
+
+/* ============================================================
+   Tag im WELTALL  (Space-Theme)
+
+   Der Auftraggeber wollte eine Fassung, in der der Tag-Modus das Weltall
+   behaelt und nur der Mond durch die Sonne ersetzt wird. Das ist nicht bloss
+   eine Stilentscheidung, es ist die physikalisch richtige: ein blauer Himmel
+   entsteht durch Rayleigh-Streuung an einer Atmosphaere. Wo keine ist, ist
+   der Himmel auch am Tag schwarz und die Sterne stehen da — so sieht die
+   Sonne von der ISS aus. Mars und Strand haben eine Atmosphaere und
+   bekommen deshalb ihren gemalten Taghimmel.
+
+   Die Bedienoberflaeche bleibt trotzdem hell: helle Betonplatten, die vor
+   dem Weltall stehen. Dafuer muss hier nur das umgestellt werden, was
+   direkt auf dem Seitengrund liegt — die Platten selbst bringen ihren
+   hellen Grund schon mit.
+   ============================================================ */
+:root.day-mode:not([data-theme="mars"]):not([data-theme="strand"]) body {
+  background: var(--nite-bg-void);
+}
+/* Der Hero traegt als einziger Abschnitt keine Platte — dort soll man ja das
+   Weltall sehen. Dunkler Text auf schwarzem Himmel geht aber nicht, also
+   bekommt er einen weichen, runden Grund: eine Lichtinsel, die zu den
+   Raendern hin in die Sterne ausblendet. Sonne und Milchstrasse bleiben
+   ringsum sichtbar. */
+:root.day-mode:not([data-theme="mars"]):not([data-theme="strand"]) .hero {
+  background:
+    radial-gradient(ellipse 62% 112% at 50% 50%,
+        rgb(var(--bg-void-rgb) / .97) 0%,
+        rgb(var(--bg-void-rgb) / .93) 40%,
+        rgb(var(--bg-void-rgb) / .45) 74%,
+        rgb(var(--bg-void-rgb) / 0)   100%),
+    var(--hero-tint);
+}
+/* Vor schwarzem Weltall schlagen die 12 % Durchlaessigkeit der Platten voll
+   durch: aus dem hellen Beton wird ein Grau. Vor dem Weltall sind die
+   Platten deshalb nahezu deckend — die Ansage war "alle Elemente heller",
+   und das Weltall zeigt sich im Hero, nicht hinter dem Fliesstext. */
+:root.day-mode:not([data-theme="mars"]):not([data-theme="strand"]) main > *:not(.hero):not(.ehero) {
+  background-color: rgb(var(--bg-void-rgb) / .975);
+}
+/* Auch im Space-Theme ist die Spalte durchscheinend — ausdrueckliche Vorgabe.
+   Der Wert liegt hier hoeher als bei Mars und Strand (.86 gegen .78), und das
+   ist kein Zufall: dort liegt eine helle Landschaft hinter der Platte, hier
+   liegt Schwarz. Gleiche Deckung wuerde denselben Beton vor dem Weltall
+   deutlich dunkler erscheinen lassen als vor dem Marsboden — die Seite haette
+   dann je nach Theme einen anderen Grundton. Der hoehere Wert gleicht das aus.
+   Sichtbar bleibt, was hier sichtbar sein soll: die Sterne. */
+:root.day-mode.scene-edges:not([data-theme="mars"]):not([data-theme="strand"]) main > *:not(.hero):not(.ehero) {
+  background-color: transparent;
+  background-image: linear-gradient(90deg,
+      rgb(var(--bg-void-rgb) / 0)   calc(50% - var(--maxw) / 2),
+      rgb(var(--bg-void-rgb) / .86) calc(50% - var(--maxw) / 2),
+      rgb(var(--bg-void-rgb) / .86) calc(50% + var(--maxw) / 2),
+      rgb(var(--bg-void-rgb) / 0)   calc(50% + var(--maxw) / 2));
+}
+:root.day-mode:not([data-theme="mars"]):not([data-theme="strand"]) .topbar {
+  background: rgb(var(--bg-void-rgb) / .975);
+}
+/* Wolken gibt es im Vakuum nicht. */
+:root.day-mode:not([data-theme="mars"]):not([data-theme="strand"]) #dayclouds { display: none; }
+/* Rauschen und Vignette liegen im Space-Theme wieder ueber einem schwarzen
+   Grund — dort gelten die Nachtwerte. `multiply` auf Schwarz ergaebe nichts,
+   und eine helle Vignette auf Schwarz waere ein Rahmen. */
+:root.day-mode:not([data-theme="mars"]):not([data-theme="strand"]) body::after {
+  mix-blend-mode: overlay;
+  opacity: .045;
+}
+:root.day-mode:not([data-theme="mars"]):not([data-theme="strand"])::after {
+  background: radial-gradient(ellipse 78% 74% at 50% 46%,
+      rgb(0 0 0 / 0) 0%, rgb(0 0 0 / .06) 55%, rgb(0 0 0 / .20) 78%, rgb(0 0 0 / .42) 100%);
+}
+/* Der Footer blendet nachts aus dem Bodenbild in den Seitengrund. Im
+   Weltall-Tag steht darueber schwarzer Himmel und darunter die helle
+   Platte — der Verlauf muss also von transparent auf HELL laufen, sonst
+   reisst zwischen letzter Sektion und Footer ein schwarzer Streifen auf. */
+:root.day-mode:not([data-theme="mars"]):not([data-theme="strand"]) footer {
+  background: var(--bg-void);
+}
+/* Glow-Ueberschriften */
+:root.day-mode .h2 .glow {
+  color: var(--ink);
+  text-shadow: .045em .055em 0 var(--acc-face);
+}
+:root.day-mode .aware .h2 .glow,
+:root.day-mode .aware h2 .glow { color: var(--acc-1); text-shadow: none; }
+/* Countdown: derselbe Griff, aber kuehl — sonst wird alles magenta. */
+:root.day-mode .tminus .clock {
+  text-shadow: .03em .04em 0 var(--acc-3);
+}
+/* Karten: Kontur statt Farbsaum, harter Versatz beim Hover statt Halo. */
+:root.day-mode .mcard {
+  border-color: rgb(var(--card-acc-rgb) / .55);
+  box-shadow: 3px 3px 0 rgb(var(--card-acc-rgb) / .14);
+}
+:root.day-mode .mcard:hover {
+  border-color: var(--card-acc);
+  box-shadow: 7px 8px 0 var(--card-acc), 0 2px 0 rgb(26 21 38 / .22);
+}
+/* --card-acc und --n-acc stehen als NEON im style-Attribut der Karten
+   (events.html, index.html, news.html) und sind von hier aus nicht
+   ueberschreibbar, ohne die Farbidentitaet je Karte plattzumachen. Also
+   umgekehrt: die Neons duerfen als FLAECHE bleiben (Kontur, Versatzschatten,
+   Plakette) — nur ihre TEXT-Verwendungen werden umgehaengt. #6fc9e8 kaeme
+   als Schrift auf 1.6:1, #e5c25c auf 1.5:1.
+   Als Flaeche traegt jedes dieser Neons dunkle Schrift: 5.0:1 (Orange und
+   Magenta) bis 10.4:1 (Gold) — nachgemessen. */
+:root.day-mode :is(.mcard .m-date em, .mcard .m-link, .m-toggle, .mcard .patch) {
+  color: var(--acc-1);
+}
+:root.day-mode .mcard .status {
+  color: var(--ink);
+  background: rgb(var(--card-acc-rgb) / .9);
+  border-color: var(--ink);
+}
+:root.day-mode .ncard .n-badge {
+  color: var(--ink);
+  background: rgb(var(--n-acc, var(--acc-2-rgb)) / .9);
+  border-color: var(--ink);
+}
+:root.day-mode .setcard,
+:root.day-mode .ccard,
+:root.day-mode .next-card,
+:root.day-mode .aware,
+:root.day-mode .ncard,
+:root.day-mode details.faq { border-color: rgb(var(--acc-2-rgb) / .5); }
+:root.day-mode .next-card {
+  border-color: var(--ink);
+  box-shadow: 5px 6px 0 var(--acc-1);
+}
+:root.day-mode .setcard:hover,
+:root.day-mode .ccard:hover { border-color: var(--acc-1); box-shadow: 5px 6px 0 rgb(var(--acc-1-rgb) / .85); }
+/* Patches und Avatare: nachts dunkle Scheiben mit weissem Rand und
+   Innenglimmen. Tags helle Scheiben mit Tintenkontur und hartem Versatz. */
+:root.day-mode :is(.mcard .patch, .patch-hero, .ccard .avatar, .mcard .avatar, .flog .fpatch) {
+  background: var(--bg-void);
+  border-color: var(--ink);
+}
+:root.day-mode .mcard .patch {
+  box-shadow: inset 0 0 0 3px rgb(var(--card-acc-rgb) / .3), 3px 4px 0 var(--card-acc);
+}
+:root.day-mode .patch-hero {
+  box-shadow: inset 0 0 0 4px rgb(var(--acc-1-rgb) / .3), 4px 5px 0 var(--acc-1);
+}
+:root.day-mode :is(.ccard .avatar, .mcard .avatar) {
+  box-shadow: inset 0 0 0 3px rgb(var(--acc-2-rgb) / .28), 3px 4px 0 var(--acc-2);
+}
+:root.day-mode .flog .fpatch {
+  box-shadow: inset 0 0 0 2px rgb(var(--acc-1-rgb) / .3), 2px 3px 0 var(--acc-1);
+}
+/* Der Lineup-Hover leuchtete; jetzt springt er nach vorn. */
+:root.day-mode .lineup .act { border-color: rgb(var(--acc-2-rgb) / .5); }
+:root.day-mode .lineup .act:hover {
+  color: var(--acc-1);
+  border-color: var(--acc-1);
+  text-shadow: none;
+  box-shadow: 4px 5px 0 var(--acc-face);
+}
+/* Der pulsende Punkt der Transmission ist auf Hell ein blasser Fleck. Harte
+   Kontur, damit er als Leuchte lesbar bleibt. */
+:root.day-mode .transmission .tx-label::before { box-shadow: 0 0 0 1px var(--ink); }
+/* Die Rakete haengt an der Unterkante der Kopfleiste und ragt damit als
+   einziges Element des dunklen Ankers auf den hellen Grund. Ihr Rumpf ist im
+   SVG als helles Metall festgelegt (dort kommen wir nicht heran) und
+   verschwindet deshalb tagsueber fast. Kein Glow — ein Kontaktschatten. */
+:root.day-mode .rocket {
+  filter: drop-shadow(0 0 .7px rgb(26 21 38 / .85)) drop-shadow(1px 2px 1px rgb(26 21 38 / .35));
+}
+/* Der Magenta-Schleier der Hero-Karte kippt auf hellem Grund ins
+   Altrosa und liest dort als Farbverlauf-Deko. Flacher gesetzt. */
+:root.day-mode .next-card {
+  background:
+    radial-gradient(90% 120% at 85% -10%, rgb(var(--acc-1-rgb) / .07), transparent 58%),
+    linear-gradient(160deg, var(--bg-2), var(--bg-1));
+}
+
+/* ---- Knoepfe ----
+   Der Primaerknopf ist tags ein Tintenblock mit hartem Magenta-Versatz. Alle
+   Werte kommen aus Tokens: innerhalb der dunklen Anker (Sticky-CTA) loesen
+   sich dieselben Deklarationen automatisch wieder zur Nachtoptik auf. */
+:root.day-mode .btn-primary {
+  background: var(--ink);
+  color: var(--bg-void);
+  border-color: var(--ink);
+  box-shadow: 4px 5px 0 var(--acc-face);
+}
+:root.day-mode .btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 6px 7px 0 var(--acc-face);
+}
+:root.day-mode .btn-ghost { border-color: var(--ink); color: var(--ink); }
+:root.day-mode .btn-ghost:hover { background: rgb(var(--acc-1-rgb) / .12); box-shadow: 3px 4px 0 var(--acc-1); }
+/* Chips: einer davon darf laut sein. `.chip.hot` wird zur vollen
+   Magenta-Flaeche mit dunkler Schrift (5.0:1) — das ist die Stelle, an der
+   das Neon im Tag-Modus ueberlebt. */
+:root.day-mode .chip { border-color: rgb(var(--acc-3-rgb) / .5); }
+:root.day-mode .chip.hot {
+  background: var(--acc-face);
+  border-color: var(--ink);
+  color: var(--ink);
+}
+:root.day-mode .setcard .cover .play {
+  background: var(--ink);
+  color: var(--bg-void);
+  border-color: var(--ink);
+}
+:root.day-mode .setcard:hover .play { background: var(--acc-1); }
+/* Nachrichtenkarte: der Verlauf war als fester dunkler Wert eingetragen und
+   liegt auf Hell als Schmutzfleck darin. */
+:root.day-mode .ncard {
+  background: linear-gradient(170deg, rgb(var(--bg-surface-rgb) / .85), transparent);
+}
+/* Platzhalter-Schraffur: bei .04 auf Hell unsichtbar. */
+:root.day-mode .gph {
+  background: repeating-linear-gradient(-45deg, transparent 0 9px, rgb(var(--acc-2-rgb) / .14) 9px 10px);
+}
+
+/* ============================================================
+   Tag · Mikro-Labels (Space Mono)
+
+   Space Mono ist nicht variabel — 400 -> 700 ist bei 10px kein Zuschlag,
+   sondern ein anderer Schnitt. Das gefuehlte Gewicht entsteht hier stattdessen
+   ueber ENGERE LAUFWEITE (enger gesetzt liest bei kleinen Graden schwerer,
+   weil die Grauwertdichte steigt) und eine DUNKLERE FARBE. Dunkel auf hell
+   ueberstrahlt ohnehin nicht, der Ton darf also naeher an die Tinte ruecken.
+   Rund -15 % Laufweite, gruppiert nach Ausgangswert.
+   ============================================================ */
+:root.day-mode :is(.pretitle, .eyebrow, .tminus .label, .eblock h3, .scroll-hint) { letter-spacing: .255em; }
+:root.day-mode .transmission .tx-label { letter-spacing: .22em; }
+:root.day-mode :is(.m-row dt, .ncard .n-badge) { letter-spacing: .17em; }
+:root.day-mode :is(.ccard span, .lineup .act small, .back-link) { letter-spacing: .12em; }
+:root.day-mode :is(.mcard .m-link, .m-toggle, .head-link, .btn, .chip) { letter-spacing: .1em; }
+/* Farbstufe: die kleinsten Grade (<= 11px) ruecken eine Stufe nach oben. Der
+   Abstand zur Tinte bleibt erhalten, die Praesenz kommt zurueck. */
+:root.day-mode :is(.scroll-hint, .ccard span, .m-row dt, .lineup .act small,
+                   .lu-note, .glog .chip, .ncard .n-date, .gph) { color: var(--ink-dim); }
+
+/* ---- Gedimmter Fliesstext bekommt sein eigenes Gewicht ----
+   Nachts ist --w-dim identisch mit --w-body, hier aendert sich also nichts.
+   Tags liegt er darueber: gedimmte Toene verlieren ohne Ueberstrahlung mehr
+   Praesenz als die Volltonschrift. */
+.section-intro, .tagline, .mcard .m-meta, .m-brief, .m-row dd, .ncard p,
+.aware .note, .facts span, .next-card .nc-meta, .setcard .consent-note,
+.transmission p, .love, .flog .fnote, .flog .fvenue, .lu-note,
+details.faq .faq-body, .sticky-cta .sc-info, .vcard .vaddr {
+  font-weight: var(--w-dim);
+}
+
+/* ============================================================
+   Base
+   ============================================================ */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+html.lenis, html.lenis body { height: auto; }
+.lenis.lenis-smooth { scroll-behavior: auto !important; }
+
+body {
+  background: var(--bg-0);
+  color: var(--ink);
+  font-family: var(--font-text);
+  font-size: clamp(16px, 1.05vw + 12px, 18px);
+  font-weight: var(--w-body);
+  line-height: 1.6;
+  overflow-x: hidden;
+  /* KEIN -webkit-font-smoothing: antialiased. Es schaltet Subpixel- auf
+     Graustufen-Rendering und laesst helle Schrift auf dunklem Grund duenner
+     wirken — genau der "durchscheinend"-Eindruck, den wir hier bekaempfen.
+     Wirkt ausserdem nur auf macOS und ist laut MDN nicht fuer Produktion
+     gedacht: es ist keine Abwaegung, sondern eine Verzerrung auf einer
+     einzigen Plattform. Bitte nicht zurueckholen. */
+}
+
+::selection { background: rgb(var(--acc-1-rgb) / .45); color: #fff; }
+
+a { color: inherit; text-decoration: none; }
+button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
+img, svg, canvas { display: block; max-width: 100%; }
+
+:focus-visible {
+  outline: 2px solid var(--acc-3);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+.skip-link {
+  position: fixed; top: -60px; left: 16px; z-index: 200;
+  background: var(--bg-2); padding: 10px 16px; border-radius: 8px;
+  transition: top .2s;
+}
+.skip-link:focus { top: 12px; }
+
+.wrap { max-width: var(--maxw); margin: 0 auto; padding-inline: var(--pad); }
+
+/* Sterne-Canvas liegt fix hinter allem.
+   #skyback traegt die unbewegten Anteile (Milchstrasse, Nebel, Deep-Sky) auf
+   einer eigenen Ebene — so muss der bewegte Sternen-Canvas sie nicht in jedem
+   Frame neu kopieren. */
+#skyback {
+  position: fixed; inset: 0; z-index: -3;
+  width: 100%; height: 100%;
+  pointer-events: none;
+}
+/* In Stufe "Aus" traegt diese Ebene den kompletten Himmel: alle Sterne und
+   der Mond sind hineingezeichnet, es laeuft nur keine Animation. */
+:root[data-fx="s"] #skyback { display: block; }
+/* Boden liegt UEBER den Sternen — er verdeckt sie, wie in der Wirklichkeit.
+   Der Glitzerpfad bekommt eine eigene, transparente Ebene darueber, damit das
+   Meer nicht in jedem Frame neu gezeichnet werden muss. */
+#horizon {
+  position: fixed; inset: 0; z-index: -2;
+  width: 100%; height: 100%;
+  pointer-events: none;
+}
+/* #glints ist bewusst KEINE Vollbild-Ebene mehr: Hoehe und Position setzt
+   paintBeach() in Pixeln, passend zum Wasser plus Brandungsweg. Eine
+   Vollbild-Canvas muesste in jedem Frame komplett geloescht und neu zur GPU
+   hochgeladen werden — bei DPR 2 rund 5 Millionen Pixel, von denen kaum ein
+   Drittel bemalt ist. */
+#glints {
+  position: fixed; left: 0; top: 0; z-index: -2;
+  width: 100%; height: 100%;
+  pointer-events: none;
+}
+/* Requisiten der Strandszene (Palmen, Strandhafer, DJ-Pult). Eigene Ebene
+   UEBER #glints, weil die Brandung dort animiert laeuft und sonst vor den
+   Palmenstaemmen durchliefe. Wird nur beim Backen beschrieben — pro Frame
+   kostet sie nichts ausser dem Kompositing. */
+#props {
+  position: fixed; inset: 0; z-index: -2;
+  width: 100%; height: 100%;
+  pointer-events: none;
+}
+/* Mars ist eine TAGESSZENE: dort deckt der Horizont-Canvas den ganzen Himmel
+   ab, also werden Sternenfeld und Nebelebene ausgeblendet. Bei ausgeschaltetem
+   Boden bleibt der Sternenhimmel sichtbar. */
+/* Der Sternenhimmel bleibt IMMER sichtbar — der Boden liegt nur davor. */
+
+#stars {
+  position: fixed; inset: 0; z-index: -2;
+  width: 100%; height: 100%;
+  pointer-events: none;
+}
+
+/* Wolkenebene des Tag-Modus. Sie ist DOPPELT so breit wie das Fenster und
+   wird um genau eine Fensterbreite (= 50 % ihrer eigenen Breite)
+   durchgeschoben. Weil das Rauschfeld dahinter in x exakt periodisch ist
+   (pfbm in main.js), sind beide Haelften identisch — die Schleife hat keine
+   Naht und keinen Sprung.
+   Die Bewegung laeuft ueber eine CSS-Transform und damit auf dem
+   Compositor: pro Frame kostet sie nichts. Die Alternative waere eine
+   Vollbild-Kopie pro Frame gewesen — genau der Fehler, der bei der
+   Milchstrasse schon einmal 18 ms gekostet hat.
+   Liegt zwischen Sternen und Boden (DOM-Reihenfolge, gleicher z-index). */
+#dayclouds {
+  position: fixed; left: 0; top: 0; z-index: -2;
+  /* Base setzt `canvas { max-width: 100% }`. Diese Ebene ist absichtlich
+     200 % breit — ohne die Ausnahme wuerde sie auf Fensterbreite gestaucht
+     und die Schleife saehe man springen. */
+  max-width: none;
+  pointer-events: none;
+  display: none;
+  will-change: transform;
+}
+:root.day-mode #dayclouds { display: block; }
+/* Nur in der vollen Stufe. Eine dauerhaft bewegte Ebene muss der Compositor
+   in JEDEM Frame neu zusammensetzen; in der Standardstufe stehen die Wolken
+   deshalb still — sichtbar ist dort dasselbe Bild, nur ohne Drift. */
+:root.day-mode[data-fx="l"] #dayclouds { animation: cloud-drift 300s linear infinite; }
+@keyframes cloud-drift { from { transform: translate3d(0, 0, 0); } to { transform: translate3d(-50%, 0, 0); } }
+
+/* Der Schnitt der Sterne an der Bodenkante lag zuerst hier als
+   `mask-image` auf #stars und #skyback. Er ist nach main.js gewandert
+   (blockSky): jede maskierte Vollbild-Ebene kostete gemessen 4-5 ms pro
+   Frame, und der Boden liegt ohnehin ueber beiden Sternenebenen — ein
+   einmal gebackener Verlauf in Seitengrundfarbe erledigt dasselbe umsonst. */
+
+/* Statischer Sternen-Fallback (Tier S / no-js) */
+body::before {
+  content: ""; position: fixed; inset: 0; z-index: -3; pointer-events: none;
+  background-image:
+    radial-gradient(1px 1px at 12% 22%, rgb(255 255 255 / .8) 50%, transparent 51%),
+    radial-gradient(1px 1px at 78% 12%, rgb(255 255 255 / .55) 50%, transparent 51%),
+    radial-gradient(1.5px 1.5px at 55% 40%, rgb(var(--acc-3-rgb) / .7) 50%, transparent 51%),
+    radial-gradient(1px 1px at 30% 68%, rgb(255 255 255 / .5) 50%, transparent 51%),
+    radial-gradient(1px 1px at 88% 55%, rgb(var(--acc-1-rgb) / .55) 50%, transparent 51%),
+    radial-gradient(1.5px 1.5px at 42% 88%, rgb(255 255 255 / .6) 50%, transparent 51%),
+    radial-gradient(1px 1px at 66% 74%, rgb(255 255 255 / .4) 50%, transparent 51%),
+    radial-gradient(1px 1px at 8% 90%, rgb(var(--acc-2-rgb) / .5) 50%, transparent 51%);
+  background-repeat: repeat;
+  background-size: 900px 900px;
+}
+:root.js body::before { opacity: 0; }   /* Canvas uebernimmt, sobald JS laeuft */
+
+/* Grain-Layer (alle Tiers, statisch & billig) */
+/* Der Grain lag mit z-index:90 UEBER allem — auch ueber der Wortmarke, deren
+   saubere Kanten er entsaettigte. Er gehoert hinter den Inhalt.
+   `inset: -50%` (= vierfache Viewportflaeche) war ausserdem unnoetig teuer. */
+body::after {
+  content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+  opacity: .045;
+  mix-blend-mode: overlay;
+}
+
+/* Vignette — fehlte bisher ganz. Eigene Ebene, weil die opacity:.045 des
+   Grain-Layers sie sonst mit ausbleichen wuerde und `mix-blend-mode:
+   overlay` sie verfaelschen. Liegt ueber Canvas (-2) und statischem
+   Sternen-Fallback (-3), damit auch die Sterne am Rand abgedunkelt werden,
+   aber unter dem Inhalt.
+   Bewusst zurueckhaltend (.34 statt der oft empfohlenen .62): staerker
+   tunnelt sie den Blick, statt Tiefe zu geben. */
+html::after {
+  content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  /* Radialverlauf statt inset-box-shadow: der Schatten erzeugte eine sichtbare
+     abgerundete Rechteckkante, die auf dunklem Grund verborgen blieb, auf dem
+     hellen Marshimmel aber sofort auffiel. */
+  background: radial-gradient(ellipse 78% 74% at 50% 46%,
+      rgb(0 0 0 / 0) 0%, rgb(0 0 0 / .06) 55%, rgb(0 0 0 / .20) 78%, rgb(0 0 0 / .42) 100%);
+}
+
+/* ============================================================
+   FX-Tiers
+   ============================================================ */
+:root[data-fx="s"] #stars { display: none; }
+:root[data-fx="s"] * , :root[data-fx="s"] *::before, :root[data-fx="s"] *::after {
+  animation-duration: .001s !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: .15s !important;
+}
+:root[data-fx="s"] .reveal { opacity: 1 !important; transform: none !important; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .001s !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .15s !important;
+  }
+}
+
+/* Reveal-Grundzustand (JS setzt .in) — nur m/l */
+/* Grundzustand ist SICHTBAR. Ausgeblendet wird nur, wenn das Boot-Script
+   die Klasse `js` gesetzt hat — sonst bliebe bei blockiertem oder
+   abgestuerztem JavaScript die halbe Startseite dauerhaft auf opacity:0
+   (alle vier Section-Headlines, Genre-Chips, Stats-Band, Awareness-Block). */
+:root.js[data-fx="m"] .reveal, :root.js[data-fx="l"] .reveal {
+  opacity: 0; transform: translateY(26px);
+  transition: opacity .8s var(--ease-out), transform .8s var(--ease-out);
+}
+:root.js[data-fx="m"] .reveal.in, :root.js[data-fx="l"] .reveal.in {
+  opacity: 1; transform: none;
+}
+
+
+/* ============================================================
+   Topbar — Instrumentenbrett statt Navigationsbalken
+
+   Zwei Zeilen: oben Telemetrie (Marquee), darunter Navigation.
+   Beim Scrollen faehrt die Telemetrie ein und die Unterkante des Headers
+   wird zur Flugbahn, an der die Rakete klettert. Der Fortschrittsbalken
+   ist damit Teil des Headers statt ein beziehungsloser Strich am Rand.
+   ============================================================ */
+:root {
+  --nav-h: 56px;
+  --hud-h: 36px;
+  --topbar-h: calc(var(--nav-h) + var(--hud-h));
+
+  /* EINE Kantenquelle fuer beide Etagen der Kopfleiste. Vorher hatte der HUD
+     14px und die Navigationszeile clamp(14px, 3vw, 28px) — ab etwa 470px
+     liefen die beiden Etagen damit nicht mehr auf derselben linken Kante. */
+  --bar-pad:  clamp(16px, 3vw, 28px);
+  --bar-gap:  14px;              /* Luft unter der Leiste bei Ankerspruengen */
+}
+
+/* Ankersprünge duerfen nicht unter der Kopfleiste landen.
+   --topbar-cur wird von main.js gespiegelt und traegt die TATSAECHLICHE Hoehe,
+   auch im eingefahrenen Zustand. Frueher stand hier der starre Ruhewert: nach
+   dem Einfahren schoss jeder Ankersprung um rund 48px ueber, weil CSS 100px
+   rechnete, waehrend das Skript live mass. Der Rueckfall auf --topbar-h gilt
+   ohne JS — und ist dort per Definition richtig, weil ohne JS nie eingefahren
+   wird. */
+html { scroll-padding-top: calc(var(--topbar-cur, var(--topbar-h)) + var(--bar-gap)); }
+
+/* EINE Leiste, EINE Flaeche. Der HUD hatte frueher eine eigene Deckflaeche
+   samt eigenem backdrop-filter — nachts verlor sie ueber Spezifitaet, im
+   Tag-Modus wurde sie wieder aktiv, und dann lag eine zweite deckende Flaeche
+   ueber der ersten. Traeger ist ab jetzt ausschliesslich .topbar. */
+.topbar {
+  position: sticky; top: 0; z-index: 100;
+  background: rgb(var(--bg-void-rgb) / .84);
+  -webkit-backdrop-filter: blur(14px) saturate(1.5);
+  backdrop-filter: blur(14px) saturate(1.5);
+  /* Die Unterkante muss in allen sechs Kombinationen aus Theme und Tageszeit
+     sichtbar bleiben. --bg-hairline verschwand im Space-Tag fast voellig. */
+  border-bottom: 1px solid rgb(var(--acc-2-rgb) / .22);
+
+  /* Die EINZIGE Groesse, die sich beim Scrollen aendert. Kein zweiter Wert an
+     einer zweiten Stelle, den man vergessen koennte. */
+  --hud-cur: var(--hud-h);
+}
+.topbar.is-flying { --hud-cur: 0px; }
+
+/* Beide Etagen laufen ueber die VOLLE Breite — ausdrueckliche Vorgabe. Eine
+   zentrierte Spalte haette auf breiten Schirmen Raender gelassen und die
+   Leiste als schwebende Karte wirken lassen; als Instrumentenblatt gehoert
+   sie von Kante zu Kante. Die gemeinsame Einrueckung --bar-pad haelt beide
+   Etagen trotzdem auf derselben linken Kante — das war der eigentliche
+   Fehler, den es zu beheben galt, nicht die Breite. */
+.topbar .hud,
+.topbar .nav { width: 100%; }
+/* Stufe "Aus" ist die Stufe fuer schwache Geraete. Ein 14px-Blur ueber die
+   volle Breite ist dort der teuerste Einzelposten der Leiste. */
+:root[data-fx="s"] .topbar {
+  -webkit-backdrop-filter: none; backdrop-filter: none;
+  background: rgb(var(--bg-void-rgb) / .96);
+}
+
+/* Die Navigationszeile schrumpft NICHT mit. Sie traegt alle Trefferflaechen;
+   dort acht Pixel zu sparen kostet Bedienbarkeit und bringt nichts, was der
+   eingefahrene HUD nicht schon bringt. Damit entfaellt auch das Skalieren der
+   Wortmarke — font-size zu animieren haette pro Bild ein Layout auf einem
+   klebenden Element erzwungen. */
+
+/* Der Fahrplan-Ticker faehrt ein, sobald der Flug laeuft.
+   Die Deckkraft ist VOR der Hoehe fertig, damit der Text nicht in der halb
+   eingefahrenen Zeile klebt. visibility mit Verzug nimmt den Telegram-Link
+   aus der Tab-Reihenfolge — sonst tabbt man in eine 0px hohe Zeile. */
+.topbar .hud {
+  height: var(--hud-cur);
+  transition: height .32s var(--ease-out), opacity .18s linear, visibility 0s .32s;
+}
+.topbar.is-flying .hud {
+  opacity: 0; visibility: hidden; border-bottom-color: transparent;
+}
+
+.nav {
+  height: var(--nav-h);
+  display: flex; align-items: center; gap: clamp(12px, 1.6vw, 26px);
+  padding-inline: var(--bar-pad);
+}
+
+/* Wortmarke klein — dieselbe Schrift, damit der Header zur Marke gehoert */
+.nav-brand {
+  font-family: var(--font-logo);
+  font-size: clamp(19px, 2.2vw, 25px);
+  line-height: 1;
+  letter-spacing: .01em;
+  /* Dieselbe Beschnitt-Falle wie bei der grossen Wortmarke: der Verlauf malt
+     nur in die Padding-Box, Planet Kosmos ragt aber weit darueber hinaus. */
+  padding: .22em .56em .14em .1em;
+  margin-right: -.42em;
+  background: linear-gradient(168deg,
+      var(--chrome-hi), var(--chrome-mid) 30%, var(--chrome-hi) 48%,
+      var(--chrome-lo) 68%, var(--chrome-mid) 100%);
+  -webkit-background-clip: text; background-clip: text;
+  color: transparent;
+  /* Gleiche Kontur wie bei der grossen Wortmarke — hier sogar noetiger: die
+     Topbar ist nur zu 84 % deckend, dahinter laeuft das Bodenbild durch. */
+  -webkit-text-stroke: .03em var(--bg-void);
+  paint-order: stroke fill;
+  flex: none;
+  transition: filter .25s;
+}
+/* Vorher `opacity: .82` — ausgerechnet die Marke wurde beim Hover
+   halbtransparent. Aufhellen der Rampe statt Wegblenden. */
+.nav-brand:hover { filter: brightness(1.18); }
+
+/* KEIN flex:1 mehr. Das war die Ursache dafuer, dass ab 900px — wo die Links
+   ausgeblendet werden — nichts mehr wuchs und die ganze rechte Gruppe nach
+   links rutschte. Das Wachsen uebernimmt .nav-gap, das immer da ist. */
+.nav-links { flex: none; min-width: 0; }
+.nav-gap   { flex: 1 1 24px; }
+
+/* Trennstrich: teilt die Zeile in "wer wir sind / wohin man kann" und
+   "was als Naechstes / Bedienung". Eine Linie statt eines Abstands, weil ein
+   Abstand allein nicht als Absicht liest. */
+.nav-rule {
+  flex: none; width: 1px; height: 18px;
+  background: rgb(var(--acc-2-rgb) / .34);
+}
+@media (max-width: 1023px) { .nav-links li[data-prio="2"] { display: none; } }
+.nav-links ul {
+  display: flex; align-items: center; gap: clamp(10px, 2vw, 26px);
+  list-style: none;
+}
+.nav-links a {
+  position: relative;
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+  padding: 10px 2px;
+  transition: color .25s;
+}
+.nav-links a:hover, .nav-links a:focus-visible { color: var(--ink); }
+/* Unterstrich zeichnet sich von links, statt zu erscheinen */
+.nav-links a::after {
+  content: ""; position: absolute; left: 0; right: 0; bottom: 4px; height: 1px;
+  background: currentColor;
+  transform: scaleX(0); transform-origin: left;
+  transition: transform .3s var(--ease-out);
+}
+.nav-links a:hover::after, .nav-links a:focus-visible::after { transform: scaleX(1); }
+/* Deckt beide Werte ab: "page" fuer die aktuelle Seite, "true" fuer den
+   aktiven Abschnitt innerhalb einer Seite. */
+.nav-links a[aria-current] { color: var(--ink); }
+.nav-links a[aria-current]::after { transform: scaleX(1); background: var(--acc-1-tint); }
+.menu-list a[aria-current] .m-label { color: var(--acc-1-tint); }
+
+/* Status statt "Tickets": bei ueberwiegend kostenlosen Events waere ein
+   Ticket-Button schlicht falsch. Zeigt den echten Zustand des naechsten Events. */
+/* Die Statusmarke traegt den EINZIGEN Akzent der ganzen Leiste — und zwar als
+   6px-Punkt, nicht als Flaeche. Farbe ist das lauteste Mittel und gehoert auf
+   das eine Element, das eine Handlung ausloest und sich taeglich aendert.
+   Die frueher gefuellte Neonpille mit Leuchtschatten war der zweitlauteste
+   Reiz auf 100px Hoehe und stand in direkter Konkurrenz zum Laufband, das
+   dieselbe Information zeigt.
+   Ausrichtung mittig statt an der Grundlinie: der Punkt gehoert in die Mitte,
+   die umgebende Zeile richtet ebenfalls mittig aus. */
+.nav-status {
+  position: relative;
+  flex: none;
+  display: inline-flex; align-items: center; gap: 9px;
+  font-family: var(--font-mono); font-size: 12px;
+  letter-spacing: .10em; text-transform: uppercase;
+  padding: 10px 14px;
+  border-radius: 999px;
+  border: 1px solid rgb(var(--acc-2-rgb) / .30);
+  color: var(--ink);
+  background: none;
+  transition: border-color .25s, background .25s;
+}
+.nav-status::before {
+  content: ""; flex: none;
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--acc-1);
+}
+/* Trefferflaeche 44px bei 40px sichtbarer Hoehe — dasselbe Muster, das der
+   Sprachumschalter schon benutzt. */
+.nav-status::after {
+  content: ""; position: absolute; left: 0; right: 0;
+  top: 50%; height: 44px; transform: translateY(-50%);
+}
+.nav-status:hover, .nav-status:focus-visible {
+  border-color: rgb(var(--acc-2-rgb) / .70);
+  background: rgb(var(--acc-2-rgb) / .12);
+}
+/* Auf der eigenen Seite ist die Marke kein Link, sondern eine Beschriftung. */
+.nav-status[aria-current="page"] { pointer-events: none; opacity: .72; }
+.nav-status .st-tag { color: var(--acc-1-tint); }
+.nav-status:hover, .nav-status:focus-visible {
+  /* Material statt Leuchten — dieselbe Chrome-Rampe wie die Wortmarke */
+  background: linear-gradient(168deg, var(--chrome-hi), var(--chrome-mid) 55%, var(--chrome-lo));
+  border-color: transparent;
+  color: var(--bg-void);
+}
+.nav-status:hover .st-tag, .nav-status:focus-visible .st-tag { color: var(--bg-void); }
+
+.nav-burger {
+  flex: none;
+  display: none;
+  align-items: center; gap: 9px;
+  font-family: var(--font-mono); font-size: 11.5px;
+  letter-spacing: .12em; text-transform: uppercase;
+  color: var(--ink-dim);
+  padding: 12px 4px;
+  min-height: 48px;              /* Touch-Ziel */
+}
+.nav-burger:hover { color: var(--ink); }
+.nav-burger svg { width: 20px; height: 20px; }
+.nav-burger .b-line { transition: transform .3s var(--ease-out), opacity .2s; }
+
+/* Flugbahn = Unterkante des Headers */
+.nav-progress {
+  position: absolute; left: 0; right: 0; bottom: -1px; height: 2px;
+  pointer-events: none;
+  /* Bezugsgroesse fuer die Rakete darunter: sie wird per `transform`
+     verschoben, und Prozentwerte in `translate` beziehen sich auf das Element
+     SELBST, nicht auf den Elternteil. `100cqw` liefert stattdessen die Breite
+     dieses Containers — also genau das, was `left: 100%` vorher bedeutete.
+     `container-type: inline-size` bringt Layout-Containment mit, aber KEIN
+     Paint-Containment: der Flammenstrahl ragt weiterhin heraus. */
+  container-type: inline-size;
+}
+.nav-progress i {
+  display: block; height: 100%; width: 100%;
+  /* scaleX statt width: Layout-Properties auf einem sticky Element neu zu
+     berechnen kostet jeden Frame ein Layout. transform laeuft auf dem
+     Compositor. */
+  transform-origin: left; transform: scaleX(var(--scrollp, 0));
+  background: linear-gradient(90deg, rgb(var(--acc-2-rgb) / .45), var(--acc-1) 60%, var(--acc-3));
+}
+
+/* Die Rakete fliegt die Flugbahn ab, statt seitlich zu stehen.
+   Die Spitze fuehrt: sie sitzt auf dem Fortschrittspunkt, der Strahl haengt
+   dahinter — so liest man Flugrichtung ohne Erklaerung. */
+.rocket {
+  position: absolute;
+  top: 50%;
+  /* Die Bahn laeuft von der linken Kante bis zur rechten, aber IN den
+     sichtbaren Bereich hinein. Mit `left: scrollp*100%` plus Rueckversatz
+     stuende die Rakete bei Scroll 0 komplett ausserhalb des Bildes — genau
+     der Fehler, den die alte vertikale Variante an beiden Enden hatte. */
+  --rk-w: 84px;
+  /* `left` am Scroll zu haengen hiess: bei jedem Scroll-Ereignis ein neues
+     Layout — auf einem sticky Header, also fuer den ganzen Kopfbereich.
+     Genau davor warnt der Kommentar zwei Regeln weiter oben bei
+     `.nav-progress i`. Jetzt laeuft dieselbe Bahn ueber `transform`, das der
+     Compositor allein erledigt. `100cqw` ist die Breite von `.nav-progress`
+     und damit deckungsgleich mit dem frueheren `100%`. */
+  left: 6px;
+  width: var(--rk-w); height: auto;
+  transform: translate(calc(var(--scrollp, 0) * (100cqw - var(--rk-w) - 12px)), -50%);
+  overflow: visible;                 /* der Strahl reicht aus der viewBox */
+}
+
+/* SCHUB. --thrust kommt aus der Scroll-Geschwindigkeit: schneller scrollen
+   heisst mehr Schub heisst laengerer Strahl. Das ist dieselbe Kopplung von
+   Effekt an Bewegung, die gute Sites benutzen — nur hier physikalisch
+   motiviert statt dekorativ. Im Stand laeuft das Triebwerk gedrosselt. */
+.rocket .rk-jet {
+  transform-origin: 22px 15px;
+  /* Drei Aenderungen gegenueber vorher, alle noetig, damit der Schub SPUERBAR
+     wird statt nur messbar:
+     1. Beide Achsen. Vorher wuchs der Strahl nur in die Laenge — er wurde
+        laenger, aber nicht groesser. Groesse verkauft Schub, Laenge nicht.
+     2. Groessere Spanne (.42 statt .55 als Ruhewert, Spitze ueber 1 hinaus).
+        Der Ruhewert muss klein sein, sonst gibt es nichts, wogegen der
+        Ausschlag kontrastieren koennte.
+     3. KEINE transition mehr. Die alte 0.5s-Transition glaettete genau die
+        schnelle Spitze weg, die man sehen soll — ein kurzer Scroll-Stoss wurde
+        zu sanftem Schwellen. Die Glaettung liegt jetzt im JS und ist dort
+        asymmetrisch: schneller Anstieg, traeges Abklingen. */
+  transform: scale(calc(.42 + var(--thrust, 0) * 1.05),
+                   calc(.70 + var(--thrust, 0) * .85));
+  opacity: calc(.55 + var(--thrust, 0) * .45);
+}
+/* Die Flamme beleuchtet den Rumpf mit. Das ist der Teil, der den Schub
+   physikalisch begruendet statt ihn nur zu behaupten. */
+.rocket .rk-body {
+  /* GESTUFTER Schub (`--thrust-q`, sechzehn Stufen) statt des stufenlosen:
+     an diesem Wert haengt der Weichzeichnerradius eines `drop-shadow`, und
+     jeder neue Wert zwingt den Browser, den Schatten neu zu rastern. Sechzehn
+     Stufen sind auf 84 Pixel Breite nicht vom stufenlosen Verlauf zu
+     unterscheiden. Bewegung und Deckkraft der Flamme selbst haengen weiter am
+     stufenlosen `--thrust` — dort waere die Stufung zu sehen. */
+  filter: drop-shadow(0 1px 1.5px rgb(0 0 0 / .6))
+          drop-shadow(-6px 0 calc(2px + var(--thrust-q, 0) * 11px)
+                      rgb(255 186 116 / calc(var(--thrust-q, 0) * .6)));
+}
+/* Mach'sche Knoten flackern minimal und teilerfremd — nie als Schleife lesbar */
+.rocket .rk-jet-hot   { animation: rk-hot   .19s steps(2, end) infinite; transform-origin: 22px 15px; }
+.rocket .rk-jet-outer { animation: rk-outer .31s steps(2, end) infinite; transform-origin: 22px 15px; }
+.rocket .rk-diamonds  { animation: rk-dia   .23s steps(2, end) infinite; }
+@keyframes rk-hot   { 0%,100% { opacity: 1 }    50% { opacity: .78; transform: scaleX(.94) } }
+@keyframes rk-outer { 0%,100% { opacity: .92 }  50% { opacity: .74; transform: scaleX(1.05) } }
+@keyframes rk-dia   { 0%,100% { opacity: 1 }    50% { opacity: .72 } }
+
+/* Gedrosselt: sichtbar, aber ohne Bewegung */
+:root[data-fx="s"] .rocket .rk-jet-hot,
+:root[data-fx="s"] .rocket .rk-jet-outer,
+:root[data-fx="s"] .rocket .rk-diamonds { animation: none; }
+/* Ohne transition muss der Ruhezustand explizit gesetzt werden, sonst folgt der
+   Strahl auch in "Aus" und bei reduzierter Bewegung dem Scrollen. */
+:root[data-fx="s"] .rocket .rk-jet,
+:root[data-fx="s"] .rocket .rk-body { transform: scale(.85, 1); filter: drop-shadow(0 1px 1.5px rgb(0 0 0 / .6)); }
+:root[data-fx="s"] .rocket .rk-jet { opacity: .8; }
+@media (prefers-reduced-motion: reduce) {
+  .rocket .rk-jet-hot, .rocket .rk-jet-outer, .rocket .rk-diamonds { animation: none; }
+  .rocket .rk-jet { transform: scale(.85, 1); opacity: .8; }
+  .rocket .rk-body { filter: drop-shadow(0 1px 1.5px rgb(0 0 0 / .6)); }
+}
+
+@media (max-width: 560px) { .rocket { --rk-w: 60px; } }
+
+/* ---- Overlay-Menue ---- */
+.menu {
+  width: 100%; max-width: none;
+  min-height: 100svh;            /* nicht dvh: sonst wechselt die Hoehe mitten
+                                    in der Animation, wenn die iOS-Leiste einfaehrt */
+  margin: 0; padding: 0; border: 0;
+  /* Deckend, nicht .97: bei Teiltransparenz schimmerte der Seiteninhalt durch
+     und las sich als Schmutz statt als Tiefe. Die Stimmung kommt stattdessen
+     aus demselben Radial-Tint wie der Hero — gleiche Welt, andere Ebene. */
+  background: var(--hero-tint), var(--bg-void);
+  color: var(--ink);
+  overscroll-behavior: contain;  /* gegen iOS-Rubber-Banding */
+}
+.menu::backdrop { background: rgb(0 0 0 / .5); }
+.menu-inner {
+  min-height: 100svh;
+  display: flex; flex-direction: column;
+  padding: calc(var(--nav-h) + 18px) var(--pad) calc(24px + env(safe-area-inset-bottom));
+}
+.menu-eyebrow {
+  font-family: var(--font-mono); font-size: 11px; letter-spacing: .3em;
+  text-transform: uppercase; color: var(--ink-faint); margin-bottom: 22px;
+}
+.menu-list { list-style: none; display: grid; gap: 2px; }
+.menu-list a {
+  display: flex; align-items: baseline; gap: 14px;
+  min-height: 56px;              /* grosszuegig — im Overlay ist Platz */
+  padding: 12px 0;
+  font-family: var(--font-display);
+  font-size: clamp(27px, 8vw, 40px);
+  font-weight: var(--w-head);
+  letter-spacing: -.015em;
+  border-bottom: 1px solid var(--bg-hairline);
+}
+.menu-list .m-note {
+  font-family: var(--font-mono); font-size: 11px; font-weight: var(--w-micro);
+  letter-spacing: .1em; text-transform: uppercase; color: var(--ink-faint);
+}
+.menu-list a:hover .m-label, .menu-list a:focus-visible .m-label { color: var(--acc-1-tint); }
+/* Der Header samt Status-Pille liegt hinter dem Overlay. Die wichtigste
+   Aktion darf dadurch nicht verschwinden. */
+.menu-next {
+  margin-top: auto;
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  padding: 16px 18px;
+  border-radius: var(--radius);
+  border: 1px solid rgb(var(--acc-1-rgb) / .34);
+  background: linear-gradient(150deg, rgb(var(--bg-raised-rgb) / .9), rgb(var(--bg-base-rgb) / .7));
+}
+.menu-next .mn-when, .menu-next .mn-title, .menu-next .mn-where { display: block; }
+.menu-next .mn-when {
+  font-family: var(--font-mono); font-size: 11px; letter-spacing: .16em;
+  text-transform: uppercase; color: var(--acc-1-tint);
+}
+.menu-next .mn-title { font-family: var(--font-display); font-weight: var(--w-head); font-size: 17px; margin-top: 3px; }
+.menu-next .mn-where { font-size: 13px; color: var(--ink-dim); margin-top: 2px; }
+.menu-next .mn-go {
+  flex: none; font-family: var(--font-mono); font-size: 11px;
+  letter-spacing: .12em; text-transform: uppercase; color: var(--ink-dim);
+}
+.menu-next:hover { border-color: rgb(var(--acc-1-rgb) / .7); }
+.menu-next:hover .mn-go { color: var(--ink); }
+
+.menu-social {
+  margin-top: 26px; padding-top: 22px;
+  border-top: 1px solid var(--bg-hairline);
+  display: flex; flex-wrap: wrap; gap: 8px 18px;
+  font-family: var(--font-mono); font-size: 11.5px;
+  letter-spacing: .1em; text-transform: uppercase; color: var(--ink-dim);
+}
+.menu-social a:hover { color: var(--ink); }
+.menu-close {
+  margin-top: 22px;
+  align-self: stretch;
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  min-height: 54px;              /* unten, weil der Daumen dort schon liegt */
+  border: 1px solid var(--bg-hairline);
+  border-radius: 999px;
+  font-family: var(--font-mono); font-size: 12px;
+  letter-spacing: .14em; text-transform: uppercase; color: var(--ink-dim);
+}
+.menu-close:hover { color: var(--ink); border-color: rgb(var(--acc-1-rgb) / .5); }
+
+/* Startsequenz: das Menue faehrt von unten hoch, nicht von oben herunter.
+   Inhaltlich begruendet statt dekorativ — es passt zum T-Minus-Motiv. */
+:root.js .menu[open] { animation: menu-launch .42s var(--ease-out); }
+:root.js .menu[open] .menu-list li { animation: menu-item .5s var(--ease-out) backwards; }
+:root.js .menu[open] .menu-list li:nth-child(1) { animation-delay: .10s; }
+:root.js .menu[open] .menu-list li:nth-child(2) { animation-delay: .16s; }
+:root.js .menu[open] .menu-list li:nth-child(3) { animation-delay: .22s; }
+:root.js .menu[open] .menu-list li:nth-child(4) { animation-delay: .28s; }
+:root.js .menu[open] .menu-list li:nth-child(5) { animation-delay: .34s; }
+:root.js .menu[open] .menu-social,
+:root.js .menu[open] .menu-close { animation: menu-item .5s .38s var(--ease-out) backwards; }
+@keyframes menu-launch { from { clip-path: inset(100% 0 0 0); } to { clip-path: inset(0 0 0 0); } }
+@keyframes menu-item { from { opacity: 0; transform: translateY(26px); } }
+
+@media (max-width: 900px) {
+  .nav-links { display: none; }
+  .nav-burger { display: inline-flex; }
+  .nav-status { padding: 9px 12px; font-size: 11px; }
+  /* Der Menue-Knopf verliert sein Wort. Das Symbol allein ist an dieser
+     Stelle eindeutig, und das aria-label traegt die Bedeutung weiter. */
+  .nav-burger span { display: none; }
+}
+/* Ohne JS gibt es kein showModal() — dann bleiben die Links sichtbar,
+   statt hinter einem Knopf zu verschwinden, der nichts tut. */
+:root:not(.js) .nav-burger { display: none; }
+:root:not(.js) .nav-links { display: block; }
+:root:not(.js) .nav-links ul { flex-wrap: wrap; gap: 6px 16px; }
+:root:not(.js) .menu { display: none; }
+
+@media (max-width: 560px) {
+  .nav-brand { font-size: 19px; }
+  /* Umgekehrt zu frueher: das DATUM bleibt, das Preis-Tag geht. "FREE" allein
+     ohne Bezug war schwer lesbar; das Datum ist die Information, die traegt. */
+  .nav-status .st-tag { display: none; }
+  .nav-status { gap: 7px; padding: 10px 11px; }
+}
+
+/* Ganz schmal: die Zeile wird sonst gesprengt. Nachgerechnet bei 320px —
+   Wortmarke 61 + Marke 76 + Sprache 64 + Zeit 30 + Menue 24 plus Abstaende. */
+@media (max-width: 400px) {
+  :root { --bar-pad: 9px; }
+  .nav { gap: 5px; }
+  .nav-brand { font-size: 17px; }
+  .nav-status { font-size: 10px; letter-spacing: .04em; padding: 10px 8px; gap: 5px; }
+  .nav-status::before { width: 5px; height: 5px; }
+  .nav-rule { display: none; }
+  .nav-day { min-width: 28px; }
+  .nav-day svg { width: 15px; height: 15px; }
+  .nav-lang button { padding: 0 3px; }
+}
+/* Ganz schmale Telefone: das Datum reicht, der Wochentag ist entbehrlich.
+   Ein eigenes Element dafuer gibt es nicht, deshalb ueber die Schriftgroesse
+   statt ueber das Ausblenden eines Teils. */
+/* Unter 345px passt die Zeile nicht mehr, ohne dass etwas unleserlich klein
+   wird. Die Statusmarke geht — und zwar als Einzige ohne Verlust: dieselbe
+   Information steht eine Zeile darueber im Fahrplan-Ticker. */
+@media (max-width: 345px) {
+  :root { --bar-pad: 7px; }
+  .nav { gap: 4px; }
+  .nav-brand { font-size: 16px; }
+  .nav-status { display: none; }
+}
+
+/* ============================================================
+   HUD / Telemetrie-Leiste
+   ============================================================ */
+/* Nur noch Typografie und Fluss. Flaeche, Unschaerfe und Hoehe kommen von
+   .topbar bzw. aus --hud-cur — siehe den Block dort. */
+.hud {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: .10em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  display: flex; align-items: center; gap: 12px;
+  overflow: hidden;
+  border-bottom: 1px solid rgb(var(--acc-2-rgb) / .10);
+  padding-inline: var(--bar-pad);
+}
+/* Gleiche FORM wie der Akzentpunkt der Statusmarke, aber grau: gleiche Form,
+   anderer Rang — ohne ein zweites Zeichen einzufuehren. Der Leuchtschatten
+   faellt weg, er war der dritte Neonreiz in derselben Zeile. */
+.hud .dot {
+  width: 5px; height: 5px; border-radius: 50%;
+  background: var(--ink-faint);
+  flex: none;
+  animation: pulse 2.6s ease-in-out infinite;
+}
+@keyframes pulse { 50% { opacity: .45; } }
+/* EINSEITIGE Maske. Die beidseitige blendete die linken 4 % aus — und genau
+   dort steht bei t=0 der Anfang der ersten Meldung, weshalb das Laufband
+   scheinbar mitten im Wort begann. Links steht der Punkt als Kante, dort
+   braucht es keinen Weichzeichner; rechts laeuft der Text in den
+   Telegram-Link, dort schon. */
+.hud .marquee { overflow: hidden; flex: 1 1 0; min-width: 0; white-space: nowrap;
+  -webkit-mask-image: linear-gradient(90deg, #000 0 88%, transparent);
+  mask-image: linear-gradient(90deg, #000 0 88%, transparent); }
+.hud .marquee-track { display: inline-flex; gap: 3em; padding-right: 3em; animation: marquee 36s linear infinite; }
+/* will-change haelt dauerhaft eine eigene Kompositing-Ebene — ueber einer
+   unscharfen Flaeche ist das der teuerste Posten. Nur in der vollen Stufe. */
+:root[data-fx="l"] .hud .marquee-track { will-change: transform; }
+.hud .marquee:hover .marquee-track,
+.hud .marquee:focus-within .marquee-track { animation-play-state: paused; }
+@keyframes marquee { to { transform: translateX(-50%); } }
+:root[data-fx="s"] .marquee-track { animation: none !important; }
+.hud b { color: var(--ink); font-weight: var(--w-micro-b); }
+/* Ohne Akzentfarbe: in der Leiste gibt es genau einen Akzent, und der sitzt
+   auf der Statusmarke. */
+.hud em { color: var(--ink-dim); font-style: normal; }
+.hud .hud-link { color: var(--ink-dim); flex: none; border-bottom: 1px dotted var(--ink-faint); }
+.hud .hud-link:hover { color: var(--ink); }
+
+/* ============================================================
+   Hero
+   ============================================================ */
+.hero {
+  /* Frueher stand hier eine magische 40. Die Kopfleiste ist mit Ticker aber
+     rund 103px hoch, der Hero ragte also auf JEDEM Fenster unten heraus und
+     schnitt die Knoepfe der Event-Karte ab. --topbar-h gibt es bereits. */
+  min-height: calc(100svh - var(--topbar-h));
+  display: grid; place-items: center;
+  position: relative;
+  text-align: center;
+  padding: clamp(22px, 4vh, 90px) var(--pad);
+  background: var(--hero-tint);
+}
+/* `place-items: center` auf .hero macht das Grid-Item shrink-to-fit — dadurch
+   war die Breite von .hero-inner identisch mit der Breite der Wortmarke, und
+   fitText() mass gegen genau das Element, dessen Groesse es bestimmen sollte.
+   Diese Zirkelmessung ist der Grund, warum die Marke nie wachsen konnte.
+   Jetzt hat der Container eine vom Inhalt unabhaengige Breite. */
+.hero-inner {
+  width: min(100%, 1240px);
+  max-width: 100%;
+}
+
+.pretitle {
+  font-family: var(--font-mono); font-size: 12px;
+  letter-spacing: .35em; text-transform: uppercase;
+  color: var(--ink-dim);
+  margin-bottom: clamp(8px, 2vh, 18px);
+}
+
+.wordmark {
+  font-family: var(--font-logo);
+  /* Zwei Schranken, nicht eine: die Breite ueber vw wie bisher, die Hoehe ueber
+     vh. Ohne den vh-Term wuchs die Wortmarke auf breiten, flachen Schirmen so
+     weit, dass sie die Event-Karte aus dem Bild schob — die Karte ist aber das,
+     wofuer die Leute kommen. Auf hohen Schirmen und auf dem Handy bindet der
+     vw-Term weiterhin, dort aendert sich nichts. */
+  font-size: clamp(36px, min(13.5vw, 14.5vh), 176px);
+  line-height: 1.05;
+  letter-spacing: .01em;
+  font-weight: 400;
+  text-transform: lowercase;
+  white-space: nowrap;              /* nie umbrechen — JS passt die Größe exakt ein */
+  /* `background-clip: text` malt den Verlauf nur innerhalb der Padding-Box.
+     Alles, was die Glyphen darueber hinaus ragen, bekommt keine Farbe und wird
+     bei `color: transparent` unsichtbar — das war der harte Beschnitt oben und
+     rechts. Gemessen an Planet Kosmos mit dem Wort "takeoff":
+        Ink oben   0.17em ueber der Content-Box
+        Ink rechts 0.50em ueber die Advance-Breite hinaus
+        Ink links  0.05em, Ink unten 0.02em
+     Die Werte unten sind diese Maße plus Reserve. Das grosse padding-right
+     verschiebt den zentrierten Text um (0.56-0.10)/2 = 0.23em nach links und
+     gleicht damit genau den Rechtsueberhang der Glyphen aus — die Wortmarke
+     steht dadurch OPTISCH mittig, nicht nur rechnerisch. */
+  padding: .22em .56em .14em .1em;
+  /* Nur so viel zurueckziehen, wie oben/unten tatsaechlich Luft ist:
+     die Ink beginnt 0.05em unter der Box-Oberkante und endet 0.12em ueber
+     der Unterkante. Mehr wuerde die Vorzeile ueberlappen. */
+  margin: -.04em 0 -.1em;
+  background: linear-gradient(172deg,
+      var(--chrome-hi) 0%, var(--chrome-mid) 26%,
+      var(--chrome-hi) 42%, var(--chrome-lo) 60%,
+      var(--chrome-shadow) 72%, var(--chrome-mid) 86%, var(--chrome-hi) 100%);
+  /* Vorher 220 %: damit schob die sheen-Animation das dunkle Band der Rampe
+     komplett durch die Glyphen — die Marke wirkte im Takt der Animation mal
+     heller, mal loechrig. 112 % laesst den Glanz noch wandern (12 % der
+     Glyphenhoehe), aber kein dunkles Band mehr durchlaufen. */
+  background-size: 100% 112%;
+  -webkit-background-clip: text; background-clip: text;
+  color: transparent;
+  /* `background-clip: text` gibt der Glyphe keine eigene Fuellung — sichtbar
+     ist nur der Verlauf, und ueber hellen Bildteilen (Mond, Glints) fehlt der
+     Marke jede Kante. Die deckende Kontur zieht diese Kante hart nach.
+     `paint-order: stroke fill` legt den Strich hinter die Fuellung, damit er
+     nur nach aussen wirkt und die Glyphenform nicht aufdickt. */
+  -webkit-text-stroke: .008em var(--bg-void);
+  paint-order: stroke fill;
+  position: relative;
+  display: inline-block;
+  filter: drop-shadow(0 0 22px rgb(var(--acc-2-rgb) / .28));
+}
+:root[data-fx="m"] .wordmark, :root[data-fx="l"] .wordmark { animation: sheen 7s var(--ease-out) infinite; }
+/* Notausgang: passt die Wortmarke selbst bei Mindestgroesse nicht mehr in die
+   Zeile, wird umgebrochen statt abgeschnitten. */
+.wordmark.is-cramped {
+  white-space: normal;
+  word-break: break-word;
+  line-height: 1.15;
+}
+
+@keyframes sheen {
+  0%, 100% { background-position: 50% 0%; }
+  50% { background-position: 50% 100%; }
+}
+/* Der Liquid-Filter (feDisplacementMap) ist ersatzlos entfallen: er sampelte
+   ausserhalb der Quelle und erzeugte dadurch bis zu 6 px echt halbtransparenten
+   Glyphensaum — die Hauptursache dafuer, dass die Wortmarke durchscheinend
+   wirkte. Ein `feComposite … operator="in"` haette die Kante zwar wieder
+   beschnitten, aber der Effekt war die Kosten (dauerlaufende SVG-Filter-
+   Animation ueber der groessten Flaeche der Seite) nicht wert. */
+
+.tagline { color: var(--ink-dim); margin-top: clamp(6px, 1.2vh, 10px); font-size: clamp(15px, 1.6vw, 18px); }
+.tagline b { color: var(--ink); font-weight: var(--w-med); }
+
+/* Countdown */
+.tminus {
+  margin: clamp(12px, 2.4vh, 34px) auto 4px;
+  display: inline-flex; align-items: baseline; gap: 14px;
+  font-family: var(--font-mono);
+}
+.tminus .label {
+  font-size: 12px; letter-spacing: .3em; text-transform: uppercase;
+  color: var(--acc-3);
+}
+.tminus .clock {
+  font-size: clamp(19px, 4vw, 34px); font-weight: var(--w-micro-b);
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+  text-shadow:
+    0 0 5px rgb(var(--acc-3-rgb) / .4),
+    0 0 22px rgb(var(--acc-3-rgb) / .16);
+}
+.tminus .clock small { font-size: .5em; color: var(--ink-dim); font-weight: var(--w-micro); }
+
+/* Next-Event-Karte im Hero */
+.next-card {
+  margin: clamp(16px, 2.5vh, 26px) auto 0;
+  /* 560 war zu schmal: die beiden CTA-Knoepfe brauchen 521px und brachen auf
+     zwei Zeilen um, was die Karte um 56px wachsen liess und ihre Knoepfe unter
+     die Bildkante schob. Breiter steht sie ausserdem naeher an der Wortmarke. */
+  max-width: 600px;
+  border: 1px solid rgb(var(--acc-2-rgb) / .2);
+  border-radius: var(--radius-lg);
+  /* Deckend wie die Missionskarten (.mcard). Vorher 75 % -> 55 %: unten
+     rechts, wo die CTA-Buttons sitzen, schlug fast der halbe Hintergrund
+     durch, weshalb genau diese eine Karte "versank".
+     Der Magenta-Schleier war ein positioniertes ::before ohne z-index und lag
+     damit UEBER Datum, Headline und Chips. Als zweite Background-Ebene ist er
+     ein Paint statt einer Stapelfrage — das kann nicht wiederkommen.
+     Der frueher noetige backdrop-filter ist entfallen: hinter einer deckenden
+     Flaeche leistet er nichts und kostet nur Compositing. */
+  background:
+    radial-gradient(90% 120% at 85% -10%, rgb(var(--acc-1-rgb) / .16), transparent 60%),
+    linear-gradient(160deg, var(--bg-2), var(--bg-1));
+  padding: clamp(15px, 2.2vh, 22px) clamp(18px, 4vw, 30px);
+  text-align: left;
+  position: relative;
+  overflow: hidden;
+}
+.next-card .nc-date {
+  font-family: var(--font-mono); font-weight: var(--w-micro-b);
+  font-size: clamp(22px, 3.4vw, 30px);
+  color: var(--ink);
+}
+.next-card .nc-date em { font-style: normal; color: var(--acc-1); }
+.next-card h2 {
+  font-family: var(--font-display); font-weight: var(--w-head);
+  font-size: clamp(20px, 3vw, 26px);
+  margin: 6px 0 4px;
+}
+.next-card .nc-meta { color: var(--ink-dim); font-size: 15px; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+.chip {
+  font-family: var(--font-mono); font-size: 11px;
+  letter-spacing: .12em; text-transform: uppercase;
+  padding: 6px 11px; border-radius: 999px;
+  border: 1px solid rgb(var(--acc-3-rgb) / .35);
+  color: var(--ink-dim);
+}
+.chip.hot { border-color: rgb(var(--acc-1-rgb) / .6); color: var(--ink); background: rgb(var(--acc-1-rgb) / .12); }
+
+.cta-row { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 20px; }
+.btn {
+  display: inline-flex; align-items: center; gap: 9px;
+  font-family: var(--font-mono); font-size: 13px; font-weight: var(--w-micro-b);
+  letter-spacing: .1em; text-transform: uppercase;
+  padding: 13px 22px; border-radius: 999px;
+  transition: transform .25s var(--ease-out), box-shadow .25s var(--ease-out), background .25s;
+}
+.btn-primary {
+  /* Chrome statt Bonbon: gebürstetes Metall, passend zum Logo */
+  background: linear-gradient(165deg, #f4f3fa 0%, #cfccdf 38%, #f0eef7 52%, #a5a1bf 78%, #dddbe9 100%);
+  color: var(--bg-void);
+  border: 1px solid rgb(255 255 255 / .5);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / .8), 0 2px 10px rgb(0 0 0 / .35);
+}
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / .8), 0 6px 22px rgb(0 0 0 / .4), 0 0 18px rgb(var(--acc-1-rgb) / .25);
+}
+.btn-ghost { border: 1px solid rgb(var(--acc-2-rgb) / .4); color: var(--ink); }
+.btn-ghost:hover { background: rgb(var(--acc-2-rgb) / .12); transform: translateY(-2px); }
+
+.scroll-hint {
+  /* Frueher `position: absolute; bottom: 22px` — der Hinweis klebte damit am
+     Hero-Ende, nicht an der Bildkante, und legte sich auf die Event-Karte,
+     sobald der Hero enger wurde als sein Inhalt. Im Fluss kann das nicht
+     passieren: er steht immer unter der Karte, mit garantiertem Abstand. */
+  margin: clamp(14px, 2.4vh, 26px) auto 0;
+  font-family: var(--font-mono); font-size: 10.5px; letter-spacing: .3em;
+  text-transform: uppercase; color: var(--ink-faint);
+}
+.scroll-hint::after {
+  content: ""; display: block; width: 1px; height: 34px;
+  margin: 8px auto 0;
+  background: linear-gradient(180deg, var(--acc-3), transparent);
+}
+:root[data-fx="m"] .scroll-hint::after, :root[data-fx="l"] .scroll-hint::after { animation: drip 2s var(--ease-out) infinite; }
+@keyframes drip { 0% { transform: scaleY(0); transform-origin: top; } 60% { transform: scaleY(1); } 100% { transform: scaleY(1); opacity: 0; } }
+
+/* ============================================================
+   Sections
+   ============================================================ */
+.section { padding: clamp(70px, 12vh, 130px) 0; position: relative; }
+.section-head { margin-bottom: clamp(30px, 5vh, 54px); }
+.eyebrow {
+  font-family: var(--font-mono); font-size: 12px;
+  letter-spacing: .3em; text-transform: uppercase;
+  color: var(--acc-3);
+  display: flex; align-items: center; gap: 12px;
+  margin-bottom: 14px;
+}
+.eyebrow::before { content: ""; width: 26px; height: 1px; background: var(--acc-3); }
+.h2 {
+  font-family: var(--font-display);
+  font-size: clamp(30px, 5.4vw, 54px);
+  font-weight: var(--w-display); line-height: 1.08;
+  letter-spacing: -.01em;
+}
+/* 3-Schicht-Glow (Doc 42): heller Kern (Tint-Farbe) + enger Schein + weiter Halo */
+.h2 .glow {
+  color: var(--acc-1-tint);
+  text-shadow:
+    0 0 6px rgb(var(--acc-1-rgb) / .5),
+    0 0 28px rgb(var(--acc-1-rgb) / .2);
+}
+.section-intro { max-width: 640px; color: var(--ink-dim); margin-top: 16px; }
+
+/* Missionen (Event-Karten) */
+.missions { position: relative; }
+.missions::before {
+  /* Mathematisch nahtloses Waben-Tile (34.64×60 = √3·R × 3R bei R=20) —
+     Kanten schließen exakt aneinander an. */
+  content: ""; position: absolute; inset: 0; z-index: -1;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='34.64' height='60' viewBox='0 0 34.64 60'%3E%3Cpath d='M17.32 0 34.64 10v20L17.32 40 0 30V10z M17.32 40v20' fill='none' stroke='%23a18fe0' stroke-opacity='0.045'/%3E%3C/svg%3E");
+  mask-image: linear-gradient(180deg, transparent, #000 12%, #000 88%, transparent);
+}
+/* perspective MUSS auf dem Eltern-Element liegen: `transform-style:
+   preserve-3d` allein reicht nicht — ohne Fluchtpunkt rendert eine
+   3D-Rotation als flache affine Verzerrung. Genau deshalb war der
+   Karten-Tilt bisher unsichtbar. */
+.card-grid {
+  perspective: 1100px;
+  perspective-origin: 50% 40%;
+  display: grid;
+  gap: 18px;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+}
+.mcard {
+  --card-acc: var(--acc-1);
+  --card-acc-rgb: var(--acc-1-rgb);
+  position: relative;
+  border-radius: var(--radius-lg);
+  border: 1px solid rgb(var(--card-acc-rgb) / .22);
+  background: linear-gradient(165deg, var(--bg-2), var(--bg-1));
+  padding: 26px 24px 24px;
+  overflow: hidden;
+  /* Eigener Stapelkontext, damit das ::after mit z-index:-1 zuverlaessig
+     INNERHALB der Karte bleibt (hinter dem Text, vor dem Kartengrund) statt
+     hinter den Kartenhintergrund durchzufallen. */
+  isolation: isolate;
+  transition: transform .35s var(--ease-out), border-color .35s, box-shadow .35s var(--ease-out);
+  transform-style: preserve-3d;
+  display: block;
+}
+.mcard:hover {
+  transform: translateY(-6px);
+  border-color: rgb(var(--card-acc-rgb) / .65);
+  box-shadow: 0 18px 44px rgb(0 0 0 / .5), 0 0 30px rgb(var(--card-acc-rgb) / .18);
+}
+/* Ohne z-index lag dieses Pseudoelement ueber dem statischen Inhalt der Karte
+   — der Hover-Schleier legte sich auf Datum, Headline und Meta-Text. */
+.mcard::after {
+  content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none; opacity: 0;
+  background: radial-gradient(70% 90% at var(--mx, 80%) var(--my, 0%), rgb(var(--card-acc-rgb) / .16), transparent 65%);
+  transition: opacity .35s;
+}
+.mcard:hover::after { opacity: 1; }
+.mcard .patch {
+  width: 56px; height: 56px; border-radius: 50%;
+  display: grid; place-items: center;
+  color: var(--card-acc);
+  background: radial-gradient(circle at 32% 26%, rgb(255 255 255 / .1), rgb(var(--bg-base-rgb) / .92) 62%);
+  border: 1px solid rgb(255 255 255 / .22);
+  box-shadow:
+    inset 0 0 0 3px rgb(var(--card-acc-rgb) / .18),
+    0 0 14px rgb(var(--card-acc-rgb) / .2);
+  margin-bottom: 18px;
+}
+.patch svg { width: 26px; height: 26px; }
+.mcard .m-date { font-family: var(--font-mono); font-weight: var(--w-micro-b); font-size: 22px; }
+.mcard .m-date em { font-style: normal; color: var(--card-acc); }
+.mcard h3 { font-family: var(--font-display); font-weight: var(--w-head); font-size: 21px; margin: 6px 0 2px; }
+.mcard .m-meta { color: var(--ink-dim); font-size: 14.5px; }
+.mcard .status {
+  position: absolute; top: 20px; right: 20px;
+  font-family: var(--font-mono); font-size: 10px; letter-spacing: .18em;
+  padding: 5px 10px; border-radius: 999px;
+  border: 1px solid rgb(var(--card-acc-rgb) / .5);
+  color: var(--card-acc);
+  background: rgb(var(--card-acc-rgb) / .08);
+}
+.mcard .m-link {
+  margin-top: 16px; display: inline-block;
+  font-family: var(--font-mono); font-size: 12px; letter-spacing: .12em; text-transform: uppercase;
+  color: var(--card-acc);
+}
+.mcard .m-link::after { content: " →"; }
+
+/* Sound */
+.genres { display: flex; flex-wrap: wrap; gap: 10px; margin: 22px 0 34px; }
+.genres .chip { font-size: 12.5px; padding: 9px 16px; }
+.setgrid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+.setcard {
+  border-radius: var(--radius);
+  border: 1px solid rgb(var(--acc-2-rgb) / .2);
+  overflow: hidden;
+  background: var(--bg-1);
+  transition: transform .3s var(--ease-out), border-color .3s;
+}
+.setcard:hover { transform: translateY(-4px); border-color: rgb(var(--acc-2-rgb) / .5); }
+.setcard .cover {
+  aspect-ratio: 16 / 9;
+  display: grid; place-items: center;
+  /* Vorher lagen hier alle drei Akzentfarben in einem Verlauf bei .35/.25/.30
+     — die farbstaerkste Flaeche der ganzen Seite, dreimal nebeneinander, und
+     das fuer reinen Platzhalter-Inhalt. Jetzt eine ruhige Oberflaeche mit
+     einem sehr flachen Irisieren als Materialandeutung. */
+  background:
+    var(--irid-veil),
+    linear-gradient(158deg, var(--bg-raised), var(--bg-base));
+  position: relative;
+}
+.setcard .cover .play {
+  width: 52px; height: 52px; border-radius: 50%;
+  display: grid; place-items: center;
+  background: rgb(var(--bg-void-rgb) / .65);
+  border: 1px solid rgb(255 255 255 / .35);
+  font-size: 18px;
+  transition: transform .3s var(--ease-out), background .3s;
+}
+.setcard:hover .play { transform: scale(1.12); background: rgb(var(--acc-1-rgb) / .5); }
+.setcard .s-meta { padding: 14px 16px; }
+.setcard .s-meta b { display: block; font-weight: var(--w-strong); }
+.setcard .s-meta span { color: var(--ink-faint); font-size: 13px; font-family: var(--font-mono); }
+.setcard .consent-note {
+  padding: 12px 16px; font-size: 13px; color: var(--ink-dim);
+  border-top: 1px dashed rgb(var(--acc-2-rgb) / .3);
+  display: none;
+}
+.setcard.asked .consent-note { display: block; }
+
+/* Crew */
+.crewgrid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); }
+.ccard {
+  border: 1px solid rgb(var(--acc-2-rgb) / .2);
+  border-radius: var(--radius);
+  padding: 22px 18px;
+  text-align: center;
+  background: linear-gradient(180deg, var(--bg-1), transparent);
+  transition: transform .3s var(--ease-out), border-color .3s;
+}
+.ccard:hover { transform: translateY(-4px); border-color: rgb(var(--acc-1-rgb) / .5); }
+.ccard .avatar, .mcard .avatar {
+  width: 74px; height: 74px; margin: 0 auto 14px;
+  border-radius: 50%;
+  display: grid; place-items: center;
+  font-family: var(--font-display); font-weight: var(--w-head); font-size: 19px;
+  letter-spacing: .04em;
+  color: var(--ink);
+  background: radial-gradient(circle at 30% 25%, rgb(255 255 255 / .09), rgb(var(--bg-base-rgb) / .95) 65%);
+  border: 1px solid rgb(255 255 255 / .22);
+  box-shadow: inset 0 0 0 3px rgb(var(--acc-2-rgb) / .16), 0 0 16px rgb(var(--acc-1-rgb) / .12);
+}
+.ccard .avatar svg, .mcard .avatar svg { width: 27px; height: 27px; color: var(--acc-2); }
+.ccard b { font-family: var(--font-display); font-weight: var(--w-head); font-size: 16px; }
+.ccard span { display: block; margin-top: 4px; font-family: var(--font-mono); font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-faint); }
+
+/* Awareness (bewusst ruhig) */
+.aware {
+  border-radius: var(--radius-lg);
+  border: 1px solid rgb(var(--acc-2-rgb) / .25);
+  background: linear-gradient(170deg, rgb(var(--bg-raised-rgb) / .8), rgb(var(--bg-base-rgb) / .9));
+  padding: clamp(26px, 5vw, 46px);
+}
+.aware h2, .aware .h2 { text-shadow: none; }
+.aware-grid { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); margin-top: 26px; }
+.atile {
+  border-radius: var(--radius);
+  background: rgb(var(--acc-2-rgb) / .07);
+  border: 1px solid rgb(var(--acc-2-rgb) / .18);
+  padding: 18px;
+  font-size: 15px;
+}
+.atile b { display: block; margin-bottom: 6px; font-weight: var(--w-strong); }
+.atile .ico { display: block; margin-bottom: 12px; color: var(--acc-2); }
+.atile .ico svg { width: 22px; height: 22px; }
+.aware .note { margin-top: 22px; color: var(--ink-dim); font-size: 14.5px; }
+.aware .note a { color: var(--acc-3); border-bottom: 1px dotted currentColor; }
+
+/* Flight Log */
+.flog { list-style: none; position: relative; margin-top: 10px; }
+.flog::before {
+  content: ""; position: absolute; left: 28px; top: 8px; bottom: 8px; width: 2px;
+  background: linear-gradient(180deg, var(--acc-1), rgb(var(--acc-2-rgb) / .1));
+}
+.flog li {
+  position: relative;
+  padding: 14px 0 14px 76px;
+  display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px 16px;
+}
+.flog .fpatch {
+  position: absolute; left: 8px; top: 50%; transform: translateY(-50%);
+  width: 42px; height: 42px; border-radius: 50%;
+  display: grid; place-items: center;
+  font-family: var(--font-mono); font-size: 11.5px; font-weight: var(--w-micro-b);
+  /* Tint statt Vollton: --acc-2 kommt als 11.5px-Schrift auf dem
+     Seitengrund nur auf 3.94:1. Der Tint traegt 9.38:1 und bleibt derselbe
+     Farbort. */
+  letter-spacing: .04em; color: var(--acc-2-tint);
+  background: radial-gradient(circle at 30% 25%, rgb(255 255 255 / .09), rgb(var(--bg-base-rgb) / .95) 65%);
+  border: 1px solid rgb(255 255 255 / .2);
+  box-shadow: inset 0 0 0 2px rgb(var(--acc-1-rgb) / .16);
+}
+.flog .fdate { font-family: var(--font-mono); font-weight: var(--w-micro-b); color: var(--ink); min-width: 92px; }
+.flog .fname { font-family: var(--font-display); font-weight: var(--w-head); }
+.flog .fvenue { color: var(--ink-faint); font-size: 14px; }
+.flog .fnote { flex-basis: 100%; color: var(--ink-dim); font-size: 14px; }
+
+/* ============================================================
+   Theme-Deko-Items (Rand-Gimmicks, wechseln mit dem Event-Theme)
+   ============================================================ */
+/* Items hängen an ihrer Section (nicht an Seiten-vh) — Inhalte können wachsen,
+   ohne dass Deko in Text rutscht (Research 45). Sichtbar erst ab 1200px,
+   weil erst dort echte freie Randzonen neben dem 1120px-Grid existieren. */
+.ditem {
+  position: absolute;
+  top: var(--top, 40%); left: var(--left, 2vw); right: var(--right, auto);
+  color: var(--acc-2);
+  opacity: .32;
+  display: none;
+  pointer-events: none;
+  padding: 0; background: none; border: 0;
+}
+.ditem svg { width: clamp(30px, 4vw, 56px); height: auto; }
+.ditem.big svg { width: clamp(48px, 6.5vw, 92px); }
+@media (min-width: 1200px) {
+  html:not([data-theme]) .d-space { display: block; }
+  html[data-theme="mars"] .d-mars { display: block; }
+  html[data-theme="strand"] .d-strand { display: block; }
+}
+/* Float auf dem SVG, Parallax (GSAP) auf dem Wrapper — kein Transform-Konflikt */
+:root[data-fx="m"] .ditem svg, :root[data-fx="l"] .ditem svg { animation: dfloat 9s ease-in-out infinite; }
+.ditem:nth-of-type(2n) svg { animation-delay: -3s; }
+@keyframes dfloat { 50% { transform: translateY(-12px) rotate(2deg); } }
+
+/* Verstecktes Sammel-Item (1 pro Theme) */
+.ditem[data-secret] { pointer-events: auto; cursor: pointer; }
+.ditem[data-secret]:hover, .ditem[data-secret]:focus-visible { opacity: .6; }
+.ditem.found svg { animation: eggpop .9s var(--ease-out); }
+@keyframes eggpop { 30% { transform: scale(1.4) rotate(20deg); } 60% { transform: scale(1.1) rotate(-8deg); } }
+
+.toast {
+  position: fixed; bottom: 88px; left: 50%;
+  transform: translate(-50%, 14px);
+  opacity: 0; pointer-events: none; z-index: 130;
+  background: rgb(var(--bg-base-rgb) / .95);
+  border: 1px solid rgb(var(--acc-1-rgb) / .5);
+  border-radius: 999px;
+  padding: 10px 20px;
+  font-family: var(--font-mono); font-size: 12.5px; letter-spacing: .05em;
+  transition: opacity .4s var(--ease-out), transform .4s var(--ease-out);
+}
+.toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+/* Chrome-Genre-Band (Zwischen-Element) */
+.band {
+  overflow: hidden;
+  border-top: 1px solid var(--bg-hairline);
+  border-bottom: 1px solid var(--bg-hairline);
+  padding: 18px 0;
+  white-space: nowrap;
+  mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
+}
+.band-track {
+  display: inline-flex; gap: .8em; align-items: baseline;
+  font-family: var(--font-display); font-weight: var(--w-display);
+  font-size: clamp(26px, 5vw, 56px);
+  letter-spacing: .02em; text-transform: uppercase;
+  background: linear-gradient(172deg, var(--chrome-hi), var(--chrome-mid) 45%, var(--chrome-lo) 75%, var(--chrome-mid));
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  padding-right: .8em;
+  animation: marquee 46s linear infinite;
+  will-change: transform;
+}
+.band-track .sep { color: var(--acc-1); -webkit-text-fill-color: var(--acc-1); opacity: .7; }
+:root[data-fx="s"] .band-track { animation: none !important; }
+
+/* Angehalten, weil das Element gerade nicht im Bild ist — gesetzt vom
+   IntersectionObserver in main.js. */
+.anim-idle { animation-play-state: paused; }
+
+/* Stats-Band (Zwischen-Element) */
+.stats {
+  /* min(150px, 100%) statt 150px: eine Spur unter 150px breite Anzeige kann
+     eine 150px-Mindestspalte nicht mehr unterbringen, und das Raster laeuft
+     ueber statt umzubrechen. Der min()-Griff ist die Standardloesung dafuer
+     und aendert oberhalb von 150px nichts. */
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(min(150px, 100%), 1fr));
+  gap: 18px;
+  padding: 34px 0;
+  border-top: 1px solid var(--bg-hairline);
+  border-bottom: 1px solid var(--bg-hairline);
+  text-align: center;
+}
+.stats b {
+  display: block;
+  font-family: var(--font-mono); font-weight: var(--w-micro-b);
+  font-size: clamp(24px, 3.6vw, 38px);
+  font-variant-numeric: tabular-nums;
+  background: linear-gradient(172deg, var(--chrome-hi), var(--chrome-mid) 55%, var(--chrome-lo));
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.stats span {
+  font-family: var(--font-mono); font-size: 10.5px;
+  letter-spacing: .22em; text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+/* ============================================================
+   Aufklappbare Karten (Missionen, Artists) — It. 7
+   Grid-Rows-Trick: animierbar ohne feste Hoehe, ohne JS-Messung.
+   ============================================================ */
+.mcard[data-expand] { cursor: pointer; }
+.mcard[data-expand].open { transform: none !important; }   /* Tilt aus, solange offen */
+.m-more { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .55s var(--ease-out); }
+.m-more-inner { overflow: hidden; min-height: 0; }
+.mcard.open .m-more { grid-template-rows: 1fr; }
+.m-rows { margin: 16px 0 0; border-top: 1px solid var(--bg-hairline); }
+.m-row {
+  display: flex; justify-content: space-between; align-items: baseline; gap: 16px;
+  /* Flex-Kinder schrumpfen per Vorgabe nicht unter ihre Inhaltsbreite. Bei
+     langen Werten (E-Mail-Adressen, Anschriften) sprengt das die Zeile auf
+     schmalen Anzeigen. `wrap` erlaubt den Umbruch in zwei Zeilen, `min-width:0`
+     hebt die Sperre auf, und `anywhere` bricht zur Not auch innerhalb eines
+     Wortes — besser als ein waagerechter Bildlauf auf dem Telefon. */
+  flex-wrap: wrap;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--bg-hairline);
+  font-size: 14.5px;
+}
+.m-row > * { min-width: 0; overflow-wrap: anywhere; }
+.m-row dt {
+  font-family: var(--font-mono); font-size: 10px;
+  letter-spacing: .2em; text-transform: uppercase;
+  color: var(--ink-faint); flex: none;
+}
+.m-row dd { margin: 0; text-align: right; color: var(--ink-dim); }
+.m-row dd b { color: var(--ink); font-weight: var(--w-strong); }
+.m-brief { margin-top: 14px; color: var(--ink-dim); font-size: 14.5px; }
+.m-more .cta-row { margin-top: 18px; }
+.m-more .btn { padding: 11px 18px; font-size: 12px; }
+
+.m-toggle {
+  margin-top: 16px;
+  display: inline-flex; align-items: center; gap: 8px;
+  font-family: var(--font-mono); font-size: 12px; font-weight: var(--w-micro-b);
+  letter-spacing: .12em; text-transform: uppercase;
+  color: var(--card-acc, var(--acc-2));
+}
+.m-toggle svg { width: 14px; height: 14px; transition: transform .45s var(--ease-out); }
+.mcard.open .m-toggle svg { transform: rotate(180deg); }
+
+/* ============================================================
+   Unterseiten: Hero-Lite, Verweise, Transmission, Gaeste-Log
+   ============================================================ */
+.phero {
+  padding: clamp(46px, 8vh, 84px) 0 clamp(8px, 2vh, 20px);
+  background: var(--hero-tint);
+}
+.phero h1 {
+  font-family: var(--font-display);
+  font-size: clamp(32px, 5.6vw, 60px);
+  font-weight: var(--w-display); line-height: 1.06; letter-spacing: -.01em;
+}
+.phero .section-intro { margin-top: 14px; }
+
+.head-link {
+  display: inline-flex; align-items: center; gap: 7px;
+  margin-top: 16px;
+  font-family: var(--font-mono); font-size: 12px; font-weight: var(--w-micro-b);
+  letter-spacing: .12em; text-transform: uppercase;
+  color: var(--ink-dim);
+  border-bottom: 1px solid var(--bg-hairline);
+  padding-bottom: 3px;
+  transition: color .25s, border-color .25s;
+}
+.head-link::after { content: "→"; transition: transform .3s var(--ease-out); }
+.head-link:hover, .head-link:focus-visible { color: var(--ink); border-color: rgb(var(--acc-1-rgb) / .5); }
+.head-link:hover::after { transform: translateX(4px); }
+
+.transmission {
+  border: 1px dashed rgb(var(--acc-2-rgb) / .3);
+  border-radius: var(--radius-lg);
+  padding: clamp(26px, 5vw, 46px);
+  text-align: center;
+  color: var(--ink-dim);
+}
+.transmission .tx-label {
+  display: inline-flex; align-items: center; gap: 9px;
+  font-family: var(--font-mono); font-size: 11px; font-weight: var(--w-micro-b);
+  letter-spacing: .26em; text-transform: uppercase;
+  color: var(--acc-3-tint);
+  margin-bottom: 12px;
+}
+.transmission .tx-label::before {
+  content: ""; width: 7px; height: 7px; border-radius: 50%;
+  background: currentColor;
+  animation: pulse 2.2s ease-in-out infinite;
+}
+.transmission p { max-width: 460px; margin-inline: auto; font-size: 15px; }
+
+.glog { display: flex; flex-wrap: wrap; gap: 9px; }
+.glog .chip { font-size: 12px; padding: 8px 14px; color: var(--ink-dim); border-color: var(--bg-hairline); }
+.glog .chip:hover { color: var(--ink); border-color: rgb(var(--acc-2-rgb) / .45); }
+
+/* ============================================================
+   News / Mission Log + Galerie-Platzhalter (It. 8)
+   ============================================================ */
+.news-list { display: grid; gap: 14px; max-width: 780px; }
+.ncard {
+  border: 1px solid var(--bg-hairline);
+  border-radius: var(--radius);
+  padding: 18px 20px;
+  background: linear-gradient(170deg, rgb(27 24 54 / .35), transparent);
+  transition: border-color .3s;
+}
+.ncard:hover { border-color: rgb(var(--acc-2-rgb) / .35); }
+.ncard .n-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 10px 14px; margin-bottom: 8px; }
+.ncard .n-badge {
+  font-family: var(--font-mono); font-size: 9.5px; font-weight: var(--w-micro-b);
+  letter-spacing: .2em; text-transform: uppercase;
+  padding: 4px 9px; border-radius: 999px;
+  border: 1px solid rgb(var(--n-acc, var(--acc-2-rgb)) / .5);
+  color: rgb(var(--n-acc, var(--acc-2-rgb)));
+}
+.ncard .n-date { font-family: var(--font-mono); font-size: 12px; color: var(--ink-faint); }
+.ncard h3 { font-family: var(--font-display); font-weight: var(--w-head); font-size: 17px; margin-bottom: 6px; }
+.ncard p { color: var(--ink-dim); font-size: 14.5px; }
+.ncard .n-insta {
+  margin-top: 12px; display: inline-flex; align-items: center; gap: 8px;
+  font-family: var(--font-mono); font-size: 11.5px; letter-spacing: .1em; text-transform: uppercase;
+  color: var(--acc-3-tint);
+  border: 1px dashed rgb(var(--acc-3-rgb) / .4);
+  border-radius: 999px; padding: 7px 13px;
+}
+
+.gallery-grid { display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
+.gph {
+  aspect-ratio: 4 / 3;
+  border: 1px dashed rgb(var(--acc-2-rgb) / .3);
+  border-radius: 10px;
+  display: grid; place-items: center;
+  font-family: var(--font-mono); font-size: 10px; letter-spacing: .14em; text-transform: uppercase;
+  color: var(--ink-faint);
+  text-align: center; padding: 8px;
+  background:
+    repeating-linear-gradient(-45deg, transparent 0 9px, rgb(var(--acc-2-rgb) / .04) 9px 10px);
+}
+
+/* ============================================================
+   Footer + Mission Control
+   ============================================================ */
+footer {
+  /* `position: relative` ist Pflicht, nicht Kosmetik: erst damit malt der
+     Footer-Hintergrund im Schritt der positionierten Elemente und liegt ueber
+     Grain (body::after) und Vignette (html::after), die beide auf z-index:-1
+     sitzen. Ohne sie bliebe der Hintergrund darunter und wirkte nicht.
+     Kein z-index — sonst geriete das Mission-Control-Panel (z-index:120) in
+     Konkurrenz; so bleibt es zuverlaessig obenauf. */
+  position: relative;
+  /* #horizon ist fixed, im Footer-Bereich steht deshalb immer der unterste,
+     hellste Teil des Bodenbildes. Der Footer deckt ihn ab — aber weich, damit
+     das Seitenende nicht als Kante abschneidet: die ersten ~120 px blenden von
+     transparent auf deckend, danach steht der dunkelste Ton der Rampe.
+     Mehrstufiger Verlauf statt Pseudoelement, damit der Uebergang im Footer
+     selbst liegt und nichts ueber den Inhalt darueber ragt. */
+  background:
+    linear-gradient(180deg,
+      rgb(var(--bg-void-rgb) / 0)   0px,
+      rgb(var(--bg-void-rgb) / .55) 34px,
+      rgb(var(--bg-void-rgb) / .92) 78px,
+      var(--bg-void)                120px);
+  border-top: 1px solid rgb(var(--acc-2-rgb) / .34);
+  padding: 54px 0 130px;
+  /* Ruhiger als der Inhalt darueber: der Footer soll Schluss signalisieren,
+     nicht mitlesen wollen. */
+  color: var(--ink-faint);
+  font-size: 14.5px;
+}
+.foot-grid { display: grid; gap: 30px; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
+footer h4 { font-family: var(--font-mono); font-size: 11px; letter-spacing: .25em; text-transform: uppercase; color: var(--ink-faint); margin-bottom: 12px; }
+footer ul { list-style: none; display: grid; gap: 8px; }
+footer a:hover { color: var(--ink); }
+.no-track {
+  display: inline-flex; align-items: center; gap: 8px;
+  margin-top: 8px; padding: 8px 13px; border-radius: 999px;
+  border: 1px solid rgb(var(--acc-3-rgb) / .35);
+  font-family: var(--font-mono); font-size: 11px; letter-spacing: .1em;
+  color: var(--acc-3);
+}
+.love { margin-top: 40px; text-align: center; font-size: 15px; color: var(--ink-dim); }
+/* Links duerfen nicht auf ink-faint absacken — sie sind das einzige
+   Bedienelement im Footer und brauchen die hoehere Stufe. */
+footer a { color: var(--ink-dim); }
+.love b { color: var(--acc-1); }
+.proto-note { text-align: center; margin-top: 12px; font-family: var(--font-mono); font-size: 11px; color: var(--ink-faint); letter-spacing: .1em; }
+
+/* Mission Control Panel */
+.mctrl {
+  position: fixed; right: 14px; bottom: 14px; z-index: 120;
+  border: 1px solid rgb(var(--acc-2-rgb) / .35);
+  border-radius: 16px;
+  /* .9 -> .96: bei 90 % schlug der helle Marsboden durch und drueckte das
+     9.5px-Label des Panels auf 4.28:1. */
+  background: rgb(var(--bg-base-rgb) / .96);
+  -webkit-backdrop-filter: blur(10px) saturate(1.4);
+  backdrop-filter: blur(10px) saturate(1.4);
+  padding: 12px 14px;
+  font-family: var(--font-mono);
+  box-shadow: 0 10px 40px rgb(0 0 0 / .55);
+  max-width: calc(100vw - 28px);
+}
+.mctrl .row { display: flex; align-items: center; gap: 8px; }
+.mctrl .row + .row { margin-top: 9px; }
+.mctrl .lbl { font-size: 9.5px; letter-spacing: .22em; color: var(--ink-faint); width: 52px; flex: none; }
+.mctrl button {
+  font-size: 10.5px; letter-spacing: .1em;
+  padding: 6px 11px; border-radius: 999px;
+  border: 1px solid rgb(var(--acc-2-rgb) / .3);
+  color: var(--ink-dim);
+  transition: all .2s;
+}
+.mctrl button:hover { color: var(--ink); border-color: rgb(var(--acc-2-rgb) / .7); }
+/* Deaktivierter Schalter: im Space-Theme gibt es keinen Boden mehr.
+   Ausgrauen statt ausblenden — ein verschwindendes Bedienelement laesst das
+   Panel bei jedem Themewechsel springen. Ruhig gehalten: gestrichelter Rand
+   statt durchgezogen, kein Hover, aber noch lesbar (kein reines Verblassen,
+   das unter 3:1 Kontrast faellt). */
+.mctrl button:disabled {
+  opacity: .42;
+  cursor: not-allowed;
+  border-style: dashed;
+  border-color: rgb(var(--acc-2-rgb) / .22);
+}
+.mctrl button:disabled:hover { color: var(--ink-dim); border-color: rgb(var(--acc-2-rgb) / .22); }
+.mctrl button:disabled[aria-pressed="true"] {
+  background: none; color: var(--ink-dim); font-weight: var(--w-micro);
+  border-color: rgb(var(--acc-2-rgb) / .35);
+}
+.mctrl .row.is-off .lbl { opacity: .5; }
+.mctrl button[aria-pressed="true"] {
+  /* Der Blau->Violett-Verlauf gilt als deutlichstes Erkennungszeichen fuer
+     generisches Template-Design. Ersetzt durch die Chrome-Rampe. */
+  background: linear-gradient(168deg, var(--chrome-hi), var(--chrome-mid) 46%, var(--chrome-lo));
+  color: var(--bg-void); border-color: transparent; font-weight: var(--w-micro-b);
+}
+
+/* ============================================================
+   Event-Detailseite
+   ============================================================ */
+.ehero {
+  padding: clamp(50px, 9vh, 90px) 0 30px;
+  background: var(--hero-tint);
+  text-align: center;
+}
+.ehero .patch { width: 92px; height: 92px; font-size: 40px; margin: 0 auto 22px; }
+.ehero .etitle {
+  font-family: var(--font-logo);
+  font-size: clamp(30px, 8.5vw, 84px);
+  text-transform: lowercase;
+  white-space: nowrap;
+  padding: .06em .1em .08em;
+  display: inline-block;
+  background: linear-gradient(175deg, var(--chrome-hi), var(--chrome-mid) 40%, var(--chrome-lo) 65%, var(--chrome-hi));
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  filter: drop-shadow(0 0 18px rgb(var(--acc-1-rgb) / .2));
+  line-height: 1.05;
+}
+.patch-hero {
+  width: 92px; height: 92px; margin: 0 auto 22px;
+  border-radius: 50%;
+  display: grid; place-items: center;
+  color: var(--acc-1);
+  background: radial-gradient(circle at 32% 26%, rgb(255 255 255 / .1), rgb(var(--bg-base-rgb) / .92) 62%);
+  border: 1px solid rgb(255 255 255 / .25);
+  box-shadow: inset 0 0 0 4px rgb(var(--acc-1-rgb) / .18), 0 0 22px rgb(var(--acc-1-rgb) / .25);
+}
+.patch-hero svg { width: 42px; height: 42px; }
+.ehero .esub { font-family: var(--font-display); font-weight: var(--w-head); font-size: clamp(17px, 2.6vw, 24px); color: var(--acc-2); margin-top: 8px; letter-spacing: .04em; text-transform: uppercase; }
+.facts {
+  display: flex; flex-wrap: wrap; justify-content: center; gap: 10px 26px;
+  margin-top: 26px;
+  font-family: var(--font-mono); font-size: 14px;
+}
+.facts span { color: var(--ink-dim); }
+.facts b { color: var(--ink); font-weight: var(--w-micro-b); }
+/* Sperre gegen waagerechten Bildlauf. `clip` statt `hidden`: hidden wuerde
+   einen Bildlaufkontext erzeugen und damit `position: sticky` innerhalb von
+   main brechen — clip beschneidet nur. Auf event-pride.html entsteht bei
+   390px ein Ueberlauf von 18px, dessen Ursache in einem Pseudoelement einer
+   fremd erzeugten Seite liegt; die Sperre kostet nichts und verhindert, dass
+   sich so etwas kuenftig unbemerkt einschleicht. Mobil hat Vorrang, und ein
+   waagerechter Bildlauf ist dort der auffaelligste Fehler ueberhaupt. */
+main { overflow-x: clip; }
+
+.eblock { max-width: 760px; margin-inline: auto; }
+.eblock + .eblock { margin-top: clamp(46px, 8vh, 80px); }
+.eblock h3 {
+  font-family: var(--font-mono); font-size: 12px; letter-spacing: .3em; text-transform: uppercase;
+  color: var(--acc-3); margin-bottom: 18px;
+  display: flex; align-items: center; gap: 12px;
+}
+.eblock h3::before { content: ""; width: 22px; height: 1px; background: var(--acc-3); }
+
+.lineup { display: flex; flex-wrap: wrap; gap: 12px; }
+.lineup .act {
+  font-family: var(--font-display); font-weight: var(--w-head);
+  font-size: clamp(19px, 3.2vw, 28px);
+  padding: 12px 20px;
+  border: 1px solid rgb(var(--acc-2-rgb) / .3);
+  border-radius: 999px;
+  transition: all .3s var(--ease-out);
+}
+.lineup .act:hover {
+  border-color: rgb(var(--acc-1-rgb) / .7);
+  color: var(--acc-1-tint);
+  text-shadow:
+    0 0 5px rgb(var(--acc-1-rgb) / .45),
+    0 0 24px rgb(var(--acc-1-rgb) / .18);
+  transform: translateY(-3px);
+}
+.lineup .act small { display: block; font-family: var(--font-mono); font-weight: var(--w-micro); font-size: 10px; letter-spacing: .14em; color: var(--ink-faint); text-transform: uppercase; }
+.lu-note { margin-top: 14px; color: var(--ink-faint); font-size: 13.5px; font-family: var(--font-mono); }
+
+.tta {
+  border: 1px dashed rgb(var(--acc-2-rgb) / .4);
+  border-radius: var(--radius);
+  padding: 26px;
+  text-align: center; color: var(--ink-dim);
+}
+.tta .bars { display: grid; gap: 8px; margin-top: 16px; }
+.tta .bar {
+  height: 12px; border-radius: 6px;
+  background: linear-gradient(90deg, rgb(var(--acc-2-rgb) / .15), rgb(var(--acc-2-rgb) / .3), rgb(var(--acc-2-rgb) / .15));
+  background-size: 200% 100%;
+}
+:root[data-fx="m"] .tta .bar, :root[data-fx="l"] .tta .bar { animation: shimmer 1.8s linear infinite; }
+@keyframes shimmer { to { background-position: -200% 0; } }
+
+.vcard { display: grid; gap: 6px; }
+.vcard .vname { font-family: var(--font-display); font-weight: var(--w-head); font-size: 20px; }
+.vcard .vaddr { color: var(--ink-dim); }
+.vcard .vhint { font-family: var(--font-mono); font-size: 13px; color: var(--acc-3); }
+.route-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
+
+details.faq {
+  border: 1px solid rgb(var(--acc-2-rgb) / .2);
+  border-radius: var(--radius);
+  margin-bottom: 10px;
+  overflow: hidden;
+}
+details.faq summary {
+  cursor: pointer; list-style: none;
+  padding: 16px 18px;
+  font-weight: var(--w-strong);
+  display: flex; justify-content: space-between; align-items: center; gap: 12px;
+}
+details.faq summary::-webkit-details-marker { display: none; }
+details.faq summary::after { content: "+"; font-family: var(--font-mono); color: var(--acc-3); font-size: 18px; transition: transform .3s; }
+details.faq[open] summary::after { transform: rotate(45deg); }
+details.faq .faq-body { padding: 0 18px 16px; color: var(--ink-dim); font-size: 15px; }
+
+.sticky-cta {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 110;
+  background: rgb(9 7 20 / .92);
+  -webkit-backdrop-filter: blur(12px) saturate(1.4);
+  backdrop-filter: blur(12px) saturate(1.4);
+  border-top: 1px solid rgb(var(--acc-1-rgb) / .3);
+  padding: 10px max(14px, env(safe-area-inset-left)) max(10px, env(safe-area-inset-bottom));
+  display: flex; align-items: center; justify-content: space-between; gap: 14px;
+}
+.sticky-cta .sc-info { font-family: var(--font-mono); font-size: 12.5px; letter-spacing: .06em; color: var(--ink-dim); }
+.sticky-cta .sc-info b { color: var(--ink); }
+.sticky-cta .btn { padding: 10px 18px; font-size: 12px; }
+body.has-sticky footer { padding-bottom: 150px; }
+body.has-sticky .mctrl { bottom: 72px; }
+
+.back-link {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-family: var(--font-mono); font-size: 12px; letter-spacing: .14em; text-transform: uppercase;
+  color: var(--ink-dim); margin: 20px 0 0;
+}
+.back-link:hover { color: var(--ink); }
+
+@media (max-width: 640px) {
+  /* `flex: 1` liess beide Buttons die Zeile teilen — die langen Labels
+     brachen dadurch dreizeilig um. Gewollt war volle Breite untereinander. */
+  .cta-row .btn { flex: 1 1 100%; justify-content: center; }
+  .hud { font-size: 10.5px; gap: 10px; }
+  .mctrl { right: 10px; bottom: 10px; padding: 10px; }
+  .flog li { padding-left: 64px; }
+  .flog::before { left: 24px; }
+  .flog .fpatch { left: 5px; width: 38px; height: 38px; font-size: 10.5px; }
+}
+@media (max-width: 480px) {
+  .hud .hud-link { display: none; }
+  .tminus { flex-direction: column; gap: 2px; align-items: center; }
+  .facts { font-size: 12.5px; gap: 8px 16px; }
+  .next-card { padding: 18px 16px; }
+  .sticky-cta .sc-info { font-size: 11px; }
+}
+
+/* ============================================================
+   Sprachumschalter (It. 9)
+   Neu angehaengt. Keine bestehende Regel wird veraendert - an dieser Datei
+   arbeitet parallel ein anderer Prozess.
+
+   Warum hier und nicht im Mission-Control-Panel: das Panel heisst
+   "Darstellungs-Einstellungen" und ist ein Prototyp-Werkzeug. Sprache ist
+   eine Besucherfunktion und gehoert in die Kopfleiste.
+
+   Optik uebernommen von .mctrl button (aria-pressed als Zustandstraeger),
+   damit beide Schaltergruppen als dasselbe Bedienelement lesbar sind.
+   ============================================================ */
+.nav-lang,
+.menu-lang {
+  flex: none;
+  display: inline-flex; align-items: center; gap: 2px;
+  padding: 2px;
+  border: 1px solid rgb(var(--acc-2-rgb) / .3);
+  border-radius: 999px;
+}
+.nav-lang button,
+.menu-lang button,
+.nav-day {
+  font-family: var(--font-mono);
+  font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase;
+  color: var(--ink-dim);
+  border: 1px solid transparent;
+  border-radius: 999px;
+  /* 44px Beruehrflaeche, auch wenn "DE" nur zwei Zeichen breit ist. */
+  min-height: 44px; min-width: 44px;
+  padding: 0 6px;
+  display: inline-flex; align-items: center; justify-content: center;
+  transition: color .2s, background .2s, border-color .2s;
+}
+.nav-lang button:hover,
+.menu-lang button:hover,
+.nav-day:hover { color: var(--ink); border-color: rgb(var(--acc-2-rgb) / .7); }
+
+/* ---- Tag/Nacht: EIN Knopf, nicht zwei ----
+   Ein zweites Segment nach Vorbild des Sprachumschalters kostet 64 statt 32px
+   und sprengt bei 320px die Zeile — nachgerechnet. Inhaltlich passt der eine
+   Knopf ohnehin besser: DE/EN ist die Wahl zwischen zwei gleichrangigen
+   Werten, Tag/Nacht ist die Abweichung von einem Standard (Nacht ist der
+   Vorgabewert, Tag der Ausflug).
+
+   LESART: Zustand, nicht Ziel. Die Mondsichel heisst "es ist gerade Nacht" —
+   passend zu aria-pressed, das per Definition einen Zustand traegt, und
+   passend zum DE/EN-Segment zwoelf Pixel daneben, das ebenfalls den Zustand
+   zeigt. Die Beschriftung ("Tagmodus") aendert sich NIE; damit kann der
+   Fehler, dass JavaScript eine Uebersetzung ueberschreibt, hier gar nicht
+   erst entstehen.
+
+   Der Zustand ist dreifach OHNE Farbe erkennbar: andere Silhouette (Sichel
+   gegen Kreis mit Strahlen), andere Flaechenhelligkeit (gefuellt statt
+   Kontur), und aria-pressed fuer alle, die nicht sehen. */
+.nav-day {
+  flex: none;
+  min-width: 32px; padding: 0;
+  border-color: rgb(var(--acc-2-rgb) / .30);
+}
+.nav-day svg { width: 17px; height: 17px; display: block; }
+/* Beide Zeichen stehen im Markup, eines wird ausgeblendet — nicht per
+   JavaScript getauscht, sonst laege der Zustand an zwei Stellen. */
+.nav-day .i-sun { display: none; }
+:root.day-mode .nav-day .i-moon { display: none; }
+:root.day-mode .nav-day .i-sun  { display: block; }
+.nav-lang button[aria-pressed="true"],
+.menu-lang button[aria-pressed="true"],
+.nav-day[aria-pressed="true"] {
+  /* Tintenblock statt Chrome-Rampe. Zwei Gruende: die Rampe erschien in der
+     Leiste dreimal (Wortmarke, Pillen-Hover, gedrueckter Schalter) und wurde
+     damit vom Materialzitat zur Tapete — sie gehoert jetzt allein der Marke.
+     Und --ink/--bg-void schlagen zwischen Tag und Nacht von selbst um, womit
+     die frueher noetige Sonderregel fuer den Tag-Modus entfaellt: nachts ein
+     heller Block auf dunklem Grund, tags ein dunkler auf hellem. */
+  background: var(--ink);
+  color: var(--bg-void);
+  border-color: var(--ink);
+  font-weight: var(--w-micro-b);
+}
+
+/* Vollwertige Kopie im Overlay-Menue: ganze Woerter, in der Breite des Menues. */
+.menu-lang {
+  margin-top: 22px;
+  align-self: stretch;
+  justify-content: center;
+  padding: 3px;
+}
+.menu-lang button { flex: 1; min-height: 50px; font-size: 12px; letter-spacing: .14em; }
+
+/* Die Kopfleiste ist eng. Ab 900px fallen die Navigationslinks weg, der
+   Umschalter bleibt - er ist die einzige Form, die ohne geoeffnetes Menue
+   erreichbar ist. Er wird deshalb nie ausgeblendet.
+
+   Die 44px Beruehrflaeche bleiben auch auf dem Telefon erhalten: nicht ueber
+   die Breite des Knopfes, sondern ueber eine unsichtbare Trefferflaeche
+   (::after). Der sichtbare Pill darf schmal sein, der Daumen trifft trotzdem
+   44x44. Sonst waere die Kopfleiste auf 360px zu voll. */
+@media (max-width: 900px) {
+  .nav { gap: 12px; }
+  .nav-lang button { min-width: 34px; padding: 0 2px; position: relative; }
+  .nav-lang button::after {
+    content: ""; position: absolute; left: 50%; top: 50%;
+    width: 44px; height: 44px; transform: translate(-50%, -50%);
+  }
+}
+@media (max-width: 560px) {
+  .nav { gap: 9px; }
+  .nav-lang button { font-size: 10px; letter-spacing: .04em; }
+}
+/* Sehr schmale Geraete (320px): der Umschalter nimmt sich zurueck, bis die
+   Kopfleiste wieder in die Zeile passt. Die 44px Trefferflaeche bleiben,
+   nur der sichtbare Pill wird schmaler. */
+@media (max-width: 360px) {
+  .nav { gap: 6px; padding-inline: 10px; }
+  .nav-lang { padding: 1px; }
+  .nav-lang button { min-width: 26px; padding: 0; }
+}
+
+/* Ohne JS kann nichts umgeschaltet werden: das Dokument ist dann die
+   deutsche Fassung im Quelltext. Der Umschalter wird ausgeblendet, statt
+   als toter Knopf stehenzubleiben - dasselbe Muster wie beim Burger. */
+:root:not(.js) .nav-lang,
+:root:not(.js) .menu-lang { display: none; }
+
+/* Sperrvermerk der Rechtsseiten: dort bleibt die deutsche Fassung
+   massgeblich (§5 TMG, §18 MStV). Siehe Anhang der i18n.js, Abschnitt 8. */
+:root[data-lang-lock] .nav-lang,
+:root[data-lang-lock] .menu-lang { display: none; }

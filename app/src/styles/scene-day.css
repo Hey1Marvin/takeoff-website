@@ -1,0 +1,860 @@
+/* ============================================================
+   scene-day.css — Tag-Modus („alles hell, aber getoent")
+
+   HERKUNFT
+   1:1 portiert aus `prototype/assets/css/style.css`:
+     · Zeilen 381–1158  — der komplette Tag-Modus (Tokens, Regel 1/2/3,
+                          „Tag im WELTALL", Mikro-Labels, Gewichte)
+     · Zeilen 1255–1280 — die Wolkenebene `#dayclouds`
+     · Zeilen 2878–2882 — der Icon-Tausch Mond/Sonne im `.nav-day`-Knopf
+   Werte, Verlaeufe und Kommentare sind woertlich uebernommen; die
+   Kommentare tragen die nachgemessenen Begruendungen (Kontrastwerte,
+   Luminanzen, warum eine Regel so und nicht anders steht).
+
+   ZWECK
+   Der gesamte Tag-Modus. Bis auf zwei Ausnahmen (siehe unten) greift hier
+   nichts ohne die Klasse `.day-mode` auf dem Wurzelelement — die Datei ist
+   also wirkungslos, solange der Nutzer nicht umschaltet.
+
+   ZWEI REGELN OHNE `.day-mode` (bewusst mitgenommen, weil ihre
+   day-mode-Gegenstuecke sonst sinnlos waeren):
+     · `#dayclouds { … display: none; }` — die Wolken-Canvas-Ebene ist per
+       Default aus; erst `:root.day-mode #dayclouds` schaltet sie an.
+     · `.nav-day .i-sun { display: none; }` — die Sonne ist per Default aus.
+   Beide sprechen Markup an, das es in der App bisher nicht gibt; sie sind
+   damit heute folgenlos.
+
+   KASKADE — WICHTIG
+   Diese Datei MUSS in `layout.tsx` NACH `takeoff.css` importiert werden
+   (und nach `scene-night.css`). Der Prototyp begruendet das an seiner
+   Zeile 385 selbst: `:root.day-mode` hat exakt dieselbe Spezifitaet wie
+   `:root[data-theme=…]` und wie die Theme-Selektoren im P3-Block — es
+   entscheidet also allein die Quellreihenfolge. Stuende der Block davor,
+   saessen auf P3-Schirmen weiter die Nacht-Akzente und der Tag-Modus waere
+   genau dort kaputt, wo man ihn am wenigsten testet.
+   ============================================================ */
+
+/* ============================================================
+   Tag-Modus  —  "alles hell, aber getoent"
+
+   PLATZ IN DER KASKADE: dieser Block MUSS nach dem P3-Block oben stehen.
+   `:root.day-mode` hat exakt dieselbe Spezifitaet wie `:root[data-theme=...]`
+   und wie die Theme-Selektoren im P3-Block — es entscheidet also allein die
+   Quellreihenfolge. Stuende der Block davor, saessen auf P3-Schirmen weiter
+   die Nacht-Akzente und der Tag-Modus waere genau dort kaputt, wo man ihn
+   am wenigsten testet.
+
+   WARTUNGSHINWEIS: fuer den Tag-Modus gibt es BEWUSST KEINE P3-Varianten.
+   Die Tagfarben sind dunkel und niedrigchromatisch (L unter .25, Chroma
+   moderat) — sie liegen komplett im sRGB-Gamut, P3 wuerde dort nichts
+   gewinnen und nur eine zweite Wahrheit erzeugen. Wer oben im P3-Block
+   kuenftig weitere Tokens ergaenzt, MUSS pruefen, ob sie hier gespiegelt
+   werden muessen: alles, was P3 im Nachtmodus setzt und hier nicht steht,
+   schlaegt sonst in den Tag-Modus durch.
+
+   Die vier Leitplanken:
+   1) Der Grund ist getoent, nicht weiss.
+   2) Dunkle Bloecke bleiben dunkel (Kopfleiste, Footer, Panel, Baender,
+      Sticky-CTA, Overlay-Menue).
+   3) Glow wird Kante: harte Kontur, versetzter harter Schlagschatten,
+      kurzer Kontaktschatten.
+   4) Die Chrome-Rampe wird HELLER Umgebung entsprechend DUNKLER.
+
+   Warum ausgerechnet #E6E7EE ("Beton") und nicht das waermere Papier:
+   die gesamte Neutralrampe der Nacht liegt auf einem einzigen Farbkorridor.
+   Nachgemessen: --bg-void #07080e hat Hue 231, --bg-surface #131520 Hue 231,
+   --bg-hairline #373b48 Hue 226. #E6E7EE liegt bei Hue 232 — es ist damit
+   nicht "ein heller Ton", sondern buchstaeblich das helle Ende derselben
+   Rampe. Ein warmes Papier (Hue ~50) waere ein zweiter, fremder Korridor,
+   und Papier ist ausserdem die Materialsprache von Redaktion und Wellness.
+   Beton ist die Materialsprache der Raeume, in denen diese Partys
+   stattfinden. Die Themes weichen davon ab wie nachts auch: Mars warm,
+   Strand kuehl-blau.
+   ============================================================ */
+:root.day-mode {
+  color-scheme: light;
+
+  /* ---- Neutralrampe, gespiegelt ----
+     Sie steigt nach UNTEN in die Tiefe: der Grund ist die hellste Stufe,
+     Panels und Karten treten dunkler daraus hervor. Umgekehrt (Karten heller
+     als der Grund) landet man zwangslaeufig bei Weiss, und Weiss war
+     ausgeschlossen. */
+  --bg-void:      #E6E7EE;        /* Seitengrund (Beton)                  */
+  --bg-base:      #DFE1EA;        /* Panels, Overlays                     */
+  --bg-surface:   #D7D9E3;        /* Karten                               */
+  --bg-raised:    #CFD2DE;        /* hervorgehobene Karten                */
+  --bg-overlay:   #C3C7D6;        /* Chips, Buttons                       */
+  --bg-hairline:  #A5AABE;        /* Linien — 2.6:1, nur Linien, nie Text */
+  --bg-void-rgb:    230 231 238;
+  --bg-base-rgb:    223 225 234;
+  --bg-surface-rgb: 215 217 227;
+  --bg-raised-rgb:  207 210 222;
+
+  /* ---- Text ---- (Kontrast gegen #E6E7EE, nachgemessen) */
+  --ink:       #1A1526;           /* 14.44:1 */
+  --ink-dim:   #3C4260;           /*  7.96:1 */
+  --ink-faint: #4E5474;           /*  5.99:1 — auf Karten 5.42:1, und auf
+                                     dem gesaettigten Zenit des Tag-Himmels
+                                     (L .652) immer noch 4.94:1. Der Himmel
+                                     ist die dunkelste Flaeche, gegen die im
+                                     Tag-Modus Text stehen kann; die ganze
+                                     Textrampe ist gegen IHN ausgelegt, nicht
+                                     gegen den Seitengrund. */
+
+  /* ---- Akzente ----
+     Die Nacht-Neons tragen auf hellem Grund NICHT: #e04fb4 kommt auf 2.86:1,
+     #7761d1 auf 3.86:1, #52b1e0 auf 1.95:1 — alle unter oder knapp an der
+     3:1-Grenze, die selbst fuer Grosstext gilt. Genau an dieser Stelle werden
+     dark-first-Marken im Light Mode generisch: man behaelt die Neons, sie
+     tragen nicht, also stuetzt man sie mit Rahmen, Schatten und grauen Boxen
+     ab — und ist im Bootstrap-Look. Deshalb dunkle Gegenstuecke mit gleicher
+     Rolle und gleichem Farbort. */
+  --acc-1: #A2005E;               /* 6.31:1  Leitfarbe: Signal            */
+  --acc-2: #5B21B6;               /* 7.28:1  Stuetze: Flaechen, Verlaeufe */
+  --acc-3: #0B3D91;               /* 8.15:1  Stuetze: kuehler Gegenpol    */
+  --acc-1-rgb: 162 0 94;
+  --acc-2-rgb:  91 33 182;
+  --acc-3-rgb:  11 61 145;
+
+  /* Nachts sind die Tints die HELLEREN Varianten, weil sie auf Dunkel Text
+     tragen. Tags ist es genau umgekehrt: sie sind die dunkleren. Die Rolle
+     ("die Variante, die als Text sicher traegt") bleibt dieselbe, die
+     Richtung dreht sich. */
+  --acc-1-tint: #8C0050;          /* 7.42:1 */
+  --acc-2-tint: #4A1A96;          /* 9.19:1 */
+  --acc-3-tint: #0A3376;          /* 9.87:1 */
+
+  /* Das Neon-Magenta bleibt im System — im Tag-Modus aber AUSSCHLIESSLICH
+     als Flaeche: Chip-Grund, Statuspunkt, Fortschrittsbalken, harter
+     Schlagschatten. NIE als Textfarbe (2.86:1). Eigenes Token, damit dieser
+     Unterschied im Code sichtbar ist und nicht in einem Kommentar verhungert. */
+  --acc-face: #e04fb4;
+
+  /* ---- Chrome: DUNKLER, nicht heller ----
+     Der kontraintuitive Teil und die Stelle, an der die meisten scheitern.
+     Chrom ist kein Farbverlauf, sondern eine gespiegelte Umgebung. Nachts
+     spiegelt es Schwarz, Violett und Neon — deshalb ist die Rampe dort hell,
+     sie hebt sich vom dunklen Grund ab. Tags spiegelt dieselbe Oberflaeche
+     eine helle Umgebung: heller Himmel oben, dunkler Boden unten. Eine helle
+     Rampe auf hellem Grund waere ein Loch, kein Metall.
+     --chrome-shadow liegt mit #23283C klar unter #3C4260 (Vorgabe). */
+  --chrome-hi:     #F4F5F9;       /* Spitzlicht Himmel  */
+  --chrome-mid:    #9BA2B8;       /* Himmelsgrau        */
+  --chrome-lo:     #4E5570;       /* Horizontnah        */
+  --chrome-shadow: #23283C;       /* 11.82:1  Bodenspiegelung */
+
+  /* Die harte Horizontkante ist das, was das Auge ueberhaupt erst als
+     SPIEGELUNG liest — ein weicher Verlauf liest als Farbverlauf. Zwei Stops
+     auf demselben Versatz erzeugen sie. Dasselbe Muster steckt schon im
+     Raketen-SVG der Kopfleiste (rk-hull: zwei Stops auf .38). */
+  --chrome-sweep: linear-gradient(174deg,
+      var(--chrome-hi) 0%, var(--chrome-mid) 30%, var(--chrome-hi) 51%,
+      var(--chrome-shadow) 51%,
+      var(--chrome-lo) 68%, var(--chrome-mid) 88%, var(--chrome-shadow) 100%);
+  /* Senkrechte Variante fuer SEHR BREITE Kaesten. Ein Verlauf bei 174 Grad
+     laeuft laengs der Diagonale des Kastens: bei einem 3000 x 56 px breiten
+     Laufband sind das 314 px waagerecht gegen 56 px senkrecht — die Rampe
+     liegt dann praktisch quer und die Horizontkante steht senkrecht im
+     Bild. Bei 180 Grad spannt sie garantiert ueber die Hoehe. Nachts faellt
+     das nicht auf, weil dort alle Chrome-Stops hell sind. */
+  --chrome-sweep-v: linear-gradient(180deg,
+      var(--chrome-mid) 0%, var(--chrome-lo) 24%, var(--chrome-hi) 50%,
+      var(--chrome-shadow) 50%,
+      var(--chrome-lo) 72%, var(--chrome-mid) 100%);
+
+  --hero-tint: radial-gradient(125% 92% at 50% -4%,
+      rgb(var(--acc-3-rgb) / .09) 0%, rgb(var(--acc-2-rgb) / .055) 38%, transparent 72%);
+
+  /* Die zentrierte Platte (siehe unten). Als Verlauf mit Stops statt als
+     eigenes Element: so bleibt sie der HINTERGRUND der Sektion, behaelt
+     also deren volle Hoehe samt vertikaler Polsterung, und braucht kein
+     zusaetzliches Markup. Unterhalb von --maxw werden die Stops negativ
+     bzw. groesser als 100 % — die Platte laeuft dann von selbst ueber die
+     ganze Breite, genau richtig fuers Telefon (die Feder faellt dabei aus
+     dem sichtbaren Bereich und ist folgenlos).
+     Die FEDER: volle Deckung endet exakt an der Inhaltskante, danach
+     laeuft die Flaeche ueber --day-feather weich ins Dunkel aus — keine
+     harte weisse Kante mehr gegen den schwarzen Weltraum. */
+  --day-feather: clamp(36px, 6vw, 110px);
+  --day-column: linear-gradient(90deg,
+      rgb(var(--bg-void-rgb) / 0)   calc(50% - var(--maxw) / 2 - var(--day-feather)),
+      rgb(var(--bg-void-rgb) / .78) calc(50% - var(--maxw) / 2),
+      rgb(var(--bg-void-rgb) / .78) calc(50% + var(--maxw) / 2),
+      rgb(var(--bg-void-rgb) / 0)   calc(50% + var(--maxw) / 2 + var(--day-feather)));
+
+  /* ---- Schriftgewichte: HOCH, nicht runter ----
+     +50 bis +100. Der Zuschlag ist unter ~20px am groessten und bei
+     Displaygraden fast Null — dort ist die Ueberstrahlung im Verhaeltnis zur
+     Strichstaerke bedeutungslos.
+     Space Mono ist NICHT variabel (nur 400/700 statisch), 400 -> 700 waere bei
+     10px kein Zuschlag, sondern ein Bruch. --w-micro/-b bleiben deshalb, und
+     das gefuehlte Gewicht kommt dort weiter unten aus Laufweite und Farbe.
+     KEINE Transition auf font-weight: sie erzwingt pro Frame ein Re-Layout
+     jedes Textlaufs. Farben duerfen ueberblenden, das Gewicht schnappt. */
+  --w-body:    450;
+  --w-dim:     460;
+  --w-med:     560;
+  --w-strong:  660;
+  --w-head:    760;
+  --w-display: 850;
+
+  /* ---- Nacht-Spiegel fuer die dunklen Anker ----
+     Kopfleiste, Footer, Panel, Baender und Sticky-CTA behalten ihre
+     Nachtfarben. Weil das Blatt diszipliniert ueber Tokens arbeitet, braucht
+     das keine einzige Komponentenregel — es genuegt, dort unten die
+     Nachtwerte wieder zu setzen. Sie stehen hier als --n-* bereit, damit die
+     Zuweisungsregel nur EINMAL geschrieben werden muss statt einmal pro
+     Theme. */
+  --nite-bg-void: #07080e;  --nite-bg-base: #0c0f17;  --nite-bg-surface: #131520;
+  --nite-bg-raised: #1b1f2c; --nite-bg-overlay: #272b3a; --nite-bg-hairline: #373b48;
+  --nite-void-rgb: 7 8 14; --nite-base-rgb: 12 15 23;
+  --nite-surface-rgb: 19 21 32; --nite-raised-rgb: 27 31 44;
+  --nite-ink: #f3f4f9; --nite-ink-dim: #adb1c0; --nite-ink-faint: #818595;
+  --nite-acc-1: #e04fb4; --nite-acc-2: #7761d1; --nite-acc-3: #52b1e0;
+  --nite-acc-1-rgb: 224 79 180; --nite-acc-2-rgb: 119 97 209; --nite-acc-3-rgb: 82 177 224;
+  --nite-acc-1-tint: #f69cd5; --nite-acc-2-tint: #b6a9ea; --nite-acc-3-tint: #a1d7f2;
+  --nite-chrome-hi: #f7f8fa; --nite-chrome-mid: #c5c7d0;
+  --nite-chrome-lo: #9298ae; --nite-chrome-shadow: #6f7590;
+}
+
+/* ---------- Tag · Mars ----------
+   Warm gebrochener Grund. Er ist aus dem Nacht-Mars abgeleitet (#0c0710,
+   Hue 273) und nicht aus dem Beton — sonst klaenge das Theme im Tag-Modus
+   nach Space. */
+:root.day-mode[data-theme="mars"] {
+  --bg-void:      #EFE6E1;
+  --bg-base:      #E9DED8;
+  --bg-surface:   #E2D7D2;
+  --bg-raised:    #DACEC8;
+  --bg-overlay:   #CFC0B8;
+  --bg-hairline:  #B7A49B;
+  --bg-void-rgb:    239 230 225;
+  --bg-base-rgb:    233 222 216;
+  --bg-surface-rgb: 226 215 210;
+  --bg-raised-rgb:  218 206 200;
+
+  --ink:       #201620;           /* 14.27:1 */
+  --ink-dim:   #4A3A48;           /*  8.58:1 */
+  --ink-faint: #5A4C54;           /*  6.61:1 (Zenit 5.34:1) */
+
+  --acc-1: #9A2B00;               /* 6.28:1 */
+  --acc-2: #6B4200;               /* 7.10:1 */
+  --acc-3: #A2005E;               /* 6.33:1 */
+  --acc-1-rgb: 154 43 0;
+  --acc-2-rgb: 107 66 0;
+  --acc-3-rgb: 162 0 94;
+  --acc-1-tint: #8A2400;          /* 7.32:1 */
+  --acc-2-tint: #5C3800;          /* 8.45:1 */
+  --acc-3-tint: #8C0050;          /* 7.65:1 */
+  --acc-face: #e85a34;
+
+  --chrome-hi:     #F7F2EE;
+  --chrome-mid:    #B8A196;
+  --chrome-lo:     #6E5245;
+  --chrome-shadow: #35241C;
+
+  --hero-tint: radial-gradient(120% 90% at 50% 0%,
+      rgb(154 43 0 / .12) 0%, rgb(162 0 94 / .05) 45%, transparent 70%);
+
+  --nite-bg-void: #0c0710; --nite-bg-base: #170b16; --nite-bg-surface: #21101c;
+  --nite-bg-raised: #2b1624; --nite-bg-overlay: #3a2130; --nite-bg-hairline: #4d3240;
+  --nite-void-rgb: 12 7 16; --nite-base-rgb: 23 11 22;
+  --nite-surface-rgb: 33 16 28; --nite-raised-rgb: 43 22 36;
+  --nite-acc-1: #e85a34; --nite-acc-2: #e0a25c; --nite-acc-3: #e04fb4;
+  --nite-acc-1-rgb: 232 90 52; --nite-acc-2-rgb: 224 162 92; --nite-acc-3-rgb: 224 79 180;
+  --nite-acc-1-tint: #f5b29e; --nite-acc-2-tint: #f5cf9e; --nite-acc-3-tint: #f59ed5;
+  --nite-chrome-hi: #fbf7f6; --nite-chrome-mid: #d3c6c2;
+  --nite-chrome-lo: #b6968a; --nite-chrome-shadow: #8e6f66;
+}
+
+/* ---------- Tag · Strand ---------- */
+:root.day-mode[data-theme="strand"] {
+  --bg-void:      #E4E9F0;
+  --bg-base:      #DCE2EB;
+  --bg-surface:   #D5DBE6;
+  --bg-raised:    #CCD4E1;
+  --bg-overlay:   #BEC8D9;
+  --bg-hairline:  #9FADC2;
+  --bg-void-rgb:    228 233 240;
+  --bg-base-rgb:    220 226 235;
+  --bg-surface-rgb: 213 219 230;
+  --bg-raised-rgb:  204 212 225;
+
+  --ink:       #101A2A;           /* 14.31:1 */
+  --ink-dim:   #33445E;           /*  8.08:1 */
+  --ink-faint: #3F5470;           /*  6.72:1 (Zenit 5.30:1) */
+
+  --acc-1: #6B5200;               /* 6.08:1 */
+  --acc-2: #05506B;               /* 7.27:1 */
+  --acc-3: #9A2F1C;               /* 6.15:1 */
+  --acc-1-rgb: 107 82 0;
+  --acc-2-rgb:   5 80 107;
+  --acc-3-rgb: 154 47 28;
+  --acc-1-tint: #5C4600;          /* 7.38:1 */
+  --acc-2-tint: #04455C;          /* 8.56:1 */
+  --acc-3-tint: #87281A;          /* 7.33:1 */
+  --acc-face: #e5c25c;
+
+  --chrome-hi:     #F1F6F8;
+  --chrome-mid:    #94A8B6;
+  --chrome-lo:     #42586B;
+  --chrome-shadow: #1D2B38;
+
+  --hero-tint: radial-gradient(120% 90% at 50% 0%,
+      rgb(5 80 107 / .11) 0%, rgb(107 82 0 / .06) 45%, transparent 70%);
+
+  --nite-bg-void: #060b16; --nite-bg-base: #0b1322; --nite-bg-surface: #0f1b2e;
+  --nite-bg-raised: #15243c; --nite-bg-overlay: #1e3050; --nite-bg-hairline: #2c4266;
+  --nite-void-rgb: 6 11 22; --nite-base-rgb: 11 19 34;
+  --nite-surface-rgb: 15 27 46; --nite-raised-rgb: 21 36 60;
+  --nite-acc-1: #e5c25c; --nite-acc-2: #6fc9e8; --nite-acc-3: #e87a66;
+  --nite-acc-1-rgb: 229 194 92; --nite-acc-2-rgb: 111 201 232; --nite-acc-3-rgb: 232 122 102;
+  --nite-acc-1-tint: #f5e19e; --nite-acc-2-tint: #9edef5; --nite-acc-3-tint: #f5ac9e;
+  --nite-chrome-hi: #f6fafb; --nite-chrome-mid: #bfcdd6;
+  --nite-chrome-lo: #8fa2b4; --nite-chrome-shadow: #67798d;
+}
+
+/* ============================================================
+   Tag · Regel 2 — ALLES hell
+
+   Erste Fassung hatte hier "dunkle Anker": Kopfleiste, Footer, Panel,
+   Baender und Sticky-CTA behielten ihre Nachtfarben. Der Auftraggeber hat
+   das ausdruecklich verworfen — der Tag-Modus ist durchgehend hell. Die
+   Nacht-Spiegeltokens (--nite-*) bleiben trotzdem stehen: sie kosten nichts
+   und sind die Grundlage, falls die Entscheidung noch einmal kippt.
+
+   Weil das Blatt konsequent ueber Tokens arbeitet, folgen die meisten
+   dieser Bloecke automatisch. Nachgearbeitet werden muessen nur die
+   Stellen, an denen dunkle Werte HARTKODIERT im Blatt stehen — Tokens
+   kennen keinen Tag-Modus, feste Hexwerte schon gar nicht.
+   ============================================================ */
+/* Der Sticky-CTA hatte als einziger Block einen festen Hexwert. */
+:root.day-mode .sticky-cta {
+  background: rgb(var(--bg-void-rgb) / .94);
+  border-top-color: rgb(var(--acc-1-rgb) / .45);
+}
+/* Kopfleiste, HUD und Panel sind nachts nur zu 82-90 % deckend, weil
+   dahinter ohnehin nur der schwarze Seitengrund steht. Tagsueber steht dort
+   der Himmel samt Wolken und Sonnenhof: das schlaegt sichtbar durch und
+   nimmt der Leiste die Ruhe. Tags also deckender. Der backdrop-filter
+   faellt damit weg — hinter einer nahezu deckenden Flaeche leistet er
+   nichts und kostet nur Kompositing. */
+/* Nur noch .topbar — der HUD hat seit der Zusammenlegung keine eigene
+   Flaeche mehr, und beide anzusprechen hiess: zwei deckende Flaechen
+   uebereinander. */
+:root.day-mode .topbar {
+  background: rgb(var(--bg-void-rgb) / .94);
+  -webkit-backdrop-filter: none; backdrop-filter: none;
+}
+/* Mars und Strand haben tags ein Landschaftsfoto hinter der Leiste. Warmrotes
+   Gestein schlaegt durch 6 % Restdurchlass sichtbar in den Mono-Text. */
+:root.day-mode:is([data-theme="mars"], [data-theme="strand"]) .topbar {
+  background: rgb(var(--bg-void-rgb) / .96);
+}
+:root.day-mode .mctrl {
+  background: rgb(var(--bg-base-rgb) / .96);
+  -webkit-backdrop-filter: none; backdrop-filter: none;
+  box-shadow: 4px 5px 0 rgb(var(--acc-1-rgb) / .5), 0 2px 0 rgb(26 21 38 / .18);
+}
+/* Die beiden Chrome-Baender leben nachts vom schwarzen Seitengrund. Auf
+   hellem Grund braucht die Rampe eine Kante, sonst franst das Metall in den
+   Himmel aus. Ein duenner Tintenrand, kein Kasten. */
+:root.day-mode :is(.band, .stats) {
+  border-top-color: rgb(var(--acc-2-rgb) / .35);
+  border-bottom-color: rgb(var(--acc-2-rgb) / .35);
+}
+/* Beide Chrome-Baender benutzen nachts eine Rampe, die oben fast weiss
+   beginnt — auf schwarzem Grund ist das der Glanzpunkt. Auf hellem Grund ist
+   es ein Loch: die obere Haelfte jeder Glyphe verschwindet. Sie bekommen
+   deshalb dieselbe gespiegelte Umgebung wie die Wortmarke, samt harter
+   Horizontkante, plus eine Tintenkontur. */
+:root.day-mode .band-track,
+:root.day-mode .stats b { background-image: var(--chrome-sweep-v); }
+/* Gedrueckte Panel-Knoepfe und die Status-Pille im Hover benutzen nachts
+   die Chrome-Rampe mit --bg-void als Schrift. Tags ist --bg-void hell, die
+   Beschriftung stuende also hell auf hellem Metall. Beide werden zum
+   Tintenblock — dasselbe Prinzip wie beim Primaerknopf. */
+/* Alle "gedrueckt"-Zustaende, die nachts die Chrome-Rampe mit --bg-void als
+   Beschriftung benutzen. Tags ist --bg-void hell und die Rampe ebenfalls —
+   nachgemessen 1.00:1, also buchstaeblich unsichtbar. Sie werden alle zum
+   Tintenblock. Der Kanalfilter der News-Seite (.rx-ch) gehoert zu einem
+   anderen Blatt (pages/news.css), das hier nicht angefasst wird; die
+   Korrektur steht deshalb hier. */
+/* .nav-lang, .menu-lang und .nav-day brauchen hier nichts mehr: ihr
+   gedrueckter Zustand benutzt seit der Vereinheitlichung --ink/--bg-void und
+   schlaegt damit von selbst um. Es bleiben das Mission-Control-Panel, das
+   weiterhin die Chrome-Rampe traegt, und der Kanalfilter der News-Seite, der
+   aus einem anderen Blatt kommt. */
+:root.day-mode .mctrl button[aria-pressed="true"]:not(:disabled),
+:root.day-mode .rx-ch[aria-pressed="true"]:not(:disabled) {
+  background: var(--ink); color: var(--bg-void); border-color: var(--ink);
+}
+:root.day-mode .nav-status:hover,
+:root.day-mode .nav-status:focus-visible {
+  background: var(--ink); color: var(--bg-void); border-color: var(--ink);
+}
+:root.day-mode .nav-status:hover .st-tag,
+:root.day-mode .nav-status:focus-visible .st-tag { color: var(--bg-void); }
+/* Keine Kontur auf dem Laufband: bei 56 px Schriftgrad und einer Rampe,
+   die oben bereits im Mittelton beginnt, traegt die Form selbst — und die
+   Kontur erzeugte an den Innenkanten sichtbare Reste. */
+:root.day-mode .band-track .sep { color: var(--acc-1); -webkit-text-fill-color: var(--acc-1); opacity: 1; }
+:root.day-mode .stats b { -webkit-text-stroke: .012em var(--ink); paint-order: stroke fill; }
+/* Der Footer ist tags kein Schlussvorhang mehr, sondern die letzte
+   Betonplatte. Der Verlauf von transparent auf deckend bleibt — er
+   verhindert weiterhin, dass das Seitenende als Kante abschneidet. */
+:root.day-mode footer { border-top-color: rgb(var(--acc-2-rgb) / .4); }
+
+/* ---- Die Platten ----
+
+   Der eine Griff, ohne den der ganze Tag-Modus nicht funktioniert.
+
+   Nachts ist der Seitengrund fast schwarz UND die Himmel-/Bodenebenen sind
+   fast schwarz — heller Text steht ueberall. Tags kippt das: der Text ist
+   dunkel, aber hinter ihm liegen fix Himmel, Wolken, Sonnenhof und (bei
+   Mars und Strand) ein Landschaftsfoto. Nachgemessen reicht das von
+   Luminanz .72 (Wolke im Sonnenhof) bis .03 (Palmensilhouette,
+   Marsgestein). Dunkler Text auf .03 ist unlesbar, und selbst ueber dem
+   Median des Bodens (.30) faellt der gedimmte Fliesstext auf 3.6:1.
+
+   Man koennte den Boden wegblenden — dann waere die Szene weg. Also
+   umgekehrt: der INHALT bekommt einen Grund. Jede Sektion ist eine
+   Betonplatte, der Hero und der Event-Hero bleiben offen. Die Welt sieht
+   man dort, wo sie hingehoert (oben, gross), und der Text steht auf etwas.
+   Das ist ausserdem die ehrlichere Uebersetzung des Nachtzustands: dort
+   liegt der Text auch auf einer geschlossenen Flaeche, sie ist nur
+   zufaellig identisch mit dem Himmel.
+
+   .88 und nicht 1: die Szene bleibt als Wasserzeichen dahinter sichtbar.
+   Nachgerechnet gegen den schlimmsten Fall (Palmensilhouette, sRGB .19):
+   .88*.90 + .12*.19 = .815 -> Luminanz .62, damit traegt selbst
+   --ink-faint noch 4.55:1. */
+/* Direkte Kinder von <main>, nicht `.section`: quer ueber die 19 Seiten
+   haengt der Inhalt mal in einer <section class="section">, mal in einem
+   nackten <div class="wrap">, mal in <div class="wrap section">. Eine Liste
+   von Klassen laesst zwangslaeufig etwas aus — und ausgelassen heisst hier
+   dunkler Text auf dem Bodenfoto. Ueber die direkten Kinder ist die
+   Abdeckung vollstaendig, und weil es NUR die direkten Kinder sind, koennen
+   sich zwei Platten auch nicht uebereinanderlegen.
+   Ausgenommen sind die beiden Heroes: dort soll man die Welt sehen. */
+:root.day-mode main > *:not(.hero):not(.ehero) {
+  background-color: rgb(var(--bg-void-rgb) / .88);
+}
+
+/* ---- Variante mit sichtbarem Rand ----
+   Auf Startseite, Eventuebersicht und Event-Detailseiten (Klasse
+   `scene-edges`, gesetzt in main.js) deckt die durchgehende Platte zu viel
+   zu: der Marsboden mit Rover und Startrampe, die Brandung am Strand, die
+   Sterne im Weltall — genau das, wofuer der Hintergrund gebaut wurde. Dort
+   schrumpft die Platte auf die Inhaltsspalte. Links und rechts steht die
+   Szene, in der Mitte der Text auf hellem Grund.
+   Die uebrigen Seiten sind Lesestrecken und bleiben durchgehend hell. */
+:root.day-mode.scene-edges main > *:not(.hero):not(.ehero) {
+  background-color: transparent;
+  background-image: var(--day-column);
+}
+/* Der Seiten-Hero bringt seinen eigenen Verlauf mit — er muss UEBER der
+   Platte liegen, sonst verschwindet er. */
+:root.day-mode.scene-edges main > .phero {
+  background-image: var(--hero-tint), var(--day-column);
+}
+/* Das Laufband gehoert dazu: es soll genauso auf der mittleren Spalte
+   sitzen wie das Wabenraster darueber, nicht als durchgehender Riegel quer
+   durchs Bild.
+
+   Der Hintergrund allein reichte dafuer nicht: das Element selbst war
+   weiterhin fensterbreit (gemessen 1440 gegen 1120 px Spalte), also liefen
+   seine beiden Haarlinien und die Laufschrift links und rechts ueber die
+   weisse Spalte hinaus. Deshalb wird das Element SELBST auf die Spalte
+   gesetzt — dann fallen Linien, Schrift und Grund zusammen. Der Verlauf in
+   --day-column rechnet ab 50% der Elementbreite und deckt ein maxw-breites
+   Element vollstaendig. */
+:root.day-mode.scene-edges main > .band {
+  width: min(100%, var(--maxw));
+  margin-inline: auto;
+}
+/* Das Wabenraster haengt mit inset:0 an der fensterbreiten Sektion und lief
+   damit ebenfalls ueber die Spalte hinaus. Gleiche Korrektur, nur ueber die
+   Einrueckung statt ueber die Breite. */
+:root.day-mode.scene-edges .missions::before {
+  inset: 0 max(0px, calc((100% - var(--maxw)) / 2));
+}
+/* .missions::before (Wabenraster, z-index -1) haengt ohne eigenen
+   Stapelkontext am Wurzelkontext und faellt damit HINTER den frisch
+   hinzugekommenen Sektionsgrund. `isolation` zieht es wieder herein:
+   negative z-index-Nachfahren werden dann nach dem Hintergrund des
+   Elements gemalt, aber vor seinem Inhalt. */
+:root.day-mode .missions { isolation: isolate; }
+
+/* ============================================================
+   Tag · Regel 1 — Grund, Rauschen, Vignette
+   ============================================================ */
+/* Rauschtextur. Zwei Aenderungen gegenueber der Nacht:
+   · `stitchTiles="stitch"`. Ohne dieses Attribut rechnet feTurbulence an der
+     Kachelkante nicht periodisch weiter — die 240x240-Kacheln zeichnen sich
+     als Raster ab. Auf fast schwarzem Grund bei opacity .045 sieht das
+     niemand, auf hellem Grund sofort. (Die Nacht-Kachel bleibt bewusst
+     unangetastet, damit der Nachtmodus pixelgleich bleibt; wer das dort
+     nachziehen will, tut es als eigene Aenderung mit eigener Sichtpruefung.)
+   · `multiply` statt `overlay`. Overlay hellt auf hellem Grund auf und
+     bleicht die Textur damit aus; multiply setzt sie als Schmutz DRAUF,
+     was auf Beton auch physikalisch die richtige Richtung ist.
+   Deckkraft .055 statt .045: auf Hell faellt Rauschen staerker auf, deshalb
+   liegt der brauchbare Korridor bei .04-.07 statt .05-.12. */
+:root.day-mode body::after {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+  opacity: .055;
+  mix-blend-mode: multiply;
+}
+/* Vignette: nachts .42 am Rand. Auf hellem Grund liest dieselbe Staerke als
+   Dreck statt als Objektiv. Deutlich flacher und mit der Tinte statt mit
+   Schwarz gemischt, damit sie im Farbkorridor bleibt. */
+:root.day-mode::after {
+  background: radial-gradient(ellipse 84% 80% at 50% 44%,
+      rgb(26 21 38 / 0) 0%, rgb(26 21 38 / .03) 58%,
+      rgb(26 21 38 / .09) 80%, rgb(26 21 38 / .17) 100%);
+}
+:root.day-mode ::selection { background: var(--acc-1); color: var(--bg-void); }
+/* Wabenraster hinter den Missionen: der Nachtstrich (#a18fe0) verschwindet
+   auf hellem Grund restlos. Gleiche Geometrie, Tintenstrich. */
+:root.day-mode .missions::before {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='34.64' height='60' viewBox='0 0 34.64 60'%3E%3Cpath d='M17.32 0 34.64 10v20L17.32 40 0 30V10z M17.32 40v20' fill='none' stroke='%231a1526' stroke-opacity='0.10'/%3E%3C/svg%3E");
+}
+
+/* ============================================================
+   Tag · Regel 3 — Glow wird Kante
+
+   Ein additives Leuchten setzt Licht HINZU. Auf hellem Grund ist da kaum
+   noch Weg nach oben, ein Glow verschwindet also schlicht. An seine Stelle
+   treten drei Dinge, die es im Hellen gibt:
+     · eine harte 1px-Kontur,
+     · ein versetzter, harter, gesaettigter Schlagschatten (Siebdruck und
+       Flyer — im Hellen sofort als Rave lesbar, und der Grund, warum dieser
+       Modus nicht nach Wellness aussieht),
+     · ein kurzer Kontaktschatten, damit das Element auf dem Grund AUFLIEGT
+       statt zu schweben.
+   Der Schlagschatten benutzt --acc-face, also das volle Neon-Magenta: als
+   Flaeche darf es das, als Text nicht.
+   ============================================================ */
+/* Wortmarke: Kontur hoch, Glow raus, harter Versatz rein. */
+/* ---- Wortmarke: IDENTISCH zur Nacht ----
+   Zwei Zwischenstaende hat der Auftraggeber verworfen (harter
+   Magenta-Versatz, dann dunkle Chrome-Rampe mit Tintenkontur). Die Ansage
+   ist eindeutig: die Marke sieht im Tag-Modus aus wie nachts.
+
+   Umgesetzt wird das nicht, indem die Regeln oben dupliziert werden,
+   sondern indem hier die NACHT-TOKENS lokal zurueckgesetzt werden. Die
+   Originalregel arbeitet ausschliesslich ueber var(--chrome-*),
+   var(--bg-void) und var(--acc-2-rgb) — sie loest damit von selbst wieder
+   auf die Nachtwerte auf. Aendert jemand spaeter die Nacht-Wortmarke,
+   zieht der Tag-Modus automatisch mit. */
+:root.day-mode :is(.wordmark, .nav-brand) {
+  --chrome-hi:     var(--nite-chrome-hi);
+  --chrome-mid:    var(--nite-chrome-mid);
+  --chrome-lo:     var(--nite-chrome-lo);
+  --chrome-shadow: var(--nite-chrome-shadow);
+  --bg-void:       var(--nite-bg-void);
+  --acc-2-rgb:     var(--nite-acc-2-rgb);
+}
+/* .nav-brand bleibt aussen vor: es sitzt in der Kopfleiste, und die ist ein
+   dunkler Anker — dort gilt weiter die Nacht-Rampe. */
+/* Der Event-Titel ist dieselbe Schrift und dieselbe Rolle wie die
+   Wortmarke — also derselbe Griff: Nacht-Tokens zurueck, Originalregel
+   bleibt unberuehrt. */
+:root.day-mode .ehero .etitle {
+  --chrome-hi:     var(--nite-chrome-hi);
+  --chrome-mid:    var(--nite-chrome-mid);
+  --chrome-lo:     var(--nite-chrome-lo);
+  --chrome-shadow: var(--nite-chrome-shadow);
+  --acc-1-rgb:     var(--nite-acc-1-rgb);
+  -webkit-text-stroke: .01em var(--nite-bg-void);
+  paint-order: stroke fill;
+}
+
+/* ============================================================
+   Tag im WELTALL  (Space-Theme)
+
+   Der Auftraggeber wollte eine Fassung, in der der Tag-Modus das Weltall
+   behaelt und nur der Mond durch die Sonne ersetzt wird. Das ist nicht bloss
+   eine Stilentscheidung, es ist die physikalisch richtige: ein blauer Himmel
+   entsteht durch Rayleigh-Streuung an einer Atmosphaere. Wo keine ist, ist
+   der Himmel auch am Tag schwarz und die Sterne stehen da — so sieht die
+   Sonne von der ISS aus. Mars und Strand haben eine Atmosphaere und
+   bekommen deshalb ihren gemalten Taghimmel.
+
+   Die Bedienoberflaeche bleibt trotzdem hell: helle Betonplatten, die vor
+   dem Weltall stehen. Dafuer muss hier nur das umgestellt werden, was
+   direkt auf dem Seitengrund liegt — die Platten selbst bringen ihren
+   hellen Grund schon mit.
+   ============================================================ */
+:root.day-mode:not([data-theme="mars"]):not([data-theme="strand"]) body {
+  background: var(--nite-bg-void);
+}
+/* Der Hero traegt als einziger Abschnitt keine Platte — dort soll man ja das
+   Weltall sehen. Dunkler Text auf schwarzem Himmel geht aber nicht, also
+   bekommt er einen weichen, runden Grund: eine Lichtinsel, die zu den
+   Raendern hin in die Sterne ausblendet. Sonne und Milchstrasse bleiben
+   ringsum sichtbar. */
+:root.day-mode:not([data-theme="mars"]):not([data-theme="strand"]) .hero {
+  background:
+    radial-gradient(ellipse 62% 112% at 50% 50%,
+        rgb(var(--bg-void-rgb) / .97) 0%,
+        rgb(var(--bg-void-rgb) / .93) 40%,
+        rgb(var(--bg-void-rgb) / .45) 74%,
+        rgb(var(--bg-void-rgb) / 0)   100%),
+    var(--hero-tint);
+}
+/* Vor schwarzem Weltall schlagen die 12 % Durchlaessigkeit der Platten voll
+   durch: aus dem hellen Beton wird ein Grau. Vor dem Weltall sind die
+   Platten deshalb nahezu deckend — die Ansage war "alle Elemente heller",
+   und das Weltall zeigt sich im Hero, nicht hinter dem Fliesstext. */
+:root.day-mode:not([data-theme="mars"]):not([data-theme="strand"]) main > *:not(.hero):not(.ehero) {
+  background-color: rgb(var(--bg-void-rgb) / .975);
+}
+/* Auch im Space-Theme ist die Spalte durchscheinend — ausdrueckliche Vorgabe.
+   Der Wert liegt hier hoeher als bei Mars und Strand (.86 gegen .78), und das
+   ist kein Zufall: dort liegt eine helle Landschaft hinter der Platte, hier
+   liegt Schwarz. Gleiche Deckung wuerde denselben Beton vor dem Weltall
+   deutlich dunkler erscheinen lassen als vor dem Marsboden — die Seite haette
+   dann je nach Theme einen anderen Grundton. Der hoehere Wert gleicht das aus.
+   Sichtbar bleibt, was hier sichtbar sein soll: die Sterne. */
+:root.day-mode.scene-edges:not([data-theme="mars"]):not([data-theme="strand"]) main > *:not(.hero):not(.ehero) {
+  background-color: transparent;
+  background-image: linear-gradient(90deg,
+      rgb(var(--bg-void-rgb) / 0)   calc(50% - var(--maxw) / 2),
+      rgb(var(--bg-void-rgb) / .86) calc(50% - var(--maxw) / 2),
+      rgb(var(--bg-void-rgb) / .86) calc(50% + var(--maxw) / 2),
+      rgb(var(--bg-void-rgb) / 0)   calc(50% + var(--maxw) / 2));
+}
+:root.day-mode:not([data-theme="mars"]):not([data-theme="strand"]) .topbar {
+  background: rgb(var(--bg-void-rgb) / .975);
+}
+/* Wolken gibt es im Vakuum nicht. */
+:root.day-mode:not([data-theme="mars"]):not([data-theme="strand"]) #dayclouds { display: none; }
+/* Rauschen und Vignette liegen im Space-Theme wieder ueber einem schwarzen
+   Grund — dort gelten die Nachtwerte. `multiply` auf Schwarz ergaebe nichts,
+   und eine helle Vignette auf Schwarz waere ein Rahmen. */
+:root.day-mode:not([data-theme="mars"]):not([data-theme="strand"]) body::after {
+  mix-blend-mode: overlay;
+  opacity: .045;
+}
+:root.day-mode:not([data-theme="mars"]):not([data-theme="strand"])::after {
+  background: radial-gradient(ellipse 78% 74% at 50% 46%,
+      rgb(0 0 0 / 0) 0%, rgb(0 0 0 / .06) 55%, rgb(0 0 0 / .20) 78%, rgb(0 0 0 / .42) 100%);
+}
+/* Der Footer blendet nachts aus dem Bodenbild in den Seitengrund. Im
+   Weltall-Tag steht darueber schwarzer Himmel und darunter die helle
+   Platte — der Verlauf muss also von transparent auf HELL laufen, sonst
+   reisst zwischen letzter Sektion und Footer ein schwarzer Streifen auf. */
+:root.day-mode:not([data-theme="mars"]):not([data-theme="strand"]) footer {
+  background: var(--bg-void);
+}
+/* Glow-Ueberschriften */
+:root.day-mode .h2 .glow {
+  color: var(--ink);
+  text-shadow: .045em .055em 0 var(--acc-face);
+}
+:root.day-mode .aware .h2 .glow,
+:root.day-mode .aware h2 .glow { color: var(--acc-1); text-shadow: none; }
+/* Countdown: derselbe Griff, aber kuehl — sonst wird alles magenta. */
+:root.day-mode .tminus .clock {
+  text-shadow: .03em .04em 0 var(--acc-3);
+}
+/* Karten: Kontur statt Farbsaum, harter Versatz beim Hover statt Halo. */
+:root.day-mode .mcard {
+  border-color: rgb(var(--card-acc-rgb) / .55);
+  box-shadow: 3px 3px 0 rgb(var(--card-acc-rgb) / .14);
+}
+:root.day-mode .mcard:hover {
+  border-color: var(--card-acc);
+  box-shadow: 7px 8px 0 var(--card-acc), 0 2px 0 rgb(26 21 38 / .22);
+}
+/* --card-acc und --n-acc stehen als NEON im style-Attribut der Karten
+   (events.html, index.html, news.html) und sind von hier aus nicht
+   ueberschreibbar, ohne die Farbidentitaet je Karte plattzumachen. Also
+   umgekehrt: die Neons duerfen als FLAECHE bleiben (Kontur, Versatzschatten,
+   Plakette) — nur ihre TEXT-Verwendungen werden umgehaengt. #6fc9e8 kaeme
+   als Schrift auf 1.6:1, #e5c25c auf 1.5:1.
+   Als Flaeche traegt jedes dieser Neons dunkle Schrift: 5.0:1 (Orange und
+   Magenta) bis 10.4:1 (Gold) — nachgemessen. */
+:root.day-mode :is(.mcard .m-date em, .mcard .m-link, .m-toggle, .mcard .patch) {
+  color: var(--acc-1);
+}
+:root.day-mode .mcard .status {
+  color: var(--ink);
+  background: rgb(var(--card-acc-rgb) / .9);
+  border-color: var(--ink);
+}
+:root.day-mode .ncard .n-badge {
+  color: var(--ink);
+  background: rgb(var(--n-acc, var(--acc-2-rgb)) / .9);
+  border-color: var(--ink);
+}
+:root.day-mode .setcard,
+:root.day-mode .ccard,
+:root.day-mode .next-card,
+:root.day-mode .aware,
+:root.day-mode .ncard,
+:root.day-mode details.faq { border-color: rgb(var(--acc-2-rgb) / .5); }
+:root.day-mode .next-card {
+  border-color: var(--ink);
+  box-shadow: 5px 6px 0 var(--acc-1);
+}
+:root.day-mode .setcard:hover,
+:root.day-mode .ccard:hover { border-color: var(--acc-1); box-shadow: 5px 6px 0 rgb(var(--acc-1-rgb) / .85); }
+/* Patches und Avatare: nachts dunkle Scheiben mit weissem Rand und
+   Innenglimmen. Tags helle Scheiben mit Tintenkontur und hartem Versatz. */
+:root.day-mode :is(.mcard .patch, .patch-hero, .ccard .avatar, .mcard .avatar, .flog .fpatch) {
+  background: var(--bg-void);
+  border-color: var(--ink);
+}
+:root.day-mode .mcard .patch {
+  box-shadow: inset 0 0 0 3px rgb(var(--card-acc-rgb) / .3), 3px 4px 0 var(--card-acc);
+}
+:root.day-mode .patch-hero {
+  box-shadow: inset 0 0 0 4px rgb(var(--acc-1-rgb) / .3), 4px 5px 0 var(--acc-1);
+}
+:root.day-mode :is(.ccard .avatar, .mcard .avatar) {
+  box-shadow: inset 0 0 0 3px rgb(var(--acc-2-rgb) / .28), 3px 4px 0 var(--acc-2);
+}
+:root.day-mode .flog .fpatch {
+  box-shadow: inset 0 0 0 2px rgb(var(--acc-1-rgb) / .3), 2px 3px 0 var(--acc-1);
+}
+/* Der Lineup-Hover leuchtete; jetzt springt er nach vorn. */
+:root.day-mode .lineup .act { border-color: rgb(var(--acc-2-rgb) / .5); }
+:root.day-mode .lineup .act:hover {
+  color: var(--acc-1);
+  border-color: var(--acc-1);
+  text-shadow: none;
+  box-shadow: 4px 5px 0 var(--acc-face);
+}
+/* Der pulsende Punkt der Transmission ist auf Hell ein blasser Fleck. Harte
+   Kontur, damit er als Leuchte lesbar bleibt. */
+:root.day-mode .transmission .tx-label::before { box-shadow: 0 0 0 1px var(--ink); }
+/* Die Rakete haengt an der Unterkante der Kopfleiste und ragt damit als
+   einziges Element des dunklen Ankers auf den hellen Grund. Ihr Rumpf ist im
+   SVG als helles Metall festgelegt (dort kommen wir nicht heran) und
+   verschwindet deshalb tagsueber fast. Kein Glow — ein Kontaktschatten. */
+:root.day-mode .rocket {
+  filter: drop-shadow(0 0 .7px rgb(26 21 38 / .85)) drop-shadow(1px 2px 1px rgb(26 21 38 / .35));
+}
+/* Der Magenta-Schleier der Hero-Karte kippt auf hellem Grund ins
+   Altrosa und liest dort als Farbverlauf-Deko. Flacher gesetzt. */
+:root.day-mode .next-card {
+  background:
+    radial-gradient(90% 120% at 85% -10%, rgb(var(--acc-1-rgb) / .07), transparent 58%),
+    linear-gradient(160deg, var(--bg-2), var(--bg-1));
+}
+
+/* ---- Knoepfe ----
+   Der Primaerknopf ist tags ein Tintenblock mit hartem Magenta-Versatz. Alle
+   Werte kommen aus Tokens: innerhalb der dunklen Anker (Sticky-CTA) loesen
+   sich dieselben Deklarationen automatisch wieder zur Nachtoptik auf. */
+:root.day-mode .btn-primary {
+  background: var(--ink);
+  color: var(--bg-void);
+  border-color: var(--ink);
+  box-shadow: 4px 5px 0 var(--acc-face);
+}
+:root.day-mode .btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 6px 7px 0 var(--acc-face);
+}
+:root.day-mode .btn-ghost { border-color: var(--ink); color: var(--ink); }
+:root.day-mode .btn-ghost:hover { background: rgb(var(--acc-1-rgb) / .12); box-shadow: 3px 4px 0 var(--acc-1); }
+/* Chips: einer davon darf laut sein. `.chip.hot` wird zur vollen
+   Magenta-Flaeche mit dunkler Schrift (5.0:1) — das ist die Stelle, an der
+   das Neon im Tag-Modus ueberlebt. */
+:root.day-mode .chip { border-color: rgb(var(--acc-3-rgb) / .5); }
+:root.day-mode .chip.hot {
+  background: var(--acc-face);
+  border-color: var(--ink);
+  color: var(--ink);
+}
+:root.day-mode .setcard .cover .play {
+  background: var(--ink);
+  color: var(--bg-void);
+  border-color: var(--ink);
+}
+:root.day-mode .setcard:hover .play { background: var(--acc-1); }
+/* Nachrichtenkarte: der Verlauf war als fester dunkler Wert eingetragen und
+   liegt auf Hell als Schmutzfleck darin. */
+:root.day-mode .ncard {
+  background: linear-gradient(170deg, rgb(var(--bg-surface-rgb) / .85), transparent);
+}
+/* Platzhalter-Schraffur: bei .04 auf Hell unsichtbar. */
+:root.day-mode .gph {
+  background: repeating-linear-gradient(-45deg, transparent 0 9px, rgb(var(--acc-2-rgb) / .14) 9px 10px);
+}
+
+/* ============================================================
+   Tag · Mikro-Labels (Space Mono)
+
+   Space Mono ist nicht variabel — 400 -> 700 ist bei 10px kein Zuschlag,
+   sondern ein anderer Schnitt. Das gefuehlte Gewicht entsteht hier stattdessen
+   ueber ENGERE LAUFWEITE (enger gesetzt liest bei kleinen Graden schwerer,
+   weil die Grauwertdichte steigt) und eine DUNKLERE FARBE. Dunkel auf hell
+   ueberstrahlt ohnehin nicht, der Ton darf also naeher an die Tinte ruecken.
+   Rund -15 % Laufweite, gruppiert nach Ausgangswert.
+   ============================================================ */
+:root.day-mode :is(.pretitle, .eyebrow, .tminus .label, .eblock h3, .scroll-hint) { letter-spacing: .255em; }
+:root.day-mode .transmission .tx-label { letter-spacing: .22em; }
+:root.day-mode :is(.m-row dt, .ncard .n-badge) { letter-spacing: .17em; }
+:root.day-mode :is(.ccard span, .lineup .act small, .back-link) { letter-spacing: .12em; }
+:root.day-mode :is(.mcard .m-link, .m-toggle, .head-link, .btn, .chip) { letter-spacing: .1em; }
+/* Farbstufe: die kleinsten Grade (<= 11px) ruecken eine Stufe nach oben. Der
+   Abstand zur Tinte bleibt erhalten, die Praesenz kommt zurueck. */
+:root.day-mode :is(.scroll-hint, .ccard span, .m-row dt, .lineup .act small,
+                   .lu-note, .glog .chip, .ncard .n-date, .gph) { color: var(--ink-dim); }
+
+/* ---- Gedimmter Fliesstext bekommt sein eigenes Gewicht ----
+   Nachts ist --w-dim identisch mit --w-body, hier aendert sich also nichts.
+   Tags liegt er darueber: gedimmte Toene verlieren ohne Ueberstrahlung mehr
+   Praesenz als die Volltonschrift. */
+.section-intro, .tagline, .mcard .m-meta, .m-brief, .m-row dd, .ncard p,
+.aware .note, .facts span, .next-card .nc-meta, .setcard .consent-note,
+.transmission p, .love, .flog .fnote, .flog .fvenue, .lu-note,
+details.faq .faq-body, .sticky-cta .sc-info, .vcard .vaddr {
+  font-weight: var(--w-dim);
+}
+
+/* ============================================================
+   Tag · Wolkenebene  (Quelle: style.css 1255–1280)
+   ============================================================ */
+/* Wolkenebene des Tag-Modus. Sie ist DOPPELT so breit wie das Fenster und
+   wird um genau eine Fensterbreite (= 50 % ihrer eigenen Breite)
+   durchgeschoben. Weil das Rauschfeld dahinter in x exakt periodisch ist
+   (pfbm in main.js), sind beide Haelften identisch — die Schleife hat keine
+   Naht und keinen Sprung.
+   Die Bewegung laeuft ueber eine CSS-Transform und damit auf dem
+   Compositor: pro Frame kostet sie nichts. Die Alternative waere eine
+   Vollbild-Kopie pro Frame gewesen — genau der Fehler, der bei der
+   Milchstrasse schon einmal 18 ms gekostet hat.
+   Liegt zwischen Sternen und Boden (DOM-Reihenfolge, gleicher z-index). */
+#dayclouds {
+  position: fixed; left: 0; top: 0; z-index: -2;
+  /* Base setzt `canvas { max-width: 100% }`. Diese Ebene ist absichtlich
+     200 % breit — ohne die Ausnahme wuerde sie auf Fensterbreite gestaucht
+     und die Schleife saehe man springen. */
+  max-width: none;
+  pointer-events: none;
+  display: none;
+  will-change: transform;
+}
+:root.day-mode #dayclouds { display: block; }
+/* Nur in der vollen Stufe. Eine dauerhaft bewegte Ebene muss der Compositor
+   in JEDEM Frame neu zusammensetzen; in der Standardstufe stehen die Wolken
+   deshalb still — sichtbar ist dort dasselbe Bild, nur ohne Drift. */
+:root.day-mode[data-fx="l"] #dayclouds { animation: cloud-drift 300s linear infinite; }
+@keyframes cloud-drift { from { transform: translate3d(0, 0, 0); } to { transform: translate3d(-50%, 0, 0); } }
+
+/* ============================================================
+   Tag · Icon-Tausch im Tag/Nacht-Knopf  (Quelle: style.css 2878–2882)
+   Die uebrigen `.nav-day`-Regeln (Groesse, Rahmen, Hover, gedrueckter
+   Zustand) bleiben im Design-System — hier steht nur der Modus-Tausch.
+   ============================================================ */
+/* Beide Zeichen stehen im Markup, eines wird ausgeblendet — nicht per
+   JavaScript getauscht, sonst laege der Zustand an zwei Stellen. */
+.nav-day .i-sun { display: none; }
+:root.day-mode .nav-day .i-moon { display: none; }
+:root.day-mode .nav-day .i-sun  { display: block; }

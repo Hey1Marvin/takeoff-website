@@ -1,0 +1,144 @@
+{
+  "hero": {
+    "eyebrow": "Über uns",
+    "h1": "Wir bauen unsere Nächte selbst.",
+    "intro": "takeoff ist ein ehrenamtliches Rave-Kollektiv aus Potsdam — gegründet 2024, gewachsen aus Freundschaft, Werkstattstaub und der Frage: Warum eigentlich nicht selber machen?"
+  },
+  "foundedDate": "2024-06-15",
+  "ethos": {
+    "text1": "Unsere Anlage haben wir selbst gebaut — Subwoofer, Hörner, alles. Unser Licht ist DMX aus eigener Hand, unsere Deko entsteht pro Motto neu.",
+    "text2": "Wir sind nicht gewinnorientiert — eher „nicht-Verlust-orientiert“. Deshalb sind unsere Events oft free, die Getränke solidarisch.",
+    "image": "assets/img/placeholders/werkstatt.svg",
+    "imageAlt": "Werkstatt-Illustration: Lötkolben, Hühnerdraht, Farbeimer"
+  },
+  "values": [
+    {
+      "icon": "hand",
+      "title": "Ehrenamtlich",
+      "text": "100% unbezahlt, aus Liebe zur Sache."
+    },
+    {
+      "icon": "scale",
+      "title": "Nicht-Verlust-orientiert",
+      "text": "Kein Gewinn, aber auch kein Draufzahlen."
+    },
+    {
+      "icon": "shield",
+      "title": "Awareness first",
+      "text": "Sicherheit ist Grundlage, keine Fußnote."
+    },
+    {
+      "icon": "wrench",
+      "title": "DIY",
+      "text": "Anlage, Licht, Deko — alles aus eigener Hand."
+    },
+    {
+      "icon": "door",
+      "title": "Offene Tür",
+      "text": "Free Entry, wo immer es geht."
+    }
+  ],
+  "spendChart": {
+    "note": "Illustrative Werte, Stand 09/2026 — wird durch echte Kassenzahlen ersetzt, sobald es eine feste Kassenführung gibt.",
+    "items": [
+      {
+        "label": "Miete & Genehmigungen",
+        "percent": 35
+      },
+      {
+        "label": "Deko & Material",
+        "percent": 25
+      },
+      {
+        "label": "Technik-Pflege",
+        "percent": 20
+      },
+      {
+        "label": "Awareness & Sani",
+        "percent": 15
+      },
+      {
+        "label": "Rücklage",
+        "percent": 5
+      }
+    ]
+  },
+  "stats": {
+    "founded": {
+      "mode": "auto",
+      "label": "gegründet"
+    },
+    "missions": {
+      "mode": "auto",
+      "label": "Missionen"
+    },
+    "systemsBuilt": {
+      "mode": "manual",
+      "value": "02",
+      "label": "Anlagen selbstgebaut"
+    },
+    "volunteerPercent": {
+      "mode": "manual",
+      "value": "100%",
+      "label": "ehrenamtlich"
+    }
+  },
+  "joinRoles": [
+    {
+      "label": "Bar",
+      "mailSubject": "Mitmachen – Bar"
+    },
+    {
+      "label": "Einlass",
+      "mailSubject": "Mitmachen – Einlass"
+    },
+    {
+      "label": "Awareness",
+      "mailSubject": "Mitmachen – Awareness"
+    },
+    {
+      "label": "Deko-Bau",
+      "mailSubject": "Mitmachen – Deko & Bau"
+    },
+    {
+      "label": "Sani",
+      "mailSubject": "Mitmachen – Sani"
+    }
+  ],
+  "bookingFacts": [
+    {
+      "label": "Technik",
+      "value": "2 Subwoofer + 2 Tops, selbstgebaut"
+    },
+    {
+      "label": "Licht",
+      "value": "Eigenes DMX-Setup, Schwarzlicht, Tubes"
+    },
+    {
+      "label": "Erfahrung",
+      "value": "6 Missionen seit 2024"
+    },
+    {
+      "label": "Genehmigungen",
+      "value": "Erfahren im Umgang mit Ordnungsamt & Stadt"
+    }
+  ],
+  "faq": [
+    {
+      "q": "Seid ihr ein eingetragener Verein?",
+      "a": "Noch nicht — wir organisieren uns aktuell ohne feste Rechtsform, eine Vereinsgründung ist angedacht."
+    },
+    {
+      "q": "Wie finanziert ihr euch?",
+      "a": "Über Spenden, Solipreise an der Bar und gelegentliche Türeinnahmen — nie gewinnorientiert."
+    },
+    {
+      "q": "Kann ich ohne Erfahrung mitmachen?",
+      "a": "Ja. Bar, Einlass, Awareness, Deko-Bau — wir zeigen dir alles."
+    },
+    {
+      "q": "Bucht ihr auch andere Partys?",
+      "a": "Ja, wir unterstützen mit Technik, Licht und eingespielten Crews — schreib uns."
+    }
+  ]
+}

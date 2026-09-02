@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600">
+<defs><radialGradient id="g" cx="35%" cy="30%" r="90%">
+<stop offset="0" stop-color="#4a3a8a"/><stop offset="1" stop-color="#100c20"/></radialGradient>
+<filter id="n"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2"/><feColorMatrix type="saturate" values="0"/><feComponentTransfer><feFuncA type="linear" slope=".14"/></feComponentTransfer><feComposite operator="over" in2="SourceGraphic"/></filter></defs>
+<rect width="800" height="600" fill="url(#g)"/>
+<rect width="800" height="600" filter="url(#n)" opacity=".5"/>
+<circle cx="620" cy="150" r="110" fill="#a18fe0" opacity=".12"/>
+<circle cx="200" cy="470" r="160" fill="#a18fe0" opacity=".07"/>
+<text x="50%" y="52%" text-anchor="middle" font-family="monospace" font-size="17" letter-spacing="6" fill="#a18fe0" opacity=".55">STAGE · LIGHT</text>
+<text x="50%" y="58%" text-anchor="middle" font-family="monospace" font-size="10" letter-spacing="3" fill="#a18fe0" opacity=".35">PLATZHALTER · WIRD ERSETZT</text>
+</svg>

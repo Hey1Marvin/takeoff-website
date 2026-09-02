@@ -1,0 +1,799 @@
+{
+  "settings": {
+    "siteName": "takeoff",
+    "claim": "rave kollektiv · potsdam · est. 2024",
+    "email": "info@takeoff-potsdam.de",
+    "telegram": "https://t.me/takeoffpotsdam",
+    "instagram": "https://www.instagram.com/takeoff.potsdam/",
+    "soundcloud": "https://soundcloud.com/takeoff-potsdam",
+    "tiktok": "https://www.tiktok.com/@takeoff.potsdam",
+    "nextEventSlug": "freiraeume",
+    "showEvents": [
+      "freiraeume",
+      "marsmission",
+      "strandparty"
+    ],
+    "hudTicker": [],
+    "fxDefault": "m",
+    "groundEnabled": true
+  },
+  "events": [
+    {
+      "slug": "freiraeume",
+      "visible": true,
+      "state": "upcoming",
+      "title": "Open Air: Freiräume",
+      "subtitle": "mit Schranzverbot & Stadtjugendring",
+      "date": "2026-09-12",
+      "weekday": "SA",
+      "doors": "16:00",
+      "end": "22:00",
+      "venue": {
+        "name": "Bastion am Schillerplatz",
+        "address": "Grünfläche, Potsdam West",
+        "transit": "Tram bis Schillerplatz · Fahrrad erwünscht",
+        "mapsQuery": "Schillerplatz Potsdam"
+      },
+      "pricing": {
+        "mode": "free",
+        "label": "Free"
+      },
+      "age": "alle Altersgruppen (Open Air am Tag)",
+      "genres": [
+        "Techno",
+        "Trance"
+      ],
+      "lineup": [
+        {
+          "name": "takeoff",
+          "genres": "Trance"
+        },
+        {
+          "name": "Schranzverbot",
+          "genres": "Techno"
+        }
+      ],
+      "brief": "Freie Räume für freie Beats: Zusammen mit dem Kollektiv Schranzverbot und dem Stadtjugendring bespielen wir die Grünfläche an der Bastion — offiziell genehmigt, solidarisch organisiert, offen für alle.",
+      "extras": [
+        "Free Water",
+        "Awareness-Team in lila Westen"
+      ],
+      "theme": {
+        "preset": "space",
+        "accent": "#6fc9e8",
+        "accentRgb": "111 201 232",
+        "patch": "star"
+      },
+      "image": "/img/placeholders/openair-gold.svg"
+    },
+    {
+      "slug": "marsmission",
+      "visible": true,
+      "state": "upcoming",
+      "title": "takeoff: Marsmission",
+      "subtitle": "takeoff goes red planet",
+      "date": "2026-09-19",
+      "weekday": "SA",
+      "doors": "23:00",
+      "end": "open end",
+      "venue": {
+        "name": "Spartacus",
+        "address": "Friedrich-Engels-Straße 22, 14473 Potsdam (im freiLand)",
+        "transit": "5 min zu Fuß vom Potsdam Hbf",
+        "mapsQuery": "Friedrich-Engels-Straße 22, 14473 Potsdam"
+      },
+      "pricing": {
+        "mode": "free",
+        "label": "Free Entry"
+      },
+      "age": "18+",
+      "genres": [
+        "Trance",
+        "Hard Trance",
+        "Bounce"
+      ],
+      "lineup": [
+        {
+          "name": "Cyonic",
+          "genres": "Techno / Trance"
+        },
+        {
+          "name": "DJ Platzhalter",
+          "genres": "Trance"
+        },
+        {
+          "name": "JOJO",
+          "genres": "Hard Trance / Bounce"
+        },
+        {
+          "name": "+ TBA",
+          "genres": "Special Guests"
+        }
+      ],
+      "brief": "Wir schießen den Spartacus auf den roten Planeten — Pappmaché-Mars, Schwarzlicht, Leuchtschläuche als Weltraum-Materie.",
+      "extras": [
+        "Free Water",
+        "Ruheraum",
+        "Awareness-Team in lila Westen"
+      ],
+      "theme": {
+        "preset": "mars",
+        "accent": "#e85a34",
+        "accentRgb": "232 90 52",
+        "patch": "planet"
+      },
+      "image": "/img/placeholders/mars-dust.svg",
+      "page": "event-marsmission.html"
+    },
+    {
+      "slug": "strandparty",
+      "visible": true,
+      "state": "tba",
+      "title": "takeoff: Strandparty",
+      "subtitle": "Arbeitstitel · Sommer im November",
+      "date": "2026-11-14",
+      "weekday": "SA",
+      "doors": "TBA",
+      "end": "",
+      "venue": {
+        "name": "Spartacus",
+        "address": "Friedrich-Engels-Straße 22, 14473 Potsdam",
+        "transit": "5 min zu Fuß vom Potsdam Hbf",
+        "mapsQuery": "Friedrich-Engels-Straße 22, 14473 Potsdam"
+      },
+      "pricing": {
+        "mode": "tba",
+        "label": "TBA"
+      },
+      "age": "18+",
+      "genres": [
+        "Trance",
+        "Hard Bounce"
+      ],
+      "lineup": [],
+      "brief": "Cocktails gegen den Novemberregen. Lineup, Zeiten und Deko-Geheimnisse gibt's zuerst im Telegram-Kanal.",
+      "extras": [],
+      "theme": {
+        "preset": "strand",
+        "accent": "#e5c25c",
+        "accentRgb": "229 194 92",
+        "patch": "umbrella"
+      },
+      "image": "/img/placeholders/water-cyan.svg"
+    },
+    {
+      "slug": "pride",
+      "visible": true,
+      "state": "past",
+      "patchNo": "M6",
+      "title": "Pride-Party",
+      "subtitle": "3 stages of love",
+      "date": "2026-06-27",
+      "weekday": "SA",
+      "doors": "18:00",
+      "end": "05:30",
+      "venue": {
+        "name": "KuZe",
+        "address": "Potsdam",
+        "transit": "",
+        "mapsQuery": "KuZe Potsdam"
+      },
+      "pricing": {
+        "mode": "free",
+        "label": "Free Entry"
+      },
+      "age": "18+",
+      "genres": [
+        "Trance",
+        "Hard Techno",
+        "Psytrance"
+      ],
+      "lineup": [
+        {
+          "name": "Emmy",
+          "genres": "Floor 3 · 20:00"
+        },
+        {
+          "name": "Kolja",
+          "genres": "Floor 3 · 21:00"
+        },
+        {
+          "name": "takeoff-Crew",
+          "genres": "alle Floors"
+        }
+      ],
+      "brief": "40 °C, Sturmwarnung, die Demo wurde abgesagt — die Party nicht. Drei Floors, Free Water gegen die Hitze, Sonnensegel-Abbau im Sturm. „Bestes Event, das wir je hatten.“",
+      "stats": [
+        {
+          "n": "03",
+          "l": "Floors"
+        },
+        {
+          "n": "40°",
+          "l": "Celsius"
+        },
+        {
+          "n": "150",
+          "l": "outdoor-Kapazität"
+        },
+        {
+          "n": "∞",
+          "l": "Liebe"
+        }
+      ],
+      "gallery": [
+        "/img/placeholders/crowd-blue.svg",
+        "/img/placeholders/stage-violet.svg",
+        "/img/placeholders/neon-tubes.svg",
+        "/img/placeholders/dj-magenta.svg"
+      ],
+      "theme": {
+        "preset": "space",
+        "accent": "#e04fb4",
+        "accentRgb": "224 79 180",
+        "patch": "heart"
+      },
+      "image": "/img/placeholders/stage-violet.svg",
+      "page": "event-pride.html"
+    },
+    {
+      "slug": "free-entry-rave",
+      "visible": true,
+      "state": "past",
+      "patchNo": "M5",
+      "title": "Free Entry Rave",
+      "subtitle": "Lokales Lineup · Community-Fokus",
+      "date": "2026-01-17",
+      "weekday": "SA",
+      "doors": "23:00",
+      "end": "",
+      "venue": {
+        "name": "Spartacus",
+        "address": "Friedrich-Engels-Straße 22, 14473 Potsdam",
+        "transit": "5 min zu Fuß vom Potsdam Hbf",
+        "mapsQuery": "Friedrich-Engels-Straße 22, 14473 Potsdam"
+      },
+      "pricing": {
+        "mode": "donation",
+        "label": "Spendenbasis"
+      },
+      "age": "18+",
+      "genres": [
+        "Trance",
+        "Hard Trance",
+        "Bounce"
+      ],
+      "lineup": [
+        {
+          "name": "Cyonic"
+        },
+        {
+          "name": "dj st4rlight"
+        },
+        {
+          "name": "FLAVA"
+        },
+        {
+          "name": "JOJO"
+        },
+        {
+          "name": "ochser"
+        }
+      ],
+      "brief": "Lineup A–Z, Eintritt auf Spendenbasis, Feuerschale & Steinofen-Pizza im Hof.",
+      "extras": [
+        "Feuerschale",
+        "Steinofen-Pizza"
+      ],
+      "theme": {
+        "preset": "space",
+        "accent": "#cfc4f2",
+        "accentRgb": "207 196 242",
+        "patch": "star"
+      },
+      "image": "/img/placeholders/neon-tubes.svg"
+    },
+    {
+      "slug": "groesstes-event",
+      "visible": true,
+      "state": "past",
+      "patchNo": "M4",
+      "title": "Unser größtes Event",
+      "subtitle": "",
+      "date": "2025-09-27",
+      "weekday": "SA",
+      "doors": "",
+      "end": "",
+      "venue": {
+        "name": "Spartacus",
+        "address": "Friedrich-Engels-Straße 22, 14473 Potsdam",
+        "transit": "",
+        "mapsQuery": ""
+      },
+      "pricing": {
+        "mode": "",
+        "label": ""
+      },
+      "age": "18+",
+      "genres": [],
+      "lineup": [
+        {
+          "name": "mølly (on molly)"
+        },
+        {
+          "name": "MIMI404"
+        },
+        {
+          "name": "SENAIDA"
+        }
+      ],
+      "brief": "Unser bis dahin größtes Event — angekündigt als genau das.",
+      "theme": {
+        "preset": "space",
+        "accent": "#a18fe0",
+        "accentRgb": "161 143 224",
+        "patch": "star"
+      },
+      "image": "/img/placeholders/crowd-blue.svg"
+    },
+    {
+      "slug": "spartacus-nacht",
+      "visible": true,
+      "state": "past",
+      "patchNo": "M3",
+      "title": "Spartacus-Nacht",
+      "subtitle": "Antike trifft Trance",
+      "date": "2025-05-09",
+      "weekday": "FR",
+      "doors": "22:00",
+      "end": "",
+      "venue": {
+        "name": "Spartacus",
+        "address": "Friedrich-Engels-Straße 22, 14473 Potsdam",
+        "transit": "",
+        "mapsQuery": ""
+      },
+      "pricing": {
+        "mode": "door",
+        "label": "10 € bis 0 Uhr, danach 12 € · nur Abendkasse"
+      },
+      "age": "18+",
+      "genres": [
+        "Trance",
+        "Techno"
+      ],
+      "lineup": [
+        {
+          "name": "Cyonic"
+        },
+        {
+          "name": "DJ Loveletter"
+        },
+        {
+          "name": "Jacky Ickx"
+        },
+        {
+          "name": "mølly (on molly)"
+        },
+        {
+          "name": "DJ Platzhalter"
+        }
+      ],
+      "brief": "Brennender Schriftzug überm Tempel — deutlich größer, weil beim letzten Mal nach 200 Leuten Schluss war.",
+      "theme": {
+        "preset": "space",
+        "accent": "#e04fb4",
+        "accentRgb": "224 79 180",
+        "patch": "star"
+      },
+      "image": "/img/placeholders/dj-magenta.svg"
+    },
+    {
+      "slug": "out-of-space",
+      "visible": true,
+      "state": "past",
+      "patchNo": "M2",
+      "title": "Takeoff: Out of Space",
+      "subtitle": "",
+      "date": "2025-01-11",
+      "weekday": "SA",
+      "doors": "22:00",
+      "end": "",
+      "venue": {
+        "name": "Nilkeller",
+        "address": "Am Neuen Palais 10, 14469 Potsdam",
+        "transit": "Uni-Campus Neues Palais",
+        "mapsQuery": "Am Neuen Palais 10, 14469 Potsdam"
+      },
+      "pricing": {
+        "mode": "door",
+        "label": "5 € · 3 € für Studis"
+      },
+      "age": "18+",
+      "genres": [
+        "Trance",
+        "Techno"
+      ],
+      "lineup": [
+        {
+          "name": "Niico",
+          "genres": "Trance / Bouncy Techno"
+        },
+        {
+          "name": "Cedric Lawrence",
+          "genres": "Trance / Hardgroove"
+        },
+        {
+          "name": "Cyonic",
+          "genres": "Techno / Trance"
+        },
+        {
+          "name": "DJ Trancesetter",
+          "genres": "Trance / Techno"
+        },
+        {
+          "name": "Cyonic B2B Niico",
+          "genres": "Hard Techno"
+        }
+      ],
+      "brief": "Sternenhimmel, Raumstation, Pixel-Typo — und Einlassstopp bei 200, weil der Keller voll war.",
+      "theme": {
+        "preset": "space",
+        "accent": "#6fc9e8",
+        "accentRgb": "111 201 232",
+        "patch": "star"
+      },
+      "image": "/img/placeholders/crowd-blue.svg"
+    },
+    {
+      "slug": "sky-high",
+      "visible": true,
+      "state": "past",
+      "patchNo": "M1",
+      "title": "Sky High",
+      "subtitle": "Der erste takeoff",
+      "date": "2024-06-15",
+      "weekday": "SA",
+      "doors": "22:00",
+      "end": "",
+      "venue": {
+        "name": "Potsdam",
+        "address": "",
+        "transit": "",
+        "mapsQuery": ""
+      },
+      "pricing": {
+        "mode": "presale",
+        "label": "VVK über eigenen Shop"
+      },
+      "age": "18+",
+      "genres": [
+        "Trance",
+        "Techno"
+      ],
+      "lineup": [
+        {
+          "name": "Cyonic",
+          "genres": "Debüt · 22:00"
+        }
+      ],
+      "brief": "Hier ging alles los. Telegram-Crew kam früher rein — manche Traditionen sind von Anfang an da.",
+      "theme": {
+        "preset": "space",
+        "accent": "#6fc9e8",
+        "accentRgb": "111 201 232",
+        "patch": "star"
+      },
+      "image": "/img/placeholders/neon-tubes.svg"
+    }
+  ],
+  "artists": [
+    {
+      "slug": "jojo",
+      "initials": "JO",
+      "name": "JOJO",
+      "role": "Resident",
+      "genres": "Hard Trance · Bounce",
+      "since": "2025",
+      "bio": "Bio & Foto folgen — mit Einverständnis, wie sich das gehört.",
+      "sets": [
+        {
+          "title": "JOJO | takeoff Podcast #1",
+          "meta": "Serie · YouTube & SoundCloud"
+        }
+      ],
+      "appearances": [
+        "free-entry-rave"
+      ],
+      "page": "artist-jojo.html"
+    },
+    {
+      "slug": "platzhalter",
+      "initials": "PL",
+      "name": "DJ Platzhalter",
+      "role": "Resident · Mitgründer",
+      "genres": "Trance",
+      "since": "2024",
+      "bio": "Nico — hat takeoff 2024 mit aufgebaut. Der Name ist Programm, die Bio kommt trotzdem noch.",
+      "sets": [
+        {
+          "title": "DJ Platzhalter — Live @ Spartacus",
+          "meta": "09.05. · Liveset"
+        }
+      ],
+      "appearances": [
+        "spartacus-nacht",
+        "sky-high"
+      ],
+      "page": "artist-platzhalter.html"
+    },
+    {
+      "slug": "cyonic",
+      "initials": "CY",
+      "name": "Cyonic",
+      "role": "DJ · seit Tag 1",
+      "genres": "Techno · Trance",
+      "since": "2024",
+      "bio": "Von der ersten Mission an dabei. Spezialität: B2B-Sets.",
+      "sets": [
+        {
+          "title": "Cyonic B2B Niico — Out of Space",
+          "meta": "11.01. · Liveset"
+        }
+      ],
+      "appearances": [
+        "free-entry-rave",
+        "spartacus-nacht",
+        "out-of-space",
+        "sky-high"
+      ],
+      "page": "artist-cyonic.html"
+    },
+    {
+      "slug": "blaulicht",
+      "initials": "BL",
+      "name": "Blaulicht",
+      "role": "Licht & DJ",
+      "genres": "DMX · Tubes · Schwarzlicht",
+      "since": "2025",
+      "bio": "Mik — baut die komplette Lichttechnik des Kollektivs und steht auch selbst am Pult.",
+      "sets": [],
+      "appearances": []
+    }
+  ],
+  "partners": [
+    {
+      "slug": "schranzverbot",
+      "name": "Schranzverbot",
+      "url": "",
+      "logo": "",
+      "beschreibung": "Co-Host Open Air „Freiräume“",
+      "events": [
+        "freiraeume"
+      ]
+    },
+    {
+      "slug": "no-gravity-berlin",
+      "name": "No Gravity Berlin",
+      "url": "",
+      "logo": "",
+      "beschreibung": "Partner-Kollektiv Berlin",
+      "events": []
+    },
+    {
+      "slug": "spartacus",
+      "name": "Spartacus",
+      "url": "",
+      "logo": "",
+      "beschreibung": "Zweite Heimat im freiLand",
+      "events": [
+        "marsmission",
+        "strandparty",
+        "free-entry-rave",
+        "groesstes-event",
+        "spartacus-nacht"
+      ]
+    },
+    {
+      "slug": "freiland-potsdam",
+      "name": "freiLand Potsdam",
+      "url": "",
+      "logo": "",
+      "beschreibung": "",
+      "events": [
+        "marsmission"
+      ]
+    },
+    {
+      "slug": "kuze",
+      "name": "KuZe",
+      "url": "",
+      "logo": "",
+      "beschreibung": "Location Pride-Party",
+      "events": [
+        "pride"
+      ]
+    },
+    {
+      "slug": "nilkeller",
+      "name": "Nilkeller",
+      "url": "",
+      "logo": "",
+      "beschreibung": "",
+      "events": [
+        "out-of-space"
+      ]
+    },
+    {
+      "slug": "stadtjugendring-potsdam",
+      "name": "Stadtjugendring Potsdam",
+      "url": "",
+      "logo": "",
+      "beschreibung": "Genehmigungs-Partner „Freiräume“",
+      "events": [
+        "freiraeume"
+      ]
+    },
+    {
+      "slug": "regenbogen-potsdam-e-v",
+      "name": "Regenbogen Potsdam e.V.",
+      "url": "",
+      "logo": "",
+      "beschreibung": "",
+      "events": []
+    }
+  ],
+  "guests": [
+    "mølly (on molly)",
+    "MIMI404",
+    "SENAIDA",
+    "Cedric Lawrence",
+    "DJ Trancesetter",
+    "DJ Loveletter",
+    "Jacky Ickx",
+    "dj st4rlight",
+    "FLAVA",
+    "ochser",
+    "Emmy",
+    "Kolja"
+  ],
+  "team": [
+    {
+      "slug": "nico",
+      "initials": "NI",
+      "name": "Nico · DJ Platzhalter",
+      "role": "Mitgründer · Orga · DJ"
+    },
+    {
+      "slug": "mik",
+      "initials": "MI",
+      "name": "Mik · Blaulicht",
+      "role": "Lichttechnik · DMX · DJ"
+    },
+    {
+      "slug": "jojo",
+      "initials": "JO",
+      "name": "JOJO",
+      "role": "DJ · Resident"
+    },
+    {
+      "slug": "cyonic",
+      "initials": "CY",
+      "name": "Cyonic",
+      "role": "DJ · seit Tag 1"
+    },
+    {
+      "slug": "awareness-team",
+      "icon": "heart",
+      "name": "Awareness-Team",
+      "role": "Lila Westen · ansprechbar"
+    },
+    {
+      "slug": "sani-team",
+      "icon": "cross",
+      "name": "Sani-Team",
+      "role": "Ersthelfer*innen · im Umlauf"
+    },
+    {
+      "slug": "deko-bau",
+      "icon": "bolt",
+      "name": "Deko & Bau",
+      "role": "Requisiten · Motto-Welten"
+    },
+    {
+      "slug": "bar-einlass",
+      "icon": "heart",
+      "name": "Bar & Einlass",
+      "role": "Schicht-Crews · jede Nacht"
+    }
+  ],
+  "news": [
+    {
+      "id": "n5",
+      "badge": "Announcement",
+      "accentRgb": "111 201 232",
+      "date": "2026-08-23",
+      "title": "Genehmigung ist da — Open Air „Freiräume“ am 12.09.! 🎉",
+      "text": "Die Stadt hat die Fläche an der Bastion am Schillerplatz bestätigt. 16–22 Uhr, free, mit Schranzverbot & Stadtjugendring.",
+      "instaUrl": "https://www.instagram.com/takeoff.potsdam/"
+    },
+    {
+      "id": "n4",
+      "badge": "Baulog",
+      "accentRgb": "232 90 52",
+      "date": "2026-08-13",
+      "title": "Der Mars nimmt Form an",
+      "text": "Hühnerdraht, Kleister, Schwarzlichtfarbe: Unser Planet für die Marsmission ist im Bau. Materialkosten: ~20 €. Künstlerische Freiheit: unbezahlbar."
+    },
+    {
+      "id": "n3",
+      "badge": "Recap",
+      "accentRgb": "224 79 180",
+      "date": "2026-06-28",
+      "title": "Pride-Party: 40 °C, Sturm — und trotzdem die beste Nacht",
+      "text": "Demo abgesagt, Party nicht. Drei Floors im KuZe, Sonnensegel-Krimi inklusive. Danke an alle, die da waren und aufeinander aufgepasst haben. ♥",
+      "instaUrl": "https://www.instagram.com/takeoff.potsdam/"
+    },
+    {
+      "id": "n2",
+      "badge": "Podcast",
+      "accentRgb": "161 143 224",
+      "date": "2025-08-05",
+      "title": "„JOJO | takeoff“ — Folge 1 ist draußen",
+      "text": "Unsere Podcast-Serie startet: für alle, die ihre Ohren in exquisitem Trance baden wollen. Auf YouTube & SoundCloud."
+    },
+    {
+      "id": "n1",
+      "badge": "Baulog",
+      "accentRgb": "229 194 92",
+      "date": "2025-01-01",
+      "title": "Vom ersten Subwoofer zur eigenen Anlage",
+      "text": "Erst ein Sub, dann zwei Hörner, dann noch ein Sub — Stück für Stück selbst gebaut, bis der Keller wackelte."
+    }
+  ],
+  "history": [
+    {
+      "patch": "T0",
+      "date": "2024",
+      "name": "Die Gründung",
+      "venue": "Potsdam",
+      "note": "Eine kleine Gruppe um Nico — heute besser bekannt als DJ Platzhalter — beschließt: Wir machen das selbst."
+    },
+    {
+      "patch": "S1",
+      "date": "2024",
+      "name": "Der erste Subwoofer",
+      "venue": "Werkstatt",
+      "note": "Selbst gesägt, selbst verleimt, selbst verkabelt."
+    },
+    {
+      "patch": "S2",
+      "date": "2024/25",
+      "name": "Zwei Hörner obendrauf",
+      "venue": "Werkstatt",
+      "note": "Die magentafarbenen Tops komplettieren den ersten Stack."
+    },
+    {
+      "patch": "S3",
+      "date": "2025",
+      "name": "Noch ein Subwoofer",
+      "venue": "Werkstatt",
+      "note": "Mehr Fläche, mehr Menschen, mehr Bass."
+    },
+    {
+      "patch": "L1",
+      "date": "2025",
+      "name": "Eigenes Licht",
+      "venue": "DMX-Pult",
+      "note": "Mik — als „Blaulicht“ unterwegs — baut die Lichttechnik auf."
+    },
+    {
+      "patch": "▲",
+      "date": "Heute",
+      "name": "Themen-Welten",
+      "venue": "Potsdam & Umgebung",
+      "note": "Jedes Event bekommt sein eigenes Universum."
+    }
+  ],
+  "pages": {}
+}

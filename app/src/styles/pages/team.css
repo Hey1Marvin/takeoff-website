@@ -1,0 +1,238 @@
+/* ============================================================
+   team.css — Signaturmotiv "Orbit-Stationsplan" + Bordkartei-Flip
+   Seiten-CSS für /team. Lädt NACH takeoff.css, nutzt ausschließlich
+   bestehende Tokens (--acc-1/2/3, --chrome-*, --font-mono, --bg-hairline,
+   --ease-out). Keine neue Palette, kein neuer Font, keine Canvas-Ebene.
+
+   Portierung von prototype/assets/css/pages/team.css (Orbit-Stationsplan,
+   1:1 übernommen) + Vertiefung um die Flip-Karten aus der Kartei-Spezifikation
+   (scratchpad/spec-team.md): jede Crew-Karte dreht sich per Klick zur
+   Rückseite mit Aufgaben-Manifest. Präfix `kt-` — kollisionsfrei geprüft
+   gegen takeoff.css / kollektiv.css (bp-) / awareness.css (aw-) /
+   news.css (rx-) / kalender.css / artists.css.
+   ============================================================ */
+
+/* ---------- Bereichs-Akzente (keine neue Palette) ----------
+   Jeder Bereich bekommt einen der drei bestehenden Akzente als ruhige
+   Wiedererkennung zwischen Hintergrund-Ringen und Karten-Hover. Space/
+   Mars/Strand färben automatisch mit, weil alles über --acc-1/2/3 läuft. */
+:root {
+  --kt-flugdeck-rgb: var(--acc-1-rgb);
+  --kt-boden-rgb:    var(--acc-3-rgb);
+  --kt-bau-rgb:      var(--acc-2-rgb);
+  --kt-sensor-rgb:   var(--acc-3-rgb);
+  --kt-panel-rgb:    var(--acc-2-rgb);
+}
+
+/* ============================================================
+   1 · Orbit-Stationsplan — Hintergrund-Signaturmotiv (Ambient)
+   Fixed, hinter dem Inhalt, oben links im Bildfeld. Additiv zum Himmel,
+   nicht statt ihm — der Sternenhimmel bleibt immer sichtbar, nur minimal
+   gedämpft, damit die Ringe mehr Kontur bekommen. Tier S: fertiges
+   Standbild, kein Sweep, kein Canvas, kein eigener rAF-Loop.
+   ============================================================ */
+.kt-orbit {
+  position: fixed; top: 0; left: 0; z-index: -1;
+  width: min(50vw, 600px); height: min(52vh, 460px);
+  opacity: .16;
+  mask-image: radial-gradient(closest-side at 33% 42%, #000 0%, #000 42%, transparent 86%);
+  -webkit-mask-image: radial-gradient(closest-side at 33% 42%, #000 0%, #000 42%, transparent 86%);
+  pointer-events: none;
+}
+.kt-orbit svg { width: 100%; height: 100%; overflow: visible; }
+@media (max-width: 640px) {
+  .kt-orbit { width: 78vw; height: 44vh; opacity: .11; top: -4vh; left: -12vw; }
+}
+#stars { filter: brightness(.95); }
+
+.kt-ring { fill: none; stroke-width: 1.4; vector-effect: non-scaling-stroke; }
+.kt-ring-flugdeck { stroke: rgb(var(--kt-flugdeck-rgb) / .55); }
+.kt-ring-boden    { stroke: rgb(var(--kt-boden-rgb) / .55); }
+.kt-ring-bau      { stroke: rgb(var(--kt-bau-rgb) / .55); }
+.kt-ring-fallback { stroke: var(--ink-faint); stroke-opacity: .35; stroke-dasharray: 2 5; }
+.kt-hub {
+  fill: var(--chrome-hi); opacity: .8;
+  animation: pulse 2.6s ease-in-out infinite; /* @keyframes pulse aus takeoff.css wiederverwendet */
+}
+.kt-tick { stroke: var(--chrome-mid); stroke-width: 1; opacity: .5; vector-effect: non-scaling-stroke; }
+.kt-ring-label {
+  font-family: var(--font-mono); font-size: 9.5px; letter-spacing: .14em;
+  fill: var(--ink-faint);
+}
+.kt-orbit-dots circle { fill: var(--chrome-hi); opacity: .75; }
+
+/* Sweep — Tier L: rotiert dauerhaft, langsam. Tier M: oszilliert sanft,
+   ein einzelner gedrosselter Zyklus. Tier S: unsichtbar, die Ringe stehen
+   als fertig komponiertes Standbild. */
+.kt-sweep { display: none; transform-origin: 0 0; }
+.kt-sweep line { stroke: rgb(var(--acc-1-rgb) / .4); stroke-width: 1.2; stroke-linecap: round; }
+:root[data-fx="l"] .kt-sweep { display: block; animation: kt-sweep-rot 34s linear infinite; }
+:root[data-fx="m"] .kt-sweep { display: block; animation: kt-sweep-scan 22s ease-in-out infinite; }
+@keyframes kt-sweep-rot  { to { transform: rotate(360deg); } }
+@keyframes kt-sweep-scan { 0%, 100% { transform: rotate(-26deg); } 50% { transform: rotate(26deg); } }
+
+/* ============================================================
+   2 · Kennzahlen-Leiste — reine Wiederverwendung von .stats (takeoff.css).
+   ============================================================ */
+#team-stats { margin-top: clamp(6px, 1.5vh, 18px); }
+
+/* ============================================================
+   3 · Bereiche (Flugdeck / Bodencrew / Bau & Gastgeber)
+   ============================================================ */
+#kt-departments .kt-dept + .kt-dept { margin-top: clamp(38px, 6.5vh, 64px); }
+.kt-dept-head { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 12px; }
+.kt-dept-dot {
+  width: 9px; height: 9px; border-radius: 50%; flex: none;
+  align-self: center;
+  background: var(--dept-dot, var(--acc-2));
+  box-shadow: 0 0 9px var(--dept-dot, var(--acc-2));
+}
+.kt-dept[data-dept="flugdeck"] .kt-dept-dot { --dept-dot: var(--acc-1); }
+.kt-dept[data-dept="boden"]    .kt-dept-dot { --dept-dot: var(--acc-3); }
+.kt-dept[data-dept="bau"]      .kt-dept-dot { --dept-dot: var(--acc-2); }
+.kt-dept-title {
+  font-family: var(--font-display); font-weight: 700;
+  font-size: clamp(19px, 2.6vw, 24px);
+}
+.kt-dept-sub {
+  font-family: var(--font-mono); font-size: 10.5px; letter-spacing: .16em;
+  text-transform: uppercase; color: var(--ink-faint);
+}
+.kt-dept-intro { margin: 6px 0 18px; color: var(--ink-dim); font-size: 14.5px; }
+
+/* Karten-Grid teilt sich .crewgrid mit kollektiv.html (Duplikat ist ok,
+   Konflikt nicht). Höhere Selektor-Spezifität statt Ladereihenfolge, damit
+   die breitere Spalte für das Aufgaben-Manifest zuverlässig gewinnt. */
+#kt-departments .kt-grid { grid-template-columns: repeat(auto-fit, minmax(215px, 1fr)); align-items: stretch; }
+
+/* data-dept steuert nur die Hover-/Fokusfarbe der Vorderseite, damit sie
+   den Hintergrund-Ring ihres Bereichs aufgreift. */
+.kt-grid[data-dept="flugdeck"] .kt-face-front:hover, .kt-grid[data-dept="flugdeck"] .kt-face-front:focus-visible { border-color: rgb(var(--kt-flugdeck-rgb) / .65); }
+.kt-grid[data-dept="boden"] .kt-face-front:hover,    .kt-grid[data-dept="boden"] .kt-face-front:focus-visible    { border-color: rgb(var(--kt-boden-rgb) / .65); }
+.kt-grid[data-dept="bau"] .kt-face-front:hover,      .kt-grid[data-dept="bau"] .kt-face-front:focus-visible      { border-color: rgb(var(--kt-bau-rgb) / .65); }
+
+/* "seit <Jahr>"-Tag (Artist-Verlinkung) — kleine Pille unter der Rolle. */
+.ccard .kt-since {
+  display: inline-flex; margin: 8px auto 0; width: auto;
+  padding: 2px 9px; border-radius: 999px;
+  border: 1px solid rgb(var(--acc-3-rgb) / .35);
+  background: rgb(var(--acc-3-rgb) / .08);
+  color: var(--acc-3-tint);
+  font-size: 10px; letter-spacing: .1em;
+}
+
+/* ============================================================
+   4 · Bordkartei-Flip — jede Karte dreht sich zur Rückseite (Aufgaben).
+   Basis = Crossfade (alle Tiers, auf Tier S per Sitewide-Regel
+   :root[data-fx="s"] * { transition-duration:.15s!important } aus
+   takeoff.css praktisch verzugslos = "statische Karten"). Tier L bekommt
+   zusätzlich die echte 3D-Y-Drehung. Klick/Enter funktioniert auf jedem
+   Tier vollständig — nur das Drehgefühl unterscheidet sich.
+   ============================================================ */
+.kt-card { position: relative; height: 100%; }
+.kt-card-inner { position: relative; height: 100%; min-height: 222px; }
+
+.kt-face {
+  position: absolute; inset: 0; overflow: hidden;
+  border-radius: var(--radius);
+  padding: 20px 18px;
+  transition: opacity .35s var(--ease-out);
+}
+.kt-face-front { cursor: pointer; }
+.kt-face-back {
+  border: 1px solid rgb(var(--kt-panel-rgb) / .3);
+  background: rgb(var(--kt-panel-rgb) / .1);
+  display: flex; flex-direction: column;
+  text-align: left;
+  opacity: 0; visibility: hidden;
+}
+.kt-card.flipped .kt-face-front { opacity: 0; visibility: hidden; }
+.kt-card.flipped .kt-face-back  { opacity: 1; visibility: visible; }
+
+/* Nur Tier L bekommt die echte 3D-Drehung — ersetzt die Crossfade-Logik.
+   perspective MUSS auf dem Eltern-Element liegen (Lehre aus .card-grid in
+   takeoff.css): preserve-3d allein reicht nicht, ohne Fluchtpunkt rendert
+   eine 3D-Rotation als flache affine Verzerrung. */
+:root[data-fx="l"] .kt-grid { perspective: 1200px; perspective-origin: 50% 30%; }
+:root[data-fx="l"] .kt-card-inner { transform-style: preserve-3d; transition: transform .6s var(--ease-out); }
+:root[data-fx="l"] .kt-face { backface-visibility: hidden; opacity: 1 !important; visibility: visible !important; transition: none; }
+:root[data-fx="l"] .kt-face-back { transform: rotateY(180deg); }
+:root[data-fx="l"] .kt-card.flipped .kt-card-inner { transform: rotateY(180deg); }
+
+/* Vorderseite: Flip-Hinweis unter der Rolle — muss aus sich selbst heraus
+   als klickbar lesen, kein Tooltip-Onboarding. */
+.kt-flip-hint {
+  display: block; margin-top: 10px;
+  font-family: var(--font-mono); font-size: 10.5px; letter-spacing: .08em;
+  color: var(--acc-3-tint); opacity: .8;
+}
+.kt-face-front:hover .kt-flip-hint, .kt-face-front:focus-visible .kt-flip-hint { opacity: 1; }
+
+/* Rückseite: Aufgaben-Manifest */
+.kt-tasks {
+  margin: 0; padding: 0; list-style: none;
+  display: grid; gap: 7px; flex: 1;
+  font-size: 13.5px; color: var(--ink-dim);
+}
+.kt-tasks li { padding-left: 15px; position: relative; }
+.kt-tasks li::before { content: ""; position: absolute; left: 1px; top: 8px; width: 5px; height: 5px; border-radius: 50%; background: var(--acc-3); }
+.kt-contact { margin: 10px 0 0; font-size: 12px; color: var(--ink-faint); }
+.kt-more {
+  display: inline-block; margin-top: 10px;
+  color: var(--acc-1-tint); font-size: 11.5px; letter-spacing: .06em;
+}
+.kt-more:hover, .kt-more:focus-visible { text-decoration: underline; text-underline-offset: 3px; }
+.kt-flip-close {
+  align-self: flex-start; margin-top: auto; padding-top: 12px;
+  font-family: var(--font-mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase;
+  color: var(--ink-faint); background: none; border: 0; cursor: pointer;
+}
+.kt-flip-close:hover, .kt-flip-close:focus-visible { color: var(--ink); }
+
+/* Portrait-Scanline — rein dekorativ, dezent. Reine CSS-Trigger über
+   :hover/:focus-visible (kein JS-State nötig); spielt einmal pro Eintritt,
+   weil animation-iteration-count Default = 1. Nur Tier M/L — Tier S bleibt
+   ohnehin bewegungsarm (Sitewide-Regel). */
+.kt-scan {
+  position: absolute; left: 10%; right: 10%; top: 16px; height: 2px;
+  background: linear-gradient(90deg, transparent, var(--acc-3-tint), transparent);
+  opacity: 0; pointer-events: none;
+}
+:root[data-fx="m"] .kt-face-front:hover .kt-scan, :root[data-fx="m"] .kt-face-front:focus-visible .kt-scan,
+:root[data-fx="l"] .kt-face-front:hover .kt-scan, :root[data-fx="l"] .kt-face-front:focus-visible .kt-scan {
+  animation: kt-scanpass-card .8s var(--ease-out);
+}
+@keyframes kt-scanpass-card { 0% { opacity: 0; transform: translateY(0); } 15% { opacity: 1; } 100% { opacity: 0; transform: translateY(60px); } }
+
+/* ============================================================
+   5 · Sammel-Easter-Egg — Unicorn-Toast (dezent)
+   Kein Konfetti, kein Regenbogen-Verlauf: nur ein Emoji im ohnehin
+   vorhandenen .toast (takeoff.css), das per bereits existierendem
+   @keyframes eggpop (takeoff.css, .ditem.found) kurz einmal "poppt".
+   ============================================================ */
+.kt-unicorn-pop { display: inline-block; margin-right: 6px; }
+:root[data-fx="m"] .toast.show .kt-unicorn-pop,
+:root[data-fx="l"] .toast.show .kt-unicorn-pop { animation: eggpop .9s var(--ease-out); }
+
+/* ============================================================
+   6 · Foto-Board — Wiederverwendung von .gallery-grid/.gph, Rollen-Tag
+   statt Nummerierung.
+   ============================================================ */
+.kt-slot-tag {
+  position: absolute; top: 6px; left: 8px;
+  font-family: var(--font-mono); font-size: 9.5px; letter-spacing: .1em;
+  color: rgb(var(--acc-2-rgb) / .6);
+}
+.gph { position: relative; }
+
+/* ============================================================
+   7 · Mobile-Sicherheit
+   ============================================================ */
+@media (max-width: 480px) {
+  .kt-dept-head { gap: 3px 9px; }
+  .kt-card-inner { min-height: 240px; }
+}
+
+/* Tages-Modus: keine eigene Regel nötig — jede Farbe hier läuft über
+   --acc-1/2/3, --chrome-*, --ink-*, die unter :root.day-mode bereits
+   umdefiniert sind (selbes Prinzip wie kollektiv.css/news.css). */

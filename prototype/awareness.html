@@ -1,0 +1,469 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script>
+  (function () {
+    var h = document.documentElement;
+    h.classList.add("js");
+    var get = function (k) { try { return localStorage.getItem(k); } catch (e) { return null; } };
+    var c = navigator.connection || {};
+    var mem = navigator.deviceMemory, cores = navigator.hardwareConcurrency;
+    var tier = "m";
+    if (mem !== undefined && cores !== undefined && mem > 4 && cores > 4) tier = "l";
+    var stored = get("takeoff-fx");
+    if (stored === "s" || stored === "m" || stored === "l") tier = stored;
+    if (c.saveData === true) tier = "s";
+    if (/(^|\b)(slow-2g|2g|3g)\b/.test(c.effectiveType || "")) tier = "s";
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches) tier = "s";
+    h.dataset.fx = tier;
+    /* Bewusst KEIN "Theme aus Storage laden" hier (anders als auf den
+       uebrigen Seiten): awareness.html ist per data-theme-lock="1" am
+       <body> auf das Space-Theme gesperrt, weil das Leuchtfeuer-Motiv
+       --acc-2 (die violette Stuetzfarbe) als Leitfarbe braucht — ein von
+       einer anderen Seite gespeichertes Mars-/Strand-Theme darf hier nie
+       durchschlagen (siehe Kopfkommentar in assets/css/pages/awareness.css).
+       Ein body-Lock allein kaeme dafuer zu spaet: dieses Skript laeuft VOR
+       dem body-Tag und kann dessen dataset noch nicht lesen — deshalb faellt
+       die Storage-Anwendung hier komplett weg, statt sie nur nachtraeglich
+       zu blockieren. Die mctrl-Theme-Buttons bleiben trotzdem live nutzbar
+       (Session-Vorschau via main.js); nur Laden/Persistieren ist unterdrueckt. */
+
+    /* Sprache. Der Zustand gehoert ans Standardattribut lang, damit :lang(en)
+       als nativer CSS-Selektor greift - nicht an ein data-Attribut.
+       Der Sperrvermerk data-lang-lock muss auf <html> stehen: dieses Script
+       laeuft im <head>, dort ist <body> noch nicht geparst. Das ist die
+       Asymmetrie zum data-theme-lock, das auf <body> sitzt. */
+    if (!h.hasAttribute("data-lang-lock")) {
+      var lg = get("takeoff-lang");
+      if (lg === "de" || lg === "en") h.lang = lg;
+    }
+  })();
+  </script>
+  <title data-i18n="meta.awareness.title">Awareness &amp; Hilfe · takeoff potsdam</title>
+  <meta name="description" content="Awareness bei takeoff: Team, Ersthelfer*innen, Free Water, Hausregeln — und wo du Hilfe bekommst.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚀</text></svg>">
+  <link rel="stylesheet" href="assets/css/style.css">
+  <link rel="stylesheet" href="assets/css/pages/awareness.css">
+  <noscript><style>#stars{display:none!important}.nav-progress{display:none!important}.marquee-track,.band-track{animation:none!important}</style></noscript>
+</head>
+<body data-theme-lock="1">
+  <a class="skip-link" href="#main" data-i18n="a11y.skiplink">Zum Inhalt springen</a>
+  <canvas id="stars" aria-hidden="true"></canvas>
+
+  <!-- Signatur-Motiv "Leuchtfeuer": Warp-Filter (einmalig, unbewegt) +
+       Himmels-Ebene. Liegt UEBER #stars, der Sternenhimmel bleibt zu 100%
+       sichtbar (mix-blend-mode: screen in awareness.css hellt nur auf). -->
+  <svg class="aw-defs" aria-hidden="true" focusable="false" style="position:absolute;width:0;height:0;overflow:hidden">
+    <filter id="aw-warp" x="-20%" y="-20%" width="140%" height="140%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.006 0.014" numOctaves="2" seed="7" result="n"/>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="160" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+  </svg>
+  <div id="aw-sky" aria-hidden="true"><div class="aw-sky-inner"></div></div>
+
+  <header class="topbar">
+    <div class="hud">
+      <span class="dot" aria-hidden="true"></span>
+      <div class="marquee" aria-label="Nächste Events" data-i18n-aria="a11y.marquee.events">
+        <div class="marquee-track">
+          <span>NEXT LAUNCH → <b>SA 12.09.</b> OPEN AIR „FREIRÄUME" · BASTION AM SCHILLERPLATZ · <em>16:00</em> · FREE</span>
+          <span><b>SA 19.09.</b> TAKEOFF: MARSMISSION · SPARTACUS · <em>23:00</em> · FREE ENTRY</span>
+          <span><b>SA 14.11.</b> TAKEOFF: STRANDPARTY · SPARTACUS · <em data-i18n="event.strand.price">TBA</em></span>
+          <span>NEXT LAUNCH → <b>SA 12.09.</b> OPEN AIR „FREIRÄUME" · BASTION AM SCHILLERPLATZ · <em>16:00</em> · FREE</span>
+          <span><b>SA 19.09.</b> TAKEOFF: MARSMISSION · SPARTACUS · <em>23:00</em> · FREE ENTRY</span>
+          <span><b>SA 14.11.</b> TAKEOFF: STRANDPARTY · SPARTACUS · <em data-i18n="event.strand.price">TBA</em></span>
+        </div>
+      </div>
+      <a class="hud-link" href="https://t.me/takeoffpotsdam" target="_blank" rel="noopener" data-i18n="topbar.hud.telegram">TELEGRAM ↗</a>
+    </div>
+    <div class="nav">
+      <a class="nav-brand" href="index.html" aria-label="takeoff — zur Startseite" translate="no" data-i18n-aria="a11y.brand">takeoff</a>
+      <span class="nav-rule" aria-hidden="true"></span>
+      <nav class="nav-links" aria-label="Hauptnavigation" data-i18n-aria="a11y.nav.main">
+        <ul>
+          <li><a href="events.html" data-i18n="nav.events">Events</a></li>
+          <li><a href="artists.html" data-i18n="nav.artists">Artists</a></li>
+          <li><a href="kollektiv.html" data-i18n="nav.kollektiv">Kollektiv</a></li>
+          <li><a href="awareness.html" aria-current="true" data-i18n="nav.awareness">Awareness</a></li>
+          <li data-prio="2"><a href="news.html" data-i18n="nav.news">News</a></li>
+          <li data-prio="2"><a href="kalender.html" data-i18n="nav.kalender">Kalender</a></li>
+        </ul>
+      </nav>
+      <!-- Dehnfuge. Frueher trug .nav-links das flex:1 — sobald es ab 900px
+           ausgeblendet wird, wuchs nichts mehr und alles klebte links. Ein
+           eigenes Element ist davon unabhaengig. -->
+      <span class="nav-gap" aria-hidden="true"></span>
+      <a class="nav-status" href="events.html">
+        <span class="st-tag" data-i18n="event.pwest.price">Free</span><span class="st-date">Sa 12.09.</span>
+      </a>
+      <!-- Sprachumschalter, kompakte Form. Besucherfunktion, deshalb in der
+           Kopfleiste und im Overlay-Menue - nicht im Mission-Control-Panel.
+           Vertrag wie bei den uebrigen Schaltern: data-set-* + aria-pressed.
+           Die Zustandslogik setzt aria-pressed, dieses Markup liefert nur den
+           Startzustand der deutschen Fassung. -->
+      <div class="nav-lang" role="group" aria-label="Sprache / Language">
+        <button type="button" data-set-lang="de" aria-pressed="true" lang="de" translate="no">DE</button>
+        <button type="button" data-set-lang="en" aria-pressed="false" lang="en" translate="no">EN</button>
+      </div>
+      <!-- Tag/Nacht. Ein Knopf statt eines Segments: bei 320px waere ein
+           zweites Segment 34px zu breit. Zustand-Lesart (Sichel = es ist
+           gerade Nacht), Beschriftung fest, aria-pressed traegt den Zustand. -->
+      <button class="nav-day" type="button" data-set-day="toggle" aria-pressed="false"
+              aria-label="Tagmodus" data-i18n-aria="a11y.daymode">
+        <svg class="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z"/>
+        </svg>
+        <svg class="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="4.2"/>
+          <path d="M12 3.4v2M12 18.6v2M3.4 12h2M18.6 12h2M6 6l1.5 1.5M16.5 16.5 18 18M18 6l-1.5 1.5M7.5 16.5 6 18"/>
+        </svg>
+      </button>
+      <button class="nav-burger" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="menu" aria-label="Menü öffnen" data-i18n-aria="a11y.burger.open">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path class="b-line" d="M2 6h16"/><path class="b-line" d="M2 14h16"/></svg>
+        <span data-i18n="menu.label">Menü</span>
+      </button>
+    </div>
+  </header>
+
+  <dialog class="menu" id="menu" aria-label="Menü" data-i18n-aria="menu.label">
+    <div class="menu-inner">
+      <p class="menu-eyebrow" data-i18n="menu.eyebrow">Bordcomputer · Navigation</p>
+      <ul class="menu-list">
+        <li><a href="events.html"><span class="m-label" data-i18n="nav.events">Events</span> <span class="m-note">3 geplant</span></a></li>
+        <li><a href="artists.html"><span class="m-label" data-i18n="nav.artists">Artists</span> <span class="m-note" data-i18n="menu.artists.note">Sets &amp; Podcasts</span></a></li>
+        <li><a href="kollektiv.html"><span class="m-label" data-i18n="nav.kollektiv">Kollektiv</span> <span class="m-note" data-i18n="menu.kollektiv.note">Wer hier funkt</span></a></li>
+        <li><a href="awareness.html"><span class="m-label" data-i18n="nav.awareness">Awareness</span> <span class="m-note" data-i18n="menu.awareness.note">Hilfe &amp; Regeln</span></a></li>
+        <li><a href="news.html"><span class="m-label" data-i18n="menu.news.label">News</span> <span class="m-note" data-i18n="menu.news.note">Mission Log</span></a></li>
+        <li><a href="kalender.html"><span class="m-label" data-i18n="menu.kalender.label">Kalender</span> <span class="m-note" data-i18n="menu.kalender.note">Abo &amp; Termine</span></a></li>
+        <li><a href="kontakt.html"><span class="m-label" data-i18n="footer.contact">Kontakt</span> <span class="m-note" data-i18n="menu.kontakt.note">Schreib uns</span></a></li>
+        <li><a href="events.html#flightlog"><span class="m-label" data-i18n="menu.flightlog.label">Flight Log</span> <span class="m-note" data-i18n="menu.flightlog.note">Archiv</span></a></li>
+      </ul>
+      <a class="menu-next" href="event-marsmission.html">
+        <span>
+          <span class="mn-when">Next Launch · Sa 12.09.</span>
+          <span class="mn-title" data-i18n="event.pwest.title">Open Air: Freiräume</span>
+          <span class="mn-where">Bastion am Schillerplatz · 16 Uhr · Free</span>
+        </span>
+        <span class="mn-go" data-i18n="menu.go">Ansehen →</span>
+      </a>
+      <div class="menu-social">
+        <a href="https://www.instagram.com/takeoff.potsdam/" target="_blank" rel="noopener" translate="no">Instagram</a>
+        <a href="https://t.me/takeoffpotsdam" target="_blank" rel="noopener" translate="no">Telegram</a>
+        <a href="https://soundcloud.com/takeoff-potsdam" target="_blank" rel="noopener" translate="no">SoundCloud</a>
+        <a href="mailto:info@takeoff-potsdam.de" translate="no">info@takeoff-potsdam.de</a>
+      </div>
+      <!-- Vollwertige Kopie des Sprachumschalters. Endonyme (Deutsch/English)
+           statt uebersetzter Labels - sie sind in beiden Sprachen richtig und
+           brauchen deshalb keinen Woerterbuchschluessel. -->
+      <div class="menu-lang" role="group" aria-label="Sprache / Language">
+        <button type="button" data-set-lang="de" aria-pressed="true" lang="de" translate="no">Deutsch</button>
+        <button type="button" data-set-lang="en" aria-pressed="false" lang="en" translate="no">English</button>
+      </div>
+        <div class="menu-day" role="group" aria-label="Tag oder Nacht">
+          <button type="button" data-set-day="night" aria-pressed="true" data-i18n="mctrl.night">Nacht</button>
+          <button type="button" data-set-day="day" aria-pressed="false" data-i18n="mctrl.day">Tag</button>
+        </div>
+      <button class="menu-close" type="button" data-i18n="menu.close">Schließen</button>
+    </div>
+  </dialog>
+
+  <main id="main" class="aw-main">
+    <div class="aw-thread" aria-hidden="true"><i class="aw-thread-escort"></i></div>
+
+    <section class="phero">
+      <div class="wrap">
+        <p class="eyebrow" data-bind="hero.eyebrow" data-i18n="nav.awareness">Awareness</p>
+        <h1 data-bind="hero.h1" data-i18n="aware.headline">Feiern, auf das ihr euch verlassen könnt.</h1>
+        <p class="section-intro" data-bind="hero.intro">Awareness ist bei uns kein Aushang, sondern gelebte Praxis: eigenes Team, eigene Ersthelfer*innen, Free Water — auf jeder einzelnen Mission. Safer Space, nicht Safe Space. Aber wir tun alles dafür.</p>
+      </div>
+    </section>
+
+    <!-- ============ WEGPUNKT „team": So erkennst du uns · Team · Wobei du kommen kannst ============ -->
+    <section class="section" data-aw-node="team" style="padding-top: clamp(30px, 5vh, 50px)">
+      <div class="wrap">
+        <header class="section-head reveal">
+          <p class="eyebrow" data-bind="recognition.eyebrow">So erkennst du uns</p>
+          <h2 class="h2">Lila Weste, offenes Ohr</h2>
+        </header>
+
+        <div class="aw-recognition reveal">
+          <img src="assets/img/pages/awareness/vest.svg" alt="Lila Awareness-Weste mit Reflektorstreifen" width="120" height="140" loading="lazy">
+          <p data-bind="recognition.text">Unser Awareness-Team trägt lila Westen — ansprechbar die ganze Nacht, auf jedem Event. Ein eigenes Symbol (z. B. eine kleine Rakete) ist angedacht, aber noch nicht final.</p>
+        </div>
+
+        <div class="aware reveal">
+          <div class="aware-grid" id="aw-team-grid" style="margin-top: 26px">
+            <div class="atile"><span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M12 20s-7.2-4.6-9.2-9A5.2 5.2 0 0 1 12 6.6 5.2 5.2 0 0 1 21.2 11c-2 4.4-9.2 9-9.2 9z"/></svg></span><b data-i18n="crew.awareness.name">Awareness-Team</b>Ansprechbar die ganze Nacht — erkennbar an der lila Weste. Sprich uns an, wir kümmern uns. Sofort.</div>
+            <div class="atile"><span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 8.5v7M8.5 12h7"/></svg></span><b data-i18n="crew.sani.name">Sani-Team</b>Ausgebildete Ersthelfer*innen auf jedem Event. Hilfe holen hat nie Konsequenzen — für niemanden.</div>
+            <div class="atile"><span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M12 3.5c3.6 4.4 5.5 7.2 5.5 10a5.5 5.5 0 0 1-11 0c0-2.8 1.9-5.6 5.5-10z"/></svg></span><b data-i18n="aware.tile.water.title">Free Water</b>Kostenloses Wasser am Awareness-Point. Trinkt, bevor ihr durstig seid.</div>
+            <div class="atile"><span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M8.8 6h5.4l1.6 2H20v9.4M6 8H4v10h11.5"/><circle cx="12" cy="13" r="2.7"/><path d="M3.5 3.5l17 17"/></svg></span><b data-i18n="aware.tile.photo.title">Fotoverbot</b>Kein Foto ohne Frage. Was im Dunkeln passiert, bleibt da.</div>
+          </div>
+        </div>
+
+        <div class="aw-reasons reveal">
+          <p class="eyebrow" data-bind="approachReasons.eyebrow">Wobei du zu uns kommen kannst</p>
+          <p class="aw-reasons-intro" data-bind="approachReasons.intro">Es gibt keine „zu kleine“ Sache.</p>
+          <ul class="aw-reasons-list" id="aw-reasons-list">
+            <li>Jemand tanzt dich immer wieder an, obwohl du weggehst</li>
+            <li>Ein Spruch war drüber</li>
+            <li>Dir ist schwindelig oder du fühlst dich komisch</li>
+            <li>Du findest deine Leute nicht mehr</li>
+            <li>Du willst einfach 10 Minuten Ruhe</li>
+          </ul>
+          <p class="aw-reasons-closing" data-bind="approachReasons.closing">Ohne Fragen, ohne Scham, ohne Drama.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ Unsere Grundsätze + Eskalation (kein Wegpunkt) ============ -->
+    <section class="section" style="padding-top: 0">
+      <div class="wrap">
+        <header class="section-head reveal">
+          <p class="eyebrow">Unsere Grundsätze</p>
+          <h2 class="h2">Vier Regeln für uns</h2>
+          <p class="section-intro">Daran hält sich das Awareness-Team — bei jeder Meldung, jedes Mal.</p>
+        </header>
+
+        <div class="aw-principles reveal" id="aw-principles-grid">
+          <div class="aw-principle"><span class="aw-num" aria-hidden="true">01</span><b>Nur Ja heißt Ja</b><p>Beim Tanzen, Flirten, Anfassen: Hol dir ein Okay, bevor du loslegst.</p></div>
+          <div class="aw-principle"><span class="aw-num" aria-hidden="true">02</span><b>Du definierst deine Grenze</b><p>Wo für dich ein Übergriff anfängt, entscheidest du. Niemand sonst.</p></div>
+          <div class="aw-principle"><span class="aw-num" aria-hidden="true">03</span><b>Wir glauben dir</b><p>Wenn du zu uns kommst, diskutieren wir nicht deine Wahrnehmung.</p></div>
+          <div class="aw-principle"><span class="aw-num" aria-hidden="true">04</span><b>Was du uns erzählst, bleibt bei uns</b><p>Wir besprechen Vorfälle nur anonymisiert im Team.</p></div>
+        </div>
+
+        <div class="aw-consequence reveal">
+          <span class="aw-label">Eskalation</span>
+          <p data-bind="consequences.text">Wer Grenzen verletzt, bekommt höchstens eine Ansage — danach: Rauswurf, ohne Diskussion und ohne Ticket-Erstattung. Bei Übergriffen unterstützen wir die betroffene Person auf Wunsch bei einer Anzeige.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ WEGPUNKT „hilfe": Notfall, Substanzen, K.-o.-Tropfen ============ -->
+    <section class="section" id="hilfe" data-aw-node="hilfe" style="padding-top: 0">
+      <div class="wrap">
+        <header class="section-head reveal">
+          <p class="eyebrow" data-i18n="awareness.help.eyebrow">Hilfe &amp; Notfall</p>
+          <h2 class="h2" data-i18n="awareness.help.h2">Wenn's ernst wird</h2>
+        </header>
+
+        <div class="aw-share-row reveal">
+          <button type="button" class="btn btn-ghost m-share" data-share-text="Awareness bei takeoff: Team, Notfallnummern, Hausregeln." data-share-url="awareness.html#hilfe">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="2.6"/><circle cx="6" cy="12" r="2.6"/><circle cx="18" cy="19" r="2.6"/><path d="M8.3 10.7l7.4-4.4M8.3 13.3l7.4 4.4"/></svg><span data-bind="share.label">Hilfe-Seite teilen</span>
+          </button>
+        </div>
+
+        <div class="aw-tel-grid reveal" id="aw-tel-grid">
+          <a class="aw-tel" href="tel:112"><span class="aw-tel-label" data-i18n="awareness.help.row.emergency">Notruf</span><span class="aw-tel-num">112</span><span class="aw-tel-note" data-i18n="awareness.help.emergency.text">bei jedem medizinischen Notfall, ohne Zögern</span></a>
+          <a class="aw-tel" href="tel:110"><span class="aw-tel-label">Polizei</span><span class="aw-tel-num">110</span></a>
+          <a class="aw-tel" href="tel:116016"><span class="aw-tel-label">Hilfetelefon Gewalt gegen Frauen</span><span class="aw-tel-num">116016</span><span class="aw-tel-note">24/7, kostenlos</span></a>
+          <a class="aw-tel" href="tel:08002255530"><span class="aw-tel-label">Hilfetelefon Sexueller Missbrauch</span><span class="aw-tel-num">08002255530</span></a>
+          <a class="aw-tel" href="tel:03019240"><span class="aw-tel-label">Giftnotruf Berlin-Brandenburg</span><span class="aw-tel-num">03019240</span></a>
+          <a class="aw-tel" href="tel:116006"><span class="aw-tel-label">Weisser Ring</span><span class="aw-tel-num">116006</span><span class="aw-tel-note">Opferhilfe</span></a>
+          <a class="aw-tel" href="tel:03012074182"><span class="aw-tel-label">Heimwegtelefon</span><span class="aw-tel-num">03012074182</span><span class="aw-tel-note">Öffnungszeiten vor Launch prüfen</span></a>
+        </div>
+
+        <dl class="m-rows reveal" style="max-width: 720px; border-top: 1px solid var(--bg-hairline); margin-top: 28px">
+          <div class="m-row"><dt data-i18n="awareness.help.row.at_event">Am Event</dt><dd data-bind="reportChannels.atEvent">Sprich das Awareness-Team, die Sanis oder irgendwen von der Crew an — wir sind vernetzt.</dd></div>
+          <div class="m-row"><dt data-i18n="awareness.help.row.after">Danach</dt><dd>Ist etwas passiert? Schreib uns: <b><a id="aw-after-mail" href="mailto:info@takeoff-potsdam.de?subject=Awareness%20%E2%80%93%20R%C3%BCckmeldung" style="color: var(--ink)" translate="no">info@takeoff-potsdam.de</a></b> — <span data-bind="reportChannels.afterEvent.responseNote">wir melden uns so schnell wir können — meist innerhalb weniger Tage.</span></dd></div>
+          <div class="m-row"><dt data-i18n="awareness.help.row.principle">Grundsatz</dt><dd data-i18n-html="awareness.help.principle.text"><b>Hilfe holen hat nie Konsequenzen.</b> Für niemanden. Nie.</dd></div>
+        </dl>
+
+        <div class="aw-substances reveal">
+          <p id="aw-substances-tolerance">Verkauf und Konsum illegaler Substanzen sind bei takeoff nicht erlaubt und werden nicht geduldet. Wer dealt, fliegt sofort.</p>
+          <p id="aw-substances-health">Uns ist wichtiger, dass du gesund nach Hause kommst, als dass wir dir Vorträge halten. Risikofreien Konsum gibt es nicht — informier dich bei den Profis:</p>
+          <div class="aw-links" id="aw-substances-links">
+            <a href="https://safer-nightlife.berlin/" target="_blank" rel="noopener">SONAR – Safer Nightlife Berlin</a>
+            <a href="https://drugchecking.berlin/" target="_blank" rel="noopener">drugchecking.berlin</a>
+            <a href="https://www.chillout-pdm.de/" target="_blank" rel="noopener">chill out e.V. Potsdam</a>
+            <a href="https://drogennotdienst.de/angebote/beratung-und-reha/partydrogen-safer-nightlife/" target="_blank" rel="noopener">Drogennotdienst – Partydrogensprechstunde</a>
+          </div>
+          <p class="aw-disclaimer" id="aw-substances-disclaimer">Diese Seite ist keine Aufforderung zum Konsum. Besitz und Handel sind strafbar. Im Notfall: 112.</p>
+        </div>
+
+        <div class="aw-spiking reveal">
+          <h3 id="aw-spiking-title">K.-o.-Tropfen — worauf achten</h3>
+          <ul id="aw-spiking-signs">
+            <li>Plötzlicher Schwindel, Übelkeit oder Kontrollverlust ohne klaren Grund</li>
+            <li>Dein Getränk war unbeaufsichtigt, schmeckt oder riecht komisch</li>
+            <li>Jemand in deiner Nähe wirkt plötzlich stark verändert</li>
+          </ul>
+          <p class="aw-action" id="aw-spiking-action">Sofort zu Awareness-Team oder Sanis — oder 112. Lass Getränke nie unbeaufsichtigt.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ WEGPUNKT „ruheraum": bewusst die leerste Section der Seite ============ -->
+    <section class="section aw-quiet" data-aw-node="ruheraum">
+      <div class="wrap">
+        <p class="eyebrow" data-bind="ruheraum.eyebrow">Ruheraum</p>
+        <p class="aw-quiet-line" data-bind="ruheraum.line">Wenn's zu viel wird: eine Bank, Verbandszeug, niemand fragt warum.</p>
+      </div>
+    </section>
+
+    <!-- ============ WEGPUNKT „regeln": Hausregeln ============ -->
+    <section class="section" id="regeln" data-aw-node="regeln" style="padding-top: 0">
+      <div class="wrap">
+        <header class="section-head reveal">
+          <p class="eyebrow" data-i18n="link.house_rules">Hausregeln</p>
+          <h2 class="h2" data-i18n="awareness.rules.h2">Kurz &amp; klar</h2>
+        </header>
+        <div class="glog reveal" id="aw-rules-chips">
+          <span class="chip hot" data-i18n="awareness.rule.consent">Konsens ist Pflicht</span>
+          <span class="chip hot" data-i18n="awareness.rule.no_discrimination">Keine Diskriminierung</span>
+          <span class="chip" data-i18n="awareness.rule.no_photo">Kein Foto ohne Frage</span>
+          <span class="chip" data-i18n="awareness.rule.age">18+ mit Ausweis</span>
+          <span class="chip" data-i18n="awareness.rule.ko">Zero Tolerance bei K.-o.-Substanzen</span>
+          <span class="chip" data-i18n="awareness.rule.reachable">Awareness ist ansprechbar</span>
+        </div>
+        <p class="section-intro reveal" style="margin-top: 22px" data-bind="houseRules.intro">Wer Grenzen verletzt, fliegt — ohne Diskussion.</p>
+        <p class="section-intro reveal" data-bind="houseRules.venueNote">Es gelten zusätzlich die Regeln der jeweiligen Location (z.&nbsp;B. der freiLand-Grundkonsens im Spartacus).</p>
+
+        <div class="transmission reveal" style="margin-top: 28px">
+          <span class="tx-label" data-bind="transmission.label" data-i18n="events.transmission.label">Transmission incoming</span>
+          <p data-bind="transmission.text">Awareness-Konzept als PDF, in Leichter Sprache und auf Englisch — sobald alles mit dem Team final abgestimmt ist.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ Sicher hin & zurück zur nächsten Mission (kein Wegpunkt) ============ -->
+    <section class="section aw-home" style="padding-top: 0">
+      <div class="wrap">
+        <header class="section-head reveal">
+          <p class="eyebrow">Nächste Mission</p>
+          <h2 class="h2">Sicher hin &amp; zurück</h2>
+          <p class="section-intro" data-bind="gettingHome.intro">Kommt gut nach Hause — Missionsende ist nicht Awareness-Ende.</p>
+        </header>
+
+        <div class="vcard reveal" id="aw-home-venue">
+          <span class="vname" translate="no">Bastion am Schillerplatz</span>
+          <span class="vaddr" data-i18n="venue.bastion.address">Grünfläche, Potsdam West</span>
+          <span class="vhint" data-i18n="venue.bastion.hint_short">Tram bis Schillerplatz · Fahrrad erwünscht</span>
+          <div class="chips" id="aw-home-extras" style="margin-top: 8px">
+            <span class="chip" data-i18n="aware.tile.water.title">Free Water</span>
+            <span class="chip">Awareness-Team in lila Westen</span>
+          </div>
+          <div class="route-row">
+            <a class="btn btn-ghost aw-map-google" href="https://www.google.com/maps/dir/?api=1&destination=Schillerplatz%20Potsdam" target="_blank" rel="noopener" data-i18n="event.page.maps.google">Google Maps ↗</a>
+            <a class="btn btn-ghost aw-map-apple" href="https://maps.apple.com/?daddr=Schillerplatz%20Potsdam" target="_blank" rel="noopener" data-i18n="event.page.maps.apple">Apple Karten ↗</a>
+            <a class="btn btn-ghost aw-map-osm" href="https://www.openstreetmap.org/search?query=Schillerplatz%20Potsdam" target="_blank" rel="noopener" data-i18n="event.page.maps.osm">OSM ↗</a>
+          </div>
+          <p class="lu-note" data-i18n="event.page.maps.note">Karten öffnen extern in deiner App — hier lädt kein Tracker.</p>
+        </div>
+
+        <ul class="aw-hometips reveal" id="aw-hometips-list">
+          <li>Geh nicht allein, wenn's sich vermeiden lässt</li>
+          <li>Sag jemandem Bescheid, wann du losgehst</li>
+          <li>Bei Unsicherheit: Heimwegtelefon 030 12074182</li>
+        </ul>
+        <p class="lu-note reveal" style="margin-top: 16px">Nächster Start: <a id="aw-home-mission-link" href="event-freiraeume.html" style="color: var(--acc-3-tint)">Open Air: Freiräume · 12.09.26 →</a></p>
+      </div>
+    </section>
+
+    <!-- ============ Awareness-FAQ (kein Wegpunkt) ============ -->
+    <section class="section" style="padding-top: 0">
+      <div class="wrap">
+        <header class="section-head reveal">
+          <p class="eyebrow" data-i18n="events.faq.eyebrow">Bevor du fragst</p>
+          <h2 class="h2">Awareness-FAQ</h2>
+        </header>
+        <div class="aw-faq reveal" id="aw-faq-list">
+          <details class="faq">
+            <summary>Muss ich zum Awareness-Team, auch wenn es nur eine Kleinigkeit ist?</summary>
+            <div class="faq-body">Ja. Es gibt keine „zu kleine“ Sache — komm einfach vorbei.</div>
+          </details>
+          <details class="faq">
+            <summary>Bleibt das anonym, wenn ich etwas melde?</summary>
+            <div class="faq-body">Ja. Wir besprechen Vorfälle nur anonymisiert im Team und unternehmen nichts ohne dein Okay.</div>
+          </details>
+          <details class="faq">
+            <summary>Gilt das Fotoverbot auch für meine eigene Story?</summary>
+            <div class="faq-body">Ja — frag jede Person, bevor sie mit aufs Bild kommt, auch für deine eigene Story.</div>
+          </details>
+          <details class="faq">
+            <summary>Kann ich beim Awareness-Team mitmachen?</summary>
+            <div class="faq-body">Immer her damit — schreib uns oder schau auf <a href="kollektiv.html#mitmachen" style="color:var(--acc-3-tint)">kollektiv.html#mitmachen</a> vorbei.</div>
+          </details>
+        </div>
+        <p class="lu-note aw-meta-note" id="aw-meta-note">Stand: 02.09.26 · Wird laufend mit dem ganzen Team abgestimmt — nichts hier ist final.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap">
+      <div class="foot-grid">
+        <div>
+          <h4 data-i18n="footer.channels">Kanäle</h4>
+          <ul>
+            <li><a href="https://www.instagram.com/takeoff.potsdam/" target="_blank" rel="noopener">Instagram ↗</a></li>
+            <li><a href="https://t.me/takeoffpotsdam" target="_blank" rel="noopener">Telegram ↗</a></li>
+            <li><a href="https://soundcloud.com/takeoff-potsdam" target="_blank" rel="noopener">SoundCloud ↗</a></li>
+            <li><a href="https://www.tiktok.com/@takeoff.potsdam" target="_blank" rel="noopener">TikTok ↗</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 data-i18n="nav.kollektiv">Kollektiv</h4>
+          <ul>
+            <li><a href="kollektiv.html" data-i18n="common.about_us">Über uns</a></li>
+            <li><a href="team.html" data-i18n="footer.team">Team</a></li>
+            <li><a href="news.html" data-i18n="footer.news">News / Mission Log</a></li>
+            <li><a href="kalender.html" data-i18n="footer.calendar">Eventkalender</a></li>
+            <li><a href="awareness.html" data-i18n="link.awareness_concept">Awareness-Konzept</a></li>
+            <li><a href="awareness.html#hilfe" data-i18n="link.help_drugs">Hilfe &amp; Drogennotfälle</a></li>
+            <li><a href="kollektiv.html#mitmachen" data-i18n="footer.join">Mitmachen / Crew werden</a></li>
+            <li><a href="kollektiv.html#booking" data-i18n="footer.booking">Booking</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 data-i18n="footer.contact">Kontakt</h4>
+          <ul>
+            <li><a href="kontakt.html" data-i18n="footer.contact">Kontakt</a></li>
+            <li><a href="mailto:info@takeoff-potsdam.de" translate="no">info@takeoff-potsdam.de</a></li>
+            <li><a href="impressum.html" data-i18n="footer.imprint">Impressum</a></li>
+            <li><a href="datenschutz.html" data-i18n="footer.privacy">Datenschutz</a></li>
+          </ul>
+          <p class="no-track" data-i18n="footer.no_track">🛰️ Diese Seite trackt dich nicht</p>
+        </div>
+      </div>
+      <p class="love">Viel Liebe, euer takeoff Team <b>♥</b></p>
+      <p class="proto-note" data-i18n="footer.proto_note">DESIGN-PROTOTYP · IT 8 · NICHTS HIER IST FINAL · INHALTE TEILS PLATZHALTER</p>
+    </div>
+  </footer>
+
+  <div class="mctrl" role="group" aria-label="Darstellungs-Einstellungen" data-i18n-aria="a11y.mctrl">
+    <div class="row">
+      <span class="lbl" data-i18n="mctrl.fx">FX</span>
+      <button type="button" data-set-fx="s" aria-pressed="false" title="Statisch — spart Akku &amp; Daten" data-i18n="mctrl.off" data-i18n-title="mctrl.fx.off.title">Aus</button>
+      <button type="button" data-set-fx="m" aria-pressed="false" title="Standard" data-i18n="mctrl.normal" data-i18n-title="mctrl.fx.normal.title">Normal</button>
+      <button type="button" data-set-fx="l" aria-pressed="false" title="Volle Show" data-i18n="mctrl.full" data-i18n-title="mctrl.fx.full.title">Voll</button>
+    </div>
+    <div class="row">
+      <span class="lbl" data-i18n="mctrl.theme">Theme</span>
+      <button type="button" data-set-theme="space" aria-pressed="false" data-i18n="mctrl.theme.space">Space</button>
+      <button type="button" data-set-theme="mars" aria-pressed="false" data-i18n="mctrl.theme.mars">Mars</button>
+      <button type="button" data-set-theme="strand" aria-pressed="false" data-i18n="mctrl.theme.strand">Strand</button>
+    </div>
+    <div class="row">
+      <span class="lbl" data-i18n="mctrl.ground">Boden</span>
+      <button type="button" data-set-ground="off" aria-pressed="false" title="Nur Sternenhimmel" data-i18n="mctrl.off" data-i18n-title="mctrl.ground.off.title">Aus</button>
+      <button type="button" data-set-ground="on" aria-pressed="false" title="Horizont je nach Theme" data-i18n="mctrl.on" data-i18n-title="mctrl.ground.on.title">An</button>
+    </div>
+    <div class="row">
+      <span class="lbl" data-i18n="mctrl.time">Zeit</span>
+      <button type="button" data-set-day="night" aria-pressed="false" data-i18n="mctrl.night">Nacht</button>
+      <button type="button" data-set-day="day" aria-pressed="false" data-i18n="mctrl.day">Tag</button>
+    </div>
+  </div>
+
+  <script defer src="assets/js/data.js"></script>
+  <script defer src="assets/vendor/gsap.min.js"></script>
+  <script defer src="assets/vendor/ScrollTrigger.min.js"></script>
+  <script defer src="assets/vendor/lenis.min.js"></script>
+  <script defer src="assets/js/main.js"></script>
+  <script defer src="assets/js/i18n.js"></script>
+  <script defer src="assets/js/i18n-runtime.js"></script>
+  <script defer src="assets/js/pages/awareness.js"></script>
+</body>
+</html>

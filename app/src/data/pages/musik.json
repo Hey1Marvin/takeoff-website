@@ -1,0 +1,75 @@
+{
+  "hero": {
+    "eyebrow": "Frequenzkunde",
+    "titleHtml": "Was läuft hier <span class=\"glow\">eigentlich</span>?",
+    "intro": "Nie von Hard Bounce gehört? Macht nichts — dafür gibt's diese Seite. Drei Minuten Lesezeit, dann weißt du, was dich auf dem Floor erwartet."
+  },
+  "scale": {
+    "min": 60,
+    "max": 180,
+    "caption": "So nah liegen unsere Kern-Tempi beieinander — und so deutlich hört man den Unterschied trotzdem."
+  },
+  "genres": [
+    { "id": "trance", "label": "Trance", "shortLabel": "Trance", "bpm": 138, "text": "Hypnotische Melodien, lange Spannungsbögen, Gänsehaut-Momente. ~{bpm} BPM · das Herz von takeoff." },
+    { "id": "hard-trance", "label": "Hard Trance", "shortLabel": "Hard Trance", "bpm": 145, "text": "Trance mit Schub: härtere Kicks, treibender, euphorischer. ~{bpm} BPM." },
+    { "id": "bounce", "label": "Bounce / Hard Bounce", "shortLabel": "Bounce", "bpm": 150, "text": "Federnde Offbeat-Bässe, gute Laune mit Wumms. ~{bpm} BPM." },
+    { "id": "techno", "label": "Techno", "shortLabel": "Techno", "bpm": null, "text": "Der gerade, dunkle Puls — bei uns als Gastgeschenk befreundeter Kollektive." },
+    { "id": "psytrance", "label": "Psytrance", "shortLabel": "Psytrance", "bpm": null, "text": "Wenn's spät wird und die Muster tanzen. Gelegentlich, mit Liebe." }
+  ],
+  "tapTempo": {
+    "instruction": "Tippe im eigenen Takt — mindestens 4×, dann rechnen wir. Klick, Tap oder Leertaste.",
+    "button": "Tipp mit!",
+    "reset": "Zurücksetzen",
+    "resultTemplate": "Du tippst ~{bpm} BPM — das ist fast {genre}.",
+    "tooFastText": "Ordentlich Tempo drauf — schneller als alles, was bei uns läuft.",
+    "tooSlowText": "Eher gemütlich — bei uns geht's meist flotter zur Sache.",
+    "flavor": {
+      "trance": "genau unser Herzschlag.",
+      "hard-trance": "mit ordentlich Schub.",
+      "bounce": "mit Wumms und Feder."
+    }
+  },
+  "listen": {
+    "eyebrow": "Reinhören",
+    "intro": "Alle Sets & Podcast-Folgen an einem Ort — aus echten takeoff-Nächten.",
+    "consentNote": "Demo: Hier würde jetzt der SoundCloud-/YouTube-Player laden (Zwei-Klick, DSGVO-freundlich).",
+    "emptyText": "Noch keine Sets hinterlegt — die aktuelle Liste steht auf der Artists-Seite.",
+    "teaser": "Reinhören? Auf der Artists-Seite liegen Sets aus echten takeoff-Nächten — und der „| takeoff\"-Podcast liefert Nachschub."
+  },
+  "nightGuide": {
+    "eyebrow": "Für Neulinge",
+    "phases": [
+      { "time": "Einlass – Mitternacht", "label": "Warm-up", "genreIds": ["trance"], "text": "Ruhiger Einstieg, Zeit anzukommen." },
+      { "time": "Mitternacht – 3 Uhr", "label": "Peak-Time", "genreIds": ["hard-trance", "bounce"], "text": "Der Floor ist voll, das Tempo zieht an." },
+      { "time": "ab 3 Uhr", "label": "Afterhour", "genreIds": ["psytrance", "techno"], "text": "Für alle, die bleiben — gelegentlich, mit Liebe." }
+    ]
+  },
+  "glossary": [
+    { "term": "B2B", "def": "„Back to Back“ — zwei DJs legen abwechselnd im selben Set auf." },
+    { "term": "Warm-up", "def": "Der ruhigere musikalische Einstieg zu Beginn des Abends." },
+    { "term": "Peak-Time", "def": "Der Höhepunkt der Nacht, wenn der Floor am vollsten ist." },
+    { "term": "Liveset", "def": "Mitschnitt eines echten Auftritts, nicht extra fürs Studio produziert." }
+  ],
+  "trackId": {
+    "eyebrow": "Ohrwurm ohne Namen?",
+    "title": "Track-ID gesucht",
+    "text": "Song gehört, Namen vergessen? Schreib uns Event, ungefähre Uhrzeit und was du noch weißt.",
+    "buttonLabel": "Track-ID anfragen",
+    "mailSubject": "Track-ID gesucht",
+    "mailBody": "Event:\nUngefähre Uhrzeit:\nWas ich noch weiß (Text, Melodie, Drop):"
+  },
+  "faq": [
+    { "q": "Muss ich tanzen können?", "a": "Nein. Bei uns tanzt jede*r so, wie es sich gut anfühlt." },
+    { "q": "Ist das laut?", "a": "Ja, wie auf jedem Rave — Ohrstöpsel gibt's am Awareness-Point." },
+    { "q": "Gibt's auch Techno?", "a": "Gelegentlich, meist als Gastgeschenk befreundeter Kollektive — der Kern bleibt Trance." }
+  ],
+  "share": {
+    "label": "Genre-Guide teilen",
+    "text": "Was bei takeoff läuft: Trance, Hard Trance, Bounce erklärt.",
+    "copiedToast": "Link kopiert ✓"
+  },
+  "transmission": {
+    "label": "Transmission incoming",
+    "text": "Echte 30-Sekunden-Hörproben pro Genre — sobald die Rechte mit den DJs geklärt sind."
+  }
+}
