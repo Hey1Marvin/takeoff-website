@@ -1,0 +1,446 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script>
+  (function () {
+    var h = document.documentElement;
+    h.classList.add("js");
+    var get = function (k) { try { return localStorage.getItem(k); } catch (e) { return null; } };
+    var c = navigator.connection || {};
+    var mem = navigator.deviceMemory, cores = navigator.hardwareConcurrency;
+    var tier = "m";
+    if (mem !== undefined && cores !== undefined && mem > 4 && cores > 4) tier = "l";
+    var stored = get("takeoff-fx");
+    if (stored === "s" || stored === "m" || stored === "l") tier = stored;
+    if (c.saveData === true) tier = "s";
+    if (/(^|\b)(slow-2g|2g|3g)\b/.test(c.effectiveType || "")) tier = "s";
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches) tier = "s";
+    h.dataset.fx = tier;
+    var th = get("takeoff-theme");
+    if (!h.dataset.theme && th && th !== "space") h.dataset.theme = th;
+
+    /* Sprache. Der Zustand gehoert ans Standardattribut lang, damit :lang(en)
+       als nativer CSS-Selektor greift - nicht an ein data-Attribut.
+       Der Sperrvermerk data-lang-lock muss auf <html> stehen: dieses Script
+       laeuft im <head>, dort ist <body> noch nicht geparst. Das ist die
+       Asymmetrie zum data-theme-lock, das auf <body> sitzt. */
+    if (!h.hasAttribute("data-lang-lock")) {
+      var lg = get("takeoff-lang");
+      if (lg === "de" || lg === "en") h.lang = lg;
+    }
+  })();
+  </script>
+  <title data-i18n="meta.kalender.title">Eventkalender · takeoff potsdam</title>
+  <meta name="description" content="Alle takeoff-Termine — einmal abonnieren, nie wieder ein Event verpassen. Jeder Termin schon heute einzeln als .ics oder Google-Kalender-Link.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚀</text></svg>">
+  <link rel="stylesheet" href="assets/css/style.css">
+  <link rel="stylesheet" href="assets/css/pages/kalender.css">
+  <noscript><style>#stars{display:none!important}.nav-progress{display:none!important}.marquee-track,.band-track{animation:none!important}</style></noscript>
+</head>
+<body>
+  <a class="skip-link" href="#main" data-i18n="a11y.skiplink">Zum Inhalt springen</a>
+  <canvas id="stars" aria-hidden="true"></canvas>
+  <div class="bc-dial" aria-hidden="true"></div>
+  <div class="bc-sweep" aria-hidden="true"></div>
+
+  <header class="topbar">
+    <div class="hud">
+      <span class="dot" aria-hidden="true"></span>
+      <div class="marquee" aria-label="Nächste Events" data-i18n-aria="a11y.marquee.events">
+        <div class="marquee-track">
+          <span>NEXT LAUNCH → <b>SA 12.09.</b> OPEN AIR „FREIRÄUME" · BASTION AM SCHILLERPLATZ · <em>16:00</em> · FREE</span>
+          <span><b>SA 19.09.</b> TAKEOFF: MARSMISSION · SPARTACUS · <em>23:00</em> · FREE ENTRY</span>
+          <span><b>SA 14.11.</b> TAKEOFF: STRANDPARTY · SPARTACUS · <em data-i18n="event.strand.price">TBA</em></span>
+          <span>NEXT LAUNCH → <b>SA 12.09.</b> OPEN AIR „FREIRÄUME" · BASTION AM SCHILLERPLATZ · <em>16:00</em> · FREE</span>
+          <span><b>SA 19.09.</b> TAKEOFF: MARSMISSION · SPARTACUS · <em>23:00</em> · FREE ENTRY</span>
+          <span><b>SA 14.11.</b> TAKEOFF: STRANDPARTY · SPARTACUS · <em data-i18n="event.strand.price">TBA</em></span>
+        </div>
+      </div>
+      <a class="hud-link" href="https://t.me/takeoffpotsdam" target="_blank" rel="noopener" data-i18n="topbar.hud.telegram">TELEGRAM ↗</a>
+    </div>
+    <div class="nav">
+      <a class="nav-brand" href="index.html" aria-label="takeoff — zur Startseite" translate="no" data-i18n-aria="a11y.brand">takeoff</a>
+      <span class="nav-rule" aria-hidden="true"></span>
+      <nav class="nav-links" aria-label="Hauptnavigation" data-i18n-aria="a11y.nav.main">
+        <ul>
+          <li><a href="events.html" data-i18n="nav.events">Events</a></li>
+          <li><a href="artists.html" data-i18n="nav.artists">Artists</a></li>
+          <li><a href="kollektiv.html" data-i18n="nav.kollektiv">Kollektiv</a></li>
+          <li><a href="awareness.html" data-i18n="nav.awareness">Awareness</a></li>
+          <li data-prio="2"><a href="news.html" data-i18n="nav.news">News</a></li>
+          <li data-prio="2"><a href="kalender.html" data-i18n="nav.kalender">Kalender</a></li>
+        </ul>
+      </nav>
+      <!-- Dehnfuge. Frueher trug .nav-links das flex:1 — sobald es ab 900px
+           ausgeblendet wird, wuchs nichts mehr und alles klebte links. Ein
+           eigenes Element ist davon unabhaengig. -->
+      <span class="nav-gap" aria-hidden="true"></span>
+      <a class="nav-status" href="events.html">
+        <span class="st-tag" data-i18n="event.pwest.price">Free</span><span class="st-date">Sa 12.09.</span>
+      </a>
+      <!-- Sprachumschalter, kompakte Form. Besucherfunktion, deshalb in der
+           Kopfleiste und im Overlay-Menue - nicht im Mission-Control-Panel.
+           Vertrag wie bei den uebrigen Schaltern: data-set-* + aria-pressed.
+           Die Zustandslogik setzt aria-pressed, dieses Markup liefert nur den
+           Startzustand der deutschen Fassung. -->
+      <div class="nav-lang" role="group" aria-label="Sprache / Language">
+        <button type="button" data-set-lang="de" aria-pressed="true" lang="de" translate="no">DE</button>
+        <button type="button" data-set-lang="en" aria-pressed="false" lang="en" translate="no">EN</button>
+      </div>
+      <!-- Tag/Nacht. Ein Knopf statt eines Segments: bei 320px waere ein
+           zweites Segment 34px zu breit. Zustand-Lesart (Sichel = es ist
+           gerade Nacht), Beschriftung fest, aria-pressed traegt den Zustand. -->
+      <button class="nav-day" type="button" data-set-day="toggle" aria-pressed="false"
+              aria-label="Tagmodus" data-i18n-aria="a11y.daymode">
+        <svg class="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z"/>
+        </svg>
+        <svg class="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="4.2"/>
+          <path d="M12 3.4v2M12 18.6v2M3.4 12h2M18.6 12h2M6 6l1.5 1.5M16.5 16.5 18 18M18 6l-1.5 1.5M7.5 16.5 6 18"/>
+        </svg>
+      </button>
+      <button class="nav-burger" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="menu" aria-label="Menü öffnen" data-i18n-aria="a11y.burger.open">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path class="b-line" d="M2 6h16"/><path class="b-line" d="M2 14h16"/></svg>
+        <span data-i18n="menu.label">Menü</span>
+      </button>
+    </div>
+  </header>
+
+  <dialog class="menu" id="menu" aria-label="Menü" data-i18n-aria="menu.label">
+    <div class="menu-inner">
+      <p class="menu-eyebrow" data-i18n="menu.eyebrow">Bordcomputer · Navigation</p>
+      <ul class="menu-list">
+        <li><a href="events.html"><span class="m-label" data-i18n="nav.events">Events</span> <span class="m-note">3 geplant</span></a></li>
+        <li><a href="artists.html"><span class="m-label" data-i18n="nav.artists">Artists</span> <span class="m-note" data-i18n="menu.artists.note">Sets &amp; Podcasts</span></a></li>
+        <li><a href="kollektiv.html"><span class="m-label" data-i18n="nav.kollektiv">Kollektiv</span> <span class="m-note" data-i18n="menu.kollektiv.note">Wer hier funkt</span></a></li>
+        <li><a href="awareness.html"><span class="m-label" data-i18n="nav.awareness">Awareness</span> <span class="m-note" data-i18n="menu.awareness.note">Hilfe &amp; Regeln</span></a></li>
+        <li><a href="news.html"><span class="m-label" data-i18n="menu.news.label">News</span> <span class="m-note" data-i18n="menu.news.note">Mission Log</span></a></li>
+        <li><a href="kalender.html"><span class="m-label" data-i18n="menu.kalender.label">Kalender</span> <span class="m-note" data-i18n="menu.kalender.note">Abo &amp; Termine</span></a></li>
+        <li><a href="kontakt.html"><span class="m-label" data-i18n="footer.contact">Kontakt</span> <span class="m-note" data-i18n="menu.kontakt.note">Schreib uns</span></a></li>
+      </ul>
+      <a class="menu-next" href="event-marsmission.html">
+        <span>
+          <span class="mn-when">Next Launch · Sa 12.09.</span>
+          <span class="mn-title" data-i18n="event.pwest.title">Open Air: Freiräume</span>
+          <span class="mn-where">Bastion am Schillerplatz · 16 Uhr · Free</span>
+        </span>
+        <span class="mn-go" data-i18n="menu.go">Ansehen →</span>
+      </a>
+      <div class="menu-social">
+        <a href="https://www.instagram.com/takeoff.potsdam/" target="_blank" rel="noopener" translate="no">Instagram</a>
+        <a href="https://t.me/takeoffpotsdam" target="_blank" rel="noopener" translate="no">Telegram</a>
+        <a href="https://soundcloud.com/takeoff-potsdam" target="_blank" rel="noopener" translate="no">SoundCloud</a>
+        <a href="mailto:info@takeoff-potsdam.de" translate="no">info@takeoff-potsdam.de</a>
+      </div>
+      <!-- Vollwertige Kopie des Sprachumschalters. Endonyme (Deutsch/English)
+           statt uebersetzter Labels - sie sind in beiden Sprachen richtig und
+           brauchen deshalb keinen Woerterbuchschluessel. -->
+      <div class="menu-lang" role="group" aria-label="Sprache / Language">
+        <button type="button" data-set-lang="de" aria-pressed="true" lang="de" translate="no">Deutsch</button>
+        <button type="button" data-set-lang="en" aria-pressed="false" lang="en" translate="no">English</button>
+      </div>
+        <div class="menu-day" role="group" aria-label="Tag oder Nacht">
+          <button type="button" data-set-day="night" aria-pressed="true" data-i18n="mctrl.night">Nacht</button>
+          <button type="button" data-set-day="day" aria-pressed="false" data-i18n="mctrl.day">Tag</button>
+        </div>
+      <button class="menu-close" type="button" data-i18n="menu.close">Schließen</button>
+    </div>
+  </dialog>
+
+  <main id="main">
+
+    <!-- ============ HERO · BORDCHRONOMETER ============ -->
+    <section class="phero bc-phero">
+      <div class="wrap">
+        <p class="eyebrow" data-bind="hero.eyebrow" data-i18n="kalender.eyebrow">Immer aktuell</p>
+        <h1 data-i18n-html="kalender.h1">Der <span class="glow">Eventkalender</span></h1>
+        <p class="section-intro" data-bind="hero.intro" data-i18n="kalender.intro">Einmal abonnieren, für immer aktuell — bis der echte Feed kommt, holst du dir jeden Termin einzeln mit einem Klick in deinen Kalender.</p>
+
+        <div class="bc-cluster reveal">
+          <div class="bc-face" aria-hidden="true">
+            <span data-bc-hm>--:--</span><span class="bc-sec" data-bc-sec>--</span>
+          </div>
+          <p class="bc-caption" aria-hidden="true">Bordzeit · Europe/Berlin</p>
+
+          <div class="bc-sub">
+            <div class="tminus" role="timer" aria-label="Countdown bis zum nächsten Launch" data-bc-tminus-wrap>
+              <span class="label">T–Minus <span data-bc-target>nächster Launch</span></span>
+              <span class="clock" data-bc-tminus>—</span>
+            </div>
+            <div class="tminus tplus">
+              <span class="label">T–Plus seit letztem Launch</span>
+              <span class="clock" data-bc-tplus>—</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="cta-row reveal">
+          <a class="btn btn-primary" href="#" onclick="return false" title="Demo — echter Feed kommt mit dem Backend" data-i18n="kalender.cta.subscribe" data-i18n-title="common.demo_feed" data-bind="calendarActions.subscribeLabel">＋ Kalender abonnieren (webcal)</a>
+          <button type="button" class="btn btn-ghost" data-bc-share data-share-text="Alle takeoff-Termine auf einen Blick." aria-label="Kalender teilen">Kalender teilen</button>
+        </div>
+        <p class="bc-subnote" data-bind="calendarActions.subscribeNote">Voller Feed kommt mit dem Backend — bis dahin: jeden Termin einzeln speichern, das geht schon jetzt.</p>
+      </div>
+    </section>
+
+    <!-- ============ BORDSKALA ============ -->
+    <div class="bc-scale reveal" aria-hidden="true">
+      <svg class="bc-scale-svg" viewBox="0 0 1000 46" preserveAspectRatio="none"></svg>
+      <div class="bc-scale-labels"><span>Heute</span><span data-bc-scale-window>+30 Tage</span></div>
+    </div>
+
+    <!-- ============ MINI-STATISTIKBAND ============ -->
+    <div class="wrap">
+      <div class="stats reveal" id="bc-stats">
+        <div><b>03</b><span>geplante Missionen</span></div>
+        <div><b>06</b><span>absolvierte Missionen</span></div>
+        <div><b>2024</b><span>am Start seit</span></div>
+        <div><b>02</b><span>Stamm-Locations</span></div>
+      </div>
+    </div>
+
+    <!-- ============ MONATSGITTER "WANN GEHT'S LOS" ============ -->
+    <section class="section" id="monatsgitter" style="padding-top: clamp(30px, 5vh, 56px); padding-bottom: clamp(30px, 5vh, 56px)">
+      <div class="wrap">
+        <header class="section-head reveal">
+          <p class="eyebrow" data-bind="monthGrid.eyebrow" data-i18n="kalender.monthgrid.eyebrow">Wann geht's los</p>
+          <h2 class="h2" id="bc-months-h2" data-i18n-html="kalender.monthgrid.h2">Die nächsten <span class="glow">Wochen</span></h2>
+        </header>
+        <div class="bc-months reveal" id="bc-months"></div>
+        <p class="bc-months-empty" id="bc-months-empty" hidden>Kein Termin diesen Monat — Telegram weiß es zuerst.</p>
+        <noscript><p class="bc-months-empty">Die Monatsübersicht braucht JavaScript — alle Termine stehen in der Liste weiter unten.</p></noscript>
+      </div>
+    </section>
+
+    <!-- ============ ZEITLEISTE ============ -->
+    <section class="section" id="termine" style="padding-top: 0">
+      <div class="wrap" style="max-width: 760px">
+        <header class="section-head reveal">
+          <p class="eyebrow" data-bind="timeline.eyebrow" data-i18n="kalender.timeline.eyebrow">Gesamtübersicht</p>
+          <h2 class="h2" id="bc-timeline-h2" data-i18n-html="kalender.timeline.h2">Alle <span class="glow">Termine</span> auf einen Blick</h2>
+        </header>
+
+        <div class="bc-toolbar reveal">
+          <div class="bc-filterbar" role="group" aria-label="Zeitleiste filtern" id="bc-filterbar">
+            <button type="button" class="chip hot" data-bc-filter="all" aria-pressed="true">Alle</button>
+            <button type="button" class="chip" data-bc-filter="upcoming" aria-pressed="false">Kommend</button>
+            <button type="button" class="chip" data-bc-filter="past" aria-pressed="false">Archiv</button>
+          </div>
+          <button type="button" class="btn btn-ghost" data-bc-ics-all>Alle kommenden Termine (.ics)</button>
+        </div>
+
+        <dl class="m-rows reveal" id="bc-timeline-rows" style="border-top: 1px solid var(--bg-hairline)">
+          <div class="m-row bc-year"><dt>2024</dt><dd>1 Mission</dd></div>
+          <div class="m-row" id="ev-sky-high" data-slug="sky-high" data-date="2024-06-15">
+            <dt>Sa 15.06.24</dt>
+            <dd><b>Sky High</b> · Potsdam · Der erste takeoff · VVK über eigenen Shop</dd>
+          </div>
+
+          <div class="m-row bc-year"><dt>2025</dt><dd>4 Missionen</dd></div>
+          <div class="m-row" id="ev-out-of-space" data-slug="out-of-space" data-date="2025-01-11">
+            <dt>Sa 11.01.25</dt>
+            <dd><b>Takeoff: Out of Space</b> · Nilkeller · 5 € · 3 € für Studis</dd>
+          </div>
+          <div class="m-row" id="ev-spartacus-nacht" data-slug="spartacus-nacht" data-date="2025-05-09">
+            <dt>Fr 09.05.25</dt>
+            <dd><b>Spartacus-Nacht</b> · Spartacus · 10 € bis 0 Uhr, danach 12 €</dd>
+          </div>
+          <div class="m-row" id="ev-groesstes-event" data-slug="groesstes-event" data-date="2025-09-27">
+            <dt>Sa 27.09.25</dt>
+            <dd><b>Unser größtes Event</b> · Spartacus</dd>
+          </div>
+
+          <div class="m-row" id="ev-free-entry-rave" data-slug="free-entry-rave" data-date="2026-01-17">
+            <dt>Sa 17.01.26</dt>
+            <dd><b>Free Entry Rave</b> · Spartacus · Spendenbasis</dd>
+          </div>
+          <div class="m-row" id="ev-pride" data-slug="pride" data-date="2026-06-27">
+            <dt>Sa 27.06.26</dt>
+            <dd><b>Pride-Party</b> · KuZe · Free Entry · <a href="event-pride.html" style="color:var(--acc-3-tint)" data-i18n="common.details">Details</a></dd>
+          </div>
+
+          <div class="m-row bc-today"><dt>Heute</dt><dd></dd></div>
+
+          <div class="m-row" id="ev-freiraeume" data-slug="freiraeume" data-date="2026-09-12" data-doors="16:00" data-end="22:00" data-title="Open Air: Freiräume" data-venue="Bastion am Schillerplatz" data-address="Grünfläche, Potsdam West" data-maps="Schillerplatz Potsdam" data-price="Free">
+            <dt>Sa 12.09.26</dt>
+            <dd>
+              <b data-i18n="event.pwest.title">Open Air: Freiräume</b> · Bastion am Schillerplatz · 16–22 Uhr · Free · <a href="event-freiraeume.html" style="color:var(--acc-3-tint)" data-i18n="common.details">Details</a>
+              <span class="m-delta"></span>
+              <div class="bc-caladd"></div>
+            </dd>
+          </div>
+          <div class="m-row" id="ev-marsmission" data-slug="marsmission" data-date="2026-09-19" data-doors="23:00" data-end="open end" data-title="takeoff: Marsmission" data-venue="Spartacus" data-address="Friedrich-Engels-Straße 22, 14473 Potsdam (im freiLand)" data-maps="Friedrich-Engels-Straße 22, 14473 Potsdam" data-price="Free Entry · 18+">
+            <dt>Sa 19.09.26</dt>
+            <dd>
+              <b data-i18n="event.mars.title">takeoff: Marsmission</b> · Spartacus · ab 23 Uhr · Free Entry · 18+ · <a href="event-marsmission.html" style="color:var(--acc-3-tint)" data-i18n="common.details">Details</a>
+              <span class="m-delta"></span>
+              <div class="bc-caladd"></div>
+            </dd>
+          </div>
+          <div class="m-row" id="ev-strandparty" data-slug="strandparty" data-date="2026-11-14" data-doors="TBA" data-end="" data-title="takeoff: Strandparty" data-venue="Spartacus" data-address="Friedrich-Engels-Straße 22, 14473 Potsdam" data-maps="Friedrich-Engels-Straße 22, 14473 Potsdam" data-price="TBA">
+            <dt>Sa 14.11.26</dt>
+            <dd>
+              <b data-i18n="event.strand.title">takeoff: Strandparty</b> · Spartacus · TBA 🤫
+              <span class="m-delta"></span>
+              <div class="bc-caladd"></div>
+            </dd>
+          </div>
+        </dl>
+        <p class="bc-empty" id="bc-timeline-empty" hidden>Noch keine Termine in dieser Auswahl.</p>
+
+        <p class="bc-patch-teaser reveal" id="bc-patch-teaser" hidden>
+          <a href="events.html#flightlog" data-bc-patch-link>Missions-Patches sammeln →</a>
+        </p>
+      </div>
+    </section>
+
+    <!-- ============ VENUE-KURZVERZEICHNIS ============ -->
+    <section class="section" id="landeplaetze" style="padding-top: 0">
+      <div class="wrap" style="max-width: 760px">
+        <header class="section-head reveal">
+          <p class="eyebrow" data-bind="venues.eyebrow" data-i18n="kalender.venues.eyebrow">Wohin genau</p>
+          <h2 class="h2" id="bc-venues-h2" data-i18n-html="kalender.venues.h2">Unsere <span class="glow">Landeplätze</span></h2>
+        </header>
+        <div class="bc-venues reveal" id="bc-venues">
+          <div class="bc-venue" data-venue-name="Bastion am Schillerplatz">
+            <div class="vcard">
+              <span class="vname" translate="no">Bastion am Schillerplatz</span>
+              <span class="vaddr">Grünfläche, Potsdam West</span>
+              <span class="vhint">Tram bis Schillerplatz · Fahrrad erwünscht</span>
+            </div>
+            <p class="bc-venue-note">Grünfläche für Open-Airs, nur tagsüber genutzt.</p>
+            <div class="route-row">
+              <a class="btn btn-ghost" href="https://www.google.com/maps/search/?api=1&query=Schillerplatz%20Potsdam" target="_blank" rel="noopener" data-i18n="event.page.maps.google">Google Maps ↗</a>
+            </div>
+          </div>
+          <div class="bc-venue" data-venue-name="Spartacus">
+            <div class="vcard">
+              <span class="vname" translate="no">Spartacus</span>
+              <span class="vaddr">Friedrich-Engels-Straße 22, 14473 Potsdam (im freiLand)</span>
+              <span class="vhint">5 min zu Fuß vom Potsdam Hbf</span>
+            </div>
+            <p class="bc-venue-note">Unser Stammort — die meisten takeoff-Nächte finden hier statt.</p>
+            <div class="route-row">
+              <a class="btn btn-ghost" href="https://www.google.com/maps/search/?api=1&query=Friedrich-Engels-Stra%C3%9Fe%2022%2C%2014473%20Potsdam" target="_blank" rel="noopener" data-i18n="event.page.maps.google">Google Maps ↗</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ HOWTO / ABO-HINWEIS ============ -->
+    <section class="section" style="padding-top: 0">
+      <div class="wrap" style="max-width: 760px">
+        <div class="transmission reveal">
+          <span class="tx-label" data-bind="howto.label" data-i18n="kalender.howto.label">So funktioniert das Abo</span>
+          <p data-i18n-html="kalender.howto.text">Google Kalender: Einstellungen → „Kalender hinzufügen" → „Per URL" → unsere Feed-Adresse einfügen. iPhone/Mac &amp; Outlook: webcal-Link antippen, fertig. (Im Prototyp Demo; der echte Feed wird automatisch aus der Event-Datenbank erzeugt. Bis dahin funktionieren die Download-Buttons an jedem Termin schon jetzt echt.)</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ FAQ ============ -->
+    <section class="section" id="abo-faq" style="padding-top: 0">
+      <div class="wrap" style="max-width: 760px">
+        <header class="section-head reveal">
+          <p class="eyebrow" data-bind="faqSection.eyebrow" data-i18n="kalender.faq.eyebrow">Bevor du abonnierst</p>
+          <h2 class="h2" id="bc-faq-h2" data-i18n-html="kalender.faq.h2">Fragen zum <span class="glow">Abo</span></h2>
+        </header>
+        <div class="reveal" id="bc-faq-list">
+          <details class="faq">
+            <summary>Warum kann ich nicht einfach abonnieren?</summary>
+            <div class="faq-body">Der Prototyp hat noch keinen Server, der einen Feed live halten kann — der kommt mit dem Website-Relaunch. Bis dahin kannst du jeden Termin einzeln speichern.</div>
+          </details>
+          <details class="faq">
+            <summary>Funktioniert das mit jedem Kalender-Programm?</summary>
+            <div class="faq-body">Google, Apple Kalender und Outlook können .ics-Dateien öffnen — bei den meisten reicht ein Doppelklick auf die heruntergeladene Datei.</div>
+          </details>
+          <details class="faq">
+            <summary>Woher weiß ich, wenn sich ein Termin ändert?</summary>
+            <div class="faq-body">Bis zum echten Abo: Telegram-Kanal beitreten, da postet die Crew Änderungen zuerst.</div>
+          </details>
+          <details class="faq">
+            <summary>Kann ich nur bestimmte Events abonnieren?</summary>
+            <div class="faq-body">Aktuell nein — entweder einzelne Termine speichern oder (später) den ganzen Feed abonnieren.</div>
+          </details>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer>
+    <div class="wrap">
+      <div class="foot-grid">
+        <div>
+          <h4 data-i18n="footer.channels">Kanäle</h4>
+          <ul>
+            <li><a href="https://www.instagram.com/takeoff.potsdam/" target="_blank" rel="noopener">Instagram ↗</a></li>
+            <li><a href="https://t.me/takeoffpotsdam" target="_blank" rel="noopener">Telegram ↗</a></li>
+            <li><a href="https://soundcloud.com/takeoff-potsdam" target="_blank" rel="noopener">SoundCloud ↗</a></li>
+            <li><a href="https://www.tiktok.com/@takeoff.potsdam" target="_blank" rel="noopener">TikTok ↗</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 data-i18n="nav.kollektiv">Kollektiv</h4>
+          <ul>
+            <li><a href="kollektiv.html" data-i18n="common.about_us">Über uns</a></li>
+            <li><a href="team.html" data-i18n="footer.team">Team</a></li>
+            <li><a href="news.html" data-i18n="footer.news">News / Mission Log</a></li>
+            <li><a href="kalender.html" data-i18n="footer.calendar">Eventkalender</a></li>
+            <li><a href="awareness.html" data-i18n="link.awareness_concept">Awareness-Konzept</a></li>
+            <li><a href="kollektiv.html#mitmachen" data-i18n="footer.join_short">Mitmachen</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 data-i18n="footer.contact">Kontakt</h4>
+          <ul>
+            <li><a href="kontakt.html" data-i18n="footer.contact">Kontakt</a></li>
+            <li><a href="mailto:info@takeoff-potsdam.de" translate="no">info@takeoff-potsdam.de</a></li>
+            <li><a href="impressum.html" data-i18n="footer.imprint">Impressum</a></li>
+            <li><a href="datenschutz.html" data-i18n="footer.privacy">Datenschutz</a></li>
+          </ul>
+          <p class="no-track" data-i18n="footer.no_track">🛰️ Diese Seite trackt dich nicht</p>
+        </div>
+      </div>
+      <p class="love">Viel Liebe, euer takeoff Team <b>♥</b></p>
+      <p class="proto-note" data-i18n="footer.proto_note">DESIGN-PROTOTYP · IT 8 · NICHTS HIER IST FINAL · INHALTE TEILS PLATZHALTER</p>
+    </div>
+  </footer>
+
+  <div class="mctrl" role="group" aria-label="Darstellungs-Einstellungen" data-i18n-aria="a11y.mctrl">
+    <div class="row">
+      <span class="lbl" data-i18n="mctrl.fx">FX</span>
+      <button type="button" data-set-fx="s" aria-pressed="false" title="Statisch — spart Akku &amp; Daten" data-i18n="mctrl.off" data-i18n-title="mctrl.fx.off.title">Aus</button>
+      <button type="button" data-set-fx="m" aria-pressed="false" title="Standard" data-i18n="mctrl.normal" data-i18n-title="mctrl.fx.normal.title">Normal</button>
+      <button type="button" data-set-fx="l" aria-pressed="false" title="Volle Show" data-i18n="mctrl.full" data-i18n-title="mctrl.fx.full.title">Voll</button>
+    </div>
+    <div class="row">
+      <span class="lbl" data-i18n="mctrl.theme">Theme</span>
+      <button type="button" data-set-theme="space" aria-pressed="false" data-i18n="mctrl.theme.space">Space</button>
+      <button type="button" data-set-theme="mars" aria-pressed="false" data-i18n="mctrl.theme.mars">Mars</button>
+      <button type="button" data-set-theme="strand" aria-pressed="false" data-i18n="mctrl.theme.strand">Strand</button>
+    </div>
+    <div class="row">
+      <span class="lbl" data-i18n="mctrl.ground">Boden</span>
+      <button type="button" data-set-ground="off" aria-pressed="false" title="Nur Sternenhimmel" data-i18n="mctrl.off" data-i18n-title="mctrl.ground.off.title">Aus</button>
+      <button type="button" data-set-ground="on" aria-pressed="false" title="Horizont je nach Theme" data-i18n="mctrl.on" data-i18n-title="mctrl.ground.on.title">An</button>
+    </div>
+    <div class="row">
+      <span class="lbl" data-i18n="mctrl.time">Zeit</span>
+      <button type="button" data-set-day="night" aria-pressed="false" data-i18n="mctrl.night">Nacht</button>
+      <button type="button" data-set-day="day" aria-pressed="false" data-i18n="mctrl.day">Tag</button>
+    </div>
+  </div>
+
+  <script defer src="assets/js/data.js"></script>
+  <script defer src="assets/vendor/gsap.min.js"></script>
+  <script defer src="assets/vendor/ScrollTrigger.min.js"></script>
+  <script defer src="assets/vendor/lenis.min.js"></script>
+  <script defer src="assets/js/main.js"></script>
+  <script defer src="assets/js/i18n.js"></script>
+  <script defer src="assets/js/i18n-runtime.js"></script>
+  <script defer src="assets/js/pages/kalender.js"></script>
+</body>
+</html>

@@ -1,0 +1,472 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script>
+  (function () {
+    var h = document.documentElement;
+    h.classList.add("js");
+    var get = function (k) { try { return localStorage.getItem(k); } catch (e) { return null; } };
+    var c = navigator.connection || {};
+    var mem = navigator.deviceMemory, cores = navigator.hardwareConcurrency;
+    var tier = "m";
+    if (mem !== undefined && cores !== undefined && mem > 4 && cores > 4) tier = "l";
+    var stored = get("takeoff-fx");
+    if (stored === "s" || stored === "m" || stored === "l") tier = stored;
+    if (c.saveData === true) tier = "s";
+    if (/(^|\b)(slow-2g|2g|3g)\b/.test(c.effectiveType || "")) tier = "s";
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches) tier = "s";
+    h.dataset.fx = tier;
+    var th = get("takeoff-theme");
+    if (!h.dataset.theme && th && th !== "space") h.dataset.theme = th;
+
+    /* Sprache. Der Zustand gehoert ans Standardattribut lang, damit :lang(en)
+       als nativer CSS-Selektor greift - nicht an ein data-Attribut.
+       Der Sperrvermerk data-lang-lock muss auf <html> stehen: dieses Script
+       laeuft im <head>, dort ist <body> noch nicht geparst. Das ist die
+       Asymmetrie zum data-theme-lock, das auf <body> sitzt. */
+    if (!h.hasAttribute("data-lang-lock")) {
+      var lg = get("takeoff-lang");
+      if (lg === "de" || lg === "en") h.lang = lg;
+    }
+  })();
+  </script>
+  <title data-i18n="meta.musik.title">Unser Sound · takeoff potsdam</title>
+  <meta name="description" content="Trance, Hard Trance, Bounce — was das ist und wie es klingt.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚀</text></svg>">
+  <link rel="stylesheet" href="assets/css/style.css">
+  <link rel="stylesheet" href="assets/css/pages/musik.css">
+  <noscript><style>#stars{display:none!important}.nav-progress{display:none!important}.marquee-track,.band-track{animation:none!important}</style></noscript>
+</head>
+<body>
+  <a class="skip-link" href="#main" data-i18n="a11y.skiplink">Zum Inhalt springen</a>
+  <canvas id="stars" aria-hidden="true"></canvas>
+
+  <div class="tg-field" aria-hidden="true"></div>
+  <svg id="tg-dial" class="tg-dial" viewBox="0 0 640 340" aria-hidden="true" focusable="false">
+    <defs>
+      <radialGradient id="tg-hub-grad" cx="50%" cy="50%" r="50%">
+        <stop offset="0%" style="stop-color:var(--acc-1-tint)" stop-opacity=".85"/>
+        <stop offset="100%" style="stop-color:var(--acc-1-tint)" stop-opacity="0"/>
+      </radialGradient>
+    </defs>
+    <!-- Ticks alle 10 BPM, 60-180. Ein gemeinsamer senkrechter Vorlage-
+         Strich oben (12-Uhr-Stellung = 120 BPM = die "neutrale" Position)
+         wird je Marke um winkel(bpm) = 1.5*bpm - 180 Grad um den Hub
+         gedreht -- dieselbe Formel wie fuer den Zeiger-Ruhezustand in
+         musik.css, siehe Herleitung dort. -->
+    <g class="tg-dial-ticks">
+      <line x1="320" y1="20" x2="320" y2="38" transform="rotate(-90 320 320)"/>
+      <line x1="320" y1="20" x2="320" y2="38" transform="rotate(-75 320 320)"/>
+      <line x1="320" y1="20" x2="320" y2="38" transform="rotate(-60 320 320)"/>
+      <line x1="320" y1="20" x2="320" y2="38" transform="rotate(-45 320 320)"/>
+      <line x1="320" y1="20" x2="320" y2="38" transform="rotate(-30 320 320)"/>
+      <line x1="320" y1="20" x2="320" y2="38" transform="rotate(-15 320 320)"/>
+      <line x1="320" y1="20" x2="320" y2="38" transform="rotate(0 320 320)"/>
+      <line x1="320" y1="20" x2="320" y2="38" transform="rotate(15 320 320)"/>
+      <line x1="320" y1="20" x2="320" y2="38" transform="rotate(30 320 320)"/>
+      <line x1="320" y1="20" x2="320" y2="38" transform="rotate(45 320 320)"/>
+      <line x1="320" y1="20" x2="320" y2="38" transform="rotate(60 320 320)"/>
+      <line x1="320" y1="20" x2="320" y2="38" transform="rotate(75 320 320)"/>
+      <line x1="320" y1="20" x2="320" y2="38" transform="rotate(90 320 320)"/>
+    </g>
+    <!-- Genre-Kerben an ihrer echten Position: Trance 138 -> 27°, Hard
+         Trance 145 -> 37.5°, Bounce 150 -> 45° (dieselbe Formel). -->
+    <g class="tg-dial-notches">
+      <line data-genre="trance" x1="320" y1="20" x2="320" y2="60" transform="rotate(27 320 320)"/>
+      <line data-genre="hard-trance" x1="320" y1="20" x2="320" y2="60" transform="rotate(37.5 320 320)"/>
+      <line data-genre="bounce" x1="320" y1="20" x2="320" y2="60" transform="rotate(45 320 320)"/>
+    </g>
+    <g class="tg-dial-sweep">
+      <line class="tg-dial-arm" x1="320" y1="320" x2="320" y2="36"/>
+    </g>
+    <circle class="tg-dial-hub" cx="320" cy="320" r="20"/>
+  </svg>
+
+  <header class="topbar">
+    <div class="hud">
+      <span class="dot" aria-hidden="true"></span>
+      <div class="marquee" aria-label="Nächste Events" data-i18n-aria="a11y.marquee.events">
+        <div class="marquee-track">
+          <span>NEXT LAUNCH → <b>SA 12.09.</b> OPEN AIR „FREIRÄUME" · BASTION AM SCHILLERPLATZ · <em>16:00</em> · FREE</span>
+          <span><b>SA 19.09.</b> TAKEOFF: MARSMISSION · SPARTACUS · <em>23:00</em> · FREE ENTRY</span>
+          <span><b>SA 14.11.</b> TAKEOFF: STRANDPARTY · SPARTACUS · <em data-i18n="event.strand.price">TBA</em></span>
+          <span>NEXT LAUNCH → <b>SA 12.09.</b> OPEN AIR „FREIRÄUME" · BASTION AM SCHILLERPLATZ · <em>16:00</em> · FREE</span>
+          <span><b>SA 19.09.</b> TAKEOFF: MARSMISSION · SPARTACUS · <em>23:00</em> · FREE ENTRY</span>
+          <span><b>SA 14.11.</b> TAKEOFF: STRANDPARTY · SPARTACUS · <em data-i18n="event.strand.price">TBA</em></span>
+        </div>
+      </div>
+      <a class="hud-link" href="https://t.me/takeoffpotsdam" target="_blank" rel="noopener" data-i18n="topbar.hud.telegram">TELEGRAM ↗</a>
+    </div>
+    <div class="nav">
+      <a class="nav-brand" href="index.html" aria-label="takeoff — zur Startseite" translate="no" data-i18n-aria="a11y.brand">takeoff</a>
+      <span class="nav-rule" aria-hidden="true"></span>
+      <nav class="nav-links" aria-label="Hauptnavigation" data-i18n-aria="a11y.nav.main">
+        <ul>
+          <li><a href="events.html" data-i18n="nav.events">Events</a></li>
+          <li><a href="artists.html" aria-current="true" data-i18n="nav.artists">Artists</a></li>
+          <li><a href="kollektiv.html" data-i18n="nav.kollektiv">Kollektiv</a></li>
+          <li><a href="awareness.html" data-i18n="nav.awareness">Awareness</a></li>
+          <li data-prio="2"><a href="news.html" data-i18n="nav.news">News</a></li>
+          <li data-prio="2"><a href="kalender.html" data-i18n="nav.kalender">Kalender</a></li>
+        </ul>
+      </nav>
+      <!-- Dehnfuge. Frueher trug .nav-links das flex:1 — sobald es ab 900px
+           ausgeblendet wird, wuchs nichts mehr und alles klebte links. Ein
+           eigenes Element ist davon unabhaengig. -->
+      <span class="nav-gap" aria-hidden="true"></span>
+      <a class="nav-status" href="events.html">
+        <span class="st-tag" data-i18n="event.pwest.price">Free</span><span class="st-date">Sa 12.09.</span>
+      </a>
+      <!-- Sprachumschalter, kompakte Form. Besucherfunktion, deshalb in der
+           Kopfleiste und im Overlay-Menue - nicht im Mission-Control-Panel.
+           Vertrag wie bei den uebrigen Schaltern: data-set-* + aria-pressed.
+           Die Zustandslogik setzt aria-pressed, dieses Markup liefert nur den
+           Startzustand der deutschen Fassung. -->
+      <div class="nav-lang" role="group" aria-label="Sprache / Language">
+        <button type="button" data-set-lang="de" aria-pressed="true" lang="de" translate="no">DE</button>
+        <button type="button" data-set-lang="en" aria-pressed="false" lang="en" translate="no">EN</button>
+      </div>
+      <!-- Tag/Nacht. Ein Knopf statt eines Segments: bei 320px waere ein
+           zweites Segment 34px zu breit. Zustand-Lesart (Sichel = es ist
+           gerade Nacht), Beschriftung fest, aria-pressed traegt den Zustand. -->
+      <button class="nav-day" type="button" data-set-day="toggle" aria-pressed="false"
+              aria-label="Tagmodus" data-i18n-aria="a11y.daymode">
+        <svg class="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z"/>
+        </svg>
+        <svg class="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="4.2"/>
+          <path d="M12 3.4v2M12 18.6v2M3.4 12h2M18.6 12h2M6 6l1.5 1.5M16.5 16.5 18 18M18 6l-1.5 1.5M7.5 16.5 6 18"/>
+        </svg>
+      </button>
+      <button class="nav-burger" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="menu" aria-label="Menü öffnen" data-i18n-aria="a11y.burger.open">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path class="b-line" d="M2 6h16"/><path class="b-line" d="M2 14h16"/></svg>
+        <span data-i18n="menu.label">Menü</span>
+      </button>
+    </div>
+  </header>
+
+  <dialog class="menu" id="menu" aria-label="Menü" data-i18n-aria="menu.label">
+    <div class="menu-inner">
+      <p class="menu-eyebrow" data-i18n="menu.eyebrow">Bordcomputer · Navigation</p>
+      <ul class="menu-list">
+        <li><a href="events.html"><span class="m-label" data-i18n="nav.events">Events</span> <span class="m-note">3 geplant</span></a></li>
+        <li><a href="artists.html"><span class="m-label" data-i18n="nav.artists">Artists</span> <span class="m-note" data-i18n="menu.artists.note">Sets &amp; Podcasts</span></a></li>
+        <li><a href="kollektiv.html"><span class="m-label" data-i18n="nav.kollektiv">Kollektiv</span> <span class="m-note" data-i18n="menu.kollektiv.note">Wer hier funkt</span></a></li>
+        <li><a href="awareness.html"><span class="m-label" data-i18n="nav.awareness">Awareness</span> <span class="m-note" data-i18n="menu.awareness.note">Hilfe &amp; Regeln</span></a></li>
+        <li><a href="news.html"><span class="m-label" data-i18n="menu.news.label">News</span> <span class="m-note" data-i18n="menu.news.note">Mission Log</span></a></li>
+        <li><a href="kalender.html"><span class="m-label" data-i18n="menu.kalender.label">Kalender</span> <span class="m-note" data-i18n="menu.kalender.note">Abo &amp; Termine</span></a></li>
+        <li><a href="kontakt.html"><span class="m-label" data-i18n="footer.contact">Kontakt</span> <span class="m-note" data-i18n="menu.kontakt.note">Schreib uns</span></a></li>
+      </ul>
+      <a class="menu-next" href="event-marsmission.html">
+        <span>
+          <span class="mn-when">Next Launch · Sa 12.09.</span>
+          <span class="mn-title" data-i18n="event.pwest.title">Open Air: Freiräume</span>
+          <span class="mn-where">Bastion am Schillerplatz · 16 Uhr · Free</span>
+        </span>
+        <span class="mn-go" data-i18n="menu.go">Ansehen →</span>
+      </a>
+      <div class="menu-social">
+        <a href="https://www.instagram.com/takeoff.potsdam/" target="_blank" rel="noopener" translate="no">Instagram</a>
+        <a href="https://t.me/takeoffpotsdam" target="_blank" rel="noopener" translate="no">Telegram</a>
+        <a href="https://soundcloud.com/takeoff-potsdam" target="_blank" rel="noopener" translate="no">SoundCloud</a>
+        <a href="mailto:info@takeoff-potsdam.de" translate="no">info@takeoff-potsdam.de</a>
+      </div>
+      <!-- Vollwertige Kopie des Sprachumschalters. Endonyme (Deutsch/English)
+           statt uebersetzter Labels - sie sind in beiden Sprachen richtig und
+           brauchen deshalb keinen Woerterbuchschluessel. -->
+      <div class="menu-lang" role="group" aria-label="Sprache / Language">
+        <button type="button" data-set-lang="de" aria-pressed="true" lang="de" translate="no">Deutsch</button>
+        <button type="button" data-set-lang="en" aria-pressed="false" lang="en" translate="no">English</button>
+      </div>
+        <div class="menu-day" role="group" aria-label="Tag oder Nacht">
+          <button type="button" data-set-day="night" aria-pressed="true" data-i18n="mctrl.night">Nacht</button>
+          <button type="button" data-set-day="day" aria-pressed="false" data-i18n="mctrl.day">Tag</button>
+        </div>
+      <button class="menu-close" type="button" data-i18n="menu.close">Schließen</button>
+    </div>
+  </dialog>
+
+  <main id="main">
+    <section class="phero">
+      <div class="wrap">
+        <p class="eyebrow" data-i18n="musik.eyebrow" data-bind="hero.eyebrow">Frequenzkunde</p>
+        <h1 data-i18n-html="musik.h1">Was läuft hier <span class="glow">eigentlich</span>?</h1>
+        <p class="section-intro" data-i18n="musik.intro" data-bind="hero.intro">Nie von Hard Bounce gehört? Macht nichts — dafür gibt's diese Seite. Drei Minuten Lesezeit, dann weißt du, was dich auf dem Floor erwartet.</p>
+      </div>
+    </section>
+    <section class="section" style="padding-top: clamp(24px, 4vh, 40px)">
+      <div class="wrap" style="max-width: 800px">
+        <div class="tg-panel reveal">
+          <p class="tg-caption">Taktskala · 60–180 BPM</p>
+          <p class="tg-caption-sub" data-bind="scale.caption">So nah liegen unsere Kern-Tempi beieinander — und so deutlich hört man den Unterschied trotzdem.</p>
+          <div class="tg-scale">
+            <div class="tg-scale-track">
+              <span class="tg-tick tg-tick--major" style="--at:60"><b>60</b></span>
+              <span class="tg-tick" style="--at:70"></span>
+              <span class="tg-tick" style="--at:80"></span>
+              <span class="tg-tick tg-tick--major" style="--at:90"><b>90</b></span>
+              <span class="tg-tick" style="--at:100"></span>
+              <span class="tg-tick" style="--at:110"></span>
+              <span class="tg-tick tg-tick--major" style="--at:120"><b>120</b></span>
+              <span class="tg-tick" style="--at:130"></span>
+              <span class="tg-tick" style="--at:140"></span>
+              <span class="tg-tick tg-tick--major" style="--at:150"><b>150</b></span>
+              <span class="tg-tick" style="--at:160"></span>
+              <span class="tg-tick" style="--at:170"></span>
+              <span class="tg-tick tg-tick--major" style="--at:180"><b>180</b></span>
+              <span class="tg-mark" data-genre="trance" style="--at:138"><i class="tg-dot" aria-hidden="true"></i><b translate="no">Trance</b><small>138</small></span>
+              <span class="tg-mark" data-genre="hard-trance" style="--at:145"><i class="tg-dot" aria-hidden="true"></i><b translate="no">Hard Trance</b><small>145</small></span>
+              <span class="tg-mark" data-genre="bounce" style="--at:150"><i class="tg-dot" aria-hidden="true"></i><b translate="no">Bounce</b><small>150</small></span>
+              <span class="tg-mark tg-mark--you" id="tg-you" hidden style="--at:120">
+                <i class="tg-dot" aria-hidden="true"></i><b>Du</b><small id="tg-you-bpm">—</small>
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <dl class="m-rows tg-genres reveal" style="border-top: 1px solid var(--bg-hairline)">
+          <div class="m-row" id="g-trance" data-genre="trance" data-bpm="138" style="--beat:435ms">
+            <dt translate="no">Trance</dt>
+            <dd data-i18n-html="musik.trance.text" data-i18n-vars='{"bpm":"138"}'>Hypnotische Melodien, lange Spannungsbögen, Gänsehaut-Momente. <b>~138 BPM</b> · das Herz von takeoff</dd>
+            <div class="tg-wayfind" hidden></div>
+          </div>
+          <div class="m-row" id="g-hard-trance" data-genre="hard-trance" data-bpm="145" style="--beat:414ms">
+            <dt translate="no">Hard Trance</dt>
+            <dd data-i18n-html="musik.hard_trance.text" data-i18n-vars='{"bpm":"145"}'>Trance mit Schub: härtere Kicks, treibender, euphorischer. <b>~145 BPM</b></dd>
+            <div class="tg-wayfind" hidden></div>
+          </div>
+          <div class="m-row" id="g-bounce" data-genre="bounce" data-bpm="150" style="--beat:400ms">
+            <dt data-i18n="musik.row.bounce">Bounce / Hard Bounce</dt>
+            <dd data-i18n-html="musik.bounce.text" data-i18n-vars='{"bpm":"150"}'>Federnde Offbeat-Bässe, gute Laune mit Wumms. <b>~150 BPM</b></dd>
+            <div class="tg-wayfind" hidden></div>
+          </div>
+          <div class="m-row" id="g-techno" data-genre="techno" data-bpm="">
+            <dt translate="no">Techno</dt>
+            <dd data-i18n="musik.techno.text">Der gerade, dunkle Puls — bei uns als Gastgeschenk befreundeter Kollektive</dd>
+            <div class="tg-wayfind" hidden></div>
+          </div>
+          <div class="m-row" id="g-psytrance" data-genre="psytrance" data-bpm="">
+            <dt translate="no">Psytrance</dt>
+            <dd data-i18n="musik.psytrance.text">Wenn's spät wird und die Muster tanzen. Gelegentlich, mit Liebe</dd>
+            <div class="tg-wayfind" hidden></div>
+          </div>
+        </dl>
+
+        <div class="tg-tap reveal" aria-live="polite">
+          <p class="tg-tap-label"><i class="tg-tap-dot" aria-hidden="true"></i>Tipp mit</p>
+          <button type="button" class="tg-tap-pad" id="tg-tap-btn" aria-describedby="tg-tap-readout">
+            <span class="tg-tap-ring" aria-hidden="true"></span>
+            <span class="tg-tap-word" data-bind="tapTempo.button">Tipp mit!</span>
+          </button>
+          <p class="tg-tap-readout" id="tg-tap-readout">
+            <span class="tg-tap-bpm"><b id="tg-tap-num">—</b> <small>BPM</small></span>
+            <span class="tg-tap-match" id="tg-tap-match">Tippe im eigenen Takt — mindestens 4×, dann rechnen wir. Klick, Tap oder Leertaste.</span>
+          </p>
+          <button type="button" class="tg-tap-reset" id="tg-tap-reset" data-bind="tapTempo.reset" hidden>Zurücksetzen</button>
+        </div>
+
+        <p class="section-intro reveal" style="margin-top: 22px">Reinhören? Auf der <a href="artists.html" style="color:var(--acc-3-tint)" data-i18n="link.artists_page">Artists-Seite</a> liegen Sets aus echten takeoff-Nächten — und der „| takeoff"-Podcast liefert Nachschub.</p>
+      </div>
+    </section>
+
+    <section class="section" id="hoerprobe" style="padding-top: 0">
+      <div class="wrap">
+        <header class="section-head reveal">
+          <p class="eyebrow" data-bind="listen.eyebrow">Reinhören</p>
+          <h2 class="h2">Sound of <span class="glow">takeoff</span></h2>
+          <p class="section-intro" data-bind="listen.intro">Alle Sets &amp; Podcast-Folgen an einem Ort — aus echten takeoff-Nächten.</p>
+        </header>
+        <div class="setgrid reveal" id="tg-setgrid">
+          <div class="tg-setitem">
+            <button class="setcard" type="button" aria-label="Set abspielen: DJ Platzhalter — Live @ Spartacus">
+              <span class="cover"><span class="play" aria-hidden="true">▶</span></span>
+              <span class="s-meta"><b translate="no">DJ Platzhalter — Live @ Spartacus</b><span>09.05. · Liveset · Trance</span></span>
+              <span class="consent-note">Demo: Hier würde jetzt der SoundCloud-/YouTube-Player laden (Zwei-Klick, DSGVO-freundlich).</span>
+            </button>
+            <a class="tg-setlink" href="artist-platzhalter.html" translate="no">DJ Platzhalter</a>
+          </div>
+          <div class="tg-setitem">
+            <button class="setcard" type="button" aria-label="Podcast abspielen: JOJO | takeoff Podcast #1">
+              <span class="cover"><span class="play" aria-hidden="true">▶</span></span>
+              <span class="s-meta"><b translate="no">JOJO | takeoff Podcast #1</b><span>Serie · YouTube &amp; SoundCloud · Hard Trance · Bounce</span></span>
+              <span class="consent-note">Demo: Hier würde jetzt der SoundCloud-/YouTube-Player laden (Zwei-Klick, DSGVO-freundlich).</span>
+            </button>
+            <a class="tg-setlink" href="artist-jojo.html" translate="no">JOJO</a>
+          </div>
+          <div class="tg-setitem">
+            <button class="setcard" type="button" aria-label="Set abspielen: Cyonic B2B Niico — Out of Space">
+              <span class="cover"><span class="play" aria-hidden="true">▶</span></span>
+              <span class="s-meta"><b translate="no">Cyonic B2B Niico — Out of Space</b><span>11.01. · Liveset · Techno</span></span>
+              <span class="consent-note">Demo: Hier würde jetzt der SoundCloud-/YouTube-Player laden (Zwei-Klick, DSGVO-freundlich).</span>
+            </button>
+            <a class="tg-setlink" href="artist-cyonic.html" translate="no">Cyonic</a>
+          </div>
+        </div>
+        <div class="transmission reveal" style="margin-top: 28px">
+          <span class="tx-label">Transmission incoming</span>
+          <p>Echte 30-Sekunden-Hörproben pro Genre — sobald die Rechte mit den DJs geklärt sind.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="ablauf" style="padding-top: 0">
+      <div class="wrap" style="max-width: 760px">
+        <header class="section-head reveal">
+          <p class="eyebrow" data-bind="nightGuide.eyebrow">Für Neulinge</p>
+          <h2 class="h2">Der Ablauf <span class="glow">einer Nacht</span></h2>
+        </header>
+        <ol class="tg-night reveal" id="tg-night">
+          <li class="tg-phase">
+            <span class="tg-phase-time">Einlass – Mitternacht</span>
+            <span class="tg-phase-label">Warm-up</span>
+            <span class="tg-phase-genres"><a class="chip" href="#g-trance" translate="no">Trance</a></span>
+            <p class="tg-phase-text">Ruhiger Einstieg, Zeit anzukommen.</p>
+          </li>
+          <li class="tg-phase">
+            <span class="tg-phase-time">Mitternacht – 3 Uhr</span>
+            <span class="tg-phase-label">Peak-Time</span>
+            <span class="tg-phase-genres"><a class="chip" href="#g-hard-trance" translate="no">Hard Trance</a><a class="chip" href="#g-bounce" translate="no">Bounce</a></span>
+            <p class="tg-phase-text">Der Floor ist voll, das Tempo zieht an.</p>
+          </li>
+          <li class="tg-phase">
+            <span class="tg-phase-time">ab 3 Uhr</span>
+            <span class="tg-phase-label">Afterhour</span>
+            <span class="tg-phase-genres"><a class="chip" href="#g-psytrance" translate="no">Psytrance</a><a class="chip" href="#g-techno" translate="no">Techno</a></span>
+            <p class="tg-phase-text">Für alle, die bleiben — gelegentlich, mit Liebe.</p>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="section" id="glossar" style="padding-top: 0">
+      <div class="wrap" style="max-width: 700px">
+        <header class="section-head reveal">
+          <p class="eyebrow">Vokabular</p>
+          <h2 class="h2">Szene-<span class="glow">Jargon</span></h2>
+        </header>
+        <dl class="m-rows reveal" id="tg-glossary" style="border-top: 1px solid var(--bg-hairline)">
+          <div class="m-row"><dt translate="no">B2B</dt><dd>„Back to Back“ — zwei DJs legen abwechselnd im selben Set auf.</dd></div>
+          <div class="m-row"><dt>Warm-up</dt><dd>Der ruhigere musikalische Einstieg zu Beginn des Abends.</dd></div>
+          <div class="m-row"><dt>Peak-Time</dt><dd>Der Höhepunkt der Nacht, wenn der Floor am vollsten ist.</dd></div>
+          <div class="m-row"><dt translate="no">Liveset</dt><dd>Mitschnitt eines echten Auftritts, nicht extra fürs Studio produziert.</dd></div>
+        </dl>
+      </div>
+    </section>
+
+    <section class="section" style="padding-top: 0">
+      <div class="wrap" style="max-width: 640px">
+        <div class="tg-trackid reveal">
+          <p class="tg-trackid-eyebrow" data-bind="trackId.eyebrow">Ohrwurm ohne Namen?</p>
+          <h3 data-bind="trackId.title">Track-ID gesucht</h3>
+          <p data-bind="trackId.text">Song gehört, Namen vergessen? Schreib uns Event, ungefähre Uhrzeit und was du noch weißt.</p>
+          <a class="btn btn-primary" id="tg-trackid-btn" href="mailto:info@takeoff-potsdam.de?subject=Track-ID%20gesucht" data-bind="trackId.buttonLabel">Track-ID anfragen</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="faq" style="padding-top: 0">
+      <div class="wrap" style="max-width: 700px">
+        <header class="section-head reveal">
+          <p class="eyebrow">Bevor es losgeht</p>
+          <h2 class="h2">Kurz <span class="glow">gefragt</span></h2>
+        </header>
+        <div class="tg-faqlist reveal" id="tg-faqlist">
+          <details class="faq">
+            <summary>Muss ich tanzen können?</summary>
+            <div class="faq-body">Nein. Bei uns tanzt jede*r so, wie es sich gut anfühlt.</div>
+          </details>
+          <details class="faq">
+            <summary>Ist das laut?</summary>
+            <div class="faq-body">Ja, wie auf jedem Rave — Ohrstöpsel gibt's am Awareness-Point.</div>
+          </details>
+          <details class="faq">
+            <summary>Gibt's auch Techno?</summary>
+            <div class="faq-body">Gelegentlich, meist als Gastgeschenk befreundeter Kollektive — der Kern bleibt Trance.</div>
+          </details>
+        </div>
+        <div class="tg-share-row reveal">
+          <button type="button" class="btn btn-ghost m-share" data-share-text="Was bei takeoff läuft: Trance, Hard Trance, Bounce erklärt." data-share-url="musik.html">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="2.6"/><circle cx="6" cy="12" r="2.6"/><circle cx="18" cy="19" r="2.6"/><path d="M8.3 10.7l7.4-4.4M8.3 13.3l7.4 4.4"/></svg><span data-bind="share.label">Genre-Guide teilen</span>
+          </button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap">
+      <div class="foot-grid">
+        <div>
+          <h4 data-i18n="footer.channels">Kanäle</h4>
+          <ul>
+            <li><a href="https://www.instagram.com/takeoff.potsdam/" target="_blank" rel="noopener">Instagram ↗</a></li>
+            <li><a href="https://t.me/takeoffpotsdam" target="_blank" rel="noopener">Telegram ↗</a></li>
+            <li><a href="https://soundcloud.com/takeoff-potsdam" target="_blank" rel="noopener">SoundCloud ↗</a></li>
+            <li><a href="https://www.tiktok.com/@takeoff.potsdam" target="_blank" rel="noopener">TikTok ↗</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 data-i18n="nav.kollektiv">Kollektiv</h4>
+          <ul>
+            <li><a href="kollektiv.html" data-i18n="common.about_us">Über uns</a></li>
+            <li><a href="team.html" data-i18n="footer.team">Team</a></li>
+            <li><a href="news.html" data-i18n="footer.news">News / Mission Log</a></li>
+            <li><a href="kalender.html" data-i18n="footer.calendar">Eventkalender</a></li>
+            <li><a href="awareness.html" data-i18n="link.awareness_concept">Awareness-Konzept</a></li>
+            <li><a href="kollektiv.html#mitmachen" data-i18n="footer.join_short">Mitmachen</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 data-i18n="footer.contact">Kontakt</h4>
+          <ul>
+            <li><a href="kontakt.html" data-i18n="footer.contact">Kontakt</a></li>
+            <li><a href="mailto:info@takeoff-potsdam.de" translate="no">info@takeoff-potsdam.de</a></li>
+            <li><a href="impressum.html" data-i18n="footer.imprint">Impressum</a></li>
+            <li><a href="datenschutz.html" data-i18n="footer.privacy">Datenschutz</a></li>
+          </ul>
+          <p class="no-track" data-i18n="footer.no_track">🛰️ Diese Seite trackt dich nicht</p>
+        </div>
+      </div>
+      <p class="love">Viel Liebe, euer takeoff Team <b>♥</b></p>
+      <p class="proto-note" data-i18n="footer.proto_note">DESIGN-PROTOTYP · IT 8 · NICHTS HIER IST FINAL · INHALTE TEILS PLATZHALTER</p>
+    </div>
+  </footer>
+
+  <div class="mctrl" role="group" aria-label="Darstellungs-Einstellungen" data-i18n-aria="a11y.mctrl">
+    <div class="row">
+      <span class="lbl" data-i18n="mctrl.fx">FX</span>
+      <button type="button" data-set-fx="s" aria-pressed="false" title="Statisch — spart Akku &amp; Daten" data-i18n="mctrl.off" data-i18n-title="mctrl.fx.off.title">Aus</button>
+      <button type="button" data-set-fx="m" aria-pressed="false" title="Standard" data-i18n="mctrl.normal" data-i18n-title="mctrl.fx.normal.title">Normal</button>
+      <button type="button" data-set-fx="l" aria-pressed="false" title="Volle Show" data-i18n="mctrl.full" data-i18n-title="mctrl.fx.full.title">Voll</button>
+    </div>
+    <div class="row">
+      <span class="lbl" data-i18n="mctrl.theme">Theme</span>
+      <button type="button" data-set-theme="space" aria-pressed="false" data-i18n="mctrl.theme.space">Space</button>
+      <button type="button" data-set-theme="mars" aria-pressed="false" data-i18n="mctrl.theme.mars">Mars</button>
+      <button type="button" data-set-theme="strand" aria-pressed="false" data-i18n="mctrl.theme.strand">Strand</button>
+    </div>
+    <div class="row">
+      <span class="lbl" data-i18n="mctrl.ground">Boden</span>
+      <button type="button" data-set-ground="off" aria-pressed="false" title="Nur Sternenhimmel" data-i18n="mctrl.off" data-i18n-title="mctrl.ground.off.title">Aus</button>
+      <button type="button" data-set-ground="on" aria-pressed="false" title="Horizont je nach Theme" data-i18n="mctrl.on" data-i18n-title="mctrl.ground.on.title">An</button>
+    </div>
+    <div class="row">
+      <span class="lbl" data-i18n="mctrl.time">Zeit</span>
+      <button type="button" data-set-day="night" aria-pressed="false" data-i18n="mctrl.night">Nacht</button>
+      <button type="button" data-set-day="day" aria-pressed="false" data-i18n="mctrl.day">Tag</button>
+    </div>
+  </div>
+
+  <script defer src="assets/js/data.js"></script>
+  <script defer src="assets/vendor/gsap.min.js"></script>
+  <script defer src="assets/vendor/ScrollTrigger.min.js"></script>
+  <script defer src="assets/vendor/lenis.min.js"></script>
+  <script defer src="assets/js/main.js"></script>
+  <script defer src="assets/js/i18n.js"></script>
+  <script defer src="assets/js/i18n-runtime.js"></script>
+  <script defer src="assets/js/pages/musik.js"></script>
+</body>
+</html>

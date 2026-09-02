@@ -1,0 +1,427 @@
+<!doctype html>
+<html lang="de" data-theme="mars">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Boot-Script: stempelt FX-Tier + Theme VOR dem ersten Paint (kein FOUC).
+       Bewusst inline, ohne Abhaengigkeiten und ohne Storage-Zugriff, der werfen kann. -->
+  <script>
+  (function () {
+    var h = document.documentElement;
+    h.classList.add("js");                       /* nur damit darf CSS Inhalte ausblenden */
+    var get = function (k) { try { return localStorage.getItem(k); } catch (e) { return null; } };
+
+    var c = navigator.connection || {};
+    var mem = navigator.deviceMemory;            /* Chromium-only -> oft undefined */
+    var cores = navigator.hardwareConcurrency;
+    var tier = "m";                              /* Default fuer alles Unbekannte */
+
+    /* Nur mit positivem Beweis nach oben. Vorher galt "undefined" als 8 GB,
+       wodurch praktisch jedes iPhone in Tier L landete. */
+    if (mem !== undefined && cores !== undefined && mem > 4 && cores > 4) tier = "l";
+
+    var stored = get("takeoff-fx");
+    if (stored === "s" || stored === "m" || stored === "l") tier = stored;
+
+    /* Diese drei ueberstimmen die User-Wahl — Datenverbrauch und
+       Bewegungsempfindlichkeit sind keine Geschmacksfrage. */
+    if (c.saveData === true) tier = "s";
+    if (/(^|\b)(slow-2g|2g|3g)\b/.test(c.effectiveType || "")) tier = "s";
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches) tier = "s";
+
+    h.dataset.fx = tier;
+
+    var th = get("takeoff-theme");
+    if (!h.dataset.theme && th && th !== "space") h.dataset.theme = th;
+
+    /* Sprache. Der Zustand gehoert ans Standardattribut lang, damit :lang(en)
+       als nativer CSS-Selektor greift - nicht an ein data-Attribut.
+       Der Sperrvermerk data-lang-lock muss auf <html> stehen: dieses Script
+       laeuft im <head>, dort ist <body> noch nicht geparst. Das ist die
+       Asymmetrie zum data-theme-lock, das auf <body> sitzt. */
+    if (!h.hasAttribute("data-lang-lock")) {
+      var lg = get("takeoff-lang");
+      if (lg === "de" || lg === "en") h.lang = lg;
+    }
+  })();
+  </script>
+  <title data-i18n="meta.event.mars.title">takeoff: Marsmission · Sa 19.09. · Spartacus Potsdam</title>
+  <meta name="description" content="takeoff: Marsmission — Sa 19.09., Spartacus Potsdam. Free Entry. Trance / Hard Trance / Bounce. 18+.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚀</text></svg>">
+  <link rel="stylesheet" href="assets/css/style.css">
+  <noscript>
+    <style>
+      /* Ohne JS gibt es kein Sternenfeld und keinen Scroll-Fortschritt —
+         die statischen Fallbacks uebernehmen, nichts bleibt unsichtbar. */
+      #stars { display: none !important; }
+      .nav-progress { display: none !important; }
+      .marquee-track, .band-track { animation: none !important; }
+    </style>
+  </noscript>
+</head>
+<body data-theme-lock="1" class="has-sticky">
+  <a class="skip-link" href="#main" data-i18n="a11y.skiplink">Zum Inhalt springen</a>
+
+  <canvas id="stars" aria-hidden="true"></canvas>
+
+  <!-- Topbar: Telemetrie + Navigation + Flugbahn -->
+  <header class="topbar">
+    <div class="hud">
+      <span class="dot" aria-hidden="true"></span>
+      <div class="marquee" aria-label="Status" data-i18n-aria="card.row.status">
+        <div class="marquee-track">
+          <span>MISSION STATUS: <b>ANNOUNCED</b> · BOARDING <em>SA 19.09. · 23:00</em> · SPARTACUS POTSDAM · FREE ENTRY · 18+</span>
+          <span>CREW AN BORD: JOJO · DJ PLATZHALTER · CYONIC · +TBA</span>
+          <span>MISSION STATUS: <b>ANNOUNCED</b> · BOARDING <em>SA 19.09. · 23:00</em> · SPARTACUS POTSDAM · FREE ENTRY · 18+</span>
+          <span>CREW AN BORD: JOJO · DJ PLATZHALTER · CYONIC · +TBA</span>
+        </div>
+      </div>
+      <a class="hud-link" href="index.html" data-i18n="topbar.hud.back">← Basis</a>
+    </div>
+    <div class="nav">
+      <a class="nav-brand" href="index.html" aria-label="takeoff — zur Startseite" translate="no" data-i18n-aria="a11y.brand">takeoff</a>
+      <span class="nav-rule" aria-hidden="true"></span>
+      <nav class="nav-links" aria-label="Hauptnavigation" data-i18n-aria="a11y.nav.main">
+        <ul>
+          <li><a href="events.html" data-i18n="nav.events">Events</a></li>
+          <li><a href="artists.html" data-i18n="nav.artists">Artists</a></li>
+          <li><a href="kollektiv.html" data-i18n="nav.kollektiv">Kollektiv</a></li>
+          <li><a href="awareness.html" data-i18n="nav.awareness">Awareness</a></li>
+          <li data-prio="2"><a href="news.html" data-i18n="nav.news">News</a></li>
+          <li data-prio="2"><a href="kalender.html" data-i18n="nav.kalender">Kalender</a></li>
+        </ul>
+      </nav>
+      <!-- Dehnfuge. Frueher trug .nav-links das flex:1 — sobald es ab 900px
+           ausgeblendet wird, wuchs nichts mehr und alles klebte links. Ein
+           eigenes Element ist davon unabhaengig. -->
+      <span class="nav-gap" aria-hidden="true"></span>
+      <a class="nav-status" href="events.html">
+        <span class="st-tag" data-i18n="event.pwest.price">Free</span><span class="st-date">Sa 12.09.</span>
+      </a>
+      <!-- Sprachumschalter, kompakte Form. Besucherfunktion, deshalb in der
+           Kopfleiste und im Overlay-Menue - nicht im Mission-Control-Panel.
+           Vertrag wie bei den uebrigen Schaltern: data-set-* + aria-pressed.
+           Die Zustandslogik setzt aria-pressed, dieses Markup liefert nur den
+           Startzustand der deutschen Fassung. -->
+      <div class="nav-lang" role="group" aria-label="Sprache / Language">
+        <button type="button" data-set-lang="de" aria-pressed="true" lang="de" translate="no">DE</button>
+        <button type="button" data-set-lang="en" aria-pressed="false" lang="en" translate="no">EN</button>
+      </div>
+      <!-- Tag/Nacht. Ein Knopf statt eines Segments: bei 320px waere ein
+           zweites Segment 34px zu breit. Zustand-Lesart (Sichel = es ist
+           gerade Nacht), Beschriftung fest, aria-pressed traegt den Zustand. -->
+      <button class="nav-day" type="button" data-set-day="toggle" aria-pressed="false"
+              aria-label="Tagmodus" data-i18n-aria="a11y.daymode">
+        <svg class="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z"/>
+        </svg>
+        <svg class="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="4.2"/>
+          <path d="M12 3.4v2M12 18.6v2M3.4 12h2M18.6 12h2M6 6l1.5 1.5M16.5 16.5 18 18M18 6l-1.5 1.5M7.5 16.5 6 18"/>
+        </svg>
+      </button>
+      <button class="nav-burger" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="menu" aria-label="Menü öffnen" data-i18n-aria="a11y.burger.open">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true">
+          <path class="b-line" d="M2 6h16"/><path class="b-line" d="M2 14h16"/>
+        </svg>
+        <span data-i18n="menu.label">Menü</span>
+      </button>
+    </div>
+    <div class="nav-progress" aria-hidden="true">
+      <i></i>
+      <svg class="rocket" viewBox="0 0 132 30" aria-hidden="true">
+        <defs>
+          <!-- Zylinder-Rundung: harte Lichtkante oben, Kernschatten unten.
+               Zwei Stops auf demselben Offset erzeugen die Reflexionskante. -->
+          <linearGradient id="rk-hull" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0"    stop-color="#8f96a8"/>
+            <stop offset=".22"  stop-color="#eef0f4"/>
+            <stop offset=".38"  stop-color="#ffffff"/>
+            <stop offset=".38"  stop-color="#dfe2e9"/>
+            <stop offset=".68"  stop-color="#9aa0b0"/>
+            <stop offset="1"    stop-color="#4d5364"/>
+          </linearGradient>
+          <linearGradient id="rk-dark" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0"   stop-color="#5a6072"/>
+            <stop offset=".38" stop-color="#2b3040"/>
+            <stop offset="1"   stop-color="#14171f"/>
+          </linearGradient>
+          <linearGradient id="rk-bell" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0"   stop-color="#b9bdc9"/>
+            <stop offset=".4"  stop-color="#6e7488"/>
+            <stop offset="1"   stop-color="#33384a"/>
+          </linearGradient>
+          <!-- Abgasstrahl: heisser, fast weisser Kern, nach aussen kaelter -->
+          <linearGradient id="rk-plume" x1="1" y1="0" x2="0" y2="0">
+            <stop offset="0"   stop-color="#ffffff"/>
+            <stop offset=".12" stop-color="#dbe9ff"/>
+            <stop offset=".45" stop-color="#8fb6f5" stop-opacity=".55"/>
+            <stop offset="1"   stop-color="#5f86d8" stop-opacity="0"/>
+          </linearGradient>
+          <linearGradient id="rk-plume-hot" x1="1" y1="0" x2="0" y2="0">
+            <stop offset="0"   stop-color="#fff6e2"/>
+            <stop offset=".35" stop-color="#ffd9a0" stop-opacity=".8"/>
+            <stop offset="1"   stop-color="#ff9d5c" stop-opacity="0"/>
+          </linearGradient>
+        </defs>
+
+        <!-- ABGASSTRAHL. Schmal, nicht breit: ein Raketentriebwerk erzeugt
+             einen gerichteten Strahl, keine Lagerfeuerflamme. Die hellen
+             Knoten sind Mach'sche Knoten — stehende Stosswellen im
+             ueberexpandierten Strahl. Laenge folgt dem Schub. -->
+        <g class="rk-jet">
+          <path class="rk-jet-outer" d="M20 11.4 C6 12.6 -14 14 -30 15 C-14 16 6 17.4 20 18.6 Z" fill="url(#rk-plume)"/>
+          <path class="rk-jet-hot"   d="M20 12.8 C12 13.5 0 14.4 -8 15 C0 15.6 12 16.5 20 17.2 Z" fill="url(#rk-plume-hot)"/>
+          <g class="rk-diamonds" fill="#ffffff">
+            <ellipse cx="10"  cy="15" rx="2.6" ry="1.5" opacity=".85"/>
+            <ellipse cx="0"   cy="15" rx="2.1" ry="1.2" opacity=".6"/>
+            <ellipse cx="-11" cy="15" rx="1.6" ry=".9"  opacity=".4"/>
+            <ellipse cx="-22" cy="15" rx="1.1" ry=".6"  opacity=".22"/>
+          </g>
+        </g>
+
+        <g class="rk-body">
+          <!-- Triebwerksglocke -->
+          <path d="M28 10.6 L21 8.4 L21 21.6 L28 19.4 Z" fill="url(#rk-bell)"/>
+          <path d="M21 8.4 L21 21.6" stroke="#1b1f2a" stroke-width="1.2"/>
+          <!-- Heckflossen: klein und stumpf, wie an echten Traegern -->
+          <path d="M40 10.0 L28 4.8 L30 9.9 Z" fill="url(#rk-dark)"/>
+          <path d="M40 20.0 L28 25.2 L30 20.1 Z" fill="url(#rk-dark)"/>
+          <!-- Erste Stufe -->
+          <rect x="28" y="9.6" width="52" height="10.8" fill="url(#rk-hull)"/>
+          <!-- Interstage: dunkler Ring zwischen den Stufen -->
+          <rect x="76" y="9.6" width="7" height="10.8" fill="url(#rk-dark)"/>
+          <!-- Zweite Stufe -->
+          <rect x="83" y="10.3" width="26" height="9.4" fill="url(#rk-hull)"/>
+          <!-- Ogiven-Spitze: gekruemmt, nicht kegelfoermig -->
+          <path d="M109 10.3 C119 11 127 12.7 131 15 C127 17.3 119 19 109 19.7 Z" fill="url(#rk-hull)"/>
+          <!-- Gitterflossen, eingeklappt -->
+          <rect x="95" y="7.4" width="4.4" height="2.9" rx=".6" fill="url(#rk-dark)"/>
+          <rect x="95" y="19.7" width="4.4" height="2.9" rx=".6" fill="url(#rk-dark)"/>
+          <!-- Markierung statt Bullauge: echte Traeger haben keine Fenster -->
+          <rect x="46" y="12.4" width="2.2" height="5.2" fill="#c8323f" opacity=".85"/>
+          <rect x="52" y="13.2" width="1.2" height="3.6" fill="#2b3040" opacity=".55"/>
+          <rect x="55" y="13.2" width="1.2" height="3.6" fill="#2b3040" opacity=".55"/>
+          <!-- Glanzkante oben, statt einer Kontur -->
+          <path d="M29 10.2 L108 10.2" stroke="#ffffff" stroke-opacity=".8" stroke-width=".9" stroke-linecap="round"/>
+        </g>
+      </svg>
+    </div>
+  </header>
+
+  <!-- Overlay-Menue: <dialog> bringt Focus-Trap, Escape und ARIA-Rolle mit -->
+  <dialog class="menu" id="menu" aria-label="Menü" data-i18n-aria="menu.label">
+    <div class="menu-inner">
+      <p class="menu-eyebrow" data-i18n="menu.eyebrow">Bordcomputer · Navigation</p>
+      <ul class="menu-list">
+        <li><a href="events.html"><span class="m-label" data-i18n="nav.events">Events</span> <span class="m-note">3 geplant</span></a></li>
+        <li><a href="artists.html"><span class="m-label" data-i18n="nav.artists">Artists</span> <span class="m-note" data-i18n="menu.artists.note">Sets &amp; Podcasts</span></a></li>
+        <li><a href="kollektiv.html"><span class="m-label" data-i18n="nav.kollektiv">Kollektiv</span> <span class="m-note" data-i18n="menu.kollektiv.note">Wer hier funkt</span></a></li>
+        <li><a href="awareness.html"><span class="m-label" data-i18n="nav.awareness">Awareness</span> <span class="m-note" data-i18n="menu.awareness.note">Hilfe &amp; Regeln</span></a></li>
+        <li><a href="events.html#flightlog"><span class="m-label" data-i18n="menu.flightlog.label">Flight Log</span> <span class="m-note" data-i18n="menu.flightlog.note">Archiv</span></a></li>
+      </ul>
+      <a class="menu-next" href="event-marsmission.html">
+        <span>
+          <span class="mn-when">Next Launch · Sa 12.09.</span>
+          <span class="mn-title" data-i18n="event.pwest.title">Open Air: Freiräume</span>
+          <span class="mn-where">Bastion am Schillerplatz · 16 Uhr · Free</span>
+        </span>
+        <span class="mn-go" data-i18n="menu.go">Ansehen →</span>
+      </a>
+      <div class="menu-social">
+        <a href="https://www.instagram.com/takeoff.potsdam/" target="_blank" rel="noopener" translate="no">Instagram</a>
+        <a href="https://t.me/takeoffpotsdam" target="_blank" rel="noopener" translate="no">Telegram</a>
+        <a href="https://soundcloud.com/takeoff-potsdam" target="_blank" rel="noopener" translate="no">SoundCloud</a>
+        <a href="mailto:info@takeoff-potsdam.de" translate="no">info@takeoff-potsdam.de</a>
+      </div>
+      <!-- Vollwertige Kopie des Sprachumschalters. Endonyme (Deutsch/English)
+           statt uebersetzter Labels - sie sind in beiden Sprachen richtig und
+           brauchen deshalb keinen Woerterbuchschluessel. -->
+      <div class="menu-lang" role="group" aria-label="Sprache / Language">
+        <button type="button" data-set-lang="de" aria-pressed="true" lang="de" translate="no">Deutsch</button>
+        <button type="button" data-set-lang="en" aria-pressed="false" lang="en" translate="no">English</button>
+      </div>
+        <div class="menu-day" role="group" aria-label="Tag oder Nacht">
+          <button type="button" data-set-day="night" aria-pressed="true" data-i18n="mctrl.night">Nacht</button>
+          <button type="button" data-set-day="day" aria-pressed="false" data-i18n="mctrl.day">Tag</button>
+        </div>
+      <button class="menu-close" type="button" data-i18n="menu.close">Schließen</button>
+    </div>
+  </dialog>
+
+  <main id="main">
+    <!-- ============ EVENT-HERO ============ -->
+    <section class="ehero">
+      <div class="wrap">
+        <div class="patch-hero" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="12" cy="12" r="5.2"/><path d="M4.5 14.6c2.6 1.9 12.6 1.7 15-2.5"/><circle cx="10.2" cy="10.4" r=".8"/><circle cx="13.6" cy="13.2" r=".6"/></svg></div>
+        <h1 class="etitle" data-i18n="event.mars.headline">marsmission</h1>
+        <p class="esub" data-i18n="event.mars.subtitle">takeoff goes red planet</p>
+
+        <div class="facts">
+          <span><b>SA 19.09.2026</b></span>
+          <span>Boarding <b>23:00</b></span>
+          <span><b translate="no">Spartacus</b>, Potsdam</span>
+          <span><b data-i18n="event.mars.price">Free Entry</b></span>
+          <span><b data-i18n="common.age_18">18+</b></span>
+        </div>
+
+        <div class="tminus" role="timer" aria-label="Countdown" data-i18n-aria="a11y.tminus.event">
+          <span class="label" data-i18n="hero.tminus.label">T-Minus</span>
+          <span class="clock" id="tminus-clock-mars">—</span>
+        </div>
+
+        <div class="cta-row" style="justify-content:center">
+          <a class="btn btn-primary" href="https://t.me/takeoffpotsdam" target="_blank" rel="noopener" data-i18n="event.page.cta.telegram">Telegram · Updates zuerst</a>
+          <a class="btn btn-ghost" href="#" onclick="return false" data-i18n="event.page.cta.ics">＋ In den Kalender (.ics)</a>
+        </div>
+        <p class="lu-note" style="margin-top:18px" data-i18n="event.page.no_presale">Kein VVK nötig — einfach kommen. Wer früh kommt, tanzt länger.</p>
+      </div>
+    </section>
+
+    <div class="wrap section" style="padding-top:clamp(40px,6vh,70px)">
+      <span class="ditem d-mars" data-spd="-55" style="--top:6%; --left:auto; --right:2vw" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"><circle cx="12" cy="12" r="5.2"/><path d="M3.5 14.8c2.8 2.1 14.2 1.9 17-2.8"/><circle cx="10" cy="10.3" r=".8"/><circle cx="13.6" cy="13.4" r=".6"/></svg></span>
+      <span class="ditem d-mars" data-spd="-80" style="--top:62%; --left:2vw" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><circle cx="7.5" cy="16.5" r="3"/><path d="M10 14 21 3M13.5 14.5 21 7M10.5 10.5 17 4"/></svg></span>
+      <!-- ============ MISSION BRIEFING ============ -->
+      <div class="eblock reveal">
+        <h3 data-i18n="event.page.briefing.h3">Mission Briefing</h3>
+        <p data-i18n="event.mars.brief_long">Wir schießen den Spartacus auf den roten Planeten: selbstgebauter Pappmaché-Mars überm Floor, Schwarzlicht, Leuchtschläuche als Weltraum-Materie — und ein Abend lang Trance, Hard Trance und Bounce bis der Sauerstoff alle ist. Free Entry, weil Raves allen gehören.</p>
+      </div>
+
+      <!-- ============ LINEUP ============ -->
+      <div class="eblock">
+        <h3 class="reveal" data-i18n="event.page.lineup.h3">Crew an Bord · A–Z</h3>
+        <div class="lineup">
+          <span class="act" translate="no">Cyonic<small translate="no">Techno / Trance</small></span>
+          <span class="act">DJ Platzhalter<small translate="no">Trance</small></span>
+          <span class="act" translate="no">JOJO<small translate="no">Hard Trance / Bounce</small></span>
+          <span class="act">+ TBA<small data-i18n="event.page.lineup.tba.note">Special Guests</small></span>
+        </div>
+        <p class="lu-note" data-i18n="event.page.lineup.note">Lineup alphabetisch — bei uns gibt's keine Headliner-Hierarchie.</p>
+      </div>
+
+      <!-- ============ TIMETABLE ============ -->
+      <div class="eblock reveal">
+        <h3 data-i18n="event.page.timetable.h3">Timetable</h3>
+        <div class="tta">
+          <b data-i18n="event.page.timetable.loading">Wird geladen … 🤫</b>
+          <p data-i18n="event.page.timetable.note">Die Running Order kommt kurz vor dem Start — Telegram-Crew erfährt's zuerst.</p>
+          <div class="bars" aria-hidden="true">
+            <div class="bar" style="width:82%"></div>
+            <div class="bar" style="width:64%"></div>
+            <div class="bar" style="width:91%"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============ AWARENESS ============ -->
+      <div class="eblock">
+        <div class="aware reveal">
+          <p class="eyebrow" data-i18n="event.page.aware.eyebrow">Awareness an Bord</p>
+          <div class="aware-grid" style="margin-top:16px">
+            <div class="atile"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M12 20s-7.2-4.6-9.2-9A5.2 5.2 0 0 1 12 6.6 5.2 5.2 0 0 1 21.2 11c-2 4.4-9.2 9-9.2 9z"/></svg></span><b data-i18n="crew.awareness.name">Awareness-Team</b>Die ganze Nacht ansprechbar — schau nach den gekennzeichneten Westen.</div>
+            <div class="atile"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 8.5v7M8.5 12h7"/></svg></span><b data-i18n="crew.sani.name">Sani-Team</b>Ersthelfer*innen vor Ort. Hilfe holen hat nie Konsequenzen — für niemanden.</div>
+            <div class="atile"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M12 3.5c3.6 4.4 5.5 7.2 5.5 10a5.5 5.5 0 0 1-11 0c0-2.8 1.9-5.6 5.5-10z"/></svg></span><b data-i18n="aware.tile.water.title">Free Water</b>Am Awareness-Point. Trinkt, bevor ihr durstig seid.</div>
+            <div class="atile"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M8.8 6h5.4l1.6 2H20v9.4M6 8H4v10h11.5"/><circle cx="12" cy="13" r="2.7"/><path d="M3.5 3.5l17 17"/></svg></span><b data-i18n="awareness.rule.no_photo">Kein Foto ohne Frage</b>Fotoverbot auf dem Floor — Ausnahmen nur nach Absprache.</div>
+          </div>
+          <p class="note">Notfall? Sprich irgendjemanden von der Crew an — wir kümmern uns. Mehr: <a href="awareness.html" data-i18n="link.help_drugs">Hilfe &amp; Drogennotfälle</a></p>
+        </div>
+      </div>
+
+      <!-- ============ VENUE ============ -->
+      <div class="eblock reveal">
+        <h3 data-i18n="card.row.landing">Landeplatz</h3>
+        <div class="vcard">
+          <span class="vname" translate="no">Spartacus</span>
+          <span class="vaddr" data-i18n="venue.spartacus.address">Friedrich-Engels-Straße 22 · 14473 Potsdam (im freiLand)</span>
+          <span class="vhint" data-i18n="venue.spartacus.hint">≈ 5 Minuten zu Fuß vom Potsdam Hbf</span>
+        </div>
+        <div class="route-row">
+          <a class="btn btn-ghost" href="https://www.google.com/maps/dir/?api=1&destination=Friedrich-Engels-Stra%C3%9Fe%2022%2C%2014473%20Potsdam" target="_blank" rel="noopener" data-i18n="event.page.maps.google">Google Maps ↗</a>
+          <a class="btn btn-ghost" href="https://maps.apple.com/?daddr=Friedrich-Engels-Stra%C3%9Fe%2022,%2014473%20Potsdam" target="_blank" rel="noopener" data-i18n="event.page.maps.apple">Apple Karten ↗</a>
+          <a class="btn btn-ghost" href="https://www.openstreetmap.org/search?query=Friedrich-Engels-Stra%C3%9Fe%2022%2C%20Potsdam" target="_blank" rel="noopener" data-i18n="event.page.maps.osm">OSM ↗</a>
+        </div>
+        <p class="lu-note" data-i18n="event.page.maps.note">Karten öffnen extern in deiner App — hier lädt kein Tracker.</p>
+      </div>
+
+      <!-- ============ FAQ ============ -->
+      <div class="eblock">
+        <h3 class="reveal" data-i18n="event.page.faq.h3">Bordbuch · FAQ</h3>
+        <details class="faq">
+          <summary data-i18n="event.page.faq.price.q">Was kostet der Eintritt?</summary>
+          <div class="faq-body" data-i18n="event.page.faq.price.a">Nichts — Free Entry. Wenn du magst, freut sich die Soli-Kasse: Davon bauen wir Deko, Anlage und das nächste Event.</div>
+        </details>
+        <details class="faq">
+          <summary data-i18n="event.page.faq.age.q">Ab wie viel Jahren?</summary>
+          <div class="faq-body" data-i18n="event.page.faq.age.a">18+. Ausweis nicht vergessen — ohne kommst du leider nicht an Bord, auch nicht mit Muttizettel.</div>
+        </details>
+        <details class="faq">
+          <summary data-i18n="event.page.faq.photo.q">Darf ich fotografieren?</summary>
+          <div class="faq-body" data-i18n="event.page.faq.photo.a">Auf dem Floor gilt Fotoverbot. Ausnahmen nur nach vorheriger Absprache mit uns — und mit allen, die aufs Bild sollen.</div>
+        </details>
+        <details class="faq">
+          <summary data-i18n="event.page.faq.help.q">Mir oder jemandem geht's nicht gut — was tun?</summary>
+          <div class="faq-body" data-i18n="event.page.faq.help.a">Sprich sofort Awareness-Team, Sani oder irgendwen von der Crew an. Hilfe holen hat nie Konsequenzen. Free Water gibt's am Awareness-Point.</div>
+        </details>
+        <details class="faq">
+          <summary data-i18n="event.page.faq.home.q">Wie komme ich nachts wieder heim?</summary>
+          <div class="faq-body" data-i18n="event.page.faq.home.a">Der Hbf ist 5 Minuten zu Fuß entfernt. Checkt die Nachtverbindungen vorher — und sagt jemandem Bescheid, wenn ihr euch auf den Weg macht.</div>
+        </details>
+      </div>
+
+      <a class="back-link" href="index.html" data-i18n="event.page.back">← Zurück zur Basis</a>
+    </div>
+  </main>
+
+  <footer>
+    <div class="wrap">
+      <p class="love">Viel Liebe, euer takeoff Team <b>♥</b></p>
+      <p class="proto-note" data-i18n="footer.proto_note.event">DESIGN-PROTOTYP · EVENT-SEITE IM MARS-THEME (FIXIERT) · INHALTE TEILS PLATZHALTER</p>
+    </div>
+  </footer>
+
+  <div class="sticky-cta" role="complementary" aria-label="Event-Kurzinfo" data-i18n-aria="a11y.sticky">
+    <span class="sc-info"><b>SA 19.09.</b> · SPARTACUS · <b>FREE ENTRY</b></span>
+    <a class="btn btn-primary" href="https://t.me/takeoffpotsdam" target="_blank" rel="noopener">Telegram ↗</a>
+  </div>
+
+  <div class="mctrl" role="group" aria-label="Darstellungs-Einstellungen" data-i18n-aria="a11y.mctrl">
+    <div class="row">
+      <span class="lbl" data-i18n="mctrl.fx">FX</span>
+      <button type="button" data-set-fx="s" aria-pressed="false" title="Statisch — spart Akku &amp; Daten" data-i18n="mctrl.off" data-i18n-title="mctrl.fx.off.title">Aus</button>
+      <button type="button" data-set-fx="m" aria-pressed="false" title="Standard" data-i18n="mctrl.normal" data-i18n-title="mctrl.fx.normal.title">Normal</button>
+      <button type="button" data-set-fx="l" aria-pressed="false" title="Volle Show" data-i18n="mctrl.full" data-i18n-title="mctrl.fx.full.title">Voll</button>
+    </div>
+    <div class="row">
+      <span class="lbl" data-i18n="mctrl.ground">Boden</span>
+      <button type="button" data-set-ground="off" aria-pressed="false" title="Nur Sternenhimmel" data-i18n="mctrl.off" data-i18n-title="mctrl.ground.off.title">Aus</button>
+      <button type="button" data-set-ground="on" aria-pressed="false" title="Horizont je nach Theme" data-i18n="mctrl.on" data-i18n-title="mctrl.ground.on.title">An</button>
+    </div>
+    <div class="row">
+      <span class="lbl" data-i18n="mctrl.time">Zeit</span>
+      <button type="button" data-set-day="night" aria-pressed="false" data-i18n="mctrl.night">Nacht</button>
+      <button type="button" data-set-day="day" aria-pressed="false" data-i18n="mctrl.day">Tag</button>
+    </div>
+  </div>
+
+  <script defer src="assets/vendor/gsap.min.js"></script>
+  <script defer src="assets/vendor/ScrollTrigger.min.js"></script>
+  <script defer src="assets/vendor/lenis.min.js"></script>
+  <script defer src="assets/js/main.js"></script>
+  <script defer src="assets/js/i18n.js"></script>
+  <script defer src="assets/js/i18n-runtime.js"></script>
+  <script>
+    /* Eigener Countdown-Slot dieser Seite */
+    (() => {
+      const el = document.getElementById("tminus-clock-mars");
+      const target = new Date("2026-09-19T23:00:00+02:00").getTime();
+      const pad = n => String(n).padStart(2, "0");
+      const tick = () => {
+        let d = target - Date.now();
+        if (d <= 0) { el.innerHTML = "LIFTOFF <small>· läuft!</small>"; return; }
+        el.innerHTML = `${Math.floor(d/864e5)}<small>d</small> ${pad(Math.floor(d/36e5)%24)}<small>h</small> ${pad(Math.floor(d/6e4)%60)}<small>m</small> ${pad(Math.floor(d/1e3)%60)}<small>s</small>`;
+      };
+      tick(); setInterval(tick, 1000);
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="120" height="140" viewBox="0 0 120 140" role="img" aria-label="Lila Awareness-Weste">
+  <title>Lila Awareness-Weste</title>
+  <defs>
+    <linearGradient id="vestBody" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%"  stop-color="#8f7fe0"/>
+      <stop offset="55%" stop-color="#7761d1"/>
+      <stop offset="100%" stop-color="#5d4fb0"/>
+    </linearGradient>
+    <clipPath id="vestClip">
+      <path d="M40,34 H80 A18,18 0 0 1 98,52 V110 A18,18 0 0 1 80,128 H40 A18,18 0 0 1 22,110 V52 A18,18 0 0 1 40,34 Z"/>
+    </clipPath>
+  </defs>
+
+  <!-- Schulterriemen (liegen unter dem Torso, damit die Naht sauber wirkt) -->
+  <polygon points="34,16 48,16 53,38 37,38" fill="#6153b3" stroke="#453a85" stroke-opacity=".5" stroke-width="1.4" stroke-linejoin="round"/>
+  <polygon points="86,16 72,16 67,38 83,38" fill="#6153b3" stroke="#453a85" stroke-opacity=".5" stroke-width="1.4" stroke-linejoin="round"/>
+
+  <!-- Torso mit ausgeschnittenem V-Ausschnitt (evenodd-Loch, echte Transparenz) -->
+  <path
+    d="M40,34 H80 A18,18 0 0 1 98,52 V110 A18,18 0 0 1 80,128 H40 A18,18 0 0 1 22,110 V52 A18,18 0 0 1 40,34 Z M52,34 L60,54 L68,34 Z"
+    fill="url(#vestBody)" fill-rule="evenodd"
+    stroke="#453a85" stroke-opacity=".6" stroke-width="2"/>
+
+  <!-- Reflektorstreifen, an die Torso-Form geclippt -->
+  <g clip-path="url(#vestClip)">
+    <rect x="18" y="63" width="84" height="9" fill="#efe9fb" opacity=".9"/>
+    <rect x="18" y="99" width="84" height="9" fill="#efe9fb" opacity=".9"/>
+  </g>
+
+  <!-- Offene Front-Mitte mit kleinen Clips -->
+  <rect x="59" y="54" width="2" height="70" fill="#403687" opacity=".6"/>
+  <circle cx="60" cy="66"  r="1.8" fill="#efe9fb" opacity=".85"/>
+  <circle cx="60" cy="90"  r="1.8" fill="#efe9fb" opacity=".85"/>
+  <circle cx="60" cy="114" r="1.8" fill="#efe9fb" opacity=".85"/>
+</svg>

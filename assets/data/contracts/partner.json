@@ -1,0 +1,56 @@
+{
+  "$contract": "partner",
+  "version": 1,
+  "label": "Partner",
+  "labelPlural": "Partner",
+  "icon": "handshake",
+  "description": "Kooperationspartner & unterstützende Kollektive/Institutionen. Neu angelegt und Events zugewiesen — erscheinen dort automatisch.",
+  "storage": { "scope": "db", "collection": "partners", "key": "slug" },
+  "fields": [
+    {
+      "key": "slug",
+      "type": "text",
+      "label": "URL-Kennung",
+      "required": true,
+      "help": "Eindeutige Kurz-ID, z. B. „stadtjugendring“ (keine Leerzeichen, keine Umlaute, nur Kleinbuchstaben/Bindestriche)."
+    },
+    {
+      "key": "name",
+      "type": "text",
+      "label": "Name",
+      "required": true,
+      "help": "Name des Partners/der Partnerin, z. B. „Stadtjugendring Potsdam“."
+    },
+    {
+      "key": "url",
+      "type": "text",
+      "label": "Website/Link",
+      "help": "z. B. https://... — wird beim Namen/Logo verlinkt."
+    },
+    {
+      "key": "logo",
+      "type": "image",
+      "label": "Logo",
+      "help": "Logo-Datei aus assets/img/ wählen oder eine Bild-URL eintragen."
+    },
+    {
+      "key": "beschreibung",
+      "type": "richtextLite",
+      "label": "Beschreibung",
+      "help": "Kurzer Text dazu, wer der Partner ist bzw. was die Kooperation ausmacht. **Fett** möglich, Absätze mit Leerzeile."
+    },
+    {
+      "key": "events",
+      "type": "multiselect",
+      "collection": "events",
+      "displayField": "title",
+      "label": "Eingesetzt bei Events",
+      "help": "Events auswählen, bei denen dieser Partner angezeigt werden soll (Mehrfachauswahl)."
+    }
+  ],
+  "list": {
+    "columns": ["name", "url", "events"],
+    "sort": "name"
+  },
+  "actions": ["create", "edit", "delete"]
+}

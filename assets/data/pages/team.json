@@ -1,0 +1,56 @@
+{
+  "_labels": {
+    "hero.eyebrow": "Eyebrow (Kicker über der Headline)",
+    "hero.h1": "Headline H1 (HTML erlaubt, z. B. <span class=\"glow\">)",
+    "hero.intro": "Intro-Text unter der Headline",
+    "departments": "Bereiche · Gruppierung der Crew-Karten",
+    "departmentFallbackTitle": "Titel der Auffang-Gruppe (Rollen ohne Musterpasser)",
+    "stats": "Kennzahlen-Leiste",
+    "nextMission": "Teaser: Wer funkt bei der nächsten Mission",
+    "photoboard": "Foto-Board-Sektion",
+    "roleLinks": "Deep-Links auf einzelnen Rollen-Karten",
+    "artistLink": "Link-Text & Label für automatisch verlinkte Artist-Karten",
+    "easterEgg": "Texte fürs Sammel-Easter-Egg"
+  },
+  "hero": {
+    "eyebrow": "Teamboard",
+    "h1": "Die <span class=\"glow\">Crew</span>",
+    "intro": "takeoff ist Kollektivarbeit: Jede Nacht entsteht aus vielen Händen. Fotos folgen, sobald alle einverstanden sind — bis dahin: Rollen & Aufgaben."
+  },
+  "departments": [
+    { "id": "flugdeck", "title": "Flugdeck", "subtitle": "Sound & Licht", "intro": "Wer an Pult und Pulten steht.", "match": ["Nico", "Mik", "JOJO", "Cyonic"] },
+    { "id": "boden", "title": "Bodencrew", "subtitle": "Sicherheit & Fürsorge", "intro": "Wer aufpasst, wenn's drauf ankommt.", "match": ["Awareness", "Sani"] },
+    { "id": "bau", "title": "Bau & Gastgeber", "subtitle": "Deko, Bar, Einlass", "intro": "Wer die Location baut und die Tür offen hält.", "match": ["Deko", "Bar"] }
+  ],
+  "departmentFallbackTitle": "Weitere Crew",
+  "stats": [
+    { "key": "crewSize", "mode": "auto", "label": "Rollen im Board" },
+    { "key": "missions", "mode": "auto", "label": "begleitete Missionen" },
+    { "key": "activeSince", "mode": "manual", "value": "2024", "label": "aktiv seit" },
+    { "key": "volunteerPercent", "mode": "manual", "value": "100%", "label": "ehrenamtlich" }
+  ],
+  "nextMission": {
+    "label": "Wer funkt bei der nächsten Mission",
+    "introTemplate": "Beim Launch am {date} live an Bord: {lineup} — dazu wie jede Nacht Awareness, Sani, Bar & Einlass.",
+    "fallbackText": "Die nächste Mission wird noch geplant — die Bodencrew steht trotzdem schon bereit."
+  },
+  "photoboard": {
+    "label": "Foto-Board folgt",
+    "note": "Das Team-Fotoboard kommt, sobald alle Abgebildeten zugestimmt haben — Consent gilt auch für uns selbst.",
+    "slotNote": "Foto folgt nach Freigabe",
+    "joinText": "Du willst aufs Board? Mach mit.",
+    "joinHref": "kollektiv.html#mitmachen"
+  },
+  "roleLinks": {
+    "Awareness-Team": { "href": "awareness.html", "linkText": "Awareness-Konzept →" },
+    "Sani-Team": { "href": "awareness.html#hilfe", "linkText": "Erste Hilfe & Regeln →" }
+  },
+  "artistLink": {
+    "linkText": "Profil & Sets →",
+    "sinceLabel": "seit"
+  },
+  "easterEgg": {
+    "toastText": "Du kennst jetzt die ganze Crew ✦",
+    "alreadyText": "Schon entdeckt ✦"
+  }
+}

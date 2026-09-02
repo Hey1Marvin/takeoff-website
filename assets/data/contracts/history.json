@@ -1,0 +1,47 @@
+{
+  "$contract": "history",
+  "version": 1,
+  "label": "Meilenstein",
+  "labelPlural": "History",
+  "icon": "timeline",
+  "description": "Die Kollektiv-Chronik — vom ersten Subwoofer bis heute. Reihenfolge der Einträge entspricht der Zeitleiste.",
+  "storage": { "scope": "db", "collection": "history", "key": "patch" },
+  "fields": [
+    {
+      "key": "patch",
+      "type": "text",
+      "label": "Patch-Kürzel",
+      "required": true,
+      "help": "Kurzes Symbol/Kürzel für die Zeitleiste, z. B. „T0“, „S1“ oder „▲“."
+    },
+    {
+      "key": "date",
+      "type": "text",
+      "label": "Zeitraum",
+      "help": "Jahr oder Zeitraum als Text, z. B. „2024“, „2024/25“ oder „Heute“."
+    },
+    {
+      "key": "name",
+      "type": "text",
+      "label": "Titel",
+      "required": true,
+      "help": "z. B. „Die Gründung“."
+    },
+    {
+      "key": "venue",
+      "type": "text",
+      "label": "Ort",
+      "help": "z. B. „Werkstatt“ oder „Potsdam & Umgebung“."
+    },
+    {
+      "key": "note",
+      "type": "richtextLite",
+      "label": "Beschreibung",
+      "help": "Der erzählende Text zu diesem Meilenstein. **Fett** möglich, Absätze mit Leerzeile."
+    }
+  ],
+  "list": {
+    "columns": ["patch", "date", "name"]
+  },
+  "actions": ["create", "edit", "delete"]
+}

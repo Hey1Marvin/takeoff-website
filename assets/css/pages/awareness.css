@@ -1,0 +1,332 @@
+/* ============================================================
+   awareness.css — Signatur-Motiv "Leuchtfeuer"
+   Seiten-CSS für awareness.html. Lädt NACH style.css, nutzt
+   ausschließlich bestehende Tokens (--acc-2 = die violette
+   Stützfarbe, schon im System — kein neuer Farbwert). Additive
+   Ebene ÜBER dem Sternenhimmel, der Himmel bleibt zu 100% sichtbar
+   (mix-blend-mode: screen hellt nur auf, deckt nie ab).
+
+   Statt eines Ortes (Mars-Boden, Strand-Horizont) bekommt Awareness
+   einen ZUSTAND desselben Himmels: ein weicher violetter Schleier,
+   der alle 4s atmet, unten von einem Leuchtfeuer verankert — der
+   Awareness-Punkt. Ein geteilter Herzschlag (--aw-breath) treibt
+   Himmel, Leuchtfeuer, Wegpunkte und den Notruf-Ring.
+
+   Datei-Regeln (DATA.md): nur additive, seitengescopte Selektoren.
+   Duplikate bestehender Muster (z.B. .aw-tel ~ .fpin/.bp-roles) sind
+   laut DATA.md ausdrücklich ok, ein Konflikt wäre es nicht.
+   ============================================================ */
+
+:root {
+  --aw-violet:      var(--acc-2);
+  --aw-violet-rgb:  var(--acc-2-rgb);
+  --aw-violet-tint: var(--acc-2-tint);
+  --aw-edge-rgb:    var(--acc-1-rgb);   /* schmaler Iridescence-Rand, wie --irid-veil */
+  --aw-breath:      4000ms;             /* 4-Sekunden-Atem, treibt jeden Puls-Moment der Seite */
+  --aw-ease:        var(--ease-soft);   /* bestehendes Token, kein neues */
+}
+
+/* ============================================================
+   1 · Himmels-Ebene — liegt ÜBER #stars (z-index -2, DOM-Order nach
+   #stars: gleicher z-index, spätere Ebene gewinnt — exakt das
+   Stapel-Prinzip, das #horizon im Mars/Strand-Theme schon nutzt).
+   ============================================================ */
+#aw-sky {
+  position: fixed; inset: 0; z-index: -2;
+  overflow: hidden;              /* Filter-Ueberstand darf nie zu Overflow fuehren */
+  pointer-events: none;
+  mix-blend-mode: screen;        /* hellt Sterne auf, deckt sie nie zu */
+}
+.aw-sky-inner {
+  position: absolute; inset: -12%;   /* Reserve, damit der Warp-Filter nicht sichtbar beschneidet */
+  background:
+    radial-gradient(48% 34% at 18% 8%,  rgb(var(--aw-violet-rgb) / .38) 0%, transparent 72%),
+    radial-gradient(40% 30% at 78% 4%,  rgb(var(--aw-edge-rgb)   / .16) 0%, transparent 68%),
+    radial-gradient(58% 38% at 48% 14%, rgb(var(--aw-violet-rgb) / .26) 0%, transparent 75%);
+  filter: url(#aw-warp) blur(28px);
+  /* Dieses Element traegt einen SVG-Verzerrungsfilter UND 28 px Weichzeichner.
+     Was daran bewegt wird, entscheidet ueber die Kosten:
+     · `background-position` aendert die EINGABE des Filters — das Ergebnis
+       muss dann in jedem Bild neu gerechnet werden, ueber die volle
+       Viewportflaeche. Genau das tat `aw-drift` hier, im Widerspruch zum
+       Kommentar, der frueher an dieser Stelle stand.
+     · `transform` bewegt das FERTIGE Ergebnis. Der Filter wird einmal
+       gerastert und danach nur noch verschoben.
+     Der Weg ist derselbe wie vorher — knapp zwei Prozent ueber gut zwei
+     Minuten, unter 28 px Unschaerfe. Die Reserve von 12 % ringsum faengt die
+     Verschiebung auf, es wird nie eine Kante sichtbar. */
+  will-change: transform;
+}
+#aw-sky::after {   /* Horizont-Leuchtfeuer: der Awareness-Punkt */
+  content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 46%;
+  background: radial-gradient(62% 65% at 50% 100%, rgb(var(--aw-violet-rgb) / .34) 0%, transparent 72%);
+  opacity: .7;
+  transition: opacity 1.6s var(--aw-ease);   /* State-Wechsel Ruheraum-aktiv, kein Loop */
+}
+html.aw-quiet-active #aw-sky::after { opacity: 1; }
+
+/* Kontrast-Check (siehe Design-Spec §3): Peak-Alpha der stärksten Ebene
+   liegt bei .38, auf --bg-void (~L .02) via `screen` überlagert — selbst
+   im Atem-Peak (Elternopacity .8) bleibt der Untergrund weit unter
+   Mitteltonhelligkeit. --ink (18:1 gegen --bg-void) behält damit klaren
+   AA/AAA-Puffer; die im Spec vorgesehene Kappung auf .7 ist dadurch nicht
+   nötig. Falls künftige Hero-Bild-Hintergründe (images.heroBg) heller
+   werden, hier zuerst nachmessen. */
+
+@keyframes aw-breathe {
+  0%, 100% { opacity: .55; transform: scale(1);    }
+  50%      { opacity: .8;  transform: scale(1.018); }
+}
+:root[data-fx="m"] #aw-sky,
+:root[data-fx="l"] #aw-sky { animation: aw-breathe var(--aw-breath) var(--aw-ease) infinite; }
+
+@keyframes aw-drift {
+  from { transform: translate3d(0, 0, 0); }
+  to   { transform: translate3d(1.8%, 1.2%, 0); }
+}
+:root[data-fx="l"] .aw-sky-inner { animation: aw-drift 130s linear infinite alternate; }
+
+/* Erlaubtes, dezentes Toenen des Sternenhimmels — NIE Ausblenden (DATA.md) */
+#stars { opacity: .9; }
+
+/* ============================================================
+   2 · Faden + Wegpunkte (nur ab 1200px, wie .ditem) — ein Lichtpunkt
+   begleitet den Weg durch die Seite, gekoppelt an --scrollp (main.js
+   pflegt diese Custom Property ohnehin fürs Kopf-Fortschritts-HUD).
+   ============================================================ */
+.aw-main { position: relative; }
+.aw-thread {
+  display: none; position: absolute; top: 0; bottom: 0;
+  left: calc(50% - var(--maxw) / 2 - 34px); width: 1px;
+  background: linear-gradient(180deg, transparent,
+      rgb(var(--aw-violet-rgb) / .3) 8%, rgb(var(--aw-violet-rgb) / .3) 92%, transparent);
+  pointer-events: none;
+}
+@media (min-width: 1200px) { .aw-thread { display: block; } }
+.aw-thread-escort {
+  position: absolute; left: 50%; top: 0; width: 10px; height: 10px; margin-left: -5px;
+  border-radius: 50%; background: var(--aw-violet-tint);
+  box-shadow: 0 0 12px 3px rgb(var(--aw-violet-rgb) / .6);
+  /* Reine Transform-Kopplung an --scrollp — kein eigener Scroll-Handler,
+     kein rAF-Loop. Bleibt deshalb bei JEDEM FX-Tier aktiv, exakt wie die
+     Kopf-Rakete ihre Position auch bei Tier s behaelt (nur ihr
+     Flammenflackern friert dort ein). */
+  transform: translateY(calc(var(--scrollp, 0) * (100% - 10px)));
+}
+[data-aw-node]::before {   /* Grundzustand: bereits "erreicht" — sicher ohne JS/bei Tier s */
+  content: ""; position: absolute; top: clamp(36px, 6vh, 64px);
+  left: calc(50% - var(--maxw) / 2 - 37.5px);
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--aw-violet-tint);
+  box-shadow: 0 0 10px rgb(var(--aw-violet-rgb) / .55);
+  transition: opacity .8s var(--aw-ease), box-shadow .8s var(--aw-ease);
+}
+/* NUR wenn JS lief UND Tier m/l: startet gedimmt, IntersectionObserver
+   schaltet frei ("noch nicht erreicht" ist hier der Sonderfall, nicht der
+   Normalzustand — deshalb umgekehrte Logik zu .reveal). */
+:root.js[data-fx="m"] [data-aw-node]:not(.is-lit)::before,
+:root.js[data-fx="l"] [data-aw-node]:not(.is-lit)::before {
+  opacity: .35; background: var(--bg-hairline); box-shadow: none;
+}
+:root[data-fx="m"] [data-aw-node].is-lit::before,
+:root[data-fx="l"] [data-aw-node].is-lit::before {
+  animation: aw-breathe var(--aw-breath) var(--aw-ease) infinite;  /* derselbe Herzschlag */
+}
+
+/* ============================================================
+   3 · Ruheraum-Sektion: bewusst die leerste Section der Seite —
+   keine Karten-Optik, keine Icons, keine Chips. Die Leere ist die
+   Aussage.
+   ============================================================ */
+.aw-quiet { padding-block: clamp(56px, 11vh, 120px); }
+.aw-quiet .wrap { max-width: 540px; text-align: center; }
+.aw-quiet .eyebrow { justify-content: center; }
+.aw-quiet-line {
+  font-family: var(--font-display); font-weight: 600;
+  font-size: clamp(19px, 2.6vw, 24px); line-height: 1.5; color: var(--ink-dim);
+}
+
+/* ============================================================
+   4 · Mikrointeraktion: Pointer-Glow auf den Team-Kacheln (--mx/--my-
+   Technik von .mcard wiederverwendet, hier neu fuer .atile definiert
+   — .atile selbst traegt in style.css noch kein position/overflow).
+   ============================================================ */
+.aware .atile { position: relative; overflow: hidden; }
+.aware .atile::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none; opacity: 0;
+  background: radial-gradient(200px 200px at var(--mx, 50%) var(--my, 50%),
+      rgb(var(--aw-violet-rgb) / .22), transparent 72%);
+  transition: opacity .5s var(--aw-ease);
+}
+.aware .atile:hover::after { opacity: 1; }
+
+/* ============================================================
+   5 · "So erkennst du uns" — Weste-Icon + Text
+   ============================================================ */
+.aw-recognition {
+  display: flex; align-items: center; gap: clamp(18px, 4vw, 30px); flex-wrap: wrap;
+  margin-top: 22px; padding-bottom: clamp(28px, 5vw, 40px);
+  border-bottom: 1px solid var(--bg-hairline);
+}
+.aw-recognition img {
+  width: clamp(72px, 15vw, 104px); height: auto; flex: none;
+  filter: drop-shadow(0 8px 20px rgb(var(--aw-violet-rgb) / .35));
+}
+.aw-recognition p { color: var(--ink-dim); max-width: 520px; flex: 1 1 260px; }
+
+/* ============================================================
+   6 · "Wobei du zu uns kommen kannst"
+   ============================================================ */
+.aw-reasons { margin-top: clamp(28px, 5vw, 40px); }
+.aw-reasons .eyebrow { margin-bottom: 12px; }
+.aw-reasons-intro { font-family: var(--font-display); font-weight: 600; font-size: 17px; margin-bottom: 14px; }
+.aw-reasons-list { display: grid; gap: 9px; margin: 0 0 16px; padding-left: 0; list-style: none; max-width: 560px; }
+.aw-reasons-list li { position: relative; padding-left: 22px; color: var(--ink-dim); font-size: 15px; }
+.aw-reasons-list li::before { content: "→"; position: absolute; left: 0; color: var(--aw-violet-tint); }
+.aw-reasons-closing { font-style: italic; color: var(--ink-dim); font-size: 14.5px; }
+
+/* ============================================================
+   7 · Grundsätze — Manifest-Kacheln mit Nummern-Wasserzeichen, plus
+   Eskalations-Kasten. Eigenständiger Look (nicht .atile), weil dies
+   der inhaltliche Kern der Seite ist.
+   ============================================================ */
+.aw-principles { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); margin-top: 26px; }
+.aw-principle {
+  position: relative; isolation: isolate; overflow: hidden;
+  border-radius: var(--radius);
+  background: rgb(var(--aw-violet-rgb) / .07);
+  border: 1px solid rgb(var(--aw-violet-rgb) / .2);
+  padding: 22px 20px 18px;
+}
+.aw-principle .aw-num {
+  position: absolute; z-index: -1; top: -10px; right: 6px;
+  font-family: var(--font-display); font-weight: 800; font-size: 56px; line-height: 1;
+  color: rgb(var(--aw-violet-rgb) / .16);
+  pointer-events: none;
+}
+.aw-principle b { display: block; margin-bottom: 8px; font-family: var(--font-display); font-weight: 700; font-size: 16.5px; }
+.aw-principle p { color: var(--ink-dim); font-size: 14.5px; margin: 0; }
+.aw-consequence {
+  margin-top: 20px; max-width: 720px;
+  padding: 16px 20px;
+  border-radius: var(--radius);
+  border: 1px solid rgb(var(--aw-violet-rgb) / .28);
+  background: linear-gradient(120deg, rgb(var(--aw-violet-rgb) / .1), transparent 75%);
+}
+.aw-consequence .aw-label {
+  display: block; font-family: var(--font-mono); font-size: 11px; letter-spacing: .18em; text-transform: uppercase;
+  color: var(--aw-violet-tint); margin-bottom: 8px;
+}
+.aw-consequence p { color: var(--ink-dim); font-size: 14.5px; margin: 0; }
+
+/* ============================================================
+   8 · Notfallnummern — Tap-Grid (≥44px), plus ruhiger Leuchtring um
+   die 112 (derselbe Herzschlag wie Himmel/Wegpunkte).
+   ============================================================ */
+.aw-tel-grid { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(212px, 1fr)); margin-top: 24px; }
+.aw-tel {
+  position: relative; isolation: isolate;
+  display: flex; flex-direction: column; justify-content: center; gap: 2px;
+  min-height: 44px; padding: 13px 16px;
+  border-radius: var(--radius);
+  border: 1px solid var(--bg-hairline);
+  background: linear-gradient(165deg, var(--bg-2), var(--bg-1));
+  transition: border-color .25s, transform .25s var(--ease-out), background .25s;
+}
+.aw-tel:hover, .aw-tel:focus-visible { border-color: rgb(var(--aw-violet-rgb) / .6); transform: translateY(-2px); }
+.aw-tel-label { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-faint); }
+.aw-tel-num { font-family: var(--font-mono); font-weight: 700; font-size: 19px; color: var(--ink); font-variant-numeric: tabular-nums; }
+.aw-tel-note { font-size: 12px; color: var(--ink-dim); }
+/* Notruf 112: staerker betont, wie .chip.hot */
+.aw-tel[href^="tel:112"] {
+  border-color: rgb(var(--acc-1-rgb) / .55);
+  background: linear-gradient(165deg, rgb(var(--acc-1-rgb) / .14), var(--bg-1));
+}
+.aw-tel[href^="tel:112"] .aw-tel-num { color: var(--acc-1-tint); }
+.aw-tel[href^="tel:112"]::after {
+  content: ""; position: absolute; inset: -6px; z-index: -1; border-radius: calc(var(--radius) + 6px);
+  background: radial-gradient(circle, rgb(var(--aw-violet-rgb) / .3), transparent 72%);
+  opacity: .6;   /* sichtbar & statisch bei JEDEM Tier — funktional, nicht nur dekorativ */
+}
+:root[data-fx="m"] .aw-tel[href^="tel:112"]::after,
+:root[data-fx="l"] .aw-tel[href^="tel:112"]::after {
+  animation: aw-breathe var(--aw-breath) var(--aw-ease) infinite;
+}
+
+/* ============================================================
+   9 · Substanzen & Gesundheit — löst die alte "Transmission
+   incoming"-Platzhalterbox an dieser Stelle ab.
+   ============================================================ */
+.aw-substances {
+  margin-top: 34px; max-width: 680px;
+  padding: clamp(20px, 4vw, 28px);
+  border-radius: var(--radius-lg);
+  border: 1px solid rgb(var(--aw-violet-rgb) / .22);
+  background: linear-gradient(170deg, rgb(var(--bg-raised-rgb) / .6), rgb(var(--bg-base-rgb) / .78));
+}
+.aw-substances p { color: var(--ink-dim); font-size: 14.5px; }
+.aw-substances p + p { margin-top: 10px; }
+.aw-substances .aw-links { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 16px; }
+.aw-substances .aw-links a {
+  font-family: var(--font-mono); font-size: 12px; letter-spacing: .05em;
+  padding: 9px 15px; min-height: 44px; display: inline-flex; align-items: center;
+  border-radius: 999px; border: 1px solid rgb(var(--aw-violet-rgb) / .4);
+  color: var(--ink-dim);
+  transition: color .2s, border-color .2s, background .2s;
+}
+.aw-substances .aw-links a:hover, .aw-substances .aw-links a:focus-visible {
+  color: var(--ink); border-color: rgb(var(--aw-violet-rgb) / .8); background: rgb(var(--aw-violet-rgb) / .12);
+}
+.aw-substances .aw-disclaimer {
+  margin-top: 16px; padding-top: 14px; border-top: 1px dashed var(--bg-hairline);
+  font-family: var(--font-mono); font-size: 11.5px; color: var(--ink-faint);
+}
+
+/* ============================================================
+   10 · K.-o.-Tropfen-Hinweis — reiner Text, dezenter Kantenstrich
+   statt Warnfarbe (kein Rot/Blaulicht, siehe Anti-Kitsch).
+   ============================================================ */
+.aw-spiking {
+  margin-top: 28px; max-width: 640px;
+  padding-left: 18px;
+  border-left: 2px solid rgb(var(--aw-violet-rgb) / .4);
+}
+.aw-spiking h3 { font-family: var(--font-display); font-weight: 700; font-size: 16.5px; margin-bottom: 10px; }
+.aw-spiking ul { margin: 0 0 12px; padding-left: 18px; color: var(--ink-dim); font-size: 14.5px; display: grid; gap: 6px; }
+.aw-spiking .aw-action { font-weight: 600; color: var(--ink); font-size: 14.5px; }
+
+/* Teilen-Knopf-Zeile (Hilfe-Infos vorab an die Crew schicken) */
+.aw-share-row { display: flex; justify-content: flex-end; margin: -6px 0 26px; }
+@media (max-width: 480px) { .aw-share-row { justify-content: flex-start; } }
+
+/* ============================================================
+   11 · Sicher hin & zurück — Venue/Transit/Extras aus nextEvent(),
+   Heimweg-Tipps. .vcard/.route-row/.chips kommen 1:1 aus style.css
+   (Duplikat ist ok, Konflikt nicht — hier nur Abstaende ergaenzt).
+   ============================================================ */
+.aw-home .vcard { margin-top: 22px; }
+.aw-home .chips { margin-top: 10px; }
+.aw-hometips { margin-top: 20px; display: grid; gap: 8px; padding-left: 0; list-style: none; max-width: 520px; }
+.aw-hometips li { position: relative; padding-left: 20px; color: var(--ink-dim); font-size: 14.5px; }
+.aw-hometips li::before {
+  content: ""; position: absolute; left: 0; top: .55em; width: 6px; height: 6px; border-radius: 50%;
+  background: var(--aw-violet-tint);
+}
+
+/* ============================================================
+   12 · FAQ — nutzt das bestehende details.faq/.faq-body aus
+   style.css (identisch zu event-marsmission.html), nur Breite/
+   Abstand hier ergaenzt.
+   ============================================================ */
+.aw-faq { max-width: 760px; margin-top: 26px; }
+
+/* Kleine Fussnotiz (Stand/Status) — nutzt .lu-note aus style.css */
+.aw-meta-note { margin-top: 36px; }
+
+/* ============================================================
+   13 · Mobile-Sicherheit
+   ============================================================ */
+@media (max-width: 480px) {
+  .aw-recognition { flex-direction: column; align-items: flex-start; text-align: left; }
+  .aw-principle .aw-num { font-size: 46px; }
+}

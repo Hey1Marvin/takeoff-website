@@ -1,0 +1,105 @@
+{
+  "_labels": {
+    "hero.titleHtml": "Überschrift (HTML erlaubt)",
+    "clock.label": "Countdown-Label",
+    "stats.items": "Kennzahlen-Kacheln",
+    "monthGrid.monthsAhead": "Anzahl Monate im Gitter",
+    "timeline.filters": "Filter-Chips über der Zeitleiste",
+    "calendarActions.subscribeNote": "Hinweistext am Abo-Button",
+    "venueNotes": "Editorial-Notiz je Location (Adresse kommt automatisch aus den Events)"
+  },
+
+  "hero": {
+    "eyebrow": "Immer aktuell",
+    "titleHtml": "Der <span class=\"glow\">Eventkalender</span>",
+    "intro": "Einmal abonnieren, für immer aktuell — bis der echte Feed kommt, holst du dir jeden Termin einzeln mit einem Klick in deinen Kalender."
+  },
+
+  "clock": {
+    "label": "Countdown bis zum nächsten Launch",
+    "eventSlug": ""
+  },
+
+  "stats": {
+    "items": [
+      { "mode": "auto",   "key": "upcomingCount", "label": "geplante Missionen" },
+      { "mode": "auto",   "key": "pastCount",     "label": "absolvierte Missionen" },
+      { "mode": "manual", "value": "2024",        "label": "am Start seit" },
+      { "mode": "auto",   "key": "venueCount",    "label": "Stamm-Locations" }
+    ]
+  },
+
+  "monthGrid": {
+    "eyebrow": "Wann geht's los",
+    "titleHtml": "Die nächsten <span class=\"glow\">Wochen</span>",
+    "monthsAhead": 4,
+    "emptyMonthNote": "Kein Termin diesen Monat — Telegram weiß es zuerst.",
+    "todayLabel": "Heute",
+    "eventLabel": "Mission"
+  },
+
+  "timeline": {
+    "eyebrow": "Gesamtübersicht",
+    "titleHtml": "Alle <span class=\"glow\">Termine</span> auf einen Blick",
+    "filters": [
+      { "key": "all",      "label": "Alle" },
+      { "key": "upcoming", "label": "Kommend" },
+      { "key": "past",     "label": "Archiv" }
+    ],
+    "yearDivider": { "template": "{year}", "countTemplate": "{n} Missionen" },
+    "todayDivider": { "label": "Heute" },
+    "emptyNote": "Noch keine Termine in dieser Auswahl."
+  },
+
+  "calendarActions": {
+    "googleLabel": "Google Kalender",
+    "icsLabel": "＋ .ics herunterladen",
+    "icsAllLabel": "Alle kommenden Termine (.ics)",
+    "subscribeLabel": "＋ Kalender abonnieren (webcal)",
+    "subscribeNote": "Voller Feed kommt mit dem Backend — bis dahin: jeden Termin einzeln speichern, das geht schon jetzt.",
+    "tbaNote": "Datum/Zeit steht noch nicht fest — Kalendereintrag folgt, sobald wir's wissen."
+  },
+
+  "howto": {
+    "label": "So funktioniert das Abo",
+    "textHtml": "<b>Google Kalender:</b> Einstellungen → „Kalender hinzufügen“ → „Per URL“ → unsere Feed-Adresse einfügen. <b>iPhone/Mac &amp; Outlook:</b> webcal-Link antippen, fertig. (Im Prototyp Demo; der echte Feed wird automatisch aus der Event-Datenbank erzeugt. Bis dahin funktionieren die Download-Buttons an jedem Termin schon jetzt echt.)"
+  },
+
+  "faqSection": {
+    "eyebrow": "Bevor du abonnierst",
+    "titleHtml": "Fragen zum <span class=\"glow\">Abo</span>"
+  },
+  "faq": [
+    { "q": "Warum kann ich nicht einfach abonnieren?", "a": "Der Prototyp hat noch keinen Server, der einen Feed live halten kann — der kommt mit dem Website-Relaunch. Bis dahin kannst du jeden Termin einzeln speichern." },
+    { "q": "Funktioniert das mit jedem Kalender-Programm?", "a": "Google, Apple Kalender und Outlook können .ics-Dateien öffnen — bei den meisten reicht ein Doppelklick auf die heruntergeladene Datei." },
+    { "q": "Woher weiß ich, wenn sich ein Termin ändert?", "a": "Bis zum echten Abo: Telegram-Kanal beitreten, da postet die Crew Änderungen zuerst." },
+    { "q": "Kann ich nur bestimmte Events abonnieren?", "a": "Aktuell nein — entweder einzelne Termine speichern oder (später) den ganzen Feed abonnieren." }
+  ],
+
+  "venues": {
+    "eyebrow": "Wohin genau",
+    "titleHtml": "Unsere <span class=\"glow\">Landeplätze</span>"
+  },
+  "venueNotes": {
+    "Spartacus": "Unser Stammort — die meisten takeoff-Nächte finden hier statt.",
+    "Bastion am Schillerplatz": "Grünfläche für Open-Airs, nur tagsüber genutzt."
+  },
+
+  "share": {
+    "label": "Kalender teilen",
+    "text": "Alle takeoff-Termine auf einen Blick.",
+    "copiedToast": "Link kopiert ✓"
+  },
+
+  "patchTeaser": {
+    "label": "Missions-Patches",
+    "template": "Du hast {count}/{total} Patches gesammelt →",
+    "fallbackLabel": "Missions-Patches sammeln →",
+    "ctaLabel": "Zum Flight Log",
+    "ctaHref": "events.html#flightlog"
+  },
+
+  "images": {
+    "heroBg": ""
+  }
+}

@@ -1,0 +1,67 @@
+{
+  "hero": {
+    "eyebrow": "Flugplan",
+    "titleHtml": "Events &amp; <span class=\"glow\">Missionen</span>",
+    "intro": "Alles, was ansteht — und alles, was war. Tippe eine Karte an für das Briefing."
+  },
+  "board": {
+    "code": "PDM",
+    "title": "Abflugtafel",
+    "boardingWindowHours": 48
+  },
+  "emptyState": {
+    "eyebrow": "Standby",
+    "title": "Nächster Start in Vorbereitung",
+    "text": "Kein Event angekündigt — aber startklar. Telegram weiß es zuerst.",
+    "ctaLabel": "Telegram beitreten",
+    "ctaHref": "https://t.me/takeoffpotsdam"
+  },
+  "sections": {
+    "upcomingEyebrow": "Kommende Missionen",
+    "flightlogEyebrow": "Flight Log",
+    "flightlogTitleHtml": "Bisherige <span class=\"glow\">Missionen</span>"
+  },
+  "eventExtras": {
+    "freiraeume":   { "detailPage": "event-freiraeume.html", "transit": "Tram bis Schillerplatz · Fahrrad erwünscht", "capacityNote": "", "weatherNote": "Bei Sturm/Unwetter: Update im Telegram & hier", "shareText": "Open Air „Freiräume“ · Sa 12.09. · Bastion am Schillerplatz · Free" },
+    "marsmission":  { "detailPage": "event-marsmission.html", "transit": "5 Min zu Fuß vom Potsdam Hbf", "capacityNote": "Einlassstopp möglich — komm früh", "weatherNote": "", "shareText": "takeoff: Marsmission · Sa 19.09. · Spartacus · Free Entry" },
+    "strandparty":  { "detailPage": "", "transit": "5 Min zu Fuß vom Potsdam Hbf", "capacityNote": "", "weatherNote": "", "shareText": "takeoff: Strandparty · Sa 14.11. · Spartacus · TBA" },
+    "pride":        { "detailPage": "event-pride.html" }
+  },
+  "faq": [
+    { "q": "Muss ich vorher ein Ticket kaufen?", "a": "Bei Free-Entry-Events nicht — einfach kommen. Steht bei jedem Termin oben in der Karte, falls doch mal Eintritt fällig ist." },
+    { "q": "Ab wann lohnt sich Kommen?", "a": "Zum Einlass, wenn du sicher reinwillst — bei kleineren Locations war schon mal bei 200 Leuten Schluss. Line-up- und Timetable-Updates gibt's vorher im Telegram." },
+    { "q": "Gibt's Garderobe?", "a": "Nicht überall — wir sind ein DIY-Kollektiv, kein Club mit festem Personal. Steht in der jeweiligen Eventkarte, sonst gilt: leicht anziehen, warm tanzen." },
+    { "q": "Darf ich fotografieren?", "a": "Kein Foto ohne Frage — siehe Awareness." },
+    { "q": "Ich bin unter 18 — komme ich rein?", "a": "Kommt aufs Event an: Open Airs wie „Freiräume“ sind für alle Altersgruppen, Club- und Spätnächte meist ab 18. Steht immer in der Eventkarte." },
+    { "q": "Ich will mithelfen!", "a": "Immer her damit — Aufbau, Awareness, Bar, Deko. Schreib uns im Telegram oder schau auf kollektiv.html#mitmachen vorbei, wir melden uns." }
+  ],
+  "tapTempo": {
+    "title": "Finde deinen Rave-Rhythmus",
+    "intro": "Klopf mit — wir sagen dir, zu welchem Genre dein Tempo passt.",
+    "genres": [
+      { "name": "Trance", "bpmMin": 130, "bpmMax": 140 },
+      { "name": "Hard Trance", "bpmMin": 140, "bpmMax": 150 },
+      { "name": "Hard Bounce", "bpmMin": 150, "bpmMax": 160 },
+      { "name": "Techno", "bpmMin": 125, "bpmMax": 135 }
+    ]
+  },
+  "patchLog": {
+    "toggleLabel": "War ich dabei",
+    "toastTemplate": "Patch gespeichert — {count}/{total} Missionen",
+    "resetLabel": "Zurücksetzen"
+  },
+  "share": { "copiedToast": "Link kopiert ✓" },
+  "calendar": {
+    "ctaLabel": "+ In den Kalender (.ics)",
+    "subscribeLabel": "Alle Termine abonnieren →",
+    "subscribeHref": "kalender.html"
+  },
+  "images": {
+    "heroBg": "",
+    "ogFallback": "assets/img/placeholders/openair-gold.svg"
+  },
+  "transmission": {
+    "label": "Transmission incoming",
+    "text": "Fotos, Aftermovies und Sets der vergangenen Missionen werden gerade gesichtet — die Galerien landen hier, sobald alle Abgebildeten gefragt wurden. Kein Foto ohne Frage, auch im Archiv."
+  }
+}

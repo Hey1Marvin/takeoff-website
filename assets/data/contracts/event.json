@@ -1,0 +1,245 @@
+{
+  "$contract": "event",
+  "version": 1,
+  "label": "Event",
+  "labelPlural": "Events",
+  "icon": "calendar",
+  "description": "Alle Partys & Missionen. Ein neues Event erscheint automatisch auf Startseite, Kalender und Archiv — sobald es sichtbar geschaltet ist.",
+  "storage": { "scope": "db", "collection": "events", "key": "slug" },
+  "fields": [
+    {
+      "key": "slug",
+      "type": "text",
+      "label": "URL-Kennung",
+      "required": true,
+      "help": "Eindeutige Kurz-ID für Links und Dateinamen, z. B. „marsmission“ (keine Leerzeichen, keine Umlaute, nur Kleinbuchstaben/Bindestriche). Nach der Veröffentlichung besser nicht mehr ändern."
+    },
+    {
+      "key": "visible",
+      "type": "toggle",
+      "label": "Sichtbar",
+      "default": true,
+      "help": "Event öffentlich anzeigen. Ausschalten blendet es überall aus (Startseite, Kalender, Archiv), ohne es zu löschen."
+    },
+    {
+      "key": "state",
+      "type": "select",
+      "label": "Status",
+      "required": true,
+      "default": "upcoming",
+      "options": [
+        { "value": "upcoming", "label": "Bevorstehend" },
+        { "value": "tba", "label": "Termin/Details offen (TBA)" },
+        { "value": "past", "label": "Vergangen (Archiv)" }
+      ],
+      "help": "Steuert die Einsortierung. „Vergangen“ verschiebt das Event unabhängig vom Datum ins Archiv."
+    },
+    {
+      "key": "patchNo",
+      "type": "text",
+      "label": "Archiv-Patch-Nr.",
+      "help": "Kürzel fürs Missions-Archiv, z. B. „M6“ — nur informativ, meist bei vergangenen Events genutzt."
+    },
+    {
+      "key": "title",
+      "type": "text",
+      "label": "Titel",
+      "required": true,
+      "help": "Haupttitel des Events, z. B. „takeoff: Marsmission“."
+    },
+    {
+      "key": "subtitle",
+      "type": "text",
+      "label": "Untertitel",
+      "help": "Kurzer Zusatz unter dem Titel, z. B. „takeoff goes red planet“."
+    },
+    {
+      "key": "date",
+      "type": "date",
+      "label": "Datum",
+      "required": true
+    },
+    {
+      "key": "weekday",
+      "type": "select",
+      "label": "Wochentag",
+      "options": [
+        { "value": "MO", "label": "Montag" },
+        { "value": "DI", "label": "Dienstag" },
+        { "value": "MI", "label": "Mittwoch" },
+        { "value": "DO", "label": "Donnerstag" },
+        { "value": "FR", "label": "Freitag" },
+        { "value": "SA", "label": "Samstag" },
+        { "value": "SO", "label": "Sonntag" }
+      ],
+      "help": "Kürzel passend zum gewählten Datum (wird nicht automatisch berechnet — bitte prüfen)."
+    },
+    {
+      "key": "doors",
+      "type": "text",
+      "label": "Einlass",
+      "help": "z. B. „22:00“ oder „TBA“, wenn die Zeit noch nicht feststeht."
+    },
+    {
+      "key": "end",
+      "type": "text",
+      "label": "Ende",
+      "help": "z. B. „05:00“, „open end“ oder leer lassen."
+    },
+    {
+      "key": "venue.name",
+      "type": "text",
+      "label": "Location — Name",
+      "required": true,
+      "help": "z. B. „Spartacus“."
+    },
+    {
+      "key": "venue.address",
+      "type": "text",
+      "label": "Location — Adresse",
+      "help": "Straße, PLZ, Ort."
+    },
+    {
+      "key": "venue.transit",
+      "type": "text",
+      "label": "Location — Anreise",
+      "help": "Kurzer Hinweis zu Anfahrt/ÖPNV, z. B. „5 Min zu Fuß vom Potsdam Hbf“."
+    },
+    {
+      "key": "venue.mapsQuery",
+      "type": "text",
+      "label": "Location — Karten-Suchbegriff",
+      "help": "Text für den Kartenlink, z. B. die Adresse oder ein Ortsname."
+    },
+    {
+      "key": "pricing.mode",
+      "type": "select",
+      "label": "Eintritt — Art",
+      "options": [
+        { "value": "free", "label": "Kostenlos" },
+        { "value": "donation", "label": "Spendenbasis" },
+        { "value": "door", "label": "Abendkasse" },
+        { "value": "presale", "label": "Vorverkauf" },
+        { "value": "tba", "label": "Noch offen (TBA)" }
+      ],
+      "help": "Grobe Kategorie, steuert z. B. das Preis-Badge auf der Karte."
+    },
+    {
+      "key": "pricing.label",
+      "type": "text",
+      "label": "Eintritt — Anzeige-Text",
+      "help": "Freitext, der genau so angezeigt wird, z. B. „10 € bis 0 Uhr, danach 12 €“."
+    },
+    {
+      "key": "age",
+      "type": "text",
+      "label": "Altersfreigabe",
+      "help": "z. B. „18+“ oder „alle Altersgruppen (Open Air am Tag)“."
+    },
+    {
+      "key": "genres",
+      "type": "list",
+      "label": "Genres",
+      "of": [
+        { "key": "value", "type": "text", "label": "Genre" }
+      ],
+      "help": "Musikrichtungen als Stichworte, z. B. Techno, Trance. Ein Eintrag pro Genre, beliebig viele."
+    },
+    {
+      "key": "lineup",
+      "type": "list",
+      "label": "Lineup",
+      "of": [
+        {
+          "key": "name",
+          "type": "relation",
+          "collection": "artists",
+          "displayField": "name",
+          "allowFreeText": true,
+          "label": "Künstler:in",
+          "help": "Aus der Artist-Liste wählen — oder Namen frei eintippen, wenn noch kein Profil existiert (z. B. Gast-DJs, befreundete Kollektive)."
+        },
+        {
+          "key": "genres",
+          "type": "text",
+          "label": "Genre / Zeit-Info",
+          "help": "z. B. „Trance“ oder „Floor 3 · 20:00“."
+        }
+      ],
+      "help": "Reihenfolge der Einträge = Anzeige-Reihenfolge auf der Event-Seite."
+    },
+    {
+      "key": "brief",
+      "type": "richtextLite",
+      "label": "Ankündigungstext",
+      "help": "Kurzbeschreibung für Karte und Event-Seite. **Fett** möglich, Absätze mit Leerzeile."
+    },
+    {
+      "key": "extras",
+      "type": "list",
+      "label": "Extras",
+      "of": [
+        { "key": "value", "type": "text", "label": "Stichpunkt" }
+      ],
+      "help": "Zusatz-Infos als Stichpunkte, z. B. „Free Water“, „Awareness-Team in lila Westen“."
+    },
+    {
+      "key": "theme",
+      "type": "theme",
+      "label": "Hintergrund-Thema",
+      "default": { "preset": "space", "accent": "#e04fb4", "accentRgb": "224 79 180", "patch": "star" },
+      "options": {
+        "presets": ["space", "mars", "strand"],
+        "patches": ["star", "planet", "umbrella", "heart"]
+      },
+      "help": "Standard: space — die Startseite übernimmt immer das Theme des nächsten Events. Für ein besonderes Motiv (Mars, Strand, …) einen anderen Preset wählen. Die Akzentfarbe färbt Buttons, Linien und Badges dieses Events; „Patch“ ist das kleine Symbol im Missions-Archiv."
+    },
+    {
+      "key": "image",
+      "type": "image",
+      "label": "Hauptbild",
+      "required": true,
+      "help": "Vorschaubild für Karten und Kopfbereich. Datei aus assets/img/ wählen oder eine Bild-URL eintragen."
+    },
+    {
+      "key": "gallery",
+      "type": "images",
+      "label": "Galerie",
+      "activates": "Galerie erscheint automatisch auf der Event-Seite",
+      "help": "Bilder — auch nachträglich zu alten Events. Sobald hier mindestens ein Bild liegt, erscheint die Galerie automatisch auf der öffentlichen Event-Seite."
+    },
+    {
+      "key": "raLink",
+      "type": "text",
+      "label": "Resident-Advisor-Link",
+      "help": "Link zur RA-Eventseite, falls vorhanden (optional)."
+    },
+    {
+      "key": "page",
+      "type": "text",
+      "label": "Eigene Event-Seite",
+      "help": "Pfad zu einer individuell gestalteten Event-Seite, z. B. „event-marsmission.html“. Leer lassen für die Standard-Ansicht."
+    },
+    {
+      "key": "stats",
+      "type": "list",
+      "label": "Kennzahlen-Kacheln",
+      "of": [
+        { "key": "n", "type": "text", "label": "Wert", "help": "z. B. „03“ oder „40°“." },
+        { "key": "l", "type": "text", "label": "Beschriftung", "help": "z. B. „Floors“." }
+      ],
+      "help": "Optionale Rückblick-Kennzahlen für die Event-Seite (z. B. bei besonderen Recaps)."
+    },
+    {
+      "key": "internalNote",
+      "type": "textarea",
+      "label": "Interne Notiz",
+      "help": "Nur für die Crew — erscheint nirgends auf der Website."
+    }
+  ],
+  "list": {
+    "columns": ["title", "date", "state", "visible"],
+    "sort": "date"
+  },
+  "actions": ["create", "edit", "toggleVisible", "delete"]
+}

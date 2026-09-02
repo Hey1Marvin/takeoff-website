@@ -1,0 +1,504 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script>
+  (function () {
+    var h = document.documentElement;
+    h.classList.add("js");
+    var get = function (k) { try { return localStorage.getItem(k); } catch (e) { return null; } };
+    var c = navigator.connection || {};
+    var mem = navigator.deviceMemory, cores = navigator.hardwareConcurrency;
+    var tier = "m";
+    if (mem !== undefined && cores !== undefined && mem > 4 && cores > 4) tier = "l";
+    var stored = get("takeoff-fx");
+    if (stored === "s" || stored === "m" || stored === "l") tier = stored;
+    if (c.saveData === true) tier = "s";
+    if (/(^|\b)(slow-2g|2g|3g)\b/.test(c.effectiveType || "")) tier = "s";
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches) tier = "s";
+    h.dataset.fx = tier;
+    var th = get("takeoff-theme");
+    if (!h.dataset.theme && th && th !== "space") h.dataset.theme = th;
+
+    /* Sprache. Der Zustand gehoert ans Standardattribut lang, damit :lang(en)
+       als nativer CSS-Selektor greift - nicht an ein data-Attribut.
+       Der Sperrvermerk data-lang-lock muss auf <html> stehen: dieses Script
+       laeuft im <head>, dort ist <body> noch nicht geparst. Das ist die
+       Asymmetrie zum data-theme-lock, das auf <body> sitzt. */
+    if (!h.hasAttribute("data-lang-lock")) {
+      var lg = get("takeoff-lang");
+      if (lg === "de" || lg === "en") h.lang = lg;
+    }
+  })();
+  </script>
+  <title data-i18n="meta.kollektiv.title">Kollektiv · takeoff potsdam</title>
+  <meta name="description" content="Wer takeoff ist: ehrenamtliches Rave-Kollektiv aus Potsdam. Selbstgebaute Anlage, Themen-Deko, Awareness als Haltung.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚀</text></svg>">
+  <link rel="stylesheet" href="assets/css/style.css">
+  <link rel="stylesheet" href="assets/css/pages/kollektiv.css">
+  <noscript><style>#stars{display:none!important}.nav-progress{display:none!important}.marquee-track,.band-track{animation:none!important}</style></noscript>
+</head>
+<body>
+  <a class="skip-link" href="#main" data-i18n="a11y.skiplink">Zum Inhalt springen</a>
+  <canvas id="stars" aria-hidden="true"></canvas>
+
+  <header class="topbar">
+    <div class="hud">
+      <span class="dot" aria-hidden="true"></span>
+      <div class="marquee" aria-label="Nächste Events" data-i18n-aria="a11y.marquee.events">
+        <div class="marquee-track">
+          <span>NEXT LAUNCH → <b>SA 12.09.</b> OPEN AIR „FREIRÄUME" · BASTION AM SCHILLERPLATZ · <em>16:00</em> · FREE</span>
+          <span><b>SA 19.09.</b> TAKEOFF: MARSMISSION · SPARTACUS · <em>23:00</em> · FREE ENTRY</span>
+          <span><b>SA 14.11.</b> TAKEOFF: STRANDPARTY · SPARTACUS · <em data-i18n="event.strand.price">TBA</em></span>
+          <span>NEXT LAUNCH → <b>SA 12.09.</b> OPEN AIR „FREIRÄUME" · BASTION AM SCHILLERPLATZ · <em>16:00</em> · FREE</span>
+          <span><b>SA 19.09.</b> TAKEOFF: MARSMISSION · SPARTACUS · <em>23:00</em> · FREE ENTRY</span>
+          <span><b>SA 14.11.</b> TAKEOFF: STRANDPARTY · SPARTACUS · <em data-i18n="event.strand.price">TBA</em></span>
+        </div>
+      </div>
+      <a class="hud-link" href="https://t.me/takeoffpotsdam" target="_blank" rel="noopener" data-i18n="topbar.hud.telegram">TELEGRAM ↗</a>
+    </div>
+    <div class="nav">
+      <a class="nav-brand" href="index.html" aria-label="takeoff — zur Startseite" translate="no" data-i18n-aria="a11y.brand">takeoff</a>
+      <span class="nav-rule" aria-hidden="true"></span>
+      <nav class="nav-links" aria-label="Hauptnavigation" data-i18n-aria="a11y.nav.main">
+        <ul>
+          <li><a href="events.html" data-i18n="nav.events">Events</a></li>
+          <li><a href="artists.html" data-i18n="nav.artists">Artists</a></li>
+          <li><a href="kollektiv.html" aria-current="true" data-i18n="nav.kollektiv">Kollektiv</a></li>
+          <li><a href="awareness.html" data-i18n="nav.awareness">Awareness</a></li>
+          <li data-prio="2"><a href="news.html" data-i18n="nav.news">News</a></li>
+          <li data-prio="2"><a href="kalender.html" data-i18n="nav.kalender">Kalender</a></li>
+        </ul>
+      </nav>
+      <!-- Dehnfuge. Frueher trug .nav-links das flex:1 — sobald es ab 900px
+           ausgeblendet wird, wuchs nichts mehr und alles klebte links. Ein
+           eigenes Element ist davon unabhaengig. -->
+      <span class="nav-gap" aria-hidden="true"></span>
+      <a class="nav-status" href="events.html">
+        <span class="st-tag" data-i18n="event.pwest.price">Free</span><span class="st-date">Sa 12.09.</span>
+      </a>
+      <!-- Sprachumschalter, kompakte Form. Besucherfunktion, deshalb in der
+           Kopfleiste und im Overlay-Menue - nicht im Mission-Control-Panel.
+           Vertrag wie bei den uebrigen Schaltern: data-set-* + aria-pressed.
+           Die Zustandslogik setzt aria-pressed, dieses Markup liefert nur den
+           Startzustand der deutschen Fassung. -->
+      <div class="nav-lang" role="group" aria-label="Sprache / Language">
+        <button type="button" data-set-lang="de" aria-pressed="true" lang="de" translate="no">DE</button>
+        <button type="button" data-set-lang="en" aria-pressed="false" lang="en" translate="no">EN</button>
+      </div>
+      <!-- Tag/Nacht. Ein Knopf statt eines Segments: bei 320px waere ein
+           zweites Segment 34px zu breit. Zustand-Lesart (Sichel = es ist
+           gerade Nacht), Beschriftung fest, aria-pressed traegt den Zustand. -->
+      <button class="nav-day" type="button" data-set-day="toggle" aria-pressed="false"
+              aria-label="Tagmodus" data-i18n-aria="a11y.daymode">
+        <svg class="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z"/>
+        </svg>
+        <svg class="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="4.2"/>
+          <path d="M12 3.4v2M12 18.6v2M3.4 12h2M18.6 12h2M6 6l1.5 1.5M16.5 16.5 18 18M18 6l-1.5 1.5M7.5 16.5 6 18"/>
+        </svg>
+      </button>
+      <button class="nav-burger" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="menu" aria-label="Menü öffnen" data-i18n-aria="a11y.burger.open">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path class="b-line" d="M2 6h16"/><path class="b-line" d="M2 14h16"/></svg>
+        <span data-i18n="menu.label">Menü</span>
+      </button>
+    </div>
+  </header>
+
+  <dialog class="menu" id="menu" aria-label="Menü" data-i18n-aria="menu.label">
+    <div class="menu-inner">
+      <p class="menu-eyebrow" data-i18n="menu.eyebrow">Bordcomputer · Navigation</p>
+      <ul class="menu-list">
+        <li><a href="events.html"><span class="m-label" data-i18n="nav.events">Events</span> <span class="m-note">3 geplant</span></a></li>
+        <li><a href="artists.html"><span class="m-label" data-i18n="nav.artists">Artists</span> <span class="m-note" data-i18n="menu.artists.note">Sets &amp; Podcasts</span></a></li>
+        <li><a href="kollektiv.html"><span class="m-label" data-i18n="nav.kollektiv">Kollektiv</span> <span class="m-note" data-i18n="menu.kollektiv.note">Wer hier funkt</span></a></li>
+        <li><a href="awareness.html"><span class="m-label" data-i18n="nav.awareness">Awareness</span> <span class="m-note" data-i18n="menu.awareness.note">Hilfe &amp; Regeln</span></a></li>
+        <li><a href="news.html"><span class="m-label" data-i18n="menu.news.label">News</span> <span class="m-note" data-i18n="menu.news.note">Mission Log</span></a></li>
+        <li><a href="kalender.html"><span class="m-label" data-i18n="menu.kalender.label">Kalender</span> <span class="m-note" data-i18n="menu.kalender.note">Abo &amp; Termine</span></a></li>
+        <li><a href="kontakt.html"><span class="m-label" data-i18n="footer.contact">Kontakt</span> <span class="m-note" data-i18n="menu.kontakt.note">Schreib uns</span></a></li>
+        <li><a href="events.html#flightlog"><span class="m-label" data-i18n="menu.flightlog.label">Flight Log</span> <span class="m-note" data-i18n="menu.flightlog.note">Archiv</span></a></li>
+      </ul>
+      <a class="menu-next" href="event-marsmission.html">
+        <span>
+          <span class="mn-when">Next Launch · Sa 12.09.</span>
+          <span class="mn-title" data-i18n="event.pwest.title">Open Air: Freiräume</span>
+          <span class="mn-where">Bastion am Schillerplatz · 16 Uhr · Free</span>
+        </span>
+        <span class="mn-go" data-i18n="menu.go">Ansehen →</span>
+      </a>
+      <div class="menu-social">
+        <a href="https://www.instagram.com/takeoff.potsdam/" target="_blank" rel="noopener" translate="no">Instagram</a>
+        <a href="https://t.me/takeoffpotsdam" target="_blank" rel="noopener" translate="no">Telegram</a>
+        <a href="https://soundcloud.com/takeoff-potsdam" target="_blank" rel="noopener" translate="no">SoundCloud</a>
+        <a href="mailto:info@takeoff-potsdam.de" translate="no">info@takeoff-potsdam.de</a>
+      </div>
+      <!-- Vollwertige Kopie des Sprachumschalters. Endonyme (Deutsch/English)
+           statt uebersetzter Labels - sie sind in beiden Sprachen richtig und
+           brauchen deshalb keinen Woerterbuchschluessel. -->
+      <div class="menu-lang" role="group" aria-label="Sprache / Language">
+        <button type="button" data-set-lang="de" aria-pressed="true" lang="de" translate="no">Deutsch</button>
+        <button type="button" data-set-lang="en" aria-pressed="false" lang="en" translate="no">English</button>
+      </div>
+        <div class="menu-day" role="group" aria-label="Tag oder Nacht">
+          <button type="button" data-set-day="night" aria-pressed="true" data-i18n="mctrl.night">Nacht</button>
+          <button type="button" data-set-day="day" aria-pressed="false" data-i18n="mctrl.day">Tag</button>
+        </div>
+      <button class="menu-close" type="button" data-i18n="menu.close">Schließen</button>
+    </div>
+  </dialog>
+
+  <main id="main" class="bp-blueprint">
+    <section class="phero">
+      <div class="wrap">
+        <p class="eyebrow" data-bind="hero.eyebrow" data-i18n="common.about_us">Über uns</p>
+        <h1 data-i18n-html="kollektiv.hero.h1">Wir bauen unsere Nächte <span class="glow">selbst</span>.</h1>
+        <p class="section-intro" data-bind="hero.intro" data-i18n="kollektiv.hero.intro">takeoff ist ein ehrenamtliches Rave-Kollektiv aus Potsdam — gegründet 2024, gewachsen aus Freundschaft, Werkstattstaub und der Frage: Warum eigentlich nicht selber machen?</p>
+      </div>
+    </section>
+
+    <section class="section" style="padding-top: clamp(30px, 5vh, 50px)">
+      <div class="wrap bp-rig-wrap">
+        <div class="reveal">
+          <p data-bind="ethos.text1" style="color: var(--ink-dim); margin-bottom: 18px" data-i18n="kollektiv.text.diy">Unsere Anlage haben wir selbst gebaut — Subwoofer, Hörner, alles. Unser Licht ist DMX aus eigener Hand, unsere Deko entsteht pro Motto neu.</p>
+          <p id="ethos-emphasis" style="color: var(--ink-dim)" data-i18n-html="kollektiv.text.money">Wir sind nicht gewinnorientiert — eher <em style="color: var(--ink)">„nicht-Verlust-orientiert“</em>. Deshalb sind unsere Events oft free, die Getränke solidarisch.</p>
+          <svg class="bp-rig" viewBox="0 0 360 200" aria-hidden="true" focusable="false">
+            <line class="bp-p bp-p-truss" pathLength="1" x1="20" y1="24" x2="340" y2="24"/>
+            <rect class="bp-p bp-p-sub" pathLength="1" x="30" y="120" width="70" height="60" rx="2"/>
+            <circle class="bp-p bp-p-sub" pathLength="1" cx="65" cy="150" r="20"/>
+            <rect class="bp-p bp-p-sub" pathLength="1" x="260" y="120" width="70" height="60" rx="2"/>
+            <circle class="bp-p bp-p-sub" pathLength="1" cx="295" cy="150" r="20"/>
+            <path class="bp-p bp-p-top" pathLength="1" d="M40 118 L50 70 L90 70 L100 118 Z"/>
+            <path class="bp-p bp-p-top" pathLength="1" d="M260 118 L270 70 L310 70 L320 118 Z"/>
+            <line class="bp-p bp-p-lead" pathLength="1" x1="100" y1="150" x2="132" y2="150"/>
+            <line class="bp-p bp-p-lead" pathLength="1" x1="90" y1="90" x2="132" y2="90"/>
+            <line class="bp-p bp-p-lead" pathLength="1" x1="180" y1="24" x2="180" y2="46"/>
+            <g class="bp-p-label">
+              <text x="136" y="153" data-i18n="kollektiv.rig.sub">2× SUB · EIGENBAU '24/'25</text>
+              <text x="136" y="93" data-i18n="kollektiv.rig.top">2× TOP · EIGENBAU '25</text>
+              <text x="184" y="42" data-i18n="kollektiv.rig.dmx">DMX · EIGENBAU-PULT</text>
+            </g>
+          </svg>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="werte" style="padding-top: 0">
+      <div class="wrap bp-sheet">
+        <i class="bp-corner" data-pos="tl" aria-hidden="true"></i>
+        <i class="bp-corner" data-pos="tr" aria-hidden="true"></i>
+        <i class="bp-corner" data-pos="bl" aria-hidden="true"></i>
+        <i class="bp-corner" data-pos="br" aria-hidden="true"></i>
+        <span class="bp-plate" aria-hidden="true" data-i18n="kollektiv.plate.werte">BL. 01 · HALTUNG</span>
+        <header class="section-head reveal">
+          <p class="eyebrow" data-i18n="kollektiv.werte.eyebrow">Haltung</p>
+          <h2 class="h2" data-i18n-html="kollektiv.werte.h2">Warum wir das <span class="glow">tun</span></h2>
+          <p class="section-intro" data-i18n="kollektiv.werte.intro">Kein Businessplan — fünf Grundsätze, an denen wir jede Mission messen.</p>
+        </header>
+        <div class="werte-grid reveal" id="werte-grid">
+          <div class="wtile">
+            <span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7.6 21h5.1c2.7 0 4.3-1.8 4.3-4.4v-5.7a1.3 1.3 0 0 0-2.6 0v3.1M14.4 11.9V6.5a1.3 1.3 0 0 0-2.6 0v5.3M11.8 11.7V5.2a1.3 1.3 0 0 0-2.6 0v7.6M9.2 12.6V8.1a1.3 1.3 0 0 0-2.6 0v6.7c0 .9-.3 1.5-1 2.1l-.7.7c-.6.6-.7 1.1-.4 1.9.4 1 1.4 1.7 2.5 1.9"/></svg></span>
+            <b data-i18n="kollektiv.wert.volunteer.title">Ehrenamtlich</b>
+            <p data-i18n="kollektiv.wert.volunteer.text">100% unbezahlt, aus Liebe zur Sache.</p>
+          </div>
+          <div class="wtile">
+            <span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v14M9 21h6M5 8h14M5 8 2.6 13h4.8L5 8ZM19 8l-2.4 5h4.8L19 8Z"/></svg></span>
+            <b data-i18n="kollektiv.wert.notforloss.title">Nicht-Verlust-orientiert</b>
+            <p data-i18n="kollektiv.wert.notforloss.text">Kein Gewinn, aber auch kein Draufzahlen.</p>
+          </div>
+          <div class="wtile">
+            <span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M12 3.3 19 6v5.5c0 5-3 8.4-7 9.2-4-.8-7-4.2-7-9.2V6z"/></svg></span>
+            <b data-i18n="kollektiv.wert.awareness.title">Awareness first</b>
+            <p data-i18n="kollektiv.wert.awareness.text">Sicherheit ist Grundlage, keine Fußnote.</p>
+          </div>
+          <div class="wtile">
+            <span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 17.5 15 9M17.5 4 20 6.5l-2.5 2.5L15 6.5zM4.5 19.5l2-2"/></svg></span>
+            <b data-i18n="kollektiv.wert.diy.title">DIY</b>
+            <p data-i18n="kollektiv.wert.diy.text">Anlage, Licht, Deko — alles aus eigener Hand.</p>
+          </div>
+          <div class="wtile">
+            <span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="3" width="11" height="18" rx="1"/><path d="M13.2 12h.01M3 21h18"/></svg></span>
+            <b data-i18n="kollektiv.wert.open.title">Offene Tür</b>
+            <p data-i18n="kollektiv.wert.open.text">Free Entry, wo immer es geht.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="finanzen" style="padding-top: 0">
+      <div class="wrap bp-sheet">
+        <i class="bp-corner" data-pos="tl" aria-hidden="true"></i>
+        <i class="bp-corner" data-pos="tr" aria-hidden="true"></i>
+        <i class="bp-corner" data-pos="bl" aria-hidden="true"></i>
+        <i class="bp-corner" data-pos="br" aria-hidden="true"></i>
+        <span class="bp-plate" aria-hidden="true" data-i18n="kollektiv.plate.finanzen">BL. 02 · KASSENBUCH</span>
+        <header class="section-head reveal">
+          <p class="eyebrow" data-i18n="kollektiv.finanzen.eyebrow">Kassenbuch</p>
+          <h2 class="h2" data-i18n-html="kollektiv.finanzen.h2">Wohin das Geld <span class="glow">fliegt</span></h2>
+          <p class="section-intro" data-i18n="kollektiv.finanzen.intro">„Nicht-Verlust-orientiert" ist kein Slogan — hier ist, wofür Einnahmen draufgehen.</p>
+        </header>
+        <div class="bp-spend reveal" id="spend-list">
+          <div class="bp-spend-row">
+            <span class="bp-spend-label" data-i18n="kollektiv.spend.rent">Miete &amp; Genehmigungen</span>
+            <span class="bp-spend-track"><span class="bp-spend-fill" style="--pct: 35%"></span></span>
+            <span class="bp-spend-pct">35%</span>
+          </div>
+          <div class="bp-spend-row">
+            <span class="bp-spend-label" data-i18n="kollektiv.spend.decor">Deko &amp; Material</span>
+            <span class="bp-spend-track"><span class="bp-spend-fill" style="--pct: 25%"></span></span>
+            <span class="bp-spend-pct">25%</span>
+          </div>
+          <div class="bp-spend-row">
+            <span class="bp-spend-label" data-i18n="kollektiv.spend.tech">Technik-Pflege</span>
+            <span class="bp-spend-track"><span class="bp-spend-fill" style="--pct: 20%"></span></span>
+            <span class="bp-spend-pct">20%</span>
+          </div>
+          <div class="bp-spend-row">
+            <span class="bp-spend-label" data-i18n="kollektiv.spend.awareness">Awareness &amp; Sani</span>
+            <span class="bp-spend-track"><span class="bp-spend-fill" style="--pct: 15%"></span></span>
+            <span class="bp-spend-pct">15%</span>
+          </div>
+          <div class="bp-spend-row">
+            <span class="bp-spend-label" data-i18n="kollektiv.spend.reserve">Rücklage</span>
+            <span class="bp-spend-track"><span class="bp-spend-fill" style="--pct: 5%"></span></span>
+            <span class="bp-spend-pct">5%</span>
+          </div>
+        </div>
+        <p class="lu-note" id="spend-note">Illustrative Werte, Stand 09/2026 — wird durch echte Kassenzahlen ersetzt, sobald es eine feste Kassenführung gibt.</p>
+      </div>
+    </section>
+
+    <section class="section" id="history" style="padding-top: 0">
+      <div class="wrap bp-sheet">
+        <i class="bp-corner" data-pos="tl" aria-hidden="true"></i>
+        <i class="bp-corner" data-pos="tr" aria-hidden="true"></i>
+        <i class="bp-corner" data-pos="bl" aria-hidden="true"></i>
+        <i class="bp-corner" data-pos="br" aria-hidden="true"></i>
+        <span class="bp-plate" aria-hidden="true" data-i18n="kollektiv.plate.history">BL. 03 · LOGBUCH · M 1:1</span>
+        <header class="section-head reveal">
+          <p class="eyebrow" data-i18n="kollektiv.history.eyebrow">Logbuch</p>
+          <h2 class="h2" data-i18n-html="kollektiv.history.h2">Wie alles <span class="glow">anfing</span></h2>
+          <p class="section-intro" data-i18n="kollektiv.history.intro">Kein Masterplan — nur eine kleine Gruppe, ein Lötkolben und die Idee, dass Potsdam mehr Trance verdient.</p>
+        </header>
+        <ul class="flog" id="flog-list">
+          <li><span class="fpatch" aria-hidden="true">T0</span><span class="fdate">2024</span><span class="fname" data-i18n="hist.t0.name">Die Gründung</span><span class="fvenue" translate="no">Potsdam</span><span class="bp-dim" aria-hidden="true" data-i18n="hist.t0.dim">GRÜNDUNG</span><span class="fnote" data-i18n="hist.t0.note">Eine kleine Gruppe um Nico — heute besser bekannt als DJ Platzhalter — beschließt: Wir machen das selbst.</span></li>
+          <li><span class="fpatch" aria-hidden="true">S1</span><span class="fdate">2024</span><span class="fname" data-i18n="hist.s1.name">Der erste Subwoofer</span><span class="fvenue" data-i18n="hist.s1.venue">Werkstatt</span><span class="bp-dim" aria-hidden="true" data-i18n="hist.s1.dim">1× SUB</span><span class="fnote" data-i18n="hist.s1.note">Selbst gesägt, selbst verleimt, selbst verkabelt.</span></li>
+          <li><span class="fpatch" aria-hidden="true">S2</span><span class="fdate">2024/25</span><span class="fname" data-i18n="hist.s2.name">Zwei Hörner obendrauf</span><span class="fvenue" data-i18n="hist.s2.venue">Werkstatt</span><span class="bp-dim" aria-hidden="true" data-i18n="hist.s2.dim">+2 TOP</span><span class="fnote" data-i18n="hist.s2.note">Die magentafarbenen Tops komplettieren den ersten Stack.</span></li>
+          <li><span class="fpatch" aria-hidden="true">S3</span><span class="fdate">2025</span><span class="fname" data-i18n="hist.s3.name">Noch ein Subwoofer</span><span class="fvenue" data-i18n="hist.s3.venue">Werkstatt</span><span class="bp-dim" aria-hidden="true" data-i18n="hist.s3.dim">2× SUB</span><span class="fnote" data-i18n="hist.s3.note">Mehr Fläche, mehr Menschen, mehr Bass.</span></li>
+          <li><span class="fpatch" aria-hidden="true">L1</span><span class="fdate">2025</span><span class="fname" data-i18n="hist.l1.name">Eigenes Licht</span><span class="fvenue" data-i18n="hist.l1.venue">DMX-Pult</span><span class="bp-dim" aria-hidden="true" data-i18n="hist.l1.dim">DMX · 512CH</span><span class="fnote" data-i18n="hist.l1.note">Mik — als „Blaulicht" unterwegs — baut die Lichttechnik auf.</span></li>
+          <li><span class="fpatch" aria-hidden="true">▲</span><span class="fdate" data-i18n="hist.now.date">Heute</span><span class="fname" data-i18n="hist.now.name">Themen-Welten</span><span class="fvenue" data-i18n="hist.now.venue">Potsdam &amp; Umgebung</span><span class="bp-dim" aria-hidden="true" data-i18n="hist.now.dim">LIVE</span><span class="fnote">Jedes Event bekommt sein eigenes Universum. Weiter geht's im <a href="events.html#flightlog" style="color:var(--acc-3-tint)" data-i18n="menu.flightlog.label">Flight Log</a>.</span></li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="section" id="fotowand" style="padding-top: 0">
+      <div class="wrap bp-sheet">
+        <i class="bp-corner" data-pos="tl" aria-hidden="true"></i>
+        <i class="bp-corner" data-pos="tr" aria-hidden="true"></i>
+        <i class="bp-corner" data-pos="bl" aria-hidden="true"></i>
+        <i class="bp-corner" data-pos="br" aria-hidden="true"></i>
+        <span class="bp-plate" aria-hidden="true" data-i18n="kollektiv.plate.fotowand">BL. 04 · FOTOWAND</span>
+        <header class="section-head reveal">
+          <p class="eyebrow" data-i18n="kollektiv.fotowand.eyebrow">Fotowand</p>
+          <h2 class="h2" data-i18n="kollektiv.fotowand.h2">Momente</h2>
+        </header>
+        <div class="gallery-grid reveal">
+          <div class="gph"><span class="bp-fig" aria-hidden="true">FIG. 01</span>Foto folgt<br>nach Freigabe</div>
+          <div class="gph"><span class="bp-fig" aria-hidden="true">FIG. 02</span>Foto folgt<br>nach Freigabe</div>
+          <div class="gph"><span class="bp-fig" aria-hidden="true">FIG. 03</span>Foto folgt<br>nach Freigabe</div>
+          <div class="gph"><span class="bp-fig" aria-hidden="true">FIG. 04</span>Foto folgt<br>nach Freigabe</div>
+        </div>
+        <p class="lu-note reveal" style="margin-top:14px">Kein Foto ohne Frage — die Wand füllt sich, sobald alle Abgebildeten zugestimmt haben. Das ganze Team: <a href="team.html" style="color:var(--acc-3-tint)" data-i18n="link.teamboard">Teamboard →</a></p>
+      </div>
+    </section>
+
+    <section class="section" id="crew" style="padding-top: 0">
+      <div class="wrap bp-sheet">
+        <i class="bp-corner" data-pos="tl" aria-hidden="true"></i>
+        <i class="bp-corner" data-pos="tr" aria-hidden="true"></i>
+        <i class="bp-corner" data-pos="bl" aria-hidden="true"></i>
+        <i class="bp-corner" data-pos="br" aria-hidden="true"></i>
+        <span class="bp-plate" aria-hidden="true" data-i18n="kollektiv.plate.crew">BL. 05 · BESATZUNG</span>
+        <header class="section-head reveal">
+          <p class="eyebrow" data-i18n="crew.eyebrow">Crew Select</p>
+          <h2 class="h2" data-i18n-html="crew.h2">Wer hier <span class="glow">funkt</span></h2>
+        </header>
+        <div class="crewgrid reveal" id="crew-grid">
+          <div class="ccard"><div class="avatar">NI</div><b data-i18n="crew.nico.name">Nico · DJ Platzhalter</b><span data-i18n="crew.nico.role">Mitgründer · Orga · DJ</span></div>
+          <div class="ccard"><div class="avatar">MI</div><b translate="no">Mik · Blaulicht</b><span data-i18n="crew.mik.role">Lichttechnik · DMX · DJ</span></div>
+          <div class="ccard"><div class="avatar" translate="no">JO</div><b translate="no">JOJO</b><span data-i18n="crew.role.dj_resident">DJ · Resident</span></div>
+          <div class="ccard"><div class="avatar" translate="no">CY</div><b translate="no">Cyonic</b><span data-i18n="crew.role.dj_day_one">DJ · seit Tag 1</span></div>
+          <div class="ccard"><div class="avatar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M12 20s-7.2-4.6-9.2-9A5.2 5.2 0 0 1 12 6.6 5.2 5.2 0 0 1 21.2 11c-2 4.4-9.2 9-9.2 9z"/></svg></div><b data-i18n="crew.awareness.name">Awareness-Team</b><span data-i18n="crew.awareness.role_vests">Lila Westen · ansprechbar</span></div>
+          <div class="ccard"><div class="avatar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 8.5v7M8.5 12h7"/></svg></div><b data-i18n="crew.sani.name">Sani-Team</b><span data-i18n="crew.sani.role_roaming">Ersthelfer*innen · im Umlauf</span></div>
+          <div class="ccard"><div class="avatar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M13 3 5.5 13.5H11L9.5 21 17.5 10H12z"/></svg></div><b data-i18n="crew.deko.name">Deko &amp; Bau</b><span data-i18n="crew.deko.role">Requisiten · Motto-Welten</span></div>
+          <div class="ccard"><div class="avatar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M12 20s-7.2-4.6-9.2-9A5.2 5.2 0 0 1 12 6.6 5.2 5.2 0 0 1 21.2 11c-2 4.4-9.2 9-9.2 9z"/></svg></div><b data-i18n="crew.bar.name">Bar &amp; Einlass</b><span data-i18n="crew.bar.role">Schicht-Crews · jede Nacht</span></div>
+        </div>
+      </div>
+    </section>
+
+    <div class="wrap">
+      <p class="bp-orbit"><i class="bp-orbit-dot" aria-hidden="true"></i>T+ <b id="orbit-days">809</b> Tage im Orbit</p>
+      <div class="stats reveal bp-odometer">
+        <div><b>2024</b><span data-i18n="stats.founded">gegründet</span></div>
+        <div><b>06</b><span data-i18n="stats.missions">Missionen</span></div>
+        <div><b>02</b><span data-i18n="stats.rigs">Anlagen selbstgebaut</span></div>
+        <div><b>100%</b><span data-i18n="stats.volunteer">ehrenamtlich</span></div>
+      </div>
+    </div>
+
+    <section class="section" id="familie">
+      <div class="wrap bp-sheet">
+        <i class="bp-corner" data-pos="tl" aria-hidden="true"></i>
+        <i class="bp-corner" data-pos="tr" aria-hidden="true"></i>
+        <i class="bp-corner" data-pos="bl" aria-hidden="true"></i>
+        <i class="bp-corner" data-pos="br" aria-hidden="true"></i>
+        <span class="bp-plate" aria-hidden="true" data-i18n="kollektiv.plate.familie">BL. 06 · VERBUND</span>
+        <header class="section-head reveal">
+          <p class="eyebrow" data-i18n="kollektiv.familie.eyebrow">Familie</p>
+          <h2 class="h2" data-i18n-html="kollektiv.familie.h2">Mit wem wir <span class="glow">fliegen</span></h2>
+          <p class="section-intro" data-i18n="kollektiv.familie.intro">Kollektive, Häuser und Menschen, ohne die unsere Nächte nicht gehen würden.</p>
+        </header>
+        <ul class="bp-family-grid reveal" id="family-grid">
+          <li class="bp-fam-card"><div class="bp-fam-inner"><b translate="no">Schranzverbot</b><span data-i18n="partner.schranzverbot.note">Co-Host Open Air „Freiräume“</span></div></li>
+          <li class="bp-fam-card"><div class="bp-fam-inner"><b translate="no">No Gravity Berlin</b><span data-i18n="partner.no_gravity.note">Partner-Kollektiv Berlin</span></div></li>
+          <li class="bp-fam-card"><div class="bp-fam-inner"><b translate="no">Spartacus</b><span data-i18n="partner.spartacus.note">Zweite Heimat im freiLand</span></div></li>
+          <li class="bp-fam-card"><div class="bp-fam-inner"><b translate="no">freiLand Potsdam</b></div></li>
+          <li class="bp-fam-card"><div class="bp-fam-inner"><b translate="no">KuZe</b><span data-i18n="partner.kuze.note">Location Pride-Party</span></div></li>
+          <li class="bp-fam-card"><div class="bp-fam-inner"><b translate="no">Nilkeller</b></div></li>
+          <li class="bp-fam-card"><div class="bp-fam-inner"><b translate="no">Stadtjugendring Potsdam</b><span data-i18n="partner.stadtjugendring.note">Genehmigungs-Partner „Freiräume“</span></div></li>
+          <li class="bp-fam-card"><div class="bp-fam-inner"><b translate="no">Regenbogen Potsdam e.V.</b></div></li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="section" id="faq" style="padding-top: 0">
+      <div class="wrap bp-sheet">
+        <i class="bp-corner" data-pos="tl" aria-hidden="true"></i>
+        <i class="bp-corner" data-pos="tr" aria-hidden="true"></i>
+        <i class="bp-corner" data-pos="bl" aria-hidden="true"></i>
+        <i class="bp-corner" data-pos="br" aria-hidden="true"></i>
+        <span class="bp-plate" aria-hidden="true" data-i18n="kollektiv.plate.faq">BL. 07 · BORDFRAGEN</span>
+        <header class="section-head reveal">
+          <p class="eyebrow" data-i18n="kollektiv.faq.eyebrow">Bordfragen</p>
+          <h2 class="h2" data-i18n-html="kollektiv.faq.h2">Häufig <span class="glow">gefragt</span></h2>
+        </header>
+        <dl class="m-rows bp-faq reveal" id="faq-list">
+          <div class="m-row"><dt data-i18n="kollektiv.faq.verein.q">Seid ihr ein eingetragener Verein?</dt><dd data-i18n="kollektiv.faq.verein.a">Noch nicht — wir organisieren uns aktuell ohne feste Rechtsform, eine Vereinsgründung ist angedacht.</dd></div>
+          <div class="m-row"><dt data-i18n="kollektiv.faq.money.q">Wie finanziert ihr euch?</dt><dd data-i18n="kollektiv.faq.money.a">Über Spenden, Solipreise an der Bar und gelegentliche Türeinnahmen — nie gewinnorientiert.</dd></div>
+          <div class="m-row"><dt data-i18n="kollektiv.faq.join.q">Kann ich ohne Erfahrung mitmachen?</dt><dd data-i18n="kollektiv.faq.join.a">Ja. Bar, Einlass, Awareness, Deko-Bau — wir zeigen dir alles.</dd></div>
+          <div class="m-row"><dt data-i18n="kollektiv.faq.booking.q">Bucht ihr auch andere Partys?</dt><dd data-i18n="kollektiv.faq.booking.a">Ja, wir unterstützen mit Technik, Licht und eingespielten Crews — schreib uns.</dd></div>
+        </dl>
+      </div>
+    </section>
+
+    <section class="section" id="mitmachen" style="padding-top: 0">
+      <div class="wrap">
+        <div class="transmission reveal">
+          <span class="tx-label" data-i18n="kollektiv.mitmachen.label">Crew-Anwärter*innen gesucht</span>
+          <p data-i18n="kollektiv.mitmachen.text">Bar, Einlass, Awareness, Deko-Bau oder Sani — klick deine Rolle an, wir schreiben zurück. takeoff wächst mit jeder Mission.</p>
+          <div class="chips bp-roles" id="join-roles" role="list" aria-label="Rollen zum Mitmachen" data-i18n-aria="a11y.join.roles">
+            <a class="chip" role="listitem" href="mailto:info@takeoff-potsdam.de?subject=Mitmachen%20%E2%80%93%20Bar" data-i18n="kollektiv.role.bar">Bar</a>
+            <a class="chip" role="listitem" href="mailto:info@takeoff-potsdam.de?subject=Mitmachen%20%E2%80%93%20Einlass" data-i18n="kollektiv.role.einlass">Einlass</a>
+            <a class="chip" role="listitem" href="mailto:info@takeoff-potsdam.de?subject=Mitmachen%20%E2%80%93%20Awareness" data-i18n="nav.awareness">Awareness</a>
+            <a class="chip" role="listitem" href="mailto:info@takeoff-potsdam.de?subject=Mitmachen%20%E2%80%93%20Deko%20%26%20Bau" data-i18n="kollektiv.role.deko">Deko-Bau</a>
+            <a class="chip" role="listitem" href="mailto:info@takeoff-potsdam.de?subject=Mitmachen%20%E2%80%93%20Sani" data-i18n="kollektiv.role.sani">Sani</a>
+          </div>
+          <p class="lu-note" style="margin-top:16px">Lieber direkt reden? <a href="https://t.me/takeoffpotsdam" target="_blank" rel="noopener" style="color: var(--acc-3-tint)" translate="no">Telegram</a> oder <a href="mailto:info@takeoff-potsdam.de" style="color: var(--acc-3-tint)" data-i18n="common.mail">Mail</a>.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="booking" style="padding-top: 0">
+      <div class="wrap">
+        <div class="transmission reveal">
+          <span class="tx-label" data-i18n="kollektiv.booking.label">Booking &amp; Partner</span>
+          <p data-i18n="kollektiv.booking.text">Eigenes Soundsystem, eigenes Licht, eingespielte Schicht-Crews und Erfahrung mit Genehmigungen — wir supporten auch andere Veranstaltungen.</p>
+          <div class="facts" id="booking-facts">
+            <span><b data-i18n="kollektiv.booking.tech.label">Technik</b> · 2 Subwoofer + 2 Tops, selbstgebaut</span>
+            <span><b data-i18n="kollektiv.booking.light.label">Licht</b> · Eigenes DMX-Setup, Schwarzlicht, Tubes</span>
+            <span><b data-i18n="kollektiv.booking.experience.label">Erfahrung</b> · 6 Missionen seit 2024</span>
+            <span><b data-i18n="kollektiv.booking.permits.label">Genehmigungen</b> · Erfahren im Umgang mit Ordnungsamt &amp; Stadt</span>
+          </div>
+          <p class="lu-note" style="margin-top:16px">Presskit folgt: <a href="mailto:info@takeoff-potsdam.de" style="color: var(--acc-3-tint)" translate="no">info@takeoff-potsdam.de</a></p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap">
+      <div class="foot-grid">
+        <div>
+          <h4 data-i18n="footer.channels">Kanäle</h4>
+          <ul>
+            <li><a href="https://www.instagram.com/takeoff.potsdam/" target="_blank" rel="noopener">Instagram ↗</a></li>
+            <li><a href="https://t.me/takeoffpotsdam" target="_blank" rel="noopener">Telegram ↗</a></li>
+            <li><a href="https://soundcloud.com/takeoff-potsdam" target="_blank" rel="noopener">SoundCloud ↗</a></li>
+            <li><a href="https://www.tiktok.com/@takeoff.potsdam" target="_blank" rel="noopener">TikTok ↗</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 data-i18n="nav.kollektiv">Kollektiv</h4>
+          <ul>
+            <li><a href="kollektiv.html" data-i18n="common.about_us">Über uns</a></li>
+            <li><a href="team.html" data-i18n="footer.team">Team</a></li>
+            <li><a href="news.html" data-i18n="footer.news">News / Mission Log</a></li>
+            <li><a href="kalender.html" data-i18n="footer.calendar">Eventkalender</a></li>
+            <li><a href="awareness.html" data-i18n="link.awareness_concept">Awareness-Konzept</a></li>
+            <li><a href="awareness.html#hilfe" data-i18n="link.help_drugs">Hilfe &amp; Drogennotfälle</a></li>
+            <li><a href="kollektiv.html#mitmachen" data-i18n="footer.join">Mitmachen / Crew werden</a></li>
+            <li><a href="kollektiv.html#booking" data-i18n="footer.booking">Booking</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 data-i18n="footer.contact">Kontakt</h4>
+          <ul>
+            <li><a href="kontakt.html" data-i18n="footer.contact">Kontakt</a></li>
+            <li><a href="mailto:info@takeoff-potsdam.de" translate="no">info@takeoff-potsdam.de</a></li>
+            <li><a href="impressum.html" data-i18n="footer.imprint">Impressum</a></li>
+            <li><a href="datenschutz.html" data-i18n="footer.privacy">Datenschutz</a></li>
+          </ul>
+          <p class="no-track" data-i18n="footer.no_track">🛰️ Diese Seite trackt dich nicht</p>
+        </div>
+      </div>
+      <p class="love">Viel Liebe, euer takeoff Team <b>♥</b></p>
+      <p class="proto-note" data-i18n="footer.proto_note">DESIGN-PROTOTYP · IT 8 · NICHTS HIER IST FINAL · INHALTE TEILS PLATZHALTER</p>
+    </div>
+  </footer>
+
+  <div class="mctrl" role="group" aria-label="Darstellungs-Einstellungen" data-i18n-aria="a11y.mctrl">
+    <div class="row">
+      <span class="lbl" data-i18n="mctrl.fx">FX</span>
+      <button type="button" data-set-fx="s" aria-pressed="false" title="Statisch — spart Akku &amp; Daten" data-i18n="mctrl.off" data-i18n-title="mctrl.fx.off.title">Aus</button>
+      <button type="button" data-set-fx="m" aria-pressed="false" title="Standard" data-i18n="mctrl.normal" data-i18n-title="mctrl.fx.normal.title">Normal</button>
+      <button type="button" data-set-fx="l" aria-pressed="false" title="Volle Show" data-i18n="mctrl.full" data-i18n-title="mctrl.fx.full.title">Voll</button>
+    </div>
+    <div class="row">
+      <span class="lbl" data-i18n="mctrl.theme">Theme</span>
+      <button type="button" data-set-theme="space" aria-pressed="false" data-i18n="mctrl.theme.space">Space</button>
+      <button type="button" data-set-theme="mars" aria-pressed="false" data-i18n="mctrl.theme.mars">Mars</button>
+      <button type="button" data-set-theme="strand" aria-pressed="false" data-i18n="mctrl.theme.strand">Strand</button>
+    </div>
+    <div class="row">
+      <span class="lbl" data-i18n="mctrl.ground">Boden</span>
+      <button type="button" data-set-ground="off" aria-pressed="false" title="Nur Sternenhimmel" data-i18n="mctrl.off" data-i18n-title="mctrl.ground.off.title">Aus</button>
+      <button type="button" data-set-ground="on" aria-pressed="false" title="Horizont je nach Theme" data-i18n="mctrl.on" data-i18n-title="mctrl.ground.on.title">An</button>
+    </div>
+    <div class="row">
+      <span class="lbl" data-i18n="mctrl.time">Zeit</span>
+      <button type="button" data-set-day="night" aria-pressed="false" data-i18n="mctrl.night">Nacht</button>
+      <button type="button" data-set-day="day" aria-pressed="false" data-i18n="mctrl.day">Tag</button>
+    </div>
+  </div>
+
+  <script defer src="assets/js/data.js"></script>
+  <script defer src="assets/vendor/gsap.min.js"></script>
+  <script defer src="assets/vendor/ScrollTrigger.min.js"></script>
+  <script defer src="assets/vendor/lenis.min.js"></script>
+  <script defer src="assets/js/main.js"></script>
+  <script defer src="assets/js/i18n.js"></script>
+  <script defer src="assets/js/i18n-runtime.js"></script>
+  <script defer src="assets/js/pages/kollektiv.js"></script>
+</body>
+</html>

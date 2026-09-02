@@ -1,0 +1,531 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script>
+  (function () {
+    var h = document.documentElement;
+    h.classList.add("js");
+    var get = function (k) { try { return localStorage.getItem(k); } catch (e) { return null; } };
+    var c = navigator.connection || {};
+    var mem = navigator.deviceMemory, cores = navigator.hardwareConcurrency;
+    var tier = "m";
+    if (mem !== undefined && cores !== undefined && mem > 4 && cores > 4) tier = "l";
+    var stored = get("takeoff-fx");
+    if (stored === "s" || stored === "m" || stored === "l") tier = stored;
+    if (c.saveData === true) tier = "s";
+    if (/(^|\b)(slow-2g|2g|3g)\b/.test(c.effectiveType || "")) tier = "s";
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches) tier = "s";
+    h.dataset.fx = tier;
+    var th = get("takeoff-theme");
+    if (!h.dataset.theme && th && th !== "space") h.dataset.theme = th;
+
+    /* Sprache. Der Zustand gehoert ans Standardattribut lang, damit :lang(en)
+       als nativer CSS-Selektor greift - nicht an ein data-Attribut.
+       Der Sperrvermerk data-lang-lock muss auf <html> stehen: dieses Script
+       laeuft im <head>, dort ist <body> noch nicht geparst. Das ist die
+       Asymmetrie zum data-theme-lock, das auf <body> sitzt. */
+    if (!h.hasAttribute("data-lang-lock")) {
+      var lg = get("takeoff-lang");
+      if (lg === "de" || lg === "en") h.lang = lg;
+    }
+  })();
+  </script>
+  <title data-i18n="meta.events.title">Events &amp; Missionen · takeoff potsdam</title>
+  <meta name="description" content="Alle takeoff-Events: kommende Missionen und das Flight Log der vergangenen Nächte.">
+  <meta property="og:image" content="assets/img/placeholders/openair-gold.svg">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚀</text></svg>">
+  <link rel="stylesheet" href="assets/css/style.css">
+  <link rel="stylesheet" href="assets/css/pages/events.css">
+  <noscript><style>#stars{display:none!important}.nav-progress{display:none!important}.marquee-track,.band-track{animation:none!important}</style></noscript>
+</head>
+<body>
+  <a class="skip-link" href="#main" data-i18n="a11y.skiplink">Zum Inhalt springen</a>
+  <canvas id="stars" aria-hidden="true"></canvas>
+
+  <header class="topbar">
+    <div class="hud">
+      <span class="dot" aria-hidden="true"></span>
+      <div class="marquee" aria-label="Nächste Events" data-i18n-aria="a11y.marquee.events">
+        <div class="marquee-track">
+          <span>NEXT LAUNCH → <b>SA 12.09.</b> OPEN AIR „FREIRÄUME" · BASTION AM SCHILLERPLATZ · <em>16:00</em> · FREE</span>
+          <span><b>SA 19.09.</b> TAKEOFF: MARSMISSION · SPARTACUS · <em>23:00</em> · FREE ENTRY</span>
+          <span><b>SA 14.11.</b> TAKEOFF: STRANDPARTY · SPARTACUS · <em data-i18n="event.strand.price">TBA</em></span>
+          <span>NEXT LAUNCH → <b>SA 12.09.</b> OPEN AIR „FREIRÄUME" · BASTION AM SCHILLERPLATZ · <em>16:00</em> · FREE</span>
+          <span><b>SA 19.09.</b> TAKEOFF: MARSMISSION · SPARTACUS · <em>23:00</em> · FREE ENTRY</span>
+          <span><b>SA 14.11.</b> TAKEOFF: STRANDPARTY · SPARTACUS · <em data-i18n="event.strand.price">TBA</em></span>
+        </div>
+      </div>
+      <a class="hud-link" href="https://t.me/takeoffpotsdam" target="_blank" rel="noopener" data-i18n="topbar.hud.telegram">TELEGRAM ↗</a>
+    </div>
+    <div class="nav">
+      <a class="nav-brand" href="index.html" aria-label="takeoff — zur Startseite" translate="no" data-i18n-aria="a11y.brand">takeoff</a>
+      <span class="nav-rule" aria-hidden="true"></span>
+      <nav class="nav-links" aria-label="Hauptnavigation" data-i18n-aria="a11y.nav.main">
+        <ul>
+          <li><a href="events.html" aria-current="true" data-i18n="nav.events">Events</a></li>
+          <li><a href="artists.html" data-i18n="nav.artists">Artists</a></li>
+          <li><a href="kollektiv.html" data-i18n="nav.kollektiv">Kollektiv</a></li>
+          <li><a href="awareness.html" data-i18n="nav.awareness">Awareness</a></li>
+          <li data-prio="2"><a href="news.html" data-i18n="nav.news">News</a></li>
+          <li data-prio="2"><a href="kalender.html" data-i18n="nav.kalender">Kalender</a></li>
+        </ul>
+      </nav>
+      <!-- Dehnfuge. Frueher trug .nav-links das flex:1 — sobald es ab 900px
+           ausgeblendet wird, wuchs nichts mehr und alles klebte links. Ein
+           eigenes Element ist davon unabhaengig. -->
+      <span class="nav-gap" aria-hidden="true"></span>
+      <a class="nav-status" href="events.html">
+        <span class="st-tag" data-i18n="event.pwest.price">Free</span><span class="st-date">Sa 12.09.</span>
+      </a>
+      <!-- Sprachumschalter, kompakte Form. Besucherfunktion, deshalb in der
+           Kopfleiste und im Overlay-Menue - nicht im Mission-Control-Panel.
+           Vertrag wie bei den uebrigen Schaltern: data-set-* + aria-pressed.
+           Die Zustandslogik setzt aria-pressed, dieses Markup liefert nur den
+           Startzustand der deutschen Fassung. -->
+      <div class="nav-lang" role="group" aria-label="Sprache / Language">
+        <button type="button" data-set-lang="de" aria-pressed="true" lang="de" translate="no">DE</button>
+        <button type="button" data-set-lang="en" aria-pressed="false" lang="en" translate="no">EN</button>
+      </div>
+      <!-- Tag/Nacht. Ein Knopf statt eines Segments: bei 320px waere ein
+           zweites Segment 34px zu breit. Zustand-Lesart (Sichel = es ist
+           gerade Nacht), Beschriftung fest, aria-pressed traegt den Zustand. -->
+      <button class="nav-day" type="button" data-set-day="toggle" aria-pressed="false"
+              aria-label="Tagmodus" data-i18n-aria="a11y.daymode">
+        <svg class="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z"/>
+        </svg>
+        <svg class="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="4.2"/>
+          <path d="M12 3.4v2M12 18.6v2M3.4 12h2M18.6 12h2M6 6l1.5 1.5M16.5 16.5 18 18M18 6l-1.5 1.5M7.5 16.5 6 18"/>
+        </svg>
+      </button>
+      <button class="nav-burger" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="menu" aria-label="Menü öffnen" data-i18n-aria="a11y.burger.open">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path class="b-line" d="M2 6h16"/><path class="b-line" d="M2 14h16"/></svg>
+        <span data-i18n="menu.label">Menü</span>
+      </button>
+    </div>
+  </header>
+
+  <dialog class="menu" id="menu" aria-label="Menü" data-i18n-aria="menu.label">
+    <div class="menu-inner">
+      <p class="menu-eyebrow" data-i18n="menu.eyebrow">Bordcomputer · Navigation</p>
+      <ul class="menu-list">
+        <li><a href="events.html"><span class="m-label" data-i18n="nav.events">Events</span> <span class="m-note">3 geplant</span></a></li>
+        <li><a href="artists.html"><span class="m-label" data-i18n="nav.artists">Artists</span> <span class="m-note" data-i18n="menu.artists.note">Sets &amp; Podcasts</span></a></li>
+        <li><a href="kollektiv.html"><span class="m-label" data-i18n="nav.kollektiv">Kollektiv</span> <span class="m-note" data-i18n="menu.kollektiv.note">Wer hier funkt</span></a></li>
+        <li><a href="awareness.html"><span class="m-label" data-i18n="nav.awareness">Awareness</span> <span class="m-note" data-i18n="menu.awareness.note">Hilfe &amp; Regeln</span></a></li>
+        <li><a href="news.html"><span class="m-label" data-i18n="menu.news.label">News</span> <span class="m-note" data-i18n="menu.news.note">Mission Log</span></a></li>
+        <li><a href="kalender.html"><span class="m-label" data-i18n="menu.kalender.label">Kalender</span> <span class="m-note" data-i18n="menu.kalender.note">Abo &amp; Termine</span></a></li>
+        <li><a href="kontakt.html"><span class="m-label" data-i18n="footer.contact">Kontakt</span> <span class="m-note" data-i18n="menu.kontakt.note">Schreib uns</span></a></li>
+        <li><a href="events.html#flightlog"><span class="m-label" data-i18n="menu.flightlog.label">Flight Log</span> <span class="m-note" data-i18n="menu.flightlog.note">Archiv</span></a></li>
+      </ul>
+      <a class="menu-next" href="event-marsmission.html">
+        <span>
+          <span class="mn-when">Next Launch · Sa 12.09.</span>
+          <span class="mn-title" data-i18n="event.pwest.title">Open Air: Freiräume</span>
+          <span class="mn-where">Bastion am Schillerplatz · 16 Uhr · Free</span>
+        </span>
+        <span class="mn-go" data-i18n="menu.go">Ansehen →</span>
+      </a>
+      <div class="menu-social">
+        <a href="https://www.instagram.com/takeoff.potsdam/" target="_blank" rel="noopener" translate="no">Instagram</a>
+        <a href="https://t.me/takeoffpotsdam" target="_blank" rel="noopener" translate="no">Telegram</a>
+        <a href="https://soundcloud.com/takeoff-potsdam" target="_blank" rel="noopener" translate="no">SoundCloud</a>
+        <a href="mailto:info@takeoff-potsdam.de" translate="no">info@takeoff-potsdam.de</a>
+      </div>
+      <!-- Vollwertige Kopie des Sprachumschalters. Endonyme (Deutsch/English)
+           statt uebersetzter Labels - sie sind in beiden Sprachen richtig und
+           brauchen deshalb keinen Woerterbuchschluessel. -->
+      <div class="menu-lang" role="group" aria-label="Sprache / Language">
+        <button type="button" data-set-lang="de" aria-pressed="true" lang="de" translate="no">Deutsch</button>
+        <button type="button" data-set-lang="en" aria-pressed="false" lang="en" translate="no">English</button>
+      </div>
+        <div class="menu-day" role="group" aria-label="Tag oder Nacht">
+          <button type="button" data-set-day="night" aria-pressed="true" data-i18n="mctrl.night">Nacht</button>
+          <button type="button" data-set-day="day" aria-pressed="false" data-i18n="mctrl.day">Tag</button>
+        </div>
+      <button class="menu-close" type="button" data-i18n="menu.close">Schließen</button>
+    </div>
+  </dialog>
+
+  <main id="main">
+    <section class="phero">
+      <div class="wrap">
+        <p class="eyebrow" data-bind="hero.eyebrow" data-i18n="missions.eyebrow">Flugplan</p>
+        <h1 data-i18n-html="events.hero.h1">Events &amp; <span class="glow">Missionen</span></h1>
+        <p class="section-intro" data-bind="hero.intro" data-i18n="events.hero.intro">Alles, was ansteht — und alles, was war. Tippe eine Karte an für das Briefing.</p>
+        <div class="tminus" role="timer" aria-label="Countdown zum nächsten Event" data-i18n-aria="a11y.tminus.index">
+          <span class="label" data-i18n="hero.tminus.label">T-Minus</span>
+          <span class="clock" id="tminus-clock">—</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="kommend" style="padding-top: clamp(30px, 5vh, 50px)">
+      <div class="wrap">
+        <p class="eyebrow" data-bind="sections.upcomingEyebrow" data-i18n="events.upcoming.eyebrow">Kommende Missionen</p>
+
+        <div class="board" data-board>
+          <div class="board-frame">
+            <div class="board-toprow">
+              <span class="board-code" data-bind="board.code" aria-hidden="true">PDM</span>
+              <span class="board-title" data-bind="board.title" data-i18n="events.board.title">Abflugtafel</span>
+              <span class="board-clock" data-clock aria-hidden="true">–&nbsp;–:–&nbsp;–:–&nbsp;–</span>
+            </div>
+            <div class="board-cols" aria-hidden="true">
+              <span data-i18n="events.board.col.gate">Gate</span><span data-i18n="events.board.col.date">Datum</span><span data-i18n="events.board.col.mission">Mission</span><span data-i18n="events.board.col.venue">Ort</span><span data-i18n="card.row.status">Status</span>
+            </div>
+          </div>
+        </div>
+        <div class="board-actions">
+          <a class="btn btn-ghost" href="kalender.html" data-bind="calendar.subscribeLabel" data-i18n="events.calendar.subscribe">Alle Termine abonnieren →</a>
+        </div>
+
+        <div class="card-grid">
+          <article class="mcard" data-expand data-slug="freiraeume" id="freiraeume" style="--card-acc:#6fc9e8; --card-acc-rgb:111 201 232;">
+            <span class="gate-tag" aria-hidden="true"></span>
+            <span class="status" data-flap data-flap-status="announced">
+              <span class="flap-stack"><span class="flap-face flap-face--live" data-i18n="status.announced">Announced</span></span>
+            </span>
+            <div class="patch" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M12 3l1.9 6.1L20 11l-6.1 1.9L12 19l-1.9-6.1L4 11l6.1-1.9z"/></svg></div>
+            <div class="m-date">SA <em>12.09.</em></div>
+            <h3 data-i18n="event.pwest.title">Open Air: Freiräume</h3>
+            <p class="m-meta">Bastion am Schillerplatz · 16–22 Uhr · Free<br>mit Schranzverbot &amp; Stadtjugendring</p>
+            <div class="chips">
+              <span class="chip hot" data-i18n="event.pwest.price">Free</span>
+              <span class="chip" translate="no">Techno</span>
+              <span class="chip" translate="no">Trance</span>
+            </div>
+            <button class="m-toggle" type="button" aria-expanded="false">Briefing <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
+            <div class="m-more">
+              <div class="m-more-inner">
+                <dl class="m-rows">
+                  <div class="m-row"><dt data-i18n="card.row.boarding">Boarding</dt><dd><b>16:00</b> · Ende 22:00</dd></div>
+                  <div class="m-row"><dt data-i18n="card.row.landing">Landeplatz</dt><dd><b translate="no">Bastion am Schillerplatz</b><br>Potsdam West · Grünfläche</dd></div>
+                  <div class="m-row"><dt data-i18n="card.row.entry">Eintritt</dt><dd><b data-i18n="event.pwest.price">Free</b></dd></div>
+                  <div class="m-row"><dt data-i18n="card.row.sound">Sound</dt><dd translate="no">Techno · Trance</dd></div>
+                </dl>
+                <div class="route-row">
+                  <a class="btn btn-ghost" href="https://www.google.com/maps/search/?api=1&query=Schillerplatz%20Potsdam" target="_blank" rel="noopener" data-i18n="event.page.maps.google">Google Maps ↗</a>
+                  <a class="btn btn-ghost" href="https://maps.apple.com/?q=Schillerplatz%20Potsdam" target="_blank" rel="noopener" data-i18n="event.page.maps.apple">Apple Karten ↗</a>
+                  <a class="btn btn-ghost" href="https://www.openstreetmap.org/search?query=Schillerplatz%20Potsdam" target="_blank" rel="noopener" data-i18n="event.page.maps.osm">OSM ↗</a>
+                </div>
+                <p class="lu-note" data-i18n="venue.bastion.hint_short">Tram bis Schillerplatz · Fahrrad erwünscht</p>
+                <p class="m-brief" data-i18n="event.pwest.brief">Thema „Freiräume" — Open Air mit dem Kollektiv Schranzverbot &amp; dem Stadtjugendring. Tagsüber, draußen, für alle.</p>
+                <p class="note-line">🌧 Bei Sturm/Unwetter: Update im Telegram &amp; hier</p>
+                <div class="cta-row">
+                  <a class="btn btn-primary" href="event-freiraeume.html" data-i18n="card.cta.mission_page">Zur Missionsseite</a>
+                  <a class="btn btn-ghost" href="#" onclick="return false" title="Demo — echter Download kommt mit dem Backend" data-i18n="event.page.cta.ics" data-i18n-title="common.demo_download">＋ In den Kalender (.ics)</a>
+                  <button type="button" class="btn btn-ghost m-share" data-share-text="Open Air „Freiräume“ · Sa 12.09. · Bastion am Schillerplatz · Free" data-share-url="event-freiraeume.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="2.6"/><circle cx="6" cy="12" r="2.6"/><circle cx="18" cy="19" r="2.6"/><path d="M8.3 10.7l7.4-4.4M8.3 13.3l7.4 4.4"/></svg>Teilen</button>
+                  <a class="btn btn-ghost" href="https://t.me/takeoffpotsdam" target="_blank" rel="noopener" translate="no">Telegram</a>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="mcard" data-expand data-slug="marsmission" id="marsmission" style="--card-acc:#e85a34; --card-acc-rgb:232 90 52;">
+            <span class="gate-tag" aria-hidden="true"></span>
+            <span class="status" data-flap data-flap-status="announced">
+              <span class="flap-stack"><span class="flap-face flap-face--live" data-i18n="status.announced">Announced</span></span>
+            </span>
+            <div class="patch" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="12" cy="12" r="5.2"/><path d="M4.5 14.6c2.6 1.9 12.6 1.7 15-2.5"/><circle cx="10.2" cy="10.4" r=".8"/><circle cx="13.6" cy="13.2" r=".6"/></svg></div>
+            <div class="m-date">SA <em>19.09.</em></div>
+            <h3 data-i18n="event.mars.title">takeoff: Marsmission</h3>
+            <p class="m-meta">Spartacus, Potsdam · ab 23 Uhr · Free Entry<br>Trance / Hard Trance / Bounce · 18+</p>
+            <div class="chips">
+              <span class="chip hot" data-i18n="event.mars.price">Free Entry</span>
+              <span class="chip" translate="no">Trance</span>
+              <span class="chip" translate="no">Hard Trance</span>
+              <span class="chip" translate="no">Bounce</span>
+              <span class="chip" data-i18n="common.age_18">18+</span>
+            </div>
+            <button class="m-toggle" type="button" aria-expanded="false">Briefing <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
+            <div class="m-more">
+              <div class="m-more-inner">
+                <dl class="m-rows">
+                  <div class="m-row"><dt data-i18n="card.row.boarding">Boarding</dt><dd><b>23:00</b> · open end</dd></div>
+                  <div class="m-row"><dt data-i18n="card.row.landing">Landeplatz</dt><dd><b translate="no">Spartacus</b> · im freiLand<br>5 min zu Fuß vom Hbf</dd></div>
+                  <div class="m-row"><dt data-i18n="card.row.entry">Eintritt</dt><dd><b data-i18n="event.mars.price">Free Entry</b> · 18+</dd></div>
+                  <div class="m-row"><dt data-i18n="card.row.sound">Sound</dt><dd translate="no">Trance · Hard Trance · Bounce</dd></div>
+                </dl>
+                <div class="route-row">
+                  <a class="btn btn-ghost" href="https://www.google.com/maps/search/?api=1&query=Friedrich-Engels-Stra%C3%9Fe%2022%2C%2014473%20Potsdam" target="_blank" rel="noopener" data-i18n="event.page.maps.google">Google Maps ↗</a>
+                  <a class="btn btn-ghost" href="https://maps.apple.com/?q=Friedrich-Engels-Stra%C3%9Fe%2022%2C%2014473%20Potsdam" target="_blank" rel="noopener" data-i18n="event.page.maps.apple">Apple Karten ↗</a>
+                  <a class="btn btn-ghost" href="https://www.openstreetmap.org/search?query=Friedrich-Engels-Stra%C3%9Fe%2022%2C%2014473%20Potsdam" target="_blank" rel="noopener" data-i18n="event.page.maps.osm">OSM ↗</a>
+                </div>
+                <p class="lu-note" data-i18n="venue.spartacus.hint_short">5 Min zu Fuß vom Potsdam Hbf</p>
+                <p class="m-brief" data-i18n="event.mars.brief">Wir schießen den Spartacus auf den roten Planeten — Pappmaché-Mars, Schwarzlicht, Leuchtschläuche als Weltraum-Materie.</p>
+                <p class="note-line">⚠ Einlassstopp möglich — komm früh</p>
+                <div class="cta-row">
+                  <a class="btn btn-primary" href="event-marsmission.html" data-i18n="card.cta.mission_page">Zur Missionsseite</a>
+                  <a class="btn btn-ghost" href="#" onclick="return false" title="Demo — echter Download kommt mit dem Backend" data-i18n="event.page.cta.ics" data-i18n-title="common.demo_download">＋ In den Kalender (.ics)</a>
+                  <button type="button" class="btn btn-ghost m-share" data-share-text="takeoff: Marsmission · Sa 19.09. · Spartacus · Free Entry" data-share-url="event-marsmission.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="2.6"/><circle cx="6" cy="12" r="2.6"/><circle cx="18" cy="19" r="2.6"/><path d="M8.3 10.7l7.4-4.4M8.3 13.3l7.4 4.4"/></svg>Teilen</button>
+                  <a class="btn btn-ghost" href="https://t.me/takeoffpotsdam" target="_blank" rel="noopener" translate="no">Telegram</a>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="mcard" data-expand data-slug="strandparty" id="strandparty" style="--card-acc:#e5c25c; --card-acc-rgb:229 194 92;">
+            <span class="gate-tag" aria-hidden="true"></span>
+            <span class="status" data-flap data-flap-status="tba">
+              <span class="flap-stack"><span class="flap-face flap-face--live" data-i18n="status.tba">TBA 🤫</span></span>
+            </span>
+            <div class="patch" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M4 12.5a8 8 0 0 1 16 0z"/><path d="M12 4.5V3"/><path d="M12 12.5V18a2 2 0 0 0 4 .5"/></svg></div>
+            <div class="m-date">SA <em>14.11.</em></div>
+            <h3 data-i18n="event.strand.title">takeoff: Strandparty</h3>
+            <p class="m-meta">Spartacus, Potsdam · Cocktails gegen den Novemberregen · Details folgen</p>
+            <div class="chips">
+              <span class="chip hot" data-i18n="event.strand.price">TBA</span>
+              <span class="chip" translate="no">Trance</span>
+              <span class="chip" translate="no">Hard Bounce</span>
+              <span class="chip" data-i18n="common.age_18">18+</span>
+            </div>
+            <button class="m-toggle" type="button" aria-expanded="false">Briefing <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
+            <div class="m-more">
+              <div class="m-more-inner">
+                <dl class="m-rows">
+                  <div class="m-row"><dt data-i18n="card.row.status">Status</dt><dd><b data-i18n="status.prep">In Vorbereitung</b></dd></div>
+                  <div class="m-row"><dt data-i18n="card.row.landing">Landeplatz</dt><dd><b translate="no">Spartacus</b>, Potsdam</dd></div>
+                  <div class="m-row"><dt data-i18n="card.row.motto">Motto</dt><dd>Strandparty <span style="opacity:.6" data-i18n="event.strand.motto_note">(Arbeitstitel)</span></dd></div>
+                </dl>
+                <div class="route-row">
+                  <a class="btn btn-ghost" href="https://www.google.com/maps/search/?api=1&query=Friedrich-Engels-Stra%C3%9Fe%2022%2C%2014473%20Potsdam" target="_blank" rel="noopener" data-i18n="event.page.maps.google">Google Maps ↗</a>
+                  <a class="btn btn-ghost" href="https://maps.apple.com/?q=Friedrich-Engels-Stra%C3%9Fe%2022%2C%2014473%20Potsdam" target="_blank" rel="noopener" data-i18n="event.page.maps.apple">Apple Karten ↗</a>
+                  <a class="btn btn-ghost" href="https://www.openstreetmap.org/search?query=Friedrich-Engels-Stra%C3%9Fe%2022%2C%2014473%20Potsdam" target="_blank" rel="noopener" data-i18n="event.page.maps.osm">OSM ↗</a>
+                </div>
+                <p class="lu-note" data-i18n="venue.spartacus.hint_short">5 Min zu Fuß vom Potsdam Hbf</p>
+                <p class="m-brief" data-i18n="event.strand.brief">Sommer mitten im November. Lineup, Zeiten und Deko-Geheimnisse gibt's zuerst im Telegram-Kanal.</p>
+                <div class="cta-row">
+                  <a class="btn btn-ghost" href="#" onclick="return false" title="Demo — echter Download kommt mit dem Backend" data-i18n="event.page.cta.ics" data-i18n-title="common.demo_download">＋ In den Kalender (.ics)</a>
+                  <button type="button" class="btn btn-ghost m-share" data-share-text="takeoff: Strandparty · Sa 14.11. · Spartacus · TBA" data-share-url="events.html#strandparty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="2.6"/><circle cx="6" cy="12" r="2.6"/><circle cx="18" cy="19" r="2.6"/><path d="M8.3 10.7l7.4-4.4M8.3 13.3l7.4 4.4"/></svg>Teilen</button>
+                  <a class="btn btn-ghost" href="https://t.me/takeoffpotsdam" target="_blank" rel="noopener" data-i18n="card.cta.telegram_first">Telegram · zuerst erfahren</a>
+                </div>
+              </div>
+            </div>
+          </article>
+        </div>
+
+        <div class="transmission standby-state" hidden>
+          <span class="tx-label" data-i18n="events.standby.label">Standby</span>
+          <p><strong data-i18n="events.standby.title">Nächster Start in Vorbereitung</strong><br><span class="es-text" data-i18n="events.standby.text">Kein Event angekündigt — aber startklar. Telegram weiß es zuerst.</span></p>
+          <div class="cta-row" style="justify-content:center; margin-top:16px">
+            <a class="btn btn-primary" href="https://t.me/takeoffpotsdam" target="_blank" rel="noopener" data-i18n="events.standby.cta">Telegram beitreten</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="flightlog">
+      <div class="wrap">
+        <header class="section-head flog-head reveal">
+          <div>
+            <p class="eyebrow" data-bind="sections.flightlogEyebrow" data-i18n="menu.flightlog.label">Flight Log</p>
+            <h2 class="h2" data-i18n-html="flightlog.h2">Bisherige <span class="glow">Missionen</span></h2>
+          </div>
+          <button type="button" class="fpin-reset" data-bind="patchLog.resetLabel" data-i18n="common.reset">Zurücksetzen</button>
+        </header>
+        <div class="board-cols board-cols--sub" aria-hidden="true">
+          <span data-i18n="events.board.col.gate">Gate</span><span data-i18n="events.board.col.date">Datum</span><span data-i18n="events.board.col.mission">Mission</span><span data-i18n="events.board.col.venue">Ort</span><span data-i18n="card.row.status">Status</span>
+        </div>
+        <ul class="flog">
+          <li data-slug="pride">
+            <span class="fpatch" aria-hidden="true">M6</span>
+            <span class="fdate">27.06.26</span>
+            <a class="fname" href="event-pride.html" data-i18n="flog.m6.name">Pride-Party</a>
+            <span class="fvenue" data-i18n="flog.m6.venue">KuZe · 3 Floors</span>
+            <span class="fstatus chip" data-flap data-flap-status="departed"><span class="flap-stack"><span class="flap-face flap-face--live" data-i18n="status.departed">Departed</span></span></span>
+            <span class="fnote" data-i18n="flog.m6.note">40 °C, Sturm, Demo abgesagt — Party fand trotzdem statt. „Bestes Event, das wir je hatten."</span>
+            <button type="button" class="fpin" data-slug="pride" aria-pressed="false" aria-label="War ich dabei — Pride-Party" data-i18n-aria="a11y.flog.pin"><span class="fp-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg></span>War ich dabei</button>
+          </li>
+          <li data-slug="free-entry-rave">
+            <span class="fpatch" aria-hidden="true">M5</span>
+            <span class="fdate">17.01.26</span>
+            <span class="fname" translate="no">Free Entry Rave</span>
+            <span class="fvenue" translate="no">Spartacus</span>
+            <span class="fstatus chip" data-flap data-flap-status="departed"><span class="flap-stack"><span class="flap-face flap-face--live" data-i18n="status.departed">Departed</span></span></span>
+            <span class="fnote" data-i18n="flog.m5.note">Lokales Lineup A–Z, Eintritt auf Spendenbasis, Feuerschale &amp; Steinofen-Pizza.</span>
+            <button type="button" class="fpin" data-slug="free-entry-rave" aria-pressed="false" aria-label="War ich dabei — Free Entry Rave" data-i18n-aria="a11y.flog.pin"><span class="fp-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg></span>War ich dabei</button>
+          </li>
+          <li data-slug="groesstes-event">
+            <span class="fpatch" aria-hidden="true">M4</span>
+            <span class="fdate">27.09.25</span>
+            <span class="fname" data-i18n="flog.m4.name">Unser größtes Event</span>
+            <span class="fvenue" translate="no">Spartacus</span>
+            <span class="fstatus chip" data-flap data-flap-status="departed"><span class="flap-stack"><span class="flap-face flap-face--live" data-i18n="status.departed">Departed</span></span></span>
+            <button type="button" class="fpin" data-slug="groesstes-event" aria-pressed="false" aria-label="War ich dabei — Unser größtes Event" data-i18n-aria="a11y.flog.pin"><span class="fp-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg></span>War ich dabei</button>
+          </li>
+          <li data-slug="spartacus-nacht">
+            <span class="fpatch" aria-hidden="true">M3</span>
+            <span class="fdate">09.05.25</span>
+            <span class="fname" data-i18n="flog.m3.name">Spartacus-Nacht</span>
+            <span class="fvenue" translate="no">Spartacus</span>
+            <span class="fstatus chip" data-flap data-flap-status="departed"><span class="flap-stack"><span class="flap-face flap-face--live" data-i18n="status.departed">Departed</span></span></span>
+            <span class="fnote" data-i18n="flog.m3.note">Antike trifft Trance — brennender Schriftzug überm Tempel.</span>
+            <button type="button" class="fpin" data-slug="spartacus-nacht" aria-pressed="false" aria-label="War ich dabei — Spartacus-Nacht" data-i18n-aria="a11y.flog.pin"><span class="fp-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg></span>War ich dabei</button>
+          </li>
+          <li data-slug="out-of-space">
+            <span class="fpatch" aria-hidden="true">M2</span>
+            <span class="fdate">11.01.25</span>
+            <span class="fname" translate="no">Out of Space</span>
+            <span class="fvenue" translate="no">Nilkeller</span>
+            <span class="fstatus chip" data-flap data-flap-status="departed"><span class="flap-stack"><span class="flap-face flap-face--live" data-i18n="status.departed">Departed</span></span></span>
+            <span class="fnote" data-i18n="flog.m2.note">Einlassstopp bei 200 — der Keller war voll.</span>
+            <button type="button" class="fpin" data-slug="out-of-space" aria-pressed="false" aria-label="War ich dabei — Out of Space" data-i18n-aria="a11y.flog.pin"><span class="fp-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg></span>War ich dabei</button>
+          </li>
+          <li data-slug="sky-high">
+            <span class="fpatch" aria-hidden="true">M1</span>
+            <span class="fdate">15.06.24</span>
+            <span class="fname" translate="no">Sky High</span>
+            <span class="fvenue" translate="no">Potsdam</span>
+            <span class="fstatus chip" data-flap data-flap-status="departed"><span class="flap-stack"><span class="flap-face flap-face--live" data-i18n="status.departed">Departed</span></span></span>
+            <span class="fnote" data-i18n="flog.m1.note">Der erste takeoff. Hier ging alles los.</span>
+            <button type="button" class="fpin" data-slug="sky-high" aria-pressed="false" aria-label="War ich dabei — Sky High" data-i18n-aria="a11y.flog.pin"><span class="fp-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg></span>War ich dabei</button>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="section" id="bpm">
+      <div class="wrap">
+        <header class="section-head reveal">
+          <p class="eyebrow" data-i18n="events.bpm.eyebrow">Sound-Check</p>
+          <h2 class="h2" data-i18n-html="events.bpm.h2">Finde deinen <span class="glow">Rave-Rhythmus</span></h2>
+          <p class="section-intro" data-i18n="events.bpm.intro">Klopf mit — wir sagen dir, zu welchem Genre dein Tempo passt.</p>
+        </header>
+        <div class="bpmtool reveal">
+          <button type="button" class="bpm-pad" aria-label="Hier im Takt tippen — Tap-Tempo-Werkzeug" data-i18n-aria="a11y.bpm.pad">
+            <span data-i18n="events.bpm.tap">Tap</span><small data-i18n="events.bpm.tap_note">im Takt</small>
+          </button>
+          <div class="bpm-readout" aria-live="polite">
+            <b>—</b><span data-i18n="events.bpm.unit">BPM</span>
+          </div>
+          <p class="bpm-match" aria-live="polite"></p>
+          <button type="button" class="bpm-reset" data-i18n="common.reset">Zurücksetzen</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="faq">
+      <div class="wrap" style="max-width:820px">
+        <header class="section-head reveal">
+          <p class="eyebrow" data-i18n="events.faq.eyebrow">Bevor du fragst</p>
+          <h2 class="h2" data-i18n-html="events.faq.h2">Häufige <span class="glow">Fragen</span></h2>
+        </header>
+        <div class="faqlist reveal">
+          <details>
+            <summary>Muss ich vorher ein Ticket kaufen?<span class="fq-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></span></summary>
+            <p class="fq-a" data-i18n="events.faq.ticket.a">Bei Free-Entry-Events nicht — einfach kommen. Steht bei jedem Termin oben in der Karte, falls doch mal Eintritt fällig ist.</p>
+          </details>
+          <details>
+            <summary>Ab wann lohnt sich Kommen?<span class="fq-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></span></summary>
+            <p class="fq-a" data-i18n="events.faq.when.a">Zum Einlass, wenn du sicher reinwillst — bei kleineren Locations war schon mal bei 200 Leuten Schluss. Line-up- und Timetable-Updates gibt's vorher im Telegram.</p>
+          </details>
+          <details>
+            <summary>Gibt's Garderobe?<span class="fq-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></span></summary>
+            <p class="fq-a" data-i18n="events.faq.cloakroom.a">Nicht überall — wir sind ein DIY-Kollektiv, kein Club mit festem Personal. Steht in der jeweiligen Eventkarte, sonst gilt: leicht anziehen, warm tanzen.</p>
+          </details>
+          <details>
+            <summary>Darf ich fotografieren?<span class="fq-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></span></summary>
+            <p class="fq-a" data-i18n="events.faq.photo.a">Kein Foto ohne Frage — siehe Awareness.</p>
+          </details>
+          <details>
+            <summary>Ich bin unter 18 — komme ich rein?<span class="fq-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></span></summary>
+            <p class="fq-a" data-i18n="events.faq.under18.a">Kommt aufs Event an: Open Airs wie „Freiräume" sind für alle Altersgruppen, Club- und Spätnächte meist ab 18. Steht immer in der Eventkarte.</p>
+          </details>
+          <details>
+            <summary>Ich will mithelfen!<span class="fq-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></span></summary>
+            <p class="fq-a">Immer her damit — Aufbau, Awareness, Bar, Deko. Schreib uns im Telegram oder schau auf <a href="kollektiv.html#mitmachen" style="color:var(--acc-3-tint)">kollektiv.html#mitmachen</a> vorbei, wir melden uns.</p>
+          </details>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" style="padding-top: 0">
+      <div class="wrap">
+        <div class="transmission reveal">
+          <span class="tx-label" data-bind="transmission.label" data-i18n="events.transmission.label">Transmission incoming</span>
+          <p data-i18n="events.transmission.text">Fotos, Aftermovies und Sets der vergangenen Missionen werden gerade gesichtet — die Galerien landen hier, sobald alle Abgebildeten gefragt wurden. Kein Foto ohne Frage, auch im Archiv.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap">
+      <div class="foot-grid">
+        <div>
+          <h4 data-i18n="footer.channels">Kanäle</h4>
+          <ul>
+            <li><a href="https://www.instagram.com/takeoff.potsdam/" target="_blank" rel="noopener">Instagram ↗</a></li>
+            <li><a href="https://t.me/takeoffpotsdam" target="_blank" rel="noopener">Telegram ↗</a></li>
+            <li><a href="https://soundcloud.com/takeoff-potsdam" target="_blank" rel="noopener">SoundCloud ↗</a></li>
+            <li><a href="https://www.tiktok.com/@takeoff.potsdam" target="_blank" rel="noopener">TikTok ↗</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 data-i18n="nav.kollektiv">Kollektiv</h4>
+          <ul>
+            <li><a href="kollektiv.html" data-i18n="common.about_us">Über uns</a></li>
+            <li><a href="team.html" data-i18n="footer.team">Team</a></li>
+            <li><a href="news.html" data-i18n="footer.news">News / Mission Log</a></li>
+            <li><a href="kalender.html" data-i18n="footer.calendar">Eventkalender</a></li>
+            <li><a href="awareness.html" data-i18n="link.awareness_concept">Awareness-Konzept</a></li>
+            <li><a href="awareness.html#hilfe" data-i18n="link.help_drugs">Hilfe &amp; Drogennotfälle</a></li>
+            <li><a href="kollektiv.html#mitmachen" data-i18n="footer.join">Mitmachen / Crew werden</a></li>
+            <li><a href="kollektiv.html#booking" data-i18n="footer.booking">Booking</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 data-i18n="footer.contact">Kontakt</h4>
+          <ul>
+            <li><a href="kontakt.html" data-i18n="footer.contact">Kontakt</a></li>
+            <li><a href="mailto:info@takeoff-potsdam.de" translate="no">info@takeoff-potsdam.de</a></li>
+            <li><a href="impressum.html" data-i18n="footer.imprint">Impressum</a></li>
+            <li><a href="datenschutz.html" data-i18n="footer.privacy">Datenschutz</a></li>
+          </ul>
+          <p class="no-track" data-i18n="footer.no_track">🛰️ Diese Seite trackt dich nicht</p>
+        </div>
+      </div>
+      <p class="love">Viel Liebe, euer takeoff Team <b>♥</b></p>
+      <p class="proto-note" data-i18n="footer.proto_note">DESIGN-PROTOTYP · IT 8 · NICHTS HIER IST FINAL · INHALTE TEILS PLATZHALTER</p>
+    </div>
+  </footer>
+
+  <div class="mctrl" role="group" aria-label="Darstellungs-Einstellungen" data-i18n-aria="a11y.mctrl">
+    <div class="row">
+      <span class="lbl" data-i18n="mctrl.fx">FX</span>
+      <button type="button" data-set-fx="s" aria-pressed="false" title="Statisch — spart Akku &amp; Daten" data-i18n="mctrl.off" data-i18n-title="mctrl.fx.off.title">Aus</button>
+      <button type="button" data-set-fx="m" aria-pressed="false" title="Standard" data-i18n="mctrl.normal" data-i18n-title="mctrl.fx.normal.title">Normal</button>
+      <button type="button" data-set-fx="l" aria-pressed="false" title="Volle Show" data-i18n="mctrl.full" data-i18n-title="mctrl.fx.full.title">Voll</button>
+    </div>
+    <div class="row">
+      <span class="lbl" data-i18n="mctrl.theme">Theme</span>
+      <button type="button" data-set-theme="space" aria-pressed="false" data-i18n="mctrl.theme.space">Space</button>
+      <button type="button" data-set-theme="mars" aria-pressed="false" data-i18n="mctrl.theme.mars">Mars</button>
+      <button type="button" data-set-theme="strand" aria-pressed="false" data-i18n="mctrl.theme.strand">Strand</button>
+    </div>
+    <div class="row">
+      <span class="lbl" data-i18n="mctrl.ground">Boden</span>
+      <button type="button" data-set-ground="off" aria-pressed="false" title="Nur Sternenhimmel" data-i18n="mctrl.off" data-i18n-title="mctrl.ground.off.title">Aus</button>
+      <button type="button" data-set-ground="on" aria-pressed="false" title="Horizont je nach Theme" data-i18n="mctrl.on" data-i18n-title="mctrl.ground.on.title">An</button>
+    </div>
+    <div class="row">
+      <span class="lbl" data-i18n="mctrl.time">Zeit</span>
+      <button type="button" data-set-day="night" aria-pressed="false" data-i18n="mctrl.night">Nacht</button>
+      <button type="button" data-set-day="day" aria-pressed="false" data-i18n="mctrl.day">Tag</button>
+    </div>
+  </div>
+
+  <script defer src="assets/js/data.js"></script>
+  <script defer src="assets/vendor/gsap.min.js"></script>
+  <script defer src="assets/vendor/ScrollTrigger.min.js"></script>
+  <script defer src="assets/vendor/lenis.min.js"></script>
+  <script defer src="assets/js/main.js"></script>
+  <script defer src="assets/js/i18n.js"></script>
+  <script defer src="assets/js/i18n-runtime.js"></script>
+  <script defer src="assets/js/pages/events.js"></script>
+</body>
+</html>

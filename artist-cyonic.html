@@ -1,0 +1,274 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script>
+  (function () {
+    var h = document.documentElement;
+    h.classList.add("js");
+    var get = function (k) { try { return localStorage.getItem(k); } catch (e) { return null; } };
+    var c = navigator.connection || {};
+    var mem = navigator.deviceMemory, cores = navigator.hardwareConcurrency;
+    var tier = "m";
+    if (mem !== undefined && cores !== undefined && mem > 4 && cores > 4) tier = "l";
+    var stored = get("takeoff-fx");
+    if (stored === "s" || stored === "m" || stored === "l") tier = stored;
+    if (c.saveData === true) tier = "s";
+    if (/(^|\b)(slow-2g|2g|3g)\b/.test(c.effectiveType || "")) tier = "s";
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches) tier = "s";
+    h.dataset.fx = tier;
+    var th = get("takeoff-theme");
+    if (!h.dataset.theme && th && th !== "space") h.dataset.theme = th;
+
+    /* Sprache. Der Zustand gehoert ans Standardattribut lang, damit :lang(en)
+       als nativer CSS-Selektor greift - nicht an ein data-Attribut.
+       Der Sperrvermerk data-lang-lock muss auf <html> stehen: dieses Script
+       laeuft im <head>, dort ist <body> noch nicht geparst. Das ist die
+       Asymmetrie zum data-theme-lock, das auf <body> sitzt. */
+    if (!h.hasAttribute("data-lang-lock")) {
+      var lg = get("takeoff-lang");
+      if (lg === "de" || lg === "en") h.lang = lg;
+    }
+  })();
+  </script>
+  <title data-i18n="meta.artist.cyonic.title">Cyonic · Artist · takeoff potsdam</title>
+  <meta name="description" content="Cyonic — Techno · Trance · seit Tag 1 bei takeoff.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚀</text></svg>">
+  <link rel="stylesheet" href="assets/css/style.css">
+  <noscript><style>#stars{display:none!important}.nav-progress{display:none!important}.marquee-track,.band-track{animation:none!important}</style></noscript>
+</head>
+<body>
+  <a class="skip-link" href="#main" data-i18n="a11y.skiplink">Zum Inhalt springen</a>
+  <canvas id="stars" aria-hidden="true"></canvas>
+
+  <header class="topbar">
+    <div class="hud">
+      <span class="dot" aria-hidden="true"></span>
+      <div class="marquee" aria-label="Nächste Events" data-i18n-aria="a11y.marquee.events">
+        <div class="marquee-track">
+          <span>NEXT LAUNCH → <b>SA 12.09.</b> OPEN AIR „FREIRÄUME" · BASTION AM SCHILLERPLATZ · <em>16:00</em> · FREE</span>
+          <span><b>SA 19.09.</b> TAKEOFF: MARSMISSION · SPARTACUS · <em>23:00</em> · FREE ENTRY</span>
+          <span><b>SA 14.11.</b> TAKEOFF: STRANDPARTY · SPARTACUS · <em data-i18n="event.strand.price">TBA</em></span>
+          <span>NEXT LAUNCH → <b>SA 12.09.</b> OPEN AIR „FREIRÄUME" · BASTION AM SCHILLERPLATZ · <em>16:00</em> · FREE</span>
+          <span><b>SA 19.09.</b> TAKEOFF: MARSMISSION · SPARTACUS · <em>23:00</em> · FREE ENTRY</span>
+          <span><b>SA 14.11.</b> TAKEOFF: STRANDPARTY · SPARTACUS · <em data-i18n="event.strand.price">TBA</em></span>
+        </div>
+      </div>
+      <a class="hud-link" href="https://t.me/takeoffpotsdam" target="_blank" rel="noopener" data-i18n="topbar.hud.telegram">TELEGRAM ↗</a>
+    </div>
+    <div class="nav">
+      <a class="nav-brand" href="index.html" aria-label="takeoff — zur Startseite" translate="no" data-i18n-aria="a11y.brand">takeoff</a>
+      <span class="nav-rule" aria-hidden="true"></span>
+      <nav class="nav-links" aria-label="Hauptnavigation" data-i18n-aria="a11y.nav.main">
+        <ul>
+          <li><a href="events.html" data-i18n="nav.events">Events</a></li>
+          <li><a href="artists.html" aria-current="true" data-i18n="nav.artists">Artists</a></li>
+          <li><a href="kollektiv.html" data-i18n="nav.kollektiv">Kollektiv</a></li>
+          <li><a href="awareness.html" data-i18n="nav.awareness">Awareness</a></li>
+          <li data-prio="2"><a href="news.html" data-i18n="nav.news">News</a></li>
+          <li data-prio="2"><a href="kalender.html" data-i18n="nav.kalender">Kalender</a></li>
+        </ul>
+      </nav>
+      <!-- Dehnfuge. Frueher trug .nav-links das flex:1 — sobald es ab 900px
+           ausgeblendet wird, wuchs nichts mehr und alles klebte links. Ein
+           eigenes Element ist davon unabhaengig. -->
+      <span class="nav-gap" aria-hidden="true"></span>
+      <a class="nav-status" href="events.html">
+        <span class="st-tag" data-i18n="event.pwest.price">Free</span><span class="st-date">Sa 12.09.</span>
+      </a>
+      <!-- Sprachumschalter, kompakte Form. Besucherfunktion, deshalb in der
+           Kopfleiste und im Overlay-Menue - nicht im Mission-Control-Panel.
+           Vertrag wie bei den uebrigen Schaltern: data-set-* + aria-pressed.
+           Die Zustandslogik setzt aria-pressed, dieses Markup liefert nur den
+           Startzustand der deutschen Fassung. -->
+      <div class="nav-lang" role="group" aria-label="Sprache / Language">
+        <button type="button" data-set-lang="de" aria-pressed="true" lang="de" translate="no">DE</button>
+        <button type="button" data-set-lang="en" aria-pressed="false" lang="en" translate="no">EN</button>
+      </div>
+      <!-- Tag/Nacht. Ein Knopf statt eines Segments: bei 320px waere ein
+           zweites Segment 34px zu breit. Zustand-Lesart (Sichel = es ist
+           gerade Nacht), Beschriftung fest, aria-pressed traegt den Zustand. -->
+      <button class="nav-day" type="button" data-set-day="toggle" aria-pressed="false"
+              aria-label="Tagmodus" data-i18n-aria="a11y.daymode">
+        <svg class="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z"/>
+        </svg>
+        <svg class="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="4.2"/>
+          <path d="M12 3.4v2M12 18.6v2M3.4 12h2M18.6 12h2M6 6l1.5 1.5M16.5 16.5 18 18M18 6l-1.5 1.5M7.5 16.5 6 18"/>
+        </svg>
+      </button>
+      <button class="nav-burger" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="menu" aria-label="Menü öffnen" data-i18n-aria="a11y.burger.open">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path class="b-line" d="M2 6h16"/><path class="b-line" d="M2 14h16"/></svg>
+        <span data-i18n="menu.label">Menü</span>
+      </button>
+    </div>
+  </header>
+
+  <dialog class="menu" id="menu" aria-label="Menü" data-i18n-aria="menu.label">
+    <div class="menu-inner">
+      <p class="menu-eyebrow" data-i18n="menu.eyebrow">Bordcomputer · Navigation</p>
+      <ul class="menu-list">
+        <li><a href="events.html"><span class="m-label" data-i18n="nav.events">Events</span> <span class="m-note">3 geplant</span></a></li>
+        <li><a href="artists.html"><span class="m-label" data-i18n="nav.artists">Artists</span> <span class="m-note" data-i18n="menu.artists.note">Sets &amp; Podcasts</span></a></li>
+        <li><a href="kollektiv.html"><span class="m-label" data-i18n="nav.kollektiv">Kollektiv</span> <span class="m-note" data-i18n="menu.kollektiv.note">Wer hier funkt</span></a></li>
+        <li><a href="awareness.html"><span class="m-label" data-i18n="nav.awareness">Awareness</span> <span class="m-note" data-i18n="menu.awareness.note">Hilfe &amp; Regeln</span></a></li>
+        <li><a href="news.html"><span class="m-label" data-i18n="menu.news.label">News</span> <span class="m-note" data-i18n="menu.news.note">Mission Log</span></a></li>
+        <li><a href="kalender.html"><span class="m-label" data-i18n="menu.kalender.label">Kalender</span> <span class="m-note" data-i18n="menu.kalender.note">Abo &amp; Termine</span></a></li>
+        <li><a href="kontakt.html"><span class="m-label" data-i18n="footer.contact">Kontakt</span> <span class="m-note" data-i18n="menu.kontakt.note">Schreib uns</span></a></li>
+      </ul>
+      <a class="menu-next" href="event-marsmission.html">
+        <span>
+          <span class="mn-when">Next Launch · Sa 12.09.</span>
+          <span class="mn-title" data-i18n="event.pwest.title">Open Air: Freiräume</span>
+          <span class="mn-where">Bastion am Schillerplatz · 16 Uhr · Free</span>
+        </span>
+        <span class="mn-go" data-i18n="menu.go">Ansehen →</span>
+      </a>
+      <div class="menu-social">
+        <a href="https://www.instagram.com/takeoff.potsdam/" target="_blank" rel="noopener" translate="no">Instagram</a>
+        <a href="https://t.me/takeoffpotsdam" target="_blank" rel="noopener" translate="no">Telegram</a>
+        <a href="https://soundcloud.com/takeoff-potsdam" target="_blank" rel="noopener" translate="no">SoundCloud</a>
+        <a href="mailto:info@takeoff-potsdam.de" translate="no">info@takeoff-potsdam.de</a>
+      </div>
+      <!-- Vollwertige Kopie des Sprachumschalters. Endonyme (Deutsch/English)
+           statt uebersetzter Labels - sie sind in beiden Sprachen richtig und
+           brauchen deshalb keinen Woerterbuchschluessel. -->
+      <div class="menu-lang" role="group" aria-label="Sprache / Language">
+        <button type="button" data-set-lang="de" aria-pressed="true" lang="de" translate="no">Deutsch</button>
+        <button type="button" data-set-lang="en" aria-pressed="false" lang="en" translate="no">English</button>
+      </div>
+        <div class="menu-day" role="group" aria-label="Tag oder Nacht">
+          <button type="button" data-set-day="night" aria-pressed="true" data-i18n="mctrl.night">Nacht</button>
+          <button type="button" data-set-day="day" aria-pressed="false" data-i18n="mctrl.day">Tag</button>
+        </div>
+      <button class="menu-close" type="button" data-i18n="menu.close">Schließen</button>
+    </div>
+  </dialog>
+
+  <main id="main">
+    <section class="phero">
+      <div class="wrap" style="display:flex; flex-wrap:wrap; align-items:center; gap:26px">
+        <div class="avatar ccard-solo" style="width:96px;height:96px;border-radius:50%;display:grid;place-items:center;font-family:var(--font-display);font-weight:700;font-size:26px;color:var(--ink);background:radial-gradient(circle at 30% 25%, rgb(255 255 255 / .09), rgb(11 9 24 / .95) 65%);border:1px solid rgb(255 255 255 / .22);box-shadow:inset 0 0 0 3px rgb(var(--acc-2-rgb) / .16)" aria-hidden="true" translate="no">CY</div>
+        <div>
+          <p class="eyebrow" data-i18n="artistpage.eyebrow">Artist</p>
+          <h1 translate="no">Cyonic</h1>
+          <p class="section-intro" style="margin-top:8px" data-i18n="artist.cyonic.tagline">Techno · Trance · seit Tag 1</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" style="padding-top: clamp(24px, 4vh, 40px)">
+      <div class="wrap" style="max-width: 760px">
+        <dl class="m-rows reveal" style="border-top: 1px solid var(--bg-hairline)">
+            <div class="m-row"><dt data-i18n="artists.row.role">Rolle</dt><dd><b data-i18n="crew.role.dj">DJ</b> · von der ersten Mission an</dd></div>
+            <div class="m-row"><dt data-i18n="artists.row.debut">Debüt</dt><dd>Sky High · 15.06.2024</dd></div>
+            <div class="m-row"><dt data-i18n="artists.row.specialty">Spezialität</dt><dd data-i18n="artists.cyonic.specialty">B2B-Sets</dd></div>
+        </dl>
+        <p class="section-intro reveal" style="margin-top:18px" data-i18n="artists.cyonic.bio">Von der ersten Mission an dabei. Profil folgt.</p>
+      </div>
+    </section>
+
+    <section class="section" style="padding-top: 0">
+      <div class="wrap">
+        <header class="section-head reveal"><p class="eyebrow" data-i18n="artists.row.listen">Hören</p><h2 class="h2" data-i18n="artistpage.sets.h2">Sets</h2></header>
+        <div class="setgrid" style="max-width:520px">
+          <button class="setcard" type="button" aria-label="Set abspielen" data-i18n-aria="a11y.set.play_plain">
+            <span class="cover"><span class="play" aria-hidden="true">▶</span></span>
+            <span class="s-meta"><b translate="no">Cyonic B2B Niico — Out of Space</b><span>11.01. · Liveset</span></span>
+            <span class="consent-note" data-i18n="sets.consent.player">Demo: Hier würde jetzt der Player laden (Zwei-Klick, DSGVO-freundlich).</span>
+          </button>
+        </div>
+        <div class="cta-row" style="margin-top:20px">
+          <a class="btn btn-ghost" href="https://soundcloud.com/takeoff-potsdam" target="_blank" rel="noopener">SoundCloud ↗</a>
+          <a class="btn btn-ghost" href="artists.html" data-i18n="artistpage.back_all">← Alle Artists</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" style="padding-top: 0">
+      <div class="wrap">
+        <header class="section-head reveal"><p class="eyebrow" data-i18n="menu.flightlog.label">Flight Log</p><h2 class="h2" data-i18n-html="artistpage.flog.h2">Bei takeoff <span class="glow">gespielt</span></h2></header>
+        <ul class="flog">
+          <li><span class="fpatch" aria-hidden="true">M5</span><span class="fdate">17.01.26</span><span class="fname" translate="no">Free Entry Rave</span><span class="fvenue" translate="no">Spartacus</span></li>
+          <li><span class="fpatch" aria-hidden="true">M3</span><span class="fdate">09.05.25</span><span class="fname" data-i18n="flog.m3.name">Spartacus-Nacht</span><span class="fvenue" translate="no">Spartacus</span></li>
+          <li><span class="fpatch" aria-hidden="true">M2</span><span class="fdate">11.01.25</span><span class="fname" translate="no">Out of Space</span><span class="fvenue" translate="no">Nilkeller</span></li>
+          <li><span class="fpatch" aria-hidden="true">M1</span><span class="fdate">15.06.24</span><span class="fname" translate="no">Sky High</span><span class="fvenue" translate="no">Potsdam</span></li>
+        </ul>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap">
+      <div class="foot-grid">
+        <div>
+          <h4 data-i18n="footer.channels">Kanäle</h4>
+          <ul>
+            <li><a href="https://www.instagram.com/takeoff.potsdam/" target="_blank" rel="noopener">Instagram ↗</a></li>
+            <li><a href="https://t.me/takeoffpotsdam" target="_blank" rel="noopener">Telegram ↗</a></li>
+            <li><a href="https://soundcloud.com/takeoff-potsdam" target="_blank" rel="noopener">SoundCloud ↗</a></li>
+            <li><a href="https://www.tiktok.com/@takeoff.potsdam" target="_blank" rel="noopener">TikTok ↗</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 data-i18n="nav.kollektiv">Kollektiv</h4>
+          <ul>
+            <li><a href="kollektiv.html" data-i18n="common.about_us">Über uns</a></li>
+            <li><a href="team.html" data-i18n="footer.team">Team</a></li>
+            <li><a href="news.html" data-i18n="footer.news">News / Mission Log</a></li>
+            <li><a href="kalender.html" data-i18n="footer.calendar">Eventkalender</a></li>
+            <li><a href="awareness.html" data-i18n="link.awareness_concept">Awareness-Konzept</a></li>
+            <li><a href="kollektiv.html#mitmachen" data-i18n="footer.join_short">Mitmachen</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 data-i18n="footer.contact">Kontakt</h4>
+          <ul>
+            <li><a href="kontakt.html" data-i18n="footer.contact">Kontakt</a></li>
+            <li><a href="mailto:info@takeoff-potsdam.de" translate="no">info@takeoff-potsdam.de</a></li>
+            <li><a href="impressum.html" data-i18n="footer.imprint">Impressum</a></li>
+            <li><a href="datenschutz.html" data-i18n="footer.privacy">Datenschutz</a></li>
+          </ul>
+          <p class="no-track" data-i18n="footer.no_track">🛰️ Diese Seite trackt dich nicht</p>
+        </div>
+      </div>
+      <p class="love">Viel Liebe, euer takeoff Team <b>♥</b></p>
+      <p class="proto-note" data-i18n="footer.proto_note">DESIGN-PROTOTYP · IT 8 · NICHTS HIER IST FINAL · INHALTE TEILS PLATZHALTER</p>
+    </div>
+  </footer>
+
+  <div class="mctrl" role="group" aria-label="Darstellungs-Einstellungen" data-i18n-aria="a11y.mctrl">
+    <div class="row">
+      <span class="lbl" data-i18n="mctrl.fx">FX</span>
+      <button type="button" data-set-fx="s" aria-pressed="false" title="Statisch — spart Akku &amp; Daten" data-i18n="mctrl.off" data-i18n-title="mctrl.fx.off.title">Aus</button>
+      <button type="button" data-set-fx="m" aria-pressed="false" title="Standard" data-i18n="mctrl.normal" data-i18n-title="mctrl.fx.normal.title">Normal</button>
+      <button type="button" data-set-fx="l" aria-pressed="false" title="Volle Show" data-i18n="mctrl.full" data-i18n-title="mctrl.fx.full.title">Voll</button>
+    </div>
+    <div class="row">
+      <span class="lbl" data-i18n="mctrl.theme">Theme</span>
+      <button type="button" data-set-theme="space" aria-pressed="false" data-i18n="mctrl.theme.space">Space</button>
+      <button type="button" data-set-theme="mars" aria-pressed="false" data-i18n="mctrl.theme.mars">Mars</button>
+      <button type="button" data-set-theme="strand" aria-pressed="false" data-i18n="mctrl.theme.strand">Strand</button>
+    </div>
+    <div class="row">
+      <span class="lbl" data-i18n="mctrl.ground">Boden</span>
+      <button type="button" data-set-ground="off" aria-pressed="false" title="Nur Sternenhimmel" data-i18n="mctrl.off" data-i18n-title="mctrl.ground.off.title">Aus</button>
+      <button type="button" data-set-ground="on" aria-pressed="false" title="Horizont je nach Theme" data-i18n="mctrl.on" data-i18n-title="mctrl.ground.on.title">An</button>
+    </div>
+    <div class="row">
+      <span class="lbl" data-i18n="mctrl.time">Zeit</span>
+      <button type="button" data-set-day="night" aria-pressed="false" data-i18n="mctrl.night">Nacht</button>
+      <button type="button" data-set-day="day" aria-pressed="false" data-i18n="mctrl.day">Tag</button>
+    </div>
+  </div>
+
+  <script defer src="assets/vendor/gsap.min.js"></script>
+  <script defer src="assets/vendor/ScrollTrigger.min.js"></script>
+  <script defer src="assets/vendor/lenis.min.js"></script>
+  <script defer src="assets/js/main.js"></script>
+  <script defer src="assets/js/i18n.js"></script>
+  <script defer src="assets/js/i18n-runtime.js"></script>
+</body>
+</html>

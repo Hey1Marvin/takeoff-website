@@ -1,0 +1,406 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script>
+  (function () {
+    var h = document.documentElement;
+    h.classList.add("js");
+    var get = function (k) { try { return localStorage.getItem(k); } catch (e) { return null; } };
+    var c = navigator.connection || {};
+    var mem = navigator.deviceMemory, cores = navigator.hardwareConcurrency;
+    var tier = "m";
+    if (mem !== undefined && cores !== undefined && mem > 4 && cores > 4) tier = "l";
+    var stored = get("takeoff-fx");
+    if (stored === "s" || stored === "m" || stored === "l") tier = stored;
+    if (c.saveData === true) tier = "s";
+    if (/(^|\b)(slow-2g|2g|3g)\b/.test(c.effectiveType || "")) tier = "s";
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches) tier = "s";
+    h.dataset.fx = tier;
+    var th = get("takeoff-theme");
+    if (!h.dataset.theme && th && th !== "space") h.dataset.theme = th;
+
+    /* Sprache. Der Zustand gehoert ans Standardattribut lang, damit :lang(en)
+       als nativer CSS-Selektor greift - nicht an ein data-Attribut.
+       Der Sperrvermerk data-lang-lock muss auf <html> stehen: dieses Script
+       laeuft im <head>, dort ist <body> noch nicht geparst. Das ist die
+       Asymmetrie zum data-theme-lock, das auf <body> sitzt. */
+    if (!h.hasAttribute("data-lang-lock")) {
+      var lg = get("takeoff-lang");
+      if (lg === "de" || lg === "en") h.lang = lg;
+    }
+  })();
+  </script>
+  <title data-i18n="meta.team.title">Team · takeoff potsdam</title>
+  <meta name="description" content="Wer bei takeoff was macht — DJs, Licht, Deko, Awareness, Sani, Orga.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚀</text></svg>">
+  <link rel="stylesheet" href="assets/css/style.css">
+  <link rel="stylesheet" href="assets/css/pages/team.css">
+  <noscript><style>#stars{display:none!important}.nav-progress{display:none!important}.marquee-track,.band-track{animation:none!important}</style></noscript>
+</head>
+<body>
+  <a class="skip-link" href="#main" data-i18n="a11y.skiplink">Zum Inhalt springen</a>
+  <canvas id="stars" aria-hidden="true"></canvas>
+
+  <!-- Signaturmotiv "Orbit-Stationsplan": additiver Hintergrund-Layer
+       zwischen Sternenhimmel und Inhalt (DATA.md, 02.09.) — rein dekorativ,
+       deshalb komplett aria-hidden. Ring-Radien (58/94/130/160) muessen mit
+       RING_R in team.js uebereinstimmen. -->
+  <div class="kt-orbit" aria-hidden="true">
+    <svg viewBox="0 0 480 420" preserveAspectRatio="xMinYMin meet" focusable="false">
+      <g transform="translate(150,190)">
+        <circle class="kt-ring kt-ring-fallback" r="160"/>
+        <circle class="kt-ring kt-ring-bau" r="130"/>
+        <circle class="kt-ring kt-ring-boden" r="94"/>
+        <circle class="kt-ring kt-ring-flugdeck" r="58"/>
+        <g class="kt-orbit-dots" data-dept="flugdeck">
+          <circle cx="0" cy="-58" r="2.6"/><circle cx="58" cy="0" r="2.6"/><circle cx="0" cy="58" r="2.6"/><circle cx="-58" cy="0" r="2.6"/>
+        </g>
+        <g class="kt-orbit-dots" data-dept="boden">
+          <circle cx="0" cy="-94" r="2.6"/><circle cx="0" cy="94" r="2.6"/>
+        </g>
+        <g class="kt-orbit-dots" data-dept="bau">
+          <circle cx="0" cy="-130" r="2.6"/><circle cx="0" cy="130" r="2.6"/>
+        </g>
+        <line class="kt-tick" x1="29" y1="-50.2" x2="37" y2="-64.1"/>
+        <line class="kt-tick" x1="92.6" y1="-16.3" x2="108.3" y2="-19.1"/>
+        <line class="kt-tick" x1="106.5" y1="74.6" x2="119.6" y2="83.8"/>
+        <text class="kt-ring-label" x="43" y="-61">FLUGDECK</text>
+        <text class="kt-ring-label" x="114" y="-16">BODENCREW</text>
+        <text class="kt-ring-label" x="125" y="88">BAU &amp; GASTGEBER</text>
+        <g class="kt-sweep"><line x1="0" y1="0" x2="0" y2="-160"/></g>
+        <circle class="kt-hub" r="3.4"/>
+      </g>
+    </svg>
+  </div>
+
+  <header class="topbar">
+    <div class="hud">
+      <span class="dot" aria-hidden="true"></span>
+      <div class="marquee" aria-label="Nächste Events" data-i18n-aria="a11y.marquee.events">
+        <div class="marquee-track">
+          <span>NEXT LAUNCH → <b>SA 12.09.</b> OPEN AIR „FREIRÄUME" · BASTION AM SCHILLERPLATZ · <em>16:00</em> · FREE</span>
+          <span><b>SA 19.09.</b> TAKEOFF: MARSMISSION · SPARTACUS · <em>23:00</em> · FREE ENTRY</span>
+          <span><b>SA 14.11.</b> TAKEOFF: STRANDPARTY · SPARTACUS · <em data-i18n="event.strand.price">TBA</em></span>
+          <span>NEXT LAUNCH → <b>SA 12.09.</b> OPEN AIR „FREIRÄUME" · BASTION AM SCHILLERPLATZ · <em>16:00</em> · FREE</span>
+          <span><b>SA 19.09.</b> TAKEOFF: MARSMISSION · SPARTACUS · <em>23:00</em> · FREE ENTRY</span>
+          <span><b>SA 14.11.</b> TAKEOFF: STRANDPARTY · SPARTACUS · <em data-i18n="event.strand.price">TBA</em></span>
+        </div>
+      </div>
+      <a class="hud-link" href="https://t.me/takeoffpotsdam" target="_blank" rel="noopener" data-i18n="topbar.hud.telegram">TELEGRAM ↗</a>
+    </div>
+    <div class="nav">
+      <a class="nav-brand" href="index.html" aria-label="takeoff — zur Startseite" translate="no" data-i18n-aria="a11y.brand">takeoff</a>
+      <span class="nav-rule" aria-hidden="true"></span>
+      <nav class="nav-links" aria-label="Hauptnavigation" data-i18n-aria="a11y.nav.main">
+        <ul>
+          <li><a href="events.html" data-i18n="nav.events">Events</a></li>
+          <li><a href="artists.html" data-i18n="nav.artists">Artists</a></li>
+          <li><a href="kollektiv.html" aria-current="true" data-i18n="nav.kollektiv">Kollektiv</a></li>
+          <li><a href="awareness.html" data-i18n="nav.awareness">Awareness</a></li>
+          <li data-prio="2"><a href="news.html" data-i18n="nav.news">News</a></li>
+          <li data-prio="2"><a href="kalender.html" data-i18n="nav.kalender">Kalender</a></li>
+        </ul>
+      </nav>
+      <!-- Dehnfuge. Frueher trug .nav-links das flex:1 — sobald es ab 900px
+           ausgeblendet wird, wuchs nichts mehr und alles klebte links. Ein
+           eigenes Element ist davon unabhaengig. -->
+      <span class="nav-gap" aria-hidden="true"></span>
+      <a class="nav-status" href="events.html">
+        <span class="st-tag" data-i18n="event.pwest.price">Free</span><span class="st-date">Sa 12.09.</span>
+      </a>
+      <!-- Sprachumschalter, kompakte Form. Besucherfunktion, deshalb in der
+           Kopfleiste und im Overlay-Menue - nicht im Mission-Control-Panel.
+           Vertrag wie bei den uebrigen Schaltern: data-set-* + aria-pressed.
+           Die Zustandslogik setzt aria-pressed, dieses Markup liefert nur den
+           Startzustand der deutschen Fassung. -->
+      <div class="nav-lang" role="group" aria-label="Sprache / Language">
+        <button type="button" data-set-lang="de" aria-pressed="true" lang="de" translate="no">DE</button>
+        <button type="button" data-set-lang="en" aria-pressed="false" lang="en" translate="no">EN</button>
+      </div>
+      <!-- Tag/Nacht. Ein Knopf statt eines Segments: bei 320px waere ein
+           zweites Segment 34px zu breit. Zustand-Lesart (Sichel = es ist
+           gerade Nacht), Beschriftung fest, aria-pressed traegt den Zustand. -->
+      <button class="nav-day" type="button" data-set-day="toggle" aria-pressed="false"
+              aria-label="Tagmodus" data-i18n-aria="a11y.daymode">
+        <svg class="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z"/>
+        </svg>
+        <svg class="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="4.2"/>
+          <path d="M12 3.4v2M12 18.6v2M3.4 12h2M18.6 12h2M6 6l1.5 1.5M16.5 16.5 18 18M18 6l-1.5 1.5M7.5 16.5 6 18"/>
+        </svg>
+      </button>
+      <button class="nav-burger" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="menu" aria-label="Menü öffnen" data-i18n-aria="a11y.burger.open">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path class="b-line" d="M2 6h16"/><path class="b-line" d="M2 14h16"/></svg>
+        <span data-i18n="menu.label">Menü</span>
+      </button>
+    </div>
+  </header>
+
+  <dialog class="menu" id="menu" aria-label="Menü" data-i18n-aria="menu.label">
+    <div class="menu-inner">
+      <p class="menu-eyebrow" data-i18n="menu.eyebrow">Bordcomputer · Navigation</p>
+      <ul class="menu-list">
+        <li><a href="events.html"><span class="m-label" data-i18n="nav.events">Events</span> <span class="m-note">3 geplant</span></a></li>
+        <li><a href="artists.html"><span class="m-label" data-i18n="nav.artists">Artists</span> <span class="m-note" data-i18n="menu.artists.note">Sets &amp; Podcasts</span></a></li>
+        <li><a href="kollektiv.html"><span class="m-label" data-i18n="nav.kollektiv">Kollektiv</span> <span class="m-note" data-i18n="menu.kollektiv.note">Wer hier funkt</span></a></li>
+        <li><a href="awareness.html"><span class="m-label" data-i18n="nav.awareness">Awareness</span> <span class="m-note" data-i18n="menu.awareness.note">Hilfe &amp; Regeln</span></a></li>
+        <li><a href="news.html"><span class="m-label" data-i18n="menu.news.label">News</span> <span class="m-note" data-i18n="menu.news.note">Mission Log</span></a></li>
+        <li><a href="kalender.html"><span class="m-label" data-i18n="menu.kalender.label">Kalender</span> <span class="m-note" data-i18n="menu.kalender.note">Abo &amp; Termine</span></a></li>
+        <li><a href="kontakt.html"><span class="m-label" data-i18n="footer.contact">Kontakt</span> <span class="m-note" data-i18n="menu.kontakt.note">Schreib uns</span></a></li>
+      </ul>
+      <a class="menu-next" href="event-marsmission.html">
+        <span>
+          <span class="mn-when">Next Launch · Sa 12.09.</span>
+          <span class="mn-title" data-i18n="event.pwest.title">Open Air: Freiräume</span>
+          <span class="mn-where">Bastion am Schillerplatz · 16 Uhr · Free</span>
+        </span>
+        <span class="mn-go" data-i18n="menu.go">Ansehen →</span>
+      </a>
+      <div class="menu-social">
+        <a href="https://www.instagram.com/takeoff.potsdam/" target="_blank" rel="noopener" translate="no">Instagram</a>
+        <a href="https://t.me/takeoffpotsdam" target="_blank" rel="noopener" translate="no">Telegram</a>
+        <a href="https://soundcloud.com/takeoff-potsdam" target="_blank" rel="noopener" translate="no">SoundCloud</a>
+        <a href="mailto:info@takeoff-potsdam.de" translate="no">info@takeoff-potsdam.de</a>
+      </div>
+      <!-- Vollwertige Kopie des Sprachumschalters. Endonyme (Deutsch/English)
+           statt uebersetzter Labels - sie sind in beiden Sprachen richtig und
+           brauchen deshalb keinen Woerterbuchschluessel. -->
+      <div class="menu-lang" role="group" aria-label="Sprache / Language">
+        <button type="button" data-set-lang="de" aria-pressed="true" lang="de" translate="no">Deutsch</button>
+        <button type="button" data-set-lang="en" aria-pressed="false" lang="en" translate="no">English</button>
+      </div>
+        <div class="menu-day" role="group" aria-label="Tag oder Nacht">
+          <button type="button" data-set-day="night" aria-pressed="true" data-i18n="mctrl.night">Nacht</button>
+          <button type="button" data-set-day="day" aria-pressed="false" data-i18n="mctrl.day">Tag</button>
+        </div>
+      <button class="menu-close" type="button" data-i18n="menu.close">Schließen</button>
+    </div>
+  </dialog>
+
+  <main id="main" class="kt-scope">
+    <section class="phero">
+      <div class="wrap">
+        <p class="eyebrow" data-bind="hero.eyebrow" data-i18n="team.eyebrow">Teamboard</p>
+        <h1 data-i18n-html="team.h1">Die <span class="glow">Crew</span></h1>
+        <p class="section-intro" data-bind="hero.intro" data-i18n="team.intro">takeoff ist Kollektivarbeit: Jede Nacht entsteht aus vielen Händen. Fotos folgen, sobald alle einverstanden sind — bis dahin: Rollen &amp; Aufgaben.</p>
+      </div>
+    </section>
+
+    <div class="wrap">
+      <div class="stats reveal" id="team-stats">
+        <div><b>08</b><span>Rollen im Board</span></div>
+        <div><b>06</b><span>begleitete Missionen</span></div>
+        <div><b>2024</b><span>aktiv seit</span></div>
+        <div><b>100%</b><span>ehrenamtlich</span></div>
+      </div>
+    </div>
+
+    <section class="section" id="crew">
+      <div class="wrap">
+        <header class="section-head reveal">
+          <p class="eyebrow" data-i18n="team.dept.eyebrow">Stationsplan</p>
+          <h2 class="h2" data-i18n-html="team.dept.h2">Wer sitzt <span class="glow">wo</span></h2>
+          <p class="section-intro" data-i18n="team.dept.intro">Die Crew verteilt sich auf drei Stationen an Bord — vom Flugdeck bis zur Bodencrew. Jede Karte zeigt, wer welchen Job übernimmt.</p>
+        </header>
+
+        <div id="kt-departments">
+          <div class="kt-dept reveal" data-dept="flugdeck">
+            <div class="kt-dept-head">
+              <span class="kt-dept-dot" aria-hidden="true"></span>
+              <h3 class="kt-dept-title">Flugdeck</h3>
+              <span class="kt-dept-sub">Sound &amp; Licht</span>
+            </div>
+            <p class="kt-dept-intro">Wer an Pult und Pulten steht.</p>
+            <div class="crewgrid kt-grid" data-dept="flugdeck">
+              <a class="ccard" href="artist-platzhalter.html" data-kt-id="nico-dj-platzhalter">
+                <span class="avatar">NI</span>
+                <b data-i18n="crew.nico.name">Nico · DJ Platzhalter</b>
+                <span data-i18n="crew.nico.role">Mitgründer · Orga · DJ</span>
+                <span class="kt-since">seit 2024</span>
+                <span class="kt-cardlink">Profil &amp; Sets →</span>
+              </a>
+              <button type="button" class="ccard" data-kt-id="mik-blaulicht">
+                <span class="avatar">MI</span>
+                <b translate="no">Mik · Blaulicht</b>
+                <span data-i18n="crew.mik.role">Lichttechnik · DMX · DJ</span>
+                <span class="kt-since">seit 2025</span>
+              </button>
+              <a class="ccard" href="artist-jojo.html" data-kt-id="jojo">
+                <span class="avatar" translate="no">JO</span>
+                <b translate="no">JOJO</b>
+                <span data-i18n="crew.role.dj_resident">DJ · Resident</span>
+                <span class="kt-since">seit 2025</span>
+                <span class="kt-cardlink">Profil &amp; Sets →</span>
+              </a>
+              <a class="ccard" href="artist-cyonic.html" data-kt-id="cyonic">
+                <span class="avatar" translate="no">CY</span>
+                <b translate="no">Cyonic</b>
+                <span data-i18n="crew.role.dj_day_one">DJ · seit Tag 1</span>
+                <span class="kt-since">seit 2024</span>
+                <span class="kt-cardlink">Profil &amp; Sets →</span>
+              </a>
+            </div>
+          </div>
+
+          <div class="kt-dept reveal" data-dept="boden">
+            <div class="kt-dept-head">
+              <span class="kt-dept-dot" aria-hidden="true"></span>
+              <h3 class="kt-dept-title">Bodencrew</h3>
+              <span class="kt-dept-sub">Sicherheit &amp; Fürsorge</span>
+            </div>
+            <p class="kt-dept-intro">Wer aufpasst, wenn's drauf ankommt.</p>
+            <div class="crewgrid kt-grid" data-dept="boden">
+              <a class="ccard" href="awareness.html" data-kt-id="awareness-team">
+                <span class="avatar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M12 20s-7.2-4.6-9.2-9A5.2 5.2 0 0 1 12 6.6 5.2 5.2 0 0 1 21.2 11c-2 4.4-9.2 9-9.2 9z"/></svg></span>
+                <b data-i18n="crew.awareness.name">Awareness-Team</b>
+                <span data-i18n="crew.awareness.role_vests">Lila Westen · ansprechbar</span>
+                <span class="kt-cardlink">Awareness-Konzept →</span>
+              </a>
+              <a class="ccard" href="awareness.html#hilfe" data-kt-id="sani-team">
+                <span class="avatar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 8.5v7M8.5 12h7"/></svg></span>
+                <b data-i18n="crew.sani.name">Sani-Team</b>
+                <span data-i18n="crew.sani.role_roaming">Ersthelfer*innen · im Umlauf</span>
+                <span class="kt-cardlink">Erste Hilfe &amp; Regeln →</span>
+              </a>
+            </div>
+          </div>
+
+          <div class="kt-dept reveal" data-dept="bau">
+            <div class="kt-dept-head">
+              <span class="kt-dept-dot" aria-hidden="true"></span>
+              <h3 class="kt-dept-title">Bau &amp; Gastgeber</h3>
+              <span class="kt-dept-sub">Deko, Bar, Einlass</span>
+            </div>
+            <p class="kt-dept-intro">Wer die Location baut und die Tür offen hält.</p>
+            <div class="crewgrid kt-grid" data-dept="bau">
+              <button type="button" class="ccard" data-kt-id="deko-bau">
+                <span class="avatar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M13 3 5.5 13.5H11L9.5 21 17.5 10H12z"/></svg></span>
+                <b data-i18n="crew.deko.name">Deko &amp; Bau</b>
+                <span data-i18n="crew.deko.role">Requisiten · Motto-Welten</span>
+              </button>
+              <button type="button" class="ccard" data-kt-id="bar-einlass">
+                <span class="avatar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M12 20s-7.2-4.6-9.2-9A5.2 5.2 0 0 1 12 6.6 5.2 5.2 0 0 1 21.2 11c-2 4.4-9.2 9-9.2 9z"/></svg></span>
+                <b data-i18n="crew.bar.name">Bar &amp; Einlass</b>
+                <span data-i18n="crew.bar.role">Schicht-Crews · jede Nacht</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="kt-dept reveal" data-dept="fallback" hidden>
+            <div class="kt-dept-head">
+              <span class="kt-dept-dot" aria-hidden="true"></span>
+              <h3 class="kt-dept-title">Weitere Crew</h3>
+            </div>
+            <div class="crewgrid kt-grid" data-dept="fallback"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="wrap">
+      <div class="transmission reveal" id="kt-mission">
+        <span class="tx-label" data-i18n="team.mission.label">Wer funkt bei der nächsten Mission</span>
+        <p id="kt-mission-text">Die nächste Mission wird noch geplant — die Bodencrew steht trotzdem schon bereit.</p>
+      </div>
+    </div>
+
+    <section class="section" id="fotoboard">
+      <div class="wrap">
+        <header class="section-head reveal">
+          <p class="eyebrow" data-i18n="team.photoboard.label">Foto-Board folgt</p>
+          <h2 class="h2" data-i18n-html="team.photo.h2">Bald mit <span class="glow">Gesichtern</span></h2>
+        </header>
+        <div class="gallery-grid reveal" id="kt-gallery">
+          <div class="gph"><span class="kt-slot-tag" aria-hidden="true">NI</span>Foto folgt nach Freigabe</div>
+          <div class="gph"><span class="kt-slot-tag" aria-hidden="true">MI</span>Foto folgt nach Freigabe</div>
+          <div class="gph"><span class="kt-slot-tag" aria-hidden="true">JO</span>Foto folgt nach Freigabe</div>
+          <div class="gph"><span class="kt-slot-tag" aria-hidden="true">CY</span>Foto folgt nach Freigabe</div>
+          <div class="gph"><span class="kt-slot-tag" aria-hidden="true">AT</span>Foto folgt nach Freigabe</div>
+          <div class="gph"><span class="kt-slot-tag" aria-hidden="true">ST</span>Foto folgt nach Freigabe</div>
+          <div class="gph"><span class="kt-slot-tag" aria-hidden="true">DB</span>Foto folgt nach Freigabe</div>
+          <div class="gph"><span class="kt-slot-tag" aria-hidden="true">BE</span>Foto folgt nach Freigabe</div>
+        </div>
+        <p class="lu-note reveal" style="margin-top:14px">Das Team-Fotoboard kommt, sobald alle Abgebildeten zugestimmt haben — Consent gilt auch für uns selbst. Du willst aufs Board? <a href="kollektiv.html#mitmachen" style="color:var(--acc-3-tint)" data-i18n="link.join">Mach mit.</a></p>
+      </div>
+    </section>
+  </main>
+
+  <div class="toast" id="kt-toast" role="status" aria-live="polite"></div>
+
+  <footer>
+    <div class="wrap">
+      <div class="foot-grid">
+        <div>
+          <h4 data-i18n="footer.channels">Kanäle</h4>
+          <ul>
+            <li><a href="https://www.instagram.com/takeoff.potsdam/" target="_blank" rel="noopener">Instagram ↗</a></li>
+            <li><a href="https://t.me/takeoffpotsdam" target="_blank" rel="noopener">Telegram ↗</a></li>
+            <li><a href="https://soundcloud.com/takeoff-potsdam" target="_blank" rel="noopener">SoundCloud ↗</a></li>
+            <li><a href="https://www.tiktok.com/@takeoff.potsdam" target="_blank" rel="noopener">TikTok ↗</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 data-i18n="nav.kollektiv">Kollektiv</h4>
+          <ul>
+            <li><a href="kollektiv.html" data-i18n="common.about_us">Über uns</a></li>
+            <li><a href="team.html" data-i18n="footer.team">Team</a></li>
+            <li><a href="news.html" data-i18n="footer.news">News / Mission Log</a></li>
+            <li><a href="kalender.html" data-i18n="footer.calendar">Eventkalender</a></li>
+            <li><a href="awareness.html" data-i18n="link.awareness_concept">Awareness-Konzept</a></li>
+            <li><a href="kollektiv.html#mitmachen" data-i18n="footer.join_short">Mitmachen</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 data-i18n="footer.contact">Kontakt</h4>
+          <ul>
+            <li><a href="kontakt.html" data-i18n="footer.contact">Kontakt</a></li>
+            <li><a href="mailto:info@takeoff-potsdam.de" translate="no">info@takeoff-potsdam.de</a></li>
+            <li><a href="impressum.html" data-i18n="footer.imprint">Impressum</a></li>
+            <li><a href="datenschutz.html" data-i18n="footer.privacy">Datenschutz</a></li>
+          </ul>
+          <p class="no-track" data-i18n="footer.no_track">🛰️ Diese Seite trackt dich nicht</p>
+        </div>
+      </div>
+      <p class="love">Viel Liebe, euer takeoff Team <b>♥</b></p>
+      <p class="proto-note" data-i18n="footer.proto_note">DESIGN-PROTOTYP · IT 8 · NICHTS HIER IST FINAL · INHALTE TEILS PLATZHALTER</p>
+    </div>
+  </footer>
+
+  <div class="mctrl" role="group" aria-label="Darstellungs-Einstellungen" data-i18n-aria="a11y.mctrl">
+    <div class="row">
+      <span class="lbl" data-i18n="mctrl.fx">FX</span>
+      <button type="button" data-set-fx="s" aria-pressed="false" title="Statisch — spart Akku &amp; Daten" data-i18n="mctrl.off" data-i18n-title="mctrl.fx.off.title">Aus</button>
+      <button type="button" data-set-fx="m" aria-pressed="false" title="Standard" data-i18n="mctrl.normal" data-i18n-title="mctrl.fx.normal.title">Normal</button>
+      <button type="button" data-set-fx="l" aria-pressed="false" title="Volle Show" data-i18n="mctrl.full" data-i18n-title="mctrl.fx.full.title">Voll</button>
+    </div>
+    <div class="row">
+      <span class="lbl" data-i18n="mctrl.theme">Theme</span>
+      <button type="button" data-set-theme="space" aria-pressed="false" data-i18n="mctrl.theme.space">Space</button>
+      <button type="button" data-set-theme="mars" aria-pressed="false" data-i18n="mctrl.theme.mars">Mars</button>
+      <button type="button" data-set-theme="strand" aria-pressed="false" data-i18n="mctrl.theme.strand">Strand</button>
+    </div>
+    <div class="row">
+      <span class="lbl" data-i18n="mctrl.ground">Boden</span>
+      <button type="button" data-set-ground="off" aria-pressed="false" title="Nur Sternenhimmel" data-i18n="mctrl.off" data-i18n-title="mctrl.ground.off.title">Aus</button>
+      <button type="button" data-set-ground="on" aria-pressed="false" title="Horizont je nach Theme" data-i18n="mctrl.on" data-i18n-title="mctrl.ground.on.title">An</button>
+    </div>
+    <div class="row">
+      <span class="lbl" data-i18n="mctrl.time">Zeit</span>
+      <button type="button" data-set-day="night" aria-pressed="false" data-i18n="mctrl.night">Nacht</button>
+      <button type="button" data-set-day="day" aria-pressed="false" data-i18n="mctrl.day">Tag</button>
+    </div>
+  </div>
+
+  <script defer src="assets/js/data.js"></script>
+  <script defer src="assets/vendor/gsap.min.js"></script>
+  <script defer src="assets/vendor/ScrollTrigger.min.js"></script>
+  <script defer src="assets/vendor/lenis.min.js"></script>
+  <script defer src="assets/js/main.js"></script>
+  <script defer src="assets/js/i18n.js"></script>
+  <script defer src="assets/js/i18n-runtime.js"></script>
+  <script defer src="assets/js/pages/team.js"></script>
+</body>
+</html>

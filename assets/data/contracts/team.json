@@ -1,0 +1,68 @@
+{
+  "$contract": "team",
+  "version": 1,
+  "label": "Team-Mitglied",
+  "labelPlural": "Team",
+  "icon": "users",
+  "description": "Die Crew hinter takeoff — Personen und Funktions-Teams (z. B. Awareness, Sani). Karte entsteht automatisch auf der Team-Seite.",
+  "storage": { "scope": "db", "collection": "team", "key": "slug" },
+  "fields": [
+    {
+      "key": "slug",
+      "type": "text",
+      "label": "Interne Kennung",
+      "required": true,
+      "help": "Eindeutige interne ID, keine Leerzeichen/Umlaute — wird nicht öffentlich angezeigt, nur zur Verwaltung genutzt."
+    },
+    {
+      "key": "visible",
+      "type": "toggle",
+      "label": "Öffentlich sichtbar",
+      "default": true,
+      "help": "Auf der Team-Seite anzeigen. Ausschalten blendet die Karte aus, ohne den Eintrag zu löschen."
+    },
+    {
+      "key": "name",
+      "type": "text",
+      "label": "Name",
+      "required": true,
+      "help": "z. B. „Nico · DJ Platzhalter“ oder „Awareness-Team“."
+    },
+    {
+      "key": "role",
+      "type": "text",
+      "label": "Rolle",
+      "help": "z. B. „Mitgründer · Orga · DJ“ oder „Lila Westen · ansprechbar“."
+    },
+    {
+      "key": "initials",
+      "type": "text",
+      "label": "Initialen",
+      "help": "2 Buchstaben für die runde Kachel bei einer Einzelperson, z. B. „NI“. Bei Gruppen stattdessen unten ein Symbol wählen."
+    },
+    {
+      "key": "icon",
+      "type": "select",
+      "label": "Symbol (statt Initialen)",
+      "options": [
+        { "value": "heart", "label": "Herz" },
+        { "value": "cross", "label": "Kreuz (Erste Hilfe)" },
+        { "value": "bolt", "label": "Blitz" },
+        { "value": "star", "label": "Stern" }
+      ],
+      "help": "Für Funktions-Teams statt einer Einzelperson, z. B. „Herz“ fürs Awareness-Team. Nur eins von Initialen/Symbol wird gebraucht."
+    },
+    {
+      "key": "password",
+      "type": "password",
+      "label": "Passwort",
+      "disabled": true,
+      "help": "Mitarbeiter-Login kommt in einer späteren Ausbaustufe — dieses Feld ist aktuell nur ein Platzhalter und noch nicht aktiv."
+    }
+  ],
+  "list": {
+    "columns": ["name", "role", "visible"],
+    "sort": "name"
+  },
+  "actions": ["create", "edit", "toggleVisible", "delete"]
+}
