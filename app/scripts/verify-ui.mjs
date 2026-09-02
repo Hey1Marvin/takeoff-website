@@ -245,11 +245,20 @@ for (const r of ["/", "/kollektiv", "/events"]) {
    scene-night.css legt deshalb weiche Traegerflaechen unter die Textbloecke —
    diese Pruefung findet, was dabei vergessen wurde. */
 console.log("\n== Lesbarkeit (Text ohne Flaeche) ==");
-for (const r of ["/", "/events/marsmission", "/artists", "/awareness", "/news",
-                 "/kalender", "/team", "/musik", "/kontakt"]) {
+/* Beide Modi. Vorher lief diese Pruefung ausschliesslich nachts — der
+   Tagmodus wurde ueberhaupt nur auf "/" angefasst (Gruppe 3). Genau in
+   dieser Luecke sassen die Tag-Fehler, die It. 14 gefunden hat: die
+   fehlende Feder der hellen Spalte im Space-Theme und der helle Grund
+   unter den vollflaechigen Deko-Ebenen von sechs Seiten. */
+for (const [r, tag] of ["/", "/events/marsmission", "/artists", "/awareness", "/news",
+                        "/kalender", "/team", "/musik", "/kontakt"]
+                       .flatMap(r => [[r, false], [r, true]])) {
   const ctx = await browser.newContext({ viewport: { width: 1280, height: 900 } });
   const page = await ctx.newPage();
-  await page.addInitScript(() => localStorage.setItem("takeoff-theme", "strand"));
+  await page.addInitScript(t => {
+    localStorage.setItem("takeoff-theme", "strand");
+    localStorage.setItem("takeoff-day", t ? "on" : "off");
+  }, tag);
   await page.goto(BASE + r, { waitUntil: "load" });
   await page.waitForTimeout(1100);
   const offen = await page.evaluate(() => {
@@ -266,7 +275,10 @@ for (const r of ["/", "/events/marsmission", "/artists", "/awareness", "/news",
       return false;
     };
     let n = 0;
-    for (const el of document.querySelectorAll("main p, main li, main dd, main dt, main h2, main h3")) {
+    /* h1 gehoert dazu — es fehlte, und genau deshalb ist die groesste
+         Ueberschrift der Awareness-Seite jahrelang ohne Traegerflaeche
+         durch diese Pruefung gerutscht. */
+      for (const el of document.querySelectorAll("main h1, main p, main li, main dd, main dt, main h2, main h3")) {
       const t = (el.textContent || "").trim();
       if (t.length < 12 || el.querySelector("p,li,h2,h3")) continue;
       const rc = el.getBoundingClientRect();
@@ -276,7 +288,7 @@ for (const r of ["/", "/events/marsmission", "/artists", "/awareness", "/news",
     }
     return n;
   });
-  note(offen === 0, `${r} kein Text ohne Traegerflaeche (${offen})`);
+  note(offen === 0, `${r} ${tag ? "Tag " : "Nacht"} kein Text ohne Traegerflaeche (${offen})`);
   await ctx.close();
 }
 

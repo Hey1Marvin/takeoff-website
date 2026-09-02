@@ -1,0 +1,108 @@
+/* ============================================================
+   404 — „Lost in Space"
+
+   EIN Motiv: das Einhorn an der Rettungsleine, das langsam aus dem Bild
+   treibt. EIN Bewegungsmoment: dieses Treiben. Sonst nichts — die Seite
+   ist ein Sackgassen-Moment, kein Schaufenster.
+
+   Alle Selektoren haengen an `.nf-sec`/`.nf-wrap`. Seiten-CSS wird global
+   gebuendelt; ein nacktes `.nf-code` waere zwar heute eindeutig, aber die
+   Regel gilt hier wie ueberall.
+   ============================================================ */
+
+.nf-sec {
+  position: relative;
+  isolation: isolate;          /* haelt das treibende Einhorn im Element */
+  min-height: 62vh;
+  display: grid;
+  align-content: center;
+}
+
+.nf-wrap { position: relative; }
+
+/* ---------- Die Zahl ----------
+   Sie ist das groesste Element der Seite und traegt sie. Chrome-Rampe wie
+   die Wortmarke, aber ohne deren Sheen — ein Effekt pro Seite, und der
+   gehoert hier dem Einhorn.
+   `background-clip: text` malt den Verlauf nur innerhalb der Padding-Box:
+   ohne Polster schneidet er Ober- und Unterlaengen ab (dieselbe Falle wie
+   bei .wordmark, dort nachgemessen). Deshalb das Polster. */
+.nf-wrap .nf-code {
+  font-family: var(--font-display);
+  font-weight: var(--w-display);
+  font-size: clamp(96px, 22vw, 260px);
+  line-height: .92;
+  letter-spacing: var(--track-tight);
+  margin: var(--sp-2) 0 0;
+  padding: .08em .06em .1em;
+  background: linear-gradient(168deg,
+      var(--chrome-hi) 0%, var(--chrome-mid) 34%,
+      var(--chrome-shadow) 54%, var(--chrome-lo) 66%, var(--chrome-hi) 100%);
+  -webkit-background-clip: text; background-clip: text;
+  color: transparent;
+  font-variant-numeric: tabular-nums;
+}
+
+.nf-wrap .nf-title { margin: 0; max-width: 18ch; }
+.nf-wrap .nf-intro { margin-top: var(--sp-3); }
+
+/* ---------- Mission-Log ----------
+   `.m-rows` ist der Subgrid-Vertrag des Systems (eine Label-Spalte, alle
+   Werte auf einer Kante). Hier nur der Abstand und die Deckelung. */
+.nf-wrap .nf-log {
+  margin-top: var(--sp-6);
+  max-width: 62ch;
+}
+
+.nf-wrap .nf-cta { margin-top: var(--sp-6); }
+
+/* ---------- Das Einhorn an der Leine ----------
+   Liegt HINTER dem Text (`--z-veil`) und rechts aussen, wo auf dieser
+   Seite ohnehin nichts steht. Auf schmalen Schirmen waere es im Weg —
+   dort ist es aus. */
+.nf-sec .nf-drift {
+  position: absolute;
+  z-index: var(--z-veil);
+  /* Nicht mittig rechts: dort sitzt auf JEDER Seite das Mission-Control-
+     Panel (`.mctrl`, fixed, rechts unten, rund 330x230px, z-index 120).
+     Die rechte untere Ecke ist damit sitesweit belegt — was dort steht,
+     wird verdeckt. Das Einhorn treibt deshalb im oberen Drittel. */
+  top: 6%; right: -1vw;
+  width: clamp(200px, 22vw, 300px);
+  color: var(--acc-2-tint);
+  opacity: .5;
+  pointer-events: none;
+  display: none;
+}
+@media (min-width: 900px) { .nf-sec .nf-drift { display: block; } }
+
+.nf-sec .nf-drift svg { width: 100%; height: auto; }
+.nf-sec .nf-tether { opacity: .55; }
+
+/* Das Treiben. Sehr langsam und sehr klein — es soll auffallen, wenn man
+   hinsieht, und nicht ablenken, wenn man liest. Nur ab Stufe m; bei „s"
+   und bei reduzierter Bewegung steht das Einhorn still (takeoff.css kappt
+   dort alle Animationen global, die Regel hier macht es zusaetzlich
+   explizit, damit es beim Lesen nicht uebersehen wird). */
+:root[data-fx="m"] .nf-sec .nf-horn,
+:root[data-fx="l"] .nf-sec .nf-horn {
+  animation: nf-treiben 14s ease-in-out infinite alternate;
+  transform-origin: 262px 200px;
+}
+@keyframes nf-treiben {
+  from { transform: translate(0, 0) rotate(-4deg); }
+  to   { transform: translate(14px, -10px) rotate(5deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .nf-sec .nf-horn { animation: none !important; }
+}
+
+/* ---------- Tagmodus ----------
+   Die Chrome-Rampe ist fuer dunklen Grund gerechnet; auf der hellen Saeule
+   verschwindet ihre helle Haelfte. Tags traegt die Zahl deshalb den
+   Tinten-Ton mit einem ruhigen Verlauf statt Metall. */
+:root.day-mode .nf-wrap .nf-code {
+  background: linear-gradient(168deg, var(--ink) 0%, var(--ink-dim) 78%);
+  -webkit-background-clip: text; background-clip: text;
+}
+:root.day-mode .nf-sec .nf-drift { opacity: .38; }

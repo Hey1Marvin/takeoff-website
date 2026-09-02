@@ -711,4 +711,18 @@ export const en: Record<Key, string> = {
   "crew.portalPartner": "Partner area",
   "crew.uebergabe": "Handover",
   "crew.rechte": "Roles & permissions",
+
+  /* ---- 404 "Lost in Space" ---- */
+  "nf.eyebrow": "Signal lost",
+  "nf.title": "This page is adrift",
+  "nf.intro": "That address doesn\u2019t exist (any more). No drama \u2014 we\u2019ll get you back on board.",
+  "nf.log.statusLabel": "Status",
+  "nf.log.statusValue": "404 \u00b7 no contact",
+  "nf.log.causeLabel": "Most likely",
+  "nf.log.causeValue": "A typo, an old link, or the page moved.",
+  "nf.log.nextLabel": "Next step",
+  "nf.log.nextValue": "Head back to base \u2014 or straight to the next missions.",
+  "nf.back": "Back to base",
+  "nf.events": "Next missions",
+  "nf.contact": "Report this link",
 };

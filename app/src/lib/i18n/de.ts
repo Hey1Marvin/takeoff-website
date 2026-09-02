@@ -708,6 +708,20 @@ export const de = {
   "crew.portalPartner": "Partnerbereich",
   "crew.uebergabe": "Übergabe",
   "crew.rechte": "Rollen & Rechte",
+
+  /* ---- 404 „Lost in Space" ---- */
+  "nf.eyebrow": "Signal verloren",
+  "nf.title": "Diese Seite treibt im All",
+  "nf.intro": "Die Adresse gibt es nicht (mehr). Kein Drama \u2014 wir holen dich zur\u00fcck an Bord.",
+  "nf.log.statusLabel": "Status",
+  "nf.log.statusValue": "404 \u00b7 kein Kontakt",
+  "nf.log.causeLabel": "Wahrscheinlich",
+  "nf.log.causeValue": "Vertippt, alter Link oder die Seite ist umgezogen.",
+  "nf.log.nextLabel": "N\u00e4chster Schritt",
+  "nf.log.nextValue": "Zur\u00fcck zur Basis \u2014 oder direkt zu den n\u00e4chsten Missionen.",
+  "nf.back": "Zur\u00fcck zur Basis",
+  "nf.events": "N\u00e4chste Missionen",
+  "nf.contact": "Link melden",
 } as const;
 
 /* Der deutsche Schluesselsatz ist der Vertrag: en.ts wird gegen
