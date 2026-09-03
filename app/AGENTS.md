@@ -13,7 +13,13 @@ cd app && npx tsc --noEmit    # schneller Typ-Check. MUSS aus app/ laufen — vo
                               # fälschlich Erfolg. Bei Parallelarbeit nur diesen
                               # nutzen, nie zwei `next build` gleichzeitig (.next kollidiert)
 npm run lint --prefix app
-node app/scripts/verify-ui.mjs # UI-Prüfmatrix im echten Browser (s. u.)
+node app/scripts/verify-ui.mjs        # öffentliche UI-Prüfmatrix (Server auf :3210)
+node app/scripts/verify-crew.mjs 3210 # interne Prüfmatrix — PORT-ARGUMENT PFLICHT
+                                      # (Default ist 3400! ohne Argument testet es
+                                      #  gegen einen toten Port → "site can't be reached")
+node app/scripts/mess-leistung.mjs              # Bildzeiten beim Scrollen (s. u.)
+node app/scripts/mess-leistung.mjs --grundlinie # aktuellen Stand als Vergleichsbasis ablegen
+node app/scripts/mess-leistung.mjs --vergleich  # gegen die Grundlinie halten
 ```
 
 ## Verifizieren (Pflicht vor „fertig")
@@ -35,8 +41,24 @@ Deshalb:
    Vorher `npm run build && npm run start -- -p 3210`. Braucht Playwright
    (`npx playwright install chromium`), ist aber bewusst KEINE Projekt-Abhängigkeit.
    **Neue Seite gebaut? Trag sie in `ROUTES` im Skript ein.**
-3. Eigene Interaktionen zusätzlich per Klick testen — das Skript kennt sie nicht.
-4. A11y: aria auf Interaktivem, Tastatur-bedienbar, `aria-current` in Navs.
+3. **`node app/scripts/mess-leistung.mjs`** — sobald du an Animationen, an der
+   Szenen-Engine, an Scroll-Handlern oder an teuren CSS-Eigenschaften
+   (`filter`, `backdrop-filter`, `mix-blend-mode`) etwas änderst.
+   `verify-ui.mjs` misst **keine einzige Bildzeit**; es war zwölf Iterationen
+   grün, während die Seite beim Scrollen sichtbar ruckelte. Was niemand misst,
+   fällt niemandem auf.
+   Das Skript scrollt gescriptet durch sechs Routen × drei Stufen × drei Themes
+   und misst Bildzeiten, Hänger (LoAF) und CLS — **unter 4× CPU-Drosselung**,
+   weil man ungedrosselt vor allem misst, dass der eigene Rechner schnell ist.
+   Vorgehen: **vor** dem Umbau `--grundlinie`, danach `--vergleich`.
+   Aussagekräftig ist die **mittlere** Bildzeit; p50/p95 können nur Vielfache
+   der Bildwiederholrate annehmen und kippen bei Grenzfällen mit der Tageslast.
+   **Immer nur EINEN Server dabei laufen lassen.** Ein zweiter `next start` im
+   Hintergrund verfälscht die Messung um ein Vielfaches — real passiert:
+   dieselbe Route kam mit Nebenläufer auf 104 ms, ohne auf 43 ms, und der
+   Vergleich meldete daraufhin eine „Verschlechterung", die es nicht gab.
+4. Eigene Interaktionen zusätzlich per Klick testen — das Skript kennt sie nicht.
+5. A11y: aria auf Interaktivem, Tastatur-bedienbar, `aria-current` in Navs.
 
 ## Verträge (global, überall einhalten)
 
@@ -54,6 +76,8 @@ Deshalb:
 | **Fremd-Player: einmal zustimmen, dann überall.** Vor der Zustimmung geht KEIN Request an SoundCloud/YouTube, auch kein Standbild — die Plattform-Zeichen sind lokale SVGs. Danach lädt jeder Player von selbst (aber ohne Autoplay), auf jeder Seite, ohne erneut zu fragen. Die Zustimmung muss zurücknehmbar bleiben (Mission Control, Zeile „Player“); die Rücknahme entfernt laufende Player sofort. Prüfung 10 in `verify-ui.mjs` misst alle vier Richtungen | `EmbedConsent.tsx`, `ArtistsSetCard.tsx` |
 | **Eigene Clips laufen auf der Seite**, nicht in einem Fenster darüber: die Kachel wird zum Player, Vollbild über den Knopf in der Leiste. Der Player ist `media-chrome` (Web Components, gebündelt, keine Laufzeit-Requests) — das Aussehen kommt vollständig aus `embeds.css` über die `--media-*`-Variablen, nie durch Eingriffe in die Shadow-Roots | `MediaPlayer.tsx`, `src/styles/embeds.css` |
 | **FX-Tiers + reduced-motion** in jeder Client-Komponente respektieren | Boot-Script in `layout.tsx`, Muster in `Starfield.tsx` |
+| **Alles, was pro Bild läuft, hängt am gemeinsamen Takt** — keine eigene `requestAnimationFrame`-Schleife. Anmelden mit getrennter `lesen`- und `schreiben`-Funktion; der Takt ruft erst alle Lese-, dann alle Schreibvorgänge. Wer daneben eine eigene Schleife aufmacht, holt das Layout-Thrashing zwischen Komponenten zurück, das keine der beiden Dateien für sich verschuldet | `src/lib/frame.ts` |
+| **Qualität wird stufenlos geregelt**, nicht in Sprüngen: der Faktor senkt zuerst die Auflösung, dann die bewegten Sterne. Neue teure Effekte dort einhängen statt eigene Schwellen zu erfinden. Schwellwerte immer **relativ zur gemessenen Bildwiederholrate** — feste Millisekunden stufen 120-Hz-Geräte falsch ein und lesen den 30-fps-Deckel des Stromsparmodus als Dauerüberlast (genau daran ging der alte Watchdog zugrunde) | `src/lib/sky/qualitaet.ts` |
 | **Darstellungs-Zustand lebt auf `<html>`**, nicht in React: `data-fx`, `data-theme`, `data-video`, `lang` und die Klassen `day-mode`, `ground-on`, `scene-edges`, `is-event`, `js`. Schalter schreiben nur dorthin, Leser abonnieren per `MutationObserver`/`useSyncExternalStore` — nie ein zweiter Zustand daneben („Panel sagt Tag, Canvas malt Nacht") | `layout.tsx` (BOOT), `src/lib/sky/state.ts`, `MissionControl.tsx` |
 | Kein Tracking, keine Dritt-Requests, Embeds nur als Zwei-Klick-Facade | CLAUDE.md (Repo-Wurzel) |
 | Deutsch, Du-Form, takeoff-Ton; Safety-Texte ernst | research/03 (Tonalität) |

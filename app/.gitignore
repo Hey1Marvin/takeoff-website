@@ -45,3 +45,8 @@ next-env.d.ts
 
 # ---- Parallel-Arbeitsplaetze (eigene Build-Verzeichnisse) ----
 .next-*
+
+# Messwerte von scripts/mess-leistung.mjs. Sie gelten fuer DEN Rechner,
+# auf dem sie entstanden sind — eine Grundlinie aus einer fremden Maschine
+# waere schlimmer als keine.
+.messwerte/
