@@ -42,7 +42,16 @@ await cdp("Emulation.setDeviceMetricsOverride", { width: W, height: 780, deviceS
 
 const MESS = `(() => {
   const vw = innerWidth;
-  const out = { overflow: document.documentElement.scrollWidth - vw, tap: [], smallText: [], wide: [], tight: [] };
+  /* ZWEI Overflow-Signale, nicht eins:
+     - scrollWidth > innerWidth: klassischer horizontaler Ueberlauf.
+     - innerWidth > device-width: ein nowrap-Element hat den LAYOUT-Viewport
+       breiter gezogen als das Geraet — die Seite wird seitlich verschiebbar,
+       Ueberschriften ragen ueber den Rand. Der erste Test allein SIEHT das
+       nicht (innerWidth waechst mit). Genau dieser Fall (langer Event-Titel
+       „takeoff × No Gravity") wurde lange uebersehen. */
+  const out = { overflow: document.documentElement.scrollWidth - vw,
+                viewportBlow: Math.max(0, Math.round(vw - window.__DEV_W__)),
+                tap: [], smallText: [], wide: [], tight: [] };
   const seen = new Set();
   const imZu = (el) => el.closest('dialog:not([open])') !== null;   // geschlossenes Menue
   const inlineLink = (el) => el.tagName === 'A' && el.closest('p,li,dd,figcaption,.section-intro,.m-brief'); // WCAG 2.5.5 nimmt Inline-Links aus
@@ -79,11 +88,13 @@ const report = {};
 for (const r of ROUTEN) {
   await cdp("Page.navigate", { url: BASIS + r });
   await schlaf(1900);
+  await cdp("Runtime.evaluate", { expression: `window.__DEV_W__ = ${W};` });
   const m = await js(MESS);
   report[r] = m;
   const tapN = m.tap?.length ?? 0, smallN = m.smallText?.length ?? 0;
   const flags = [];
   if (m.overflow > 0) flags.push(`OVERFLOW ${m.overflow}px`);
+  if (m.viewportBlow > 2) flags.push(`VIEWPORT+${m.viewportBlow}px`);
   if (tapN) flags.push(`${tapN} Tap<44`);
   if (smallN) flags.push(`${smallN} Text<15px`);
   if (m.topbarH > 96) flags.push(`Topbar ${m.topbarH}px`);

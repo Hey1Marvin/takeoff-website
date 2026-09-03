@@ -345,6 +345,18 @@
    ============================================================ */
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html { scroll-behavior: smooth; }
+/* Sicherheitsnetz gegen seitliches Aufweiten des Viewports (It. 16c).
+   Ein Element, das breiter als der Schirm ist — ein langer Event-Titel mit
+   nowrap, oder eine am Viewport verankerte fixed-Ebene (Szenen-Canvas) —
+   zieht sonst den Layout-Viewport mit auf, die Seite wird seitlich
+   verschiebbar und Ueberschriften ragen ueber den Rand. `overflow-x: clip`
+   am WURZELELEMENT klemmt das ab; `body { overflow-x: hidden }` allein
+   reichte NICHT, weil fixed-Ebenen dem Body-Scrollcontainer entkommen.
+   `clip` statt `hidden`, damit KEIN Scrollcontainer entsteht: position:
+   sticky (Kopfleiste) und `animation-timeline: view()` bleiben unangetastet
+   — beides im Browser gegengeprueft. Innere Scroller (Abflugtafel-Board,
+   Genre-Baender) haben ihr eigenes overflow und sind davon unberuehrt. */
+html { overflow-x: clip; }
 html.lenis, html.lenis body { height: auto; }
 .lenis.lenis-smooth { scroll-behavior: auto !important; }
 
@@ -354,7 +366,7 @@ body {
   font-family: var(--font-text);
   font-size: clamp(16px, 1.05vw + 12px, 18px);
   line-height: 1.6;
-  overflow-x: hidden;
+  overflow-x: clip;                 /* clip statt hidden: kein Scrollcontainer, siehe html oben */
   /* KEIN -webkit-font-smoothing: antialiased. Es schaltet Subpixel- auf
      Graustufen-Rendering und laesst helle Schrift auf dunklem Grund duenner
      wirken — genau der "durchscheinend"-Eindruck, den wir hier bekaempfen.
@@ -1983,13 +1995,24 @@ footer a { color: var(--ink-dim); }
   font-family: var(--font-logo);
   font-size: clamp(30px, 8.5vw, 84px);
   text-transform: lowercase;
-  white-space: nowrap;
+  /* KEIN white-space: nowrap. Der Event-Titel ist dynamisch — lange Titel wie
+     „takeoff × No Gravity" oder „Open Air: Freiräume" sind 20+ Zeichen. Mit
+     nowrap zwang die eine Zeile den LAYOUT-VIEWPORT breiter als das Telefon
+     (gemessen: 406px Titel auf 360px Schirm → innerWidth wuchs auf 424px, die
+     ganze Seite wurde seitlich verschiebbar). Deshalb umbrechen statt
+     ueberlaufen; text-wrap: balance verteilt die Zeilen gefaellig, und
+     max-width + overflow-wrap sind das Sicherheitsnetz fuer ein einzelnes
+     ueberlanges Wort. (It. 16c) */
+  white-space: normal;
+  text-wrap: balance;
+  max-width: 100%;
+  overflow-wrap: break-word;
   padding: .06em .1em .08em;
   display: inline-block;
   background: linear-gradient(175deg, var(--chrome-hi), var(--chrome-mid) 40%, var(--chrome-lo) 65%, var(--chrome-hi));
   -webkit-background-clip: text; background-clip: text; color: transparent;
   filter: drop-shadow(0 0 18px rgb(var(--acc-1-rgb) / .2));
-  line-height: 1.05;
+  line-height: 1.08;
 }
 .patch-hero {
   width: 92px; height: 92px; margin: 0 auto 22px;
