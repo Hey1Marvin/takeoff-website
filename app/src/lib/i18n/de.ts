@@ -143,6 +143,9 @@ export const de = {
   "menu.next.label": "Next Launch",
   "menu.go": "Ansehen →",
   "menu.close": "Schließen",
+  "menu.settings": "Einstellungen",
+  "menu.language": "Sprache",
+  "menu.view": "Ansicht",
 
   /* ---------- Overlay-Menue: drei neue Eintraege (It. 8) ---------- */
   "menu.news.label": "News",
@@ -395,6 +398,8 @@ export const de = {
   "player.play": "Abspielen",
   "player.sound": "Ton",
   "player.fullscreen": "Vollbild",
+  "mctrl.auto": "Auto",
+  "mctrl.auto.hint": "Die Darstellung passt sich laufend an dein Gerät an — 100 % ist die volle Show.",
   "mctrl.embeds": "Player",
   "event.page.gallery.h3": "Galerie",
   "event.page.gallery.consent_note": "Wir fragen jede abgebildete Person, bevor ein Foto online geht. Du bist auf einem Bild und willst das nicht? {link}",

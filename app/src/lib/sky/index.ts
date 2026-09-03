@@ -33,7 +33,7 @@
    ------------------------------------------------------------ */
 import { initStars } from "./engine";
 import { createEnv, startScrollTracking, watchSky } from "./state";
-import { startWatchdog } from "./watchdog";
+import { startQualitaet, qualitaet, dprFaktor, Q_ATTR } from "./qualitaet";
 import type { SkyApi } from "./types";
 
 /* Die Ebenen, die `initStars()` selbst neben das Canvas haengt. Der
@@ -74,7 +74,25 @@ export function mountSky(canvas: HTMLCanvasElement): () => void {
     targets.forEach((t, i) => { t.addEventListener = originals[i]!; });
   }
 
-  const stopWatchdog = startWatchdog(env);
+  const stopQualitaet = startQualitaet(env);
+
+  /* Der Qualitaetsfaktor senkt zuerst die Aufloesung — und eine geaenderte
+     Aufloesung heisst `resize()`, also ein Neu-Setzen des kompletten
+     Sternenfelds (Rueckweisungsverfahren, bis zu vierzehn Stichproben je
+     Stern). Das darf NICHT bei jedem Zehntel passieren, sonst bringt sich
+     die Regelung selbst zum Ruckeln.
+     Deshalb zwei Bremsen: nur wenn sich die AUFLOESUNGSSTUFE tatsaechlich
+     aendert (dprFaktor kennt nur wenige Werte), und dann entprellt. */
+  let letzterDpr = dprFaktor(qualitaet());
+  let dprTimer = 0;
+  const qObs = new MutationObserver(() => {
+    const jetzt = dprFaktor(qualitaet());
+    if (jetzt === letzterDpr) return;
+    letzterDpr = jetzt;
+    clearTimeout(dprTimer);
+    dprTimer = window.setTimeout(() => api?.resize(), 350);
+  });
+  qObs.observe(document.documentElement, { attributes: true, attributeFilter: [Q_ATTR] });
 
   /* Zuordnung woertlich aus main.js (Mission-Control-Handler, Z. 6088-6166):
      · Boden an/aus  -> paintHorizon() + seedGlints()
@@ -101,7 +119,9 @@ export function mountSky(canvas: HTMLCanvasElement): () => void {
 
   return () => {
     unwatch();
-    stopWatchdog();
+    qObs.disconnect();
+    clearTimeout(dprTimer);
+    stopQualitaet();
     stopScroll();
     captured.forEach(([t, type, fn]) => t.removeEventListener(type, fn));
     api?.stop();
@@ -116,5 +136,5 @@ export function mountSky(canvas: HTMLCanvasElement): () => void {
 }
 
 export { createEnv, watchSky, startScrollTracking, scrollProgress } from "./state";
-export { startWatchdog } from "./watchdog";
+export { startQualitaet, qualitaet, Q_ATTR } from "./qualitaet";
 export type { FxTier, ScenePreset, SkyEnv, SkyApi } from "./types";

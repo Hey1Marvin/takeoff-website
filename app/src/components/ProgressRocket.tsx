@@ -1,10 +1,24 @@
 "use client";
 /* Scroll-Fortschritt als Flugbahn. Der VERTRAG mit takeoff.css:
-   Das CSS bewegt Balken (scaleX) und Rakete (left-calc) über die Variablen
+   Das CSS bewegt Balken (scaleX) und Rakete (translateX) über die Variablen
    --scrollp (0..1) und --thrust (Schub aus Scroll-Geschwindigkeit, plus
    gestuftes --thrust-q für Filter). Diese Komponente SCHREIBT nur die
-   Variablen — identisch zur Prototyp-Mechanik in main.js. */
+   Variablen — identisch zur Prototyp-Mechanik in main.js.
+
+   ── Was It. 16 hier geändert hat ───────────────────────────
+   1. KEINE eigene rAF-Schleife mehr. Sie lief auf JEDER Seite dauerhaft,
+      unabhängig davon, ob gerade gescrollt wurde. Jetzt hängt die
+      Komponente am gemeinsamen Takt (lib/frame.ts) — dort ist zugesichert,
+      dass alle Lesevorgänge vor allen Schreibvorgängen laufen. Vorher
+      schrieb diese Komponente Styles auf <html>, während die Szenen-Engine
+      und KollektivHistory im selben Bild Layoutwerte lasen; wessen
+      rAF-Rückruf zuerst drankam, war nicht festgelegt.
+   2. `scrollHeight` wird NICHT mehr in jedem Bild gelesen. Das ist eine
+      layout-auslösende Eigenschaft, und ihr Wert ändert sich nur bei Resize
+      und beim Aufklappen von Inhalten. Gemessen wird jetzt wie in
+      sky/state.ts: einmal bei resize/load, dazwischen gecacht. */
 import { useEffect } from "react";
+import { taktAnmelden } from "@/lib/frame";
 
 const IDLE_THRUST = 0.14;      // Triebwerk läuft im Stand gedrosselt
 const THRUST_GAIN = 0.045;     // px/ms → Schub
@@ -13,65 +27,74 @@ const SMOOTH = 0.12;
 export default function ProgressRocket() {
   useEffect(() => {
     const html = document.documentElement;
-    let raf = 0, running = true;
-    let thrust = IDLE_THRUST, lastY = scrollY, lastT = performance.now();
+    let thrust = IDLE_THRUST, lastY = scrollY;
     let lastSp = "", lastTh = "", lastThQ = "";
 
-    const frame = (t: number) => {
-      if (!running) return;
-      raf = requestAnimationFrame(frame);
-      const dt = Math.max(1, t - lastT); lastT = t;
+    /* Die eine teure Größe, gecacht. Dasselbe Muster wie
+       sky/state.ts:measureScroll — bewusst dort abgeschaut statt neu
+       erfunden, damit es nur eine Art gibt, diese Zahl zu bestimmen. */
+    let scrollMax = 0;
+    const messen = () => { scrollMax = document.documentElement.scrollHeight - innerHeight; };
+    messen();
+    addEventListener("resize", messen, { passive: true });
+    addEventListener("load", messen);
 
-      const max = document.documentElement.scrollHeight - innerHeight;
-      const p = max > 0 ? Math.min(1, Math.max(0, scrollY / max)) : 0;
+    /* Zwischen Lesen und Schreiben gereichte Werte. Sie existieren, damit
+       die Schreibphase nichts mehr aus dem DOM holen muss. */
+    let p = 0, v = 0;
 
-      const v = Math.abs(scrollY - lastY) / dt; lastY = scrollY;
+    const lesen = (_t: number, dt: number) => {
+      const y = scrollY;                    // billig, löst kein Layout aus
+      p = scrollMax > 0 ? Math.min(1, Math.max(0, y / scrollMax)) : 0;
+      v = Math.abs(y - lastY) / Math.max(1, dt);
+      lastY = y;
+    };
+
+    const schreiben = () => {
       const target = Math.min(1, IDLE_THRUST + v * THRUST_GAIN * 16);
       thrust += (target - thrust) * SMOOTH;
 
-      /* Nur schreiben, was sich sichtbar geändert hat (Prototyp-Muster). */
+      /* Nur schreiben, was sich sichtbar geändert hat (Prototyp-Muster).
+         Jede dieser Zuweisungen macht den Stil des gesamten Dokuments
+         ungültig — die Variablen hängen an <html> und werden vererbt. */
       const sp = p.toFixed(4);
       if (sp !== lastSp) { html.style.setProperty("--scrollp", sp); lastSp = sp; }
       const th = thrust.toFixed(3);
       if (th !== lastTh) { html.style.setProperty("--thrust", th); lastTh = th; }
+      /* Gestuft auf 16 Werte, ausschließlich für den drop-shadow am Rumpf.
+         Ein Filter ist ein Neuzeichnen; ihn 60-mal je Sekunde neu zu
+         berechnen kostet spürbar, in 16 Stufen sieht man keinen
+         Unterschied. (Bis It. 16 las diese Variable niemand — der Filter
+         hing am ungestuften Wert.) */
       const thQ = (Math.round(thrust * 16) / 16).toFixed(4);
       if (thQ !== lastThQ) { html.style.setProperty("--thrust-q", thQ); lastThQ = thQ; }
     };
 
-    const start = () => { if (!raf) { lastT = performance.now(); raf = requestAnimationFrame(frame); } };
-    const stop = () => { cancelAnimationFrame(raf); raf = 0; };
-    const onVis = () => (document.hidden ? stop() : start());
-
+    /* Stufe s: kein Takt, kein Schub — der Fortschritt folgt allein dem
+       Scrollen. Ein Dauertakt wäre in der Stufe, die "Aus" heißt, genau das
+       Falsche. */
     if ((html.dataset.fx ?? "m") === "s") {
-      /* Tier s: kein Dauerloop — Fortschritt nur bei Scroll, Schub fix. */
       html.style.setProperty("--thrust", String(IDLE_THRUST));
+      html.style.setProperty("--thrust-q", String(IDLE_THRUST));
       const onScroll = () => {
-        const max = document.documentElement.scrollHeight - innerHeight;
-        html.style.setProperty("--scrollp", max > 0 ? (scrollY / max).toFixed(4) : "0");
+        const sp = scrollMax > 0 ? (scrollY / scrollMax).toFixed(4) : "0";
+        if (sp !== lastSp) { html.style.setProperty("--scrollp", sp); lastSp = sp; }
       };
       onScroll();
       addEventListener("scroll", onScroll, { passive: true });
-      return () => removeEventListener("scroll", onScroll);
+      return () => {
+        removeEventListener("scroll", onScroll);
+        removeEventListener("resize", messen);
+        removeEventListener("load", messen);
+      };
     }
 
-    /* Direkter Scroll-Pfad zusätzlich zum rAF-Loop: schreibt --scrollp sofort
-       (auch wenn rAF gedrosselt ist, z. B. Hintergrund-Tab); der Loop macht
-       nur noch die Schub-Glättung obendrauf. */
-    const onScroll = () => {
-      const max = document.documentElement.scrollHeight - innerHeight;
-      const sp = max > 0 ? Math.min(1, Math.max(0, scrollY / max)).toFixed(4) : "0";
-      if (sp !== lastSp) { html.style.setProperty("--scrollp", sp); lastSp = sp; }
-    };
-    onScroll();
     html.style.setProperty("--thrust", String(IDLE_THRUST));
-    addEventListener("scroll", onScroll, { passive: true });
-
-    start();
-    document.addEventListener("visibilitychange", onVis);
+    const abmelden = taktAnmelden({ lesen, schreiben });
     return () => {
-      running = false; stop();
-      removeEventListener("scroll", onScroll);
-      document.removeEventListener("visibilitychange", onVis);
+      abmelden();
+      removeEventListener("resize", messen);
+      removeEventListener("load", messen);
     };
   }, []);
 

@@ -32,6 +32,15 @@
         `./astro` statt aus dem IIFE-Scope
    ============================================================ */
 import { moonPhaseNow, kelvinToRGB, sampleTemp } from "./astro";
+/* It. 16: Die Zeichenschleife haengt am gemeinsamen Takt statt an einem
+   eigenen requestAnimationFrame. Grund und Vertrag stehen in lib/frame.ts;
+   das Wesentliche: alle Lesevorgaenge laufen vor allen Schreibvorgaengen,
+   damit ein fremder Style-Write nicht mitten im Bild ein Layout erzwingt. */
+import { taktAnmelden } from "@/lib/frame";
+/* Der stufenlose Qualitaetsfaktor. Er greift an genau zwei Stellen in
+   dieser Datei: an der Aufloesung (DPR, groesster Hebel — die Pixelzahl
+   geht quadratisch ein) und an der Zahl der bewegten Sterne. */
+import { qualitaet, dprFaktor } from "./qualitaet";
 
 export function initStars(env, canvas) {
     if (!canvas) return;
@@ -46,8 +55,20 @@ export function initStars(env, canvas) {
     const reduced  = () => env.reduced;
     const PERF     = env.perf;
     const ctx = canvas.getContext("2d");
-    const DPR = Math.min(devicePixelRatio || 1, 2);
-    let w = 0, h = 0, live = [], raf = 0, running = false;
+    /* War bis It. 16 eine Konstante: einmal beim Start berechnet, von
+       keiner Stufe und keinem Regler erreichbar. Die eigene
+       Forschungsnotiz (research/31, §2.2) nennt das Senken der
+       Aufloesung den groessten Einzelhebel ueberhaupt — er lag brach.
+       Wird in resize() neu bestimmt, sonst nirgends. */
+    const dprBasis = () => Math.min(devicePixelRatio || 1, 2);
+    let DPR = dprBasis() * dprFaktor(qualitaet());
+    let w = 0, h = 0, live = [], running = false;
+    /* Wird in der LESE-Phase des Takts gefuellt und in der Zeichenphase
+       nur noch verwendet. `scrollY` mitten im Zeichnen zu lesen war die
+       Stelle, an der ein vorausgegangener fremder Style-Write ein
+       synchrones Layout erzwingen konnte. */
+    let sySnapshot = scrollY;
+    let abmelden = null;
     let travel = 0, lastScroll = scrollY, lastT = performance.now();
     let t0 = performance.now();
     /* Nebel, Milchstrasse und Deep-Sky liegen auf einer EIGENEN Canvas-Ebene.
@@ -110,6 +131,53 @@ export function initStars(env, canvas) {
       gc.fillRect(0, 0, GLOW_PX, GLOW_PX);
       glowSprites.set(col, c);
       return c;
+    }
+
+    /* ---- Hof-Sprites fuer Himmelskoerper ----
+       Mond, Sonne und Phobos legten ihren Streulicht-Hof bis It. 16 in JEDEM
+       Bild als frischen `createRadialGradient` an — der Mond einen, die Sonne
+       drei, Phobos und Deimos zwei. Die zugehoerigen TEXTUREN waren laengst
+       gecacht (moonKey, sunKey, phobosKey); nur die Hoefe nicht, weil sie an
+       der Position haengen und die sich ja aendert.
+
+       Sie haengen aber nur SCHEINBAR an der Position: ein Radialverlauf ist
+       verschiebungsinvariant. Man kann ihn einmal in eine Textur malen und
+       danach nur noch an die richtige Stelle kopieren — genau das, was
+       glowSprite() daruber fuer die Sterne tut.
+
+       Gecacht wird nach Radius (auf ganze Pixel gerundet) und den
+       Farbstopps. Der Radius aendert sich nur mit der Fenstergroesse, die
+       Stopps nur mit der Beleuchtung — beides selten. */
+    const haloSprites = new Map();
+
+    /* Zeichnet denselben Hof wie ein `createRadialGradient(x,y,r0, x,y,r1)`
+       mit anschliessendem Kreis-fill — nur aus einer gecachten Textur.
+
+       WICHTIG und die Stelle, an der man sich verrechnet: die Stopps eines
+       Radialverlaufs liegen zwischen INNEN- und Aussenradius, nicht zwischen
+       Null und Aussenradius. Ein Stopp bei .4 eines Verlaufs von r bis 4.2r
+       sitzt in Wirklichkeit bei .238 + .4 * .762 = .543 des Aussenradius.
+       Deshalb nimmt diese Funktion r0 und r1 entgegen und rechnet selbst um —
+       die Aufrufe bleiben damit woertlich die des Originals. */
+    function drawHalo(g, x, y, r0, r1, stops) {
+      const R = Math.max(2, Math.round(r1));
+      const k = Math.min(0.999, Math.max(0, r0 / r1));   // Innenradius, normiert
+      const key = `${R}|${k.toFixed(4)}|` + stops.map(([o, c]) => o + ":" + c).join(",");
+      let c = haloSprites.get(key);
+      if (!c) {
+        /* Der Cache darf nicht unbegrenzt wachsen: bei jeder Fenstergroesse
+           und Mondphase entstuende sonst ein weiterer Eintrag. */
+        if (haloSprites.size > 24) haloSprites.clear();
+        c = document.createElement("canvas");
+        c.width = c.height = R * 2;
+        const gc = c.getContext("2d");
+        const gr = gc.createRadialGradient(R, R, k * R, R, R, R);
+        for (const [o, col] of stops) gr.addColorStop(o, col);
+        gc.fillStyle = gr;
+        gc.beginPath(); gc.arc(R, R, R, 0, 6.283); gc.fill();
+        haloSprites.set(key, c);
+      }
+      g.drawImage(c, x - R, y - R);
     }
 
     /* ---- Magnituden-Sampling ueber die inverse Verteilungsfunktion ---- */
@@ -1076,12 +1144,16 @@ export function initStars(env, canvas) {
       g.save();
       /* Hof: Streulicht in der Atmosphaere. Zurueckhaltend — der Mond soll den
          Himmel beglaubigen, nicht das Bild an sich reissen. */
-      const halo = g.createRadialGradient(x, y, r, x, y, r * 4.2);
-      halo.addColorStop(0,   `rgb(214 222 246 / ${(.10 * illum + .02).toFixed(3)})`);
-      halo.addColorStop(.4,  `rgb(196 208 240 / ${(.032 * illum).toFixed(3)})`);
-      halo.addColorStop(1,   "rgb(196 208 240 / 0)");
-      g.fillStyle = halo;
-      g.beginPath(); g.arc(x, y, r * 4.2, 0, 6.283); g.fill();
+      /* Der innere Radius war r (nicht 0) — im Sprite ist der Verlauf auf
+         0..1 normiert, der Anfangsstopp sitzt deshalb bei r/(r*4.2).
+         `illum` wird auf 32 Stufen gerundet, damit nicht jede Nachkommastelle
+         der Beleuchtung eine eigene Textur erzeugt; sichtbar ist das nicht. */
+      const illumQ = Math.round(illum * 32) / 32;
+      drawHalo(g, x, y, r, r * 4.2, [
+        [0,  `rgb(214 222 246 / ${(.10 * illumQ + .02).toFixed(3)})`],
+        [.4, `rgb(196 208 240 / ${(.032 * illumQ).toFixed(3)})`],
+        [1,  "rgb(196 208 240 / 0)"],
+      ]);
 
       g.imageSmoothingEnabled = true;
       g.imageSmoothingQuality = "high";
@@ -1214,14 +1286,13 @@ export function initStars(env, canvas) {
          Zwei Stufen, damit der Uebergang nicht als Ring bricht. Der weite
          Anteil des Hofs sitzt bereits auf der statischen Ebene (siehe
          paintDaySky), hier kommt nur der enge, harte Teil dazu. */
-      const near = g.createRadialGradient(x, y, r * .5, x, y, r * 8);
-      near.addColorStop(0,   `rgb(${P.halo} / .58)`);
-      near.addColorStop(.10, `rgb(${P.halo} / .42)`);
-      near.addColorStop(.26, `rgb(${P.halo} / .22)`);
-      near.addColorStop(.60, `rgb(${P.halo} / .06)`);
-      near.addColorStop(1,   `rgb(${P.halo} / 0)`);
-      g.fillStyle = near;
-      g.beginPath(); g.arc(x, y, r * 8, 0, 6.283); g.fill();
+      drawHalo(g, x, y, r * .5, r * 8, [
+        [0,   `rgb(${P.halo} / .58)`],
+        [.10, `rgb(${P.halo} / .42)`],
+        [.26, `rgb(${P.halo} / .22)`],
+        [.60, `rgb(${P.halo} / .06)`],
+        [1,   `rgb(${P.halo} / 0)`],
+      ]);
 
       g.imageSmoothingEnabled = true;
       g.imageSmoothingQuality = "high";
@@ -1244,12 +1315,13 @@ export function initStars(env, canvas) {
          dunkelste Teil ist — die Randverdunklung war dadurch umgekehrt und
          die Sonne bekam einen hellen Ring wie ein Aufkleber. Jetzt setzt er
          erst auf der Kante an und laeuft nach aussen. */
-      const rim = g.createRadialGradient(x, y, r * .995, x, y, r * 1.22);
-      rim.addColorStop(0,   `rgb(${P.sun} / .16)`);
-      rim.addColorStop(.35, `rgb(${P.sun} / .08)`);
-      rim.addColorStop(1,   `rgb(${P.sun} / 0)`);
-      g.fillStyle = rim;
-      g.beginPath(); g.arc(x, y, r * 1.22, 0, 6.283); g.fill();
+      /* Die Kopie laeuft unter demselben `lighter`, das oben gesetzt wurde —
+         drawImage respektiert die Composite-Einstellung wie ein fill(). */
+      drawHalo(g, x, y, r * .995, r * 1.22, [
+        [0,   `rgb(${P.sun} / .16)`],
+        [.35, `rgb(${P.sun} / .08)`],
+        [1,   `rgb(${P.sun} / 0)`],
+      ]);
       g.globalCompositeOperation = "source-over";
 
       /* Blendung ueber der Mitte, ADDITIV. Additiv, weil dann die
@@ -1257,14 +1329,13 @@ export function initStars(env, canvas) {
          ausbrennt — genau das sieht man auch in Wirklichkeit. Ein deckender
          Kern darueber wuerde die Flecken mit ausloeschen. */
       g.globalCompositeOperation = "lighter";
-      const bloom = g.createRadialGradient(x, y, 0, x, y, r * 2.6);
-      bloom.addColorStop(0,    `rgb(${P.sun} / .04)`);
-      bloom.addColorStop(.30,  `rgb(${P.sun} / .07)`);
-      bloom.addColorStop(.385, `rgb(${P.sun} / .17)`);
-      bloom.addColorStop(.52,  `rgb(${P.sun} / .09)`);
-      bloom.addColorStop(1,    `rgb(${P.sun} / 0)`);
-      g.fillStyle = bloom;
-      g.beginPath(); g.arc(x, y, r * 2.6, 0, 6.283); g.fill();
+      drawHalo(g, x, y, 0, r * 2.6, [
+        [0,    `rgb(${P.sun} / .04)`],
+        [.30,  `rgb(${P.sun} / .07)`],
+        [.385, `rgb(${P.sun} / .17)`],
+        [.52,  `rgb(${P.sun} / .09)`],
+        [1,    `rgb(${P.sun} / 0)`],
+      ]);
       g.restore();
     }
 
@@ -1366,11 +1437,10 @@ export function initStars(env, canvas) {
       if (key !== phobosKey) { renderPhobosTexture(px, sunX, moon.seed); phobosKey = key; }
 
       /* Nur ein sehr schwacher Hof — Phobos ist zu dunkel fuer mehr */
-      const halo = g.createRadialGradient(x, y, r, x, y, r * 3.2);
-      halo.addColorStop(0, "rgb(210 200 190 / .045)");
-      halo.addColorStop(1, "rgb(210 200 190 / 0)");
-      g.fillStyle = halo;
-      g.beginPath(); g.arc(x, y, r * 3.2, 0, 6.283); g.fill();
+      drawHalo(g, x, y, r, r * 3.2, [
+        [0, "rgb(210 200 190 / .045)"],
+        [1, "rgb(210 200 190 / 0)"],
+      ]);
 
       g.imageSmoothingEnabled = true;
       g.imageSmoothingQuality = "high";
@@ -1384,11 +1454,10 @@ export function initStars(env, canvas) {
          Koerper flimmert er nicht. */
       const dx = x - moon.r * 5.5, dy = y + moon.r * 2.2;
       const dr = Math.max(1.6, r * .42);
-      const dh = g.createRadialGradient(dx, dy, 0, dx, dy, dr * 5);
-      dh.addColorStop(0, "rgb(232 226 214 / .5)");
-      dh.addColorStop(1, "rgb(232 226 214 / 0)");
-      g.fillStyle = dh;
-      g.beginPath(); g.arc(dx, dy, dr * 5, 0, 6.283); g.fill();
+      drawHalo(g, dx, dy, 0, dr * 5, [
+        [0, "rgb(232 226 214 / .5)"],
+        [1, "rgb(232 226 214 / 0)"],
+      ]);
       g.fillStyle = "rgb(214 206 192 / .95)";
       g.beginPath(); g.arc(dx, dy, dr, 0, 6.283); g.fill();
       /* Nachtseite: derselbe Terminator wie bei Phobos, nur grob */
@@ -4507,6 +4576,11 @@ export function initStars(env, canvas) {
           Aufblitzen mit langen Dunkelphasen — mit `sin` allein saehe es nach
           blinkendem Lametta aus. */
     let glints = [], waveLines = [], crestGrad = null;
+    /* Schaum-Verlaeufe je Hoehe und Brechgrad, grob gestuft — Begruendung
+       an der Verwendungsstelle in paintWater. Wird bei seedGlints nicht
+       geleert: die Eintraege haengen nicht an der Fenstergroesse, sondern
+       nur an Werten, die ohnehin im Cache-Schluessel stehen. */
+    const schaumGrads = new Map();
     /* Oberkante des Glitzer-Streifens in Geraetepixeln.
        #glints war eine Vollbild-Canvas. Sie wird in JEDEM Frame geloescht und
        neu zur GPU hochgeladen — bei 1440x900 und DPR 2 sind das 5,2 Millionen
@@ -4934,25 +5008,46 @@ export function initStars(env, canvas) {
              gebaut und fuer jeden Abschnitt nur verschoben. Vorher entstand
              hier pro Frame ein Verlaufsobjekt je Schaumstueck — der teuerste
              Einzelposten der ganzen Szene. */
-          const gr = g.createLinearGradient(0, y - fh2, 0, y + fh2 * .7);
-          gr.addColorStop(0,   "rgb(236 246 255 / 0)");
-          gr.addColorStop(.42, `rgb(236 246 255 / ${(.42 * br).toFixed(3)})`);
-          gr.addColorStop(.62, `rgb(248 252 255 / ${(.86 * br).toFixed(3)})`);
-          gr.addColorStop(.80, `rgb(226 240 255 / ${(.34 * br).toFixed(3)})`);
-          gr.addColorStop(1,   "rgb(226 240 255 / 0)");
+          /* Der Verlauf haengt am Kamm — und der wandert in jedem Bild.
+             Damit war er nicht cachebar und wurde je Kamm und Bild neu
+             gebaut; bei bis zu 46 Kaemmen der teuerste verbliebene Posten
+             der Strandszene (gemessen war Strand/Stufe m der schlechteste
+             Fall im ganzen Bestand: p95 116 ms, Spitze 166 ms).
+
+             Der Ausweg ist ein Wechsel des Bezugspunkts: der Verlauf wird um
+             NULL herum gebaut statt um y, und die Verschiebung um y
+             uebernimmt die Transformationsmatrix, die hier je Abschnitt
+             ohnehin gesetzt wird. Damit haengt er nur noch an Hoehe und
+             Brechgrad, beide grob gestuft.
+             Gezeichnet wird exakt dasselbe: jeder Pfadpunkt ist um dieselbe
+             Konstante y verschoben wie der Verlauf. */
+          const brQ = Math.round(br * 32) / 32;
+          const fhQ = Math.round(fh2);
+          const schaumKey = `${fhQ}|${brQ}`;
+          let gr = schaumGrads.get(schaumKey);
+          if (!gr) {
+            if (schaumGrads.size > 64) schaumGrads.clear();
+            gr = g.createLinearGradient(0, -fhQ, 0, fhQ * .7);
+            gr.addColorStop(0,   "rgb(236 246 255 / 0)");
+            gr.addColorStop(.42, `rgb(236 246 255 / ${(.42 * brQ).toFixed(3)})`);
+            gr.addColorStop(.62, `rgb(248 252 255 / ${(.86 * brQ).toFixed(3)})`);
+            gr.addColorStop(.80, `rgb(226 240 255 / ${(.34 * brQ).toFixed(3)})`);
+            gr.addColorStop(1,   "rgb(226 240 255 / 0)");
+            schaumGrads.set(schaumKey, gr);
+          }
           g.fillStyle = gr;
           /* Welche Abschnitte brechen und wo sie liegen, steht seit
              `buildWaveTables` fest — hier bleibt nur noch das Zeichnen. */
           for (const sg of wl.segs) {
-            const dy = y + sg.s1x * amp + sg.s2x * amp * .42 - y;
-            g.save(); g.translate(0, dy);
+            const dy = sg.s1x * amp + sg.s2x * amp * .42;
+            g.save(); g.translate(0, y + dy);
             g.beginPath();
-            g.moveTo(sg.x, y - fh2);
+            g.moveTo(sg.x, -fh2);
             const up = sg.up, dn = sg.dn;
             for (let k = 0; k < up.n; k++)
-              g.lineTo(up.x[k], y + up.s1[k] * amp + up.s2[k] * amp * .42 - dy - fh2 * .35);
+              g.lineTo(up.x[k], up.s1[k] * amp + up.s2[k] * amp * .42 - dy - fh2 * .35);
             for (let k = 0; k < dn.n; k++)
-              g.lineTo(dn.x[k], y + dn.s1[k] * amp + dn.s2[k] * amp * .42 - dy + fh2 * .55);
+              g.lineTo(dn.x[k], dn.s1[k] * amp + dn.s2[k] * amp * .42 - dy + fh2 * .55);
             g.closePath(); g.fill();
             g.restore();
           }
@@ -5019,6 +5114,7 @@ export function initStars(env, canvas) {
     }
 
     function resize() {
+      DPR = dprBasis() * dprFaktor(qualitaet());
       w = canvas.width = Math.max(1, Math.floor(innerWidth * DPR));
       h = canvas.height = Math.max(1, Math.floor(innerHeight * DPR));
       canvas.style.width = innerWidth + "px";
@@ -5028,7 +5124,10 @@ export function initStars(env, canvas) {
       const full = tier === "l";
       const still = tier === "s";                 /* "Aus": alles statisch */
       const area = (innerWidth * innerHeight) / (1440 * 900);
-      const scale = Math.min(2.2, Math.max(.55, area));
+      /* Deckel von 2.2 auf 1.4: auf einem grossen, hochaufloesenden
+         Schirm multiplizierte sich diese Skalierung mit DPR 2 — mehr
+         Sterne UND mehr Pixel je Stern. Genau dort ruckelte es. */
+      const scale = Math.min(1.4, Math.max(.55, area));
       /* Auch in der ruhigsten Stufe bleibt der Himmel gut gefuellt — er wird
          nur einmal gezeichnet statt animiert. */
       /* Tag: ein stark ausgeduennter Sternenhimmel bleibt stehen. Streng
@@ -5129,9 +5228,13 @@ export function initStars(env, canvas) {
       seedGlints();
 
       all.sort((a, b) => b.norm - a.norm);
+      /* Der Qualitaetsfaktor greift hier als zweiter Hebel nach der
+         Aufloesung. Nie unter 40 % der Sterne: darunter wird der Himmel
+         sichtbar leer, und dann hat man Qualitaet gegen nichts getauscht. */
+      const qNow = 0.4 + 0.6 * qualitaet();
       const liveCount = still ? 0
         : (dayMode() && !spaceDay()) ? all.length
-        : Math.min(full ? 620 : 300, all.length);
+        : Math.min(Math.round((full ? 620 : 300) * qNow), all.length);
       live = all.slice(0, liveCount);
       paintBackdrop(all.slice(liveCount), nz);
       meteors = [];
@@ -5146,7 +5249,6 @@ export function initStars(env, canvas) {
     }
 
     function frame(t) {
-      raf = requestAnimationFrame(frame);
       if (w === 0 || h === 0) ensureSize();
       const dt = Math.min(48, t - lastT); lastT = t;
       const secs = (t - t0) / 1000;
@@ -5156,7 +5258,7 @@ export function initStars(env, canvas) {
       /* Zurueckgelegter Weg seit dem letzten Frame, in Pixeln. Daraus
          entsteht die Vorwaertsfahrt — nicht aus einer geglaetteten
          Momentangeschwindigkeit, die immer traege nachhinkt. */
-      const sy = scrollY;
+      const sy = sySnapshot;
       const rawDelta = sy - lastScroll;
       lastScroll = sy;
       travel += (rawDelta * .11 - travel) * .22;
@@ -5311,10 +5413,18 @@ export function initStars(env, canvas) {
       if (w === 0 || h === 0 || Math.abs(w - innerWidth * DPR) > 2) resize();
     }
     function start() {
-      if (html.dataset.fx === "s") { stop(); return; }   /* statisch: kein rAF */
-      if (!running) { ensureSize(); running = true; lastT = performance.now(); raf = requestAnimationFrame(frame); }
+      if (html.dataset.fx === "s") { stop(); return; }   /* statisch: kein Takt */
+      if (!running) {
+        ensureSize(); running = true; lastT = performance.now();
+        abmelden = taktAnmelden({
+          /* Lesen: nur die Scroll-Position. Mehr braucht die Szene nicht
+             aus dem Layout — alles andere sind eigene Zustandswerte. */
+          lesen: () => { sySnapshot = scrollY; },
+          schreiben: t => frame(t),
+        });
+      }
     }
-    function stop() { running = false; cancelAnimationFrame(raf); }
+    function stop() { running = false; abmelden?.(); abmelden = null; }
 
     /* resize entprellen: auf Mobile feuert jede Bewegung der URL-Leiste */
     let rt = 0;

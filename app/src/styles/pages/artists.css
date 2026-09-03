@@ -223,17 +223,34 @@
    Hoehen, wie auf jedem Analyser. */
 .ar-card > .ar-eq { margin-top: auto; padding-top: var(--sp-5); }
 .ar-card.mcard > .m-toggle { margin-top: var(--sp-3); }
+/* `overflow: hidden` traegt den Umbau unten: die Balken sind in voller
+   Hoehe da und werden nach unten aus dem Bild geschoben. Was man sieht, ist
+   der Rest. */
 .ar-eq {
   display: flex; align-items: flex-end; gap: 3px;
   height: 32px;
+  overflow: hidden;
   border-bottom: 1px solid var(--bg-hairline);
 }
+/* Die Balken wuchsen frueher ueber `height` — die einzige Endlosanimation im
+   ganzen Bestand, die eine LAYOUT-Eigenschaft bewegte, und das auf vierzehn
+   Balken gleichzeitig. Jeder Frame erzwang ein Reflow fuer alle vierzehn.
+
+   Jetzt steht jeder Balken in voller Hoehe und wird per translateY nach
+   unten geschoben; sichtbar bleibt `32px - Verschiebung`. Bewusst
+   translateY und NICHT scaleY: ein gestauchter Balken haette auch seine
+   2px-Kappe gestaucht, die Rundung waere bei 3px Resthoehe platt. So bleibt
+   sie in jeder Stellung exakt wie vorher.
+
+   Dafuer ist `--ar-h` jetzt eine ZAHL statt einer Laenge — sie wird sowohl
+   zur Verschiebung verrechnet als auch weiterhin als Pixelwert gebraucht. */
 .ar-eq i {
   flex: none; width: 4px;
-  height: 3px; border-radius: 2px 2px 0 0;
+  height: 32px; border-radius: 2px 2px 0 0;
+  transform: translateY(29px);            /* 32 − 3 = 3px sichtbar, wie gehabt */
   opacity: .4;
   background: var(--acc-2);
-  transition: height .45s var(--ease-out), opacity .45s var(--ease-out);
+  transition: transform .45s var(--ease-out), opacity .45s var(--ease-out);
 }
 .ar-eq i:nth-child(-n + 5)                 { background: var(--acc-3); }
 .ar-eq i:nth-child(n + 6):nth-child(-n + 9) { background: var(--acc-2); }
@@ -243,27 +260,27 @@
    die Hover-Regel setzt spaeter nur Animationsname und -dauer als LONGHANDS,
    sonst wuerde die `animation`-Kurzschreibweise den Versatz auf 0 zuruecksetzen
    und alle vierzehn Balken liefen synchron. */
-.ar-eq i:nth-child(1)  { --ar-h: 13px; animation-delay: -0.10s; }
-.ar-eq i:nth-child(2)  { --ar-h: 22px; animation-delay: -0.62s; }
-.ar-eq i:nth-child(3)  { --ar-h: 17px; animation-delay: -0.30s; }
-.ar-eq i:nth-child(4)  { --ar-h: 27px; animation-delay: -0.86s; }
-.ar-eq i:nth-child(5)  { --ar-h: 20px; animation-delay: -0.44s; }
-.ar-eq i:nth-child(6)  { --ar-h: 30px; animation-delay: -1.02s; }
-.ar-eq i:nth-child(7)  { --ar-h: 24px; animation-delay: -0.18s; }
-.ar-eq i:nth-child(8)  { --ar-h: 15px; animation-delay: -0.74s; }
-.ar-eq i:nth-child(9)  { --ar-h: 26px; animation-delay: -0.36s; }
-.ar-eq i:nth-child(10) { --ar-h: 19px; animation-delay: -0.94s; }
-.ar-eq i:nth-child(11) { --ar-h: 12px; animation-delay: -0.52s; }
-.ar-eq i:nth-child(12) { --ar-h: 21px; animation-delay: -0.24s; }
-.ar-eq i:nth-child(13) { --ar-h: 14px; animation-delay: -0.80s; }
-.ar-eq i:nth-child(14) { --ar-h: 9px;  animation-delay: -0.40s; }
+.ar-eq i:nth-child(1)  { --ar-h: 13; animation-delay: -0.10s; }
+.ar-eq i:nth-child(2)  { --ar-h: 22; animation-delay: -0.62s; }
+.ar-eq i:nth-child(3)  { --ar-h: 17; animation-delay: -0.30s; }
+.ar-eq i:nth-child(4)  { --ar-h: 27; animation-delay: -0.86s; }
+.ar-eq i:nth-child(5)  { --ar-h: 20; animation-delay: -0.44s; }
+.ar-eq i:nth-child(6)  { --ar-h: 30; animation-delay: -1.02s; }
+.ar-eq i:nth-child(7)  { --ar-h: 24; animation-delay: -0.18s; }
+.ar-eq i:nth-child(8)  { --ar-h: 15; animation-delay: -0.74s; }
+.ar-eq i:nth-child(9)  { --ar-h: 26; animation-delay: -0.36s; }
+.ar-eq i:nth-child(10) { --ar-h: 19; animation-delay: -0.94s; }
+.ar-eq i:nth-child(11) { --ar-h: 12; animation-delay: -0.52s; }
+.ar-eq i:nth-child(12) { --ar-h: 21; animation-delay: -0.24s; }
+.ar-eq i:nth-child(13) { --ar-h: 14; animation-delay: -0.80s; }
+.ar-eq i:nth-child(14) { --ar-h: 9;  animation-delay: -0.40s; }
 
 /* Grundzustand des Zeigens: die Balken stehen auf ihrer Zielhoehe. Das ist
    der Zustand, den Tier s und `prefers-reduced-motion` sehen — die
    Interaktion bleibt lesbar, nur ohne Takt. */
 .ar-card:hover .ar-eq i,
 .ar-card:focus-within .ar-eq i {
-  height: var(--ar-h, 16px);
+  transform: translateY(calc((32 - var(--ar-h, 16)) * 1px));
   opacity: .95;
 }
 /* Der Takt kommt nur bei Tier m/l dazu. Longhands, siehe oben. */
@@ -278,8 +295,8 @@
   animation-direction: alternate;
 }
 @keyframes ar-eqbeat {
-  from { height: 5px; }
-  to   { height: var(--ar-h, 16px); }
+  from { transform: translateY(27px); }                              /* 5px sichtbar */
+  to   { transform: translateY(calc((32 - var(--ar-h, 16)) * 1px)); }
 }
 @media (prefers-reduced-motion: reduce) {
   .ar-card:hover .ar-eq i,

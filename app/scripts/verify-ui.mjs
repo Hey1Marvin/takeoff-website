@@ -481,6 +481,96 @@ console.log("\n== Video-Player ==");
   await ctx.close();
 }
 
+/* ---------- 12) Der stufenlose Qualitaetsregler ----------
+   Der Vorgaenger (watchdog.ts) hatte einen Fehler, der Geraete DAUERHAFT
+   beschaedigte: er zaehlte jedes Bild ueber 33 ms als langsam. Ein iPhone im
+   Stromsparmodus ist auf 30 fps gedeckelt — dort ist jedes Bild 33,3 ms lang,
+   die Seite stufte sich also sofort herunter und merkte sich das nach drei
+   Malen im localStorage. Genau dieser Fall wird hier geprueft, plus die drei
+   Zusagen des Nachfolgers: nicht ohne Not regeln, unter Last nachgeben,
+   danach wieder hochkommen. */
+console.log("\n== Qualitaetsregler ==");
+{
+  const ctx = await browser.newContext({ viewport: { width: 1280, height: 800 } });
+  const page = await ctx.newPage();
+  await page.addInitScript(() => {
+    try { localStorage.setItem("takeoff-fx", "l"); localStorage.removeItem("takeoff-fx-downgrades"); } catch { /* egal */ }
+  });
+  await page.goto(BASE + "/", { waitUntil: "load" });
+  await page.waitForTimeout(1200);
+
+  const cdp = await ctx.newCDPSession(page);
+  const scrollen = ms => page.evaluate(m => new Promise(f => {
+    const t0 = performance.now();
+    const s = () => { scrollBy(0, 12); if (performance.now() - t0 < m) requestAnimationFrame(s); else f(); };
+    requestAnimationFrame(s);
+  }), ms);
+  const lies = () => page.evaluate(() => ({
+    q: Number(document.documentElement.dataset.q ?? -1),
+    fx: document.documentElement.dataset.fx,
+  }));
+
+  /* a) Ohne Not wird nicht geregelt. */
+  await scrollen(2500);
+  const ruhig = await lies();
+  note(ruhig.q === 100 && ruhig.fx === "l",
+    `ohne Last bleibt die volle Qualitaet (q=${ruhig.q}, Stufe ${ruhig.fx})`);
+
+  /* b) Unter Last gibt sie nach — stufenlos, nicht als Sprung. */
+  await cdp.send("Emulation.setCPUThrottlingRate", { rate: 6 });
+  const stufen = [];
+  for (let i = 0; i < 5; i++) { await scrollen(700); stufen.push((await lies()).q); }
+  const gefallen = stufen.some(v => v < 100);
+  const zwischenwerte = stufen.filter(v => v > 0 && v < 100).length;
+  note(gefallen, `unter Last faellt der Faktor (${stufen.join(" → ")})`);
+  note(zwischenwerte > 0, "es gibt Zwischenwerte — geregelt wird stufenlos, nicht in Spruengen");
+
+  /* c) Last weg: sie kommt wieder hoch. Der alte Watchdog konnte das nie. */
+  await cdp.send("Emulation.setCPUThrottlingRate", { rate: 1 });
+  let erholt = false;
+  for (let i = 0; i < 18 && !erholt; i++) { await scrollen(700); erholt = (await lies()).q >= 90; }
+  note(erholt, "nach dem Wegfall der Last steigt die Qualitaet wieder");
+
+  await ctx.close();
+}
+{
+  /* d) DER 30-FPS-FALL. Ein Geraet, dessen Bildrate von vornherein bei 30 Hz
+     gedeckelt ist, ist NICHT langsam — es zeigt nur 30 Bilder. Der alte
+     Watchdog las das als Dauerueberlast. Hier wird geprueft, dass die neue
+     Regelung die Rate misst und deshalb ruhig bleibt.
+     Nachgestellt wird das ueber einen gekappten requestAnimationFrame:
+     jedes zweite Bild wird verworfen, die Seite laeuft also mit halber Rate
+     bei voller Rechenzeit — genau das Bild, das der Stromsparmodus erzeugt. */
+  const ctx = await browser.newContext({ viewport: { width: 1280, height: 800 } });
+  const page = await ctx.newPage();
+  await page.addInitScript(() => {
+    try { localStorage.setItem("takeoff-fx", "l"); localStorage.removeItem("takeoff-fx-downgrades"); } catch { /* egal */ }
+    /* GLEICHMAESSIG halbe Rate: zwei echte Bilder abwarten, dann erst
+       zurueckrufen. Der erste Versuch verwarf nur jedes zweite Bild und
+       erzeugte damit abwechselnd 16,7 und 33,3 ms — kein Geraet verhaelt sich
+       so, und die Ratenmessung des Reglers lag dadurch daneben. */
+    const echt = requestAnimationFrame.bind(window);
+    window.requestAnimationFrame = cb => echt(() => echt(t => cb(t)));
+  });
+  await page.goto(BASE + "/", { waitUntil: "load" });
+  await page.waitForTimeout(1500);
+  await page.evaluate(() => new Promise(f => {
+    const t0 = performance.now();
+    const s = () => { scrollBy(0, 12); if (performance.now() - t0 < 4000) requestAnimationFrame(s); else f(); };
+    requestAnimationFrame(s);
+  }));
+  const halb = await page.evaluate(() => ({
+    q: Number(document.documentElement.dataset.q ?? -1),
+    fx: document.documentElement.dataset.fx,
+    merk: (() => { try { return localStorage.getItem("takeoff-fx"); } catch { return null; } })(),
+  }));
+  note(halb.fx === "l" && halb.q >= 90,
+    `halbe Bildrate ist kein Grund zum Regeln (Stufe ${halb.fx}, q=${halb.q})`);
+  note(halb.merk === "l",
+    `und wird NICHT dauerhaft gemerkt (takeoff-fx = ${halb.merk})`);
+  await ctx.close();
+}
+
 await browser.close();
 console.log(`\n==== ${fails.length ? fails.length + " FEHLER" : "ALLES GRUEN"} ====`);
 if (fails.length) { fails.forEach(f => console.log("  - " + f)); process.exit(1); }

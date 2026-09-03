@@ -146,6 +146,9 @@ export const en: Record<Key, string> = {
   "menu.next.label": "Next Launch",
   "menu.go": "Take a look →",
   "menu.close": "Close",
+  "menu.settings": "Settings",
+  "menu.language": "Language",
+  "menu.view": "View",
 
   /* ---------- Overlay-Menue: drei neue Eintraege (It. 8) ---------- */
   "menu.news.label": "News",
@@ -398,6 +401,8 @@ export const en: Record<Key, string> = {
   "player.play": "Play",
   "player.sound": "Sound",
   "player.fullscreen": "Fullscreen",
+  "mctrl.auto": "Auto",
+  "mctrl.auto.hint": "The scene adapts to your device as you go — 100 % is the full show.",
   "mctrl.embeds": "Players",
   "event.page.gallery.h3": "Gallery",
   "event.page.gallery.consent_note": "We ask everyone in a photo before it goes online. You're in a picture and would rather not be? {link}",

@@ -32,7 +32,7 @@ const save = (k: string, v: string) => { try { localStorage.setItem(k, v); } cat
    er erzeugt Kaskaden-Renders und ginge an Aenderungen von aussen vorbei. */
 function subscribe(cb: () => void) {
   const mo = new MutationObserver(cb);
-  mo.observe(document.documentElement, { attributes: true, attributeFilter: ["data-fx", "data-theme", "data-video", "data-embeds", "class"] });
+  mo.observe(document.documentElement, { attributes: true, attributeFilter: ["data-fx", "data-theme", "data-video", "data-embeds", "data-q", "class"] });
   const mq = matchMedia("(prefers-reduced-motion: reduce)");
   mq.addEventListener("change", cb);
   return () => { mo.disconnect(); mq.removeEventListener("change", cb); };
@@ -51,12 +51,13 @@ function snapshot(): string {
     h.dataset.video !== "off" ? "1" : "0",
     h.dataset.embeds === "on" ? "1" : "0",
     matchMedia("(prefers-reduced-motion: reduce)").matches ? "1" : "0",
+    h.dataset.q ?? "",
   ].join("|");
 }
 
 /* Serverseitig gibt es weder <html>-Dataset noch Storage. Der Wert muss zum
    ersten Client-Render passen, sonst gibt es einen Hydration-Mismatch. */
-const SERVER_SNAPSHOT = "m|space|1|0|1|0|0";
+const SERVER_SNAPSHOT = "m|space|1|0|1|0|0|";
 
 /* ---------- Auf/zu — der einzige Zustand, der NICHT auf <html> lebt ----------
    Eingeklappt als Standard. Das Panel ist `position: fixed` in der
@@ -107,7 +108,7 @@ export default function MissionControl() {
      Player-Zustimmung als "reduzierte Bewegung" gelesen wurde und die
      FX-Stufen Normal/Voll sperrte. Wer snapshot() aendert, aendert
      diese Zeile mit. */
-  const [fx, theme, groundS, dayS, videoS, embedsS, reducedS] = snap.split("|");
+  const [fx, theme, groundS, dayS, videoS, embedsS, reducedS, qS] = snap.split("|");
   const ground = groundS === "1", day = dayS === "1";
   const video = videoS === "1", reduced = reducedS === "1";
   const embeds = embedsS === "1";
@@ -206,6 +207,23 @@ export default function MissionControl() {
         <button type="button" title="Player laden nach einem Klick direkt"
           aria-pressed={embeds} onClick={() => applyEmbeds(true)}>An</button>
       </div>
+
+      {/* ABLESUNG, kein Schalter. Die Automatik regelt die Darstellung
+          stufenlos nach (Aufloesung zuerst, dann die bewegten Sterne) — hier
+          steht, wo sie gerade steht. Sie erscheint nur, wenn sie auch
+          arbeitet: in Stufe "Aus" und bei reduzierter Bewegung laeuft keine
+          Regelung, dann waere eine Zahl eine Behauptung.
+          Dieselbe Handschrift wie die uebrigen Ablesungen im Projekt:
+          Mono, versal, Wert rechts. */}
+      {qS !== "" && fx !== "s" && !reduced && (
+        <div className="row row-mess">
+          <span className="lbl">{t("mctrl.auto")}</span>
+          <span className="mctrl-mess" title={t("mctrl.auto.hint")}>
+            <i aria-hidden="true" data-voll={qS === "100" ? "1" : "0"} />
+            {qS} %
+          </span>
+        </div>
+      )}
 
       <div className="row">
         <span className="lbl">Zeit</span>

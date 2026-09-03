@@ -660,6 +660,11 @@ html { scroll-padding-top: calc(var(--topbar-h) + 14px); }
 .nav-progress {
   position: absolute; left: 0; right: 0; bottom: -1px; height: 2px;
   pointer-events: none;
+  /* Bezugsgroesse fuer die Rakete darunter: sie faehrt ueber `translateX`
+     mit `100cqw`. In einem `translate` wuerde `100%` die EIGENE Breite der
+     Rakete meinen (84px), nicht die der Bahn — `cqw` ist die einzige
+     Einheit, die hier dasselbe bedeutet wie das fruehere `100%` in `left`. */
+  container-type: inline-size;
 }
 .nav-progress i {
   display: block; height: 100%; width: 100%;
@@ -681,9 +686,16 @@ html { scroll-padding-top: calc(var(--topbar-h) + 14px); }
      stuende die Rakete bei Scroll 0 komplett ausserhalb des Bildes — genau
      der Fehler, den die alte vertikale Variante an beiden Enden hatte. */
   --rk-w: 84px;
-  left: calc(6px + var(--scrollp, 0) * (100% - var(--rk-w) - 12px));
+  /* `left` war eine Layout-Eigenschaft, die bei JEDEM Scroll-Bild neu
+     berechnet wurde — auf jeder Seite, weil die Kopfleiste ueberall steht.
+     Dieselbe Begruendung steht zwanzig Zeilen weiter oben bei
+     `.nav-progress i` (scaleX statt width); fuer die Rakete war sie nie
+     angewandt worden. `translateX` laeuft auf dem Compositor.
+     Die Bahn ist unveraendert: 100cqw ist die Breite der Bahn, also genau
+     das, was vorher `100%` in `left` bedeutete. */
+  left: 6px;
   width: var(--rk-w); height: auto;
-  transform: translate(0, -50%);
+  transform: translate(calc(var(--scrollp, 0) * (100cqw - var(--rk-w) - 12px)), -50%);
   overflow: visible;                 /* der Strahl reicht aus der viewBox */
 }
 
@@ -711,9 +723,16 @@ html { scroll-padding-top: calc(var(--topbar-h) + 14px); }
 /* Die Flamme beleuchtet den Rumpf mit. Das ist der Teil, der den Schub
    physikalisch begruendet statt ihn nur zu behaupten. */
 .rocket .rk-body {
+  /* --thrust-q statt --thrust: gestuft auf 16 Werte. ProgressRocket
+     berechnet und schreibt diese Variable seit jeher genau dafuer ("gestuftes
+     --thrust-q fuer Filter"), aber gelesen hat sie NIEMAND — der Filter hing
+     am ungestuften Wert und wurde deshalb in jedem Scroll-Bild neu
+     berechnet. Ein drop-shadow ist ein Neuzeichnen, kein Compositing.
+     Der Strahl selbst (transform/opacity, oben) bleibt am feinen --thrust:
+     dort ist die Aenderung je Bild billig und die Weichheit erwuenscht. */
   filter: drop-shadow(0 1px 1.5px rgb(0 0 0 / .6))
-          drop-shadow(-6px 0 calc(2px + var(--thrust, 0) * 11px)
-                      rgb(255 186 116 / calc(var(--thrust, 0) * .6)));
+          drop-shadow(-6px 0 calc(2px + var(--thrust-q, 0) * 11px)
+                      rgb(255 186 116 / calc(var(--thrust-q, 0) * .6)));
 }
 /* Mach'sche Knoten flackern minimal und teilerfremd — nie als Schleife lesbar */
 .rocket .rk-jet-hot   { animation: rk-hot   .19s steps(2, end) infinite; transform-origin: 22px 15px; }
@@ -803,6 +822,26 @@ html { scroll-padding-top: calc(var(--topbar-h) + 14px); }
 .menu-next:hover { border-color: rgb(var(--acc-1-rgb) / .7); }
 .menu-next:hover .mn-go { color: var(--ink); }
 
+/* Einstellungs-Zeilen im Menue (It. 16b): Sprache + Tag/Nacht, beschriftet.
+   Auf <=560px sind sie die EINZIGE Erreichbarkeit dieser beiden Schalter. */
+.menu-settings {
+  margin-top: 24px; padding-top: 20px;
+  border-top: 1px solid var(--bg-hairline);
+}
+.menu-settings .menu-eyebrow { margin-bottom: 12px; }
+.menu-set-row {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 14px; min-height: 48px;
+}
+.menu-set-row + .menu-set-row { border-top: 1px solid var(--bg-hairline); }
+.menu-set-label {
+  font-family: var(--font-mono); font-size: 13px;
+  letter-spacing: .04em; color: var(--ink-dim);
+}
+/* Im Menue darf der Tag/Nacht-Knopf grosszuegig sein — hier gibt es Platz,
+   anders als in der Kopfzeile. */
+.menu-set-row .nav-day { display: inline-flex; min-width: 52px; min-height: 44px; }
+
 .menu-social {
   margin-top: 26px; padding-top: 22px;
   border-top: 1px solid var(--bg-hairline);
@@ -861,6 +900,35 @@ html { scroll-padding-top: calc(var(--topbar-h) + 14px); }
      (Im Prototyp bewusst so herum entschieden, style.css:1800-1806.) */
   .nav-status .st-tag { display: none; }
   .nav-status { gap: 7px; padding: 10px 11px; }
+
+  /* MOBIL-TOUCHZIELE (It. 16b). Nachgemessen hatte die Kopfzeile bei 320-390px
+     NULL Spielraum (.nav-gap = 0), also konnte kein Icon 44px breit werden.
+     Loesung: Sprache und Tag/Nacht wandern in DIESER Breite komplett ins
+     Overlay-Menue (dort als beschriftete Einstellungs-Zeilen). Das gibt ~90px
+     frei — die drei bleibenden Bedienelemente bekommen ein echtes
+     44x44-Beruehrziel (WCAG 2.5.5 / Apple HIG). */
+  /* .nav-lang / .nav-day ausblenden steht bewusst am DATEIENDE (Suche nach
+     "It. 16b Header-Declutter"): ihre display-Basisregeln stehen SPAETER im
+     File als dieser Block, und Media Queries erhoehen die Spezifitaet nicht —
+     hier wuerde display:none von der spaeteren Basisregel geschlagen. */
+  .nav-burger { min-width: 44px; min-height: 44px; justify-content: center; padding: 12px; }
+  .nav-status { min-height: 44px; }
+  /* Die Wortmarke ist als Text nur ~23px hoch; ihr Klickfeld war damit unter
+     der Schwelle. Ein zentriertes 44px-Feld fuellt die Header-Hoehe, ohne die
+     Schriftgroesse anzufassen. */
+  .nav-brand { display: inline-flex; align-items: center; min-height: 44px; }
+}
+
+/* MOBIL-SCHRIFTBODEN (It. 16b). Auf dem Handy lag geteilter Fliesstext bei
+   14,5px (nachgemessen: .m-meta, .m-brief, die Werte-Spalte der m-rows). Auf
+   kleinen Schirmen bei Armlaenge ist das die Grenze zum Anstrengenden — 15px
+   ist der uebliche Boden. Nur Body, nicht die Mono-LABELS (dt): die sind als
+   gesperrte Versalien ein anderer Texttyp und tragen bei 10-11px. */
+@media (max-width: 560px) {
+  .mcard .m-meta,
+  .m-brief,
+  .m-row dd { font-size: 15px; }
+  .m-row dt { font-size: 11px; }        /* Label leicht hoch, bleibt Label */
 }
 
 /* Ganz schmal: die Zeile wird sonst gesprengt. Nachgerechnet bei 320px —
@@ -1095,10 +1163,11 @@ html { scroll-padding-top: calc(var(--topbar-h) + 14px); }
 
 .cta-row { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 20px; }
 .btn {
-  display: inline-flex; align-items: center; gap: 9px;
+  display: inline-flex; align-items: center; justify-content: center; gap: 9px;
   font-family: var(--font-mono); font-size: 13px; font-weight: 700;
   letter-spacing: .1em; text-transform: uppercase;
   padding: 13px 22px; border-radius: 999px;
+  min-height: 44px;                 /* volles Beruehrziel — war ~43px (It. 16b) */
   transition: transform .25s var(--ease-out), box-shadow .25s var(--ease-out), background .25s;
 }
 .btn-primary {
@@ -1637,6 +1706,12 @@ html { scroll-padding-top: calc(var(--topbar-h) + 14px); }
 }
 .m-toggle svg { width: 14px; height: 14px; transition: transform .45s var(--ease-out); }
 .mcard.open .m-toggle svg { transform: rotate(180deg); }
+/* Karten-Aufklappknopf: als Text nur ~19px hoch. Auf dem Handy die volle
+   Kartenbreite als 44px-Beruehrziel — der ganze Streifen wird tippbar,
+   nicht nur die zwei Worte. (It. 16b) */
+@media (max-width: 560px) {
+  .m-toggle { min-height: 44px; width: 100%; justify-content: flex-start; }
+}
 
 /* ============================================================
    Unterseiten: Hero-Lite, Verweise, Transmission, Gaeste-Log
@@ -1665,6 +1740,11 @@ html { scroll-padding-top: calc(var(--topbar-h) + 14px); }
 .head-link::after { content: "→"; transition: transform .3s var(--ease-out); }
 .head-link:hover, .head-link:focus-visible { color: var(--ink); border-color: rgb(var(--acc-1-rgb) / .5); }
 .head-link:hover::after { transform: translateX(4px); }
+/* "Alle ansehen"-Verweis: als Text nur ~23px hoch. Mobil auf 44px anheben,
+   ohne die Unterstrich-Optik zu verlieren (Padding oben statt Rahmen-Sprung). */
+@media (max-width: 560px) {
+  .head-link { min-height: 44px; padding-top: 10px; }
+}
 
 .transmission {
   border: 1px dashed rgb(var(--acc-2-rgb) / .3);
@@ -1819,10 +1899,14 @@ footer a { color: var(--ink-dim); }
 .mctrl-toggle:hover,
 .mctrl-toggle:focus-visible { color: var(--ink); border-color: rgb(var(--acc-2-rgb) / .6); }
 .mctrl.is-open .mctrl-toggle { color: var(--ink); border-color: rgb(var(--acc-2-rgb) / .6); }
-/* Auf schmalen Schirmen zaehlt jeder Pixel: dort bleibt nur das Symbol. */
+/* Auf schmalen Schirmen zaehlt jeder Pixel: dort bleibt nur das Symbol —
+   aber als volles 44x44-Beruehrziel (It. 16b), nicht als 33x29-Punkt. */
 @media (max-width: 560px) {
   .mctrl-toggle-text { display: none; }
-  .mctrl-toggle { padding: 9px; }
+  .mctrl-toggle {
+    padding: 0; min-width: 44px; min-height: 44px;
+    justify-content: center; gap: 0;
+  }
 }
 
 .mctrl-panel {
@@ -1837,6 +1921,23 @@ footer a { color: var(--ink-dim); }
 .mctrl .row { display: flex; align-items: center; gap: 8px; }
 .mctrl .row + .row { margin-top: 9px; }
 .mctrl .lbl { font-size: 9.5px; letter-spacing: .22em; color: var(--ink-faint); width: 52px; flex: none; }
+
+/* Ablesung statt Schalter: was die Automatik gerade tut. Sie sitzt in
+   derselben Reihe wie die Knopfgruppen, traegt aber bewusst kein
+   Knopf-Aussehen — man kann daran nichts drehen. Die Leuchtdiode links ist
+   das einzige Signal: voll = Leitton, geregelt = gedaempft. */
+.mctrl-mess {
+  display: inline-flex; align-items: center; gap: 7px;
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 11px; letter-spacing: var(--track-label);
+  color: var(--ink-dim);
+}
+.mctrl-mess i {
+  width: 5px; height: 5px; border-radius: 50%;
+  background: rgb(var(--acc-2-rgb) / .55);
+}
+.mctrl-mess i[data-voll="1"] { background: var(--acc-1); }
 .mctrl button {
   font-size: 10.5px; letter-spacing: .1em;
   padding: 6px 11px; border-radius: 999px;
@@ -2204,3 +2305,16 @@ body.has-sticky .mctrl { bottom: 72px; }
 
 /* Stufe s: keine Videos, nur Standbilder — die Seite bleibt vollstaendig. */
 :root[data-fx="s"] .mgal-play { display: none; }
+
+/* ============================================================
+   It. 16b Header-Declutter — Sprache + Tag/Nacht mobil ins Menue.
+   MUSS am Dateiende stehen: die display-Basisregeln von .nav-lang/.nav-day
+   liegen bei ~2078/2106; eine gleich spezifische Regel in einem frueheren
+   @media-Block verliert gegen sie (Media Queries zaehlen nicht zur
+   Spezifitaet). Hier, nach allen Definitionen, greift sie zuverlaessig.
+   Die Schalter bleiben ueber das Overlay-Menue (menu-settings) erreichbar.
+   ============================================================ */
+@media (max-width: 560px) {
+  .nav > .nav-lang,
+  .nav > .nav-day { display: none; }
+}
