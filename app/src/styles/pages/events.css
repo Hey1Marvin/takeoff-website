@@ -251,7 +251,17 @@
   display: grid;
   gap: var(--sp-4) var(--sp-6);
   padding: var(--sp-1) var(--ev-pad) var(--sp-5);
+  /* Das Polster muss MIT einklappen. `grid-template-rows: 0fr` setzt nur die
+     INHALTShoehe des Rasterkindes auf null — sein Polster bleibt stehen. Mit
+     `overflow: hidden` (aus .m-more-inner) entsteht daraus ein rund 36px
+     hohes Band, durch das die erste Zeile des Briefings sichtbar blieb:
+     unter jeder geschlossenen Tafelzeile stand ein angeschnittener Satz.
+     Im Screenshot gesehen, danach nachgemessen (.m-more-inner 36px hoch bei
+     244px Inhalt). Die Dauer entspricht der des Rasters, damit beides
+     gemeinsam aufgeht. */
+  transition: padding-block .5s var(--ease-out);
 }
+.ev-row:not(.is-open) .ev-more-inner { padding-block: 0; }
 @media (min-width: 960px) {
   .ev-more-inner { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
   .ev-cta { grid-column: 1 / -1; }

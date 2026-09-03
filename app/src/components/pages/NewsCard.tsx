@@ -187,6 +187,14 @@ export default function NewsCard({
     }
   };
 
+  /* KEIN `.reveal` direkt am `.ncard`: `.reveal` traegt bis zum Ende seiner
+     .8s-Transition ein `transform` (translateY), und ein `transform` macht
+     jedes Element zum Containing Block fuer `position: fixed`-Nachfahren —
+     genau darin haengt `.toast` weiter unten (Kopfkommentar news.css nennt
+     das bereits "ein echter Fehler", damals durch `.ncard:hover { transform
+     }`). Der Archiv-Reveal sitzt deshalb auf einem WRAPPER um die Karte
+     (NewsConsole.tsx), nicht auf der Karte selbst — die Karte bleibt ohne
+     eigenen Stapel-/Containing-Block-Nebeneffekt. */
   return (
     <article
       className={`ncard${asked ? " asked" : ""}`}

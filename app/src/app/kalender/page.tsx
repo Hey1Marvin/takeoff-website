@@ -277,7 +277,11 @@ export default async function KalenderPage() {
           harter schwarzer Riegel. Fensterbreite Sektion, Platte laeuft durch. */}
       <section className="bc-statsband">
         <div className="wrap">
-          <div className="stats">
+          {/* `.reveal`: dieselbe seitenweite Choreografie wie das Statistikband
+              der Startseite (SceneReveals.tsx, geteilt) — kein eigener Code,
+              nur die Klasse. Tier s / reduced-motion: takeoff.css zeigt den
+              Grundzustand ohnehin sofort an (kein "js"-Gate ohne JS). */}
+          <div className="stats reveal">
             {page.stats.items.map((item, i) => (
               <div key={i}>
                 <b>{item.mode === "manual" ? item.value : statCounts[item.key ?? ""]}</b>
@@ -295,7 +299,7 @@ export default async function KalenderPage() {
       <section className="bc-lane" id="monatsgitter">
         <div className="wrap bc-grid">
           <div className="bc-rubric">
-            <header className="section-head">
+            <header className="section-head reveal">
               <p className="eyebrow">{page.monthGrid.eyebrow}</p>
               <h2 className="h2" dangerouslySetInnerHTML={{ __html: page.monthGrid.titleHtml }} />
               <p className="bc-lead">{page.monthGrid.lead}</p>
@@ -356,7 +360,7 @@ export default async function KalenderPage() {
       <section className="bc-lane" id="termine">
         <div className="wrap bc-grid">
           <div className="bc-rubric">
-            <header className="section-head">
+            <header className="section-head reveal">
               <p className="eyebrow">{page.timeline.eyebrow}</p>
               <h2 className="h2" dangerouslySetInnerHTML={{ __html: page.timeline.titleHtml }} />
               <p className="bc-lead">{page.timeline.lead}</p>
@@ -389,7 +393,7 @@ export default async function KalenderPage() {
       <section className="bc-lane" id="landeplaetze">
         <div className="wrap bc-grid">
           <div className="bc-rubric">
-            <header className="section-head">
+            <header className="section-head reveal">
               <p className="eyebrow">{page.venues.eyebrow}</p>
               <h2 className="h2" dangerouslySetInnerHTML={{ __html: page.venues.titleHtml }} />
               <p className="bc-lead">{page.venues.lead}</p>
@@ -428,7 +432,7 @@ export default async function KalenderPage() {
       <section className="bc-lane" id="abo-faq">
         <div className="wrap bc-grid">
           <div className="bc-rubric">
-            <header className="section-head">
+            <header className="section-head reveal">
               <p className="eyebrow">{page.faqSection.eyebrow}</p>
               <h2 className="h2" dangerouslySetInnerHTML={{ __html: page.faqSection.titleHtml }} />
               <p className="bc-lead">{page.faqSection.lead}</p>

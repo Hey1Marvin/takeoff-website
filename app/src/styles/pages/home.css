@@ -243,4 +243,16 @@
 .hm-sec .mcard .m-more-inner {
   border-top: 1px dashed rgb(var(--card-acc-rgb) / .35);
   padding-top: var(--sp-3);
+  transition: padding-top .55s var(--ease-out);
+}
+/* Kante und Polster muessen MIT einklappen. `grid-template-rows: 0fr` setzt
+   nur die INHALTShoehe des Rasterkindes auf null; Polster und Rahmen bleiben
+   stehen und ergeben zusammen mit `overflow: hidden` ein rund 17px hohes
+   Band, durch das die erste Zeile des Briefings sichtbar bleibt. Nachgemessen
+   (.m-more-inner 17px hoch bei geschlossener Karte). Der Fehler steckte in
+   der Regel, aus der diese hier stammt (events.css, dort mit 14px), seit
+   jeher — er faellt nur auf, wenn man die Hoehe misst statt hinzusehen. */
+.hm-sec .mcard:not(.open) .m-more-inner {
+  border-top-color: transparent;
+  padding-top: 0;
 }

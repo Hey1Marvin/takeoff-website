@@ -1,0 +1,355 @@
+/* ============================================================
+   event-detail.css — „Missionsakte"
+
+   Seiten-Styles fuer /events/<slug>. Laedt NACH takeoff.css und nutzt
+   ausschliesslich bestehende Tokens (--sp-*, --radius*, --shadow-*,
+   --acc-*, --chrome-*, --bg-*, --ink*, --font-*, --track-*, --w-*).
+   Keine neue Palette, kein neuer Font, keine freien Pixelabstaende
+   ausser dort, wo eine Hairline gemeint ist (1px).
+
+   ── Warum es diese Datei gibt ──────────────────────────────
+   Die Listenseite /events hat in It. 14g ein Redesign bekommen:
+   materialisierte Rahmenflaechen (.ev-frame), EIN gemeinsames Raster
+   fuer Kopf und Zeilen, ein bewusster Ausbruch aus der --maxw-Spalte
+   (.ev-wrap), Bezel-Optik. Die Detailseite stand danach als einzige
+   Event-Seite noch auf dem alten Vokabular:
+
+     · neun .eblock-Bloecke untereinander in einer 760px schmalen Spalte
+       (takeoff.css: `.eblock { max-width: 760px }`) — auf 1440px also
+       eine Spalte und daneben 45 % nichts, egal was im Block steht;
+     · keine einzige Flaeche: alles stand direkt auf der Szene;
+     · `.stats` — ein BAND-Element mit Linie oben/unten und
+       `padding: var(--sp-6) 0` — wurde im JSX per Inline-Style auf
+       `border: 0; padding: 10px 0` gestaucht. Das war die einzige
+       Stelle, an der die Zahlen ueberhaupt vorkamen, und sie stand
+       nicht im System, sondern im Markup;
+     · das Lineup waren Pills mit `font-size: clamp(19px,3.2vw,28px)`,
+       ausgelegt auf drei bis sechs Namen. Die Pride-Party hat 17.
+
+   Diese Datei setzt die Linie von events.css fort, statt eine zweite
+   Gestaltungssprache danebenzustellen: dieselben Rahmen, dieselben
+   Hairlines, dieselben Mono-Mikrolabels, derselbe eine Ausbruch.
+
+   ── Die eine Regel zur Eventfarbe ──────────────────────────
+   `--card-acc` kommt aus dem Datensatz (page.tsx setzt sie auf der
+   Sektion). Sie wird hier NUR als Flaeche, Kante oder Schiene benutzt,
+   nie als Schriftfarbe: die Neons der Events kommen tags auf hellem
+   Grund auf 1.5–1.6:1 (events.css §13 trifft dieselbe Entscheidung
+   fuer die Tafelzeile). Schrift bleibt --ink/--ink-dim/--acc-3-tint.
+   ============================================================ */
+
+/* ============================================================
+   1 · Seitengeruest und Spaltenmodell
+
+   Der Kopf steht bewusst NICHT in derselben Struktur wie der Rumpf:
+   `.ehero` ist ein eigenes direktes Kind von <main> (scene-day.css
+   nimmt es von der hellen Tagesspalte aus, `main > *:not(.ehero)`).
+
+   Vorher war der Rumpf `<div class="wrap section">` — beide Klassen
+   auf EINEM Element. `.section` setzt `padding: … 0` und loescht damit
+   das `padding-inline` von `.wrap`; events.css musste das mit
+   `main > .wrap.section { padding-inline: var(--pad) }` nachtraeglich
+   reparieren. Jetzt sind es zwei Elemente (`<section class="section">`
+   > `<div class="wrap">`), und die Reparatur wird nicht mehr gebraucht.
+   ============================================================ */
+.ed-sec { padding-top: var(--sp-7); }
+
+/* Der Ausbruch — dieselbe Breite wie die Abflugtafel (.ev-wrap).
+   Ein Ausbruch liest sich als Absicht, drei verschiedene Breiten als
+   Zufall: es gibt genau diese zwei Breiten auf der Seite, die volle
+   und die Lesespalte darunter. */
+.ed-wrap { max-width: calc(var(--maxw) + 2 * var(--sp-8)); }
+
+/* Lesespalte: Fliesstext bleibt schmal, alles andere darf breit.
+   `.ed-page .eblock` ist (0,2,0) und schlaegt damit das (0,1,0) von
+   takeoff.css unabhaengig von der Buendel-Reihenfolge — auf die
+   Quellreihenfolge zweier global importierter CSS-Dateien ist bei
+   Next kein Verlass. */
+.ed-page { --ed-col: 68ch; }
+.ed-page .eblock { max-width: var(--ed-col); margin-inline: auto; }
+.ed-page .eblock--wide { max-width: none; }
+/* Abstand aus der Leiter statt aus einem freien clamp(). */
+.ed-page .eblock + .eblock { margin-top: var(--sp-8); }
+
+.ed-link { color: var(--acc-3-tint); }
+.ed-link:hover, .ed-link:focus-visible { color: var(--ink); }
+
+/* ============================================================
+   2 · Blockkopf
+   Ueberschrift links, eine zweistellige Zahl rechts — dieselbe
+   Mikro-Plakette wie `.ev-gate`/`.board-code` auf der Tafel. Die Zahl
+   ist bewusst wortlos: sie braucht keine Uebersetzung und sagt vor dem
+   Lesen, wie gross der Block ist (17 Acts, 32 Clips, 4 Staende).
+   ============================================================ */
+.ed-head {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: var(--sp-3);
+  margin-bottom: var(--sp-4);
+}
+.ed-page .ed-head h3 { margin-bottom: 0; flex: 1; min-width: 0; }
+.ed-count {
+  flex: none;
+  font-family: var(--font-mono); font-weight: var(--w-micro-b); font-size: 10px;
+  letter-spacing: var(--track-label); text-transform: uppercase;
+  font-variant-numeric: tabular-nums;
+  padding: 4px 8px; border-radius: 5px;
+  border: 1px solid var(--bg-hairline); background: var(--bg-overlay);
+  color: var(--ink-dim);
+}
+
+/* ============================================================
+   3 · Rahmenflaeche und Zeilenraster — die zwei geteilten Bausteine
+
+   `.ed-frame` ist der Bezel von events.css (.ev-frame), Ton in Ton.
+   `.ed-list` ist das Zeilenraster darin: EINE Spalte auf schmalen
+   Schirmen, zwei ab 760px, wenn genug Zeilen da sind.
+
+   Warum Zeilen mit Kanten und nicht Kacheln mit `gap` auf farbigem
+   Grund: bei 17 Acts in zwei Spalten bleibt die letzte Zeile halb
+   leer. Mit dem „Raster faerben, Zellen ueberdecken"-Trick stuende
+   dort ein voller Hairline-Block. Kanten an den Zellen kennen dieses
+   Problem nicht — die letzte Zeile hoert einfach auf.
+   ============================================================ */
+.ed-frame {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--bg-hairline);
+  background: linear-gradient(175deg, var(--bg-raised), var(--bg-base));
+  box-shadow: var(--shadow-2);
+}
+/* Scanline-Andeutung, identisch zur Tafel: 1px Linie, 3px Raster,
+   2,5 % Deckkraft. Materialitaet, kein CRT-Kitsch. */
+.ed-frame::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  z-index: var(--z-deco);
+  background: repeating-linear-gradient(0deg, rgb(255 255 255 / .025) 0 1px, transparent 1px 3px);
+}
+/* Auf hellem Grund waere eine weisse Scanline unsichtbar. */
+:root.day-mode .ed-frame::after {
+  background: repeating-linear-gradient(0deg, rgb(0 0 0 / .022) 0 1px, transparent 1px 3px);
+}
+
+.ed-list { display: grid; grid-template-columns: minmax(0, 1fr); }
+.ed-item {
+  min-width: 0;
+  padding: clamp(13px, 1.6vw, 18px) clamp(16px, 2.2vw, 26px);
+  border-top: 1px solid var(--bg-hairline);
+}
+.ed-item:first-child { border-top: 0; }
+@media (min-width: 760px) {
+  .ed-list[data-cols="2"] { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  /* In zwei Spalten hat die erste ZEILE zwei Zellen — beide ohne Oberkante. */
+  .ed-list[data-cols="2"] > .ed-item:nth-child(2) { border-top: 0; }
+  .ed-list[data-cols="2"] > .ed-item:nth-child(even) { border-left: 1px solid var(--bg-hairline); }
+}
+
+/* ============================================================
+   4 · Lineup — traegt 3 Namen und 17
+
+   Die Pills vorher skalierten mit der Namenszahl NICHT: 17 Namen in
+   28px-Displaytype sind eine Wolke, kein Lineup. Eine Zeile je Act
+   dagegen liest sich bei jeder Laenge gleich — es wird nur laenger,
+   nie unuebersichtlicher. Genau das macht die Abflugtafel auch.
+
+   Jede Zeile hat EINE linke Textkante: Name, Handle, Crew, Genre und
+   Anmerkung beginnen alle dort. Kein Label-Wert-Nebeneinander, das bei
+   „Gewinnerin des FLINTA-Contests" (ein echter Wert im Datensatz) eine
+   auto-Spur sprengen wuerde.
+   ============================================================ */
+.ed-act { display: flex; flex-direction: column; gap: 5px; }
+.ed-act-name {
+  font-family: var(--font-display); font-weight: var(--w-head);
+  font-size: clamp(16px, 1.9vw, 21px); line-height: 1.18;
+  color: var(--ink);
+  /* „DJ Steuerhinterziehung" ist 21 Zeichen und muss auf 360px passen. */
+  overflow-wrap: anywhere;
+}
+a.ed-act-name { transition: color .25s var(--ease-out); }
+a.ed-act-name:hover, a.ed-act-name:focus-visible { color: var(--acc-1-tint); }
+.ed-act-meta {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 5px 10px;
+  font-family: var(--font-mono); font-size: 11.5px;
+  color: var(--ink-faint);
+}
+.ed-handle { color: var(--acc-3-tint); overflow-wrap: anywhere; }
+.ed-handle:hover, .ed-handle:focus-visible { color: var(--ink); }
+.ed-tag {
+  font-family: var(--font-mono); font-weight: var(--w-micro-b); font-size: 9.5px;
+  letter-spacing: var(--track-micro); text-transform: uppercase;
+  padding: 3px 7px; border-radius: 4px;
+  border: 1px solid rgb(var(--acc-2-rgb) / .4);
+  color: var(--ink-dim);
+}
+.ed-act-note {
+  font-size: 12.5px; line-height: 1.45; color: var(--ink-faint);
+  max-width: 52ch;
+}
+
+/* B2B-Paar: EINE Zeile fuer zwei Namen, untereinander statt
+   nebeneinander. Nebeneinander waere in einer halben Spalte auf 360px
+   nicht unterzubringen; untereinander passt es immer, und die
+   Trennzeile dazwischen sagt, dass die beiden zusammengehoeren.
+   Die Schiene links ist derselbe Inset-Schatten wie bei .ev-row. */
+.ed-item--pair { box-shadow: inset 2px 0 0 var(--card-acc, var(--acc-2)); }
+.ed-pair { display: flex; flex-direction: column; gap: var(--sp-2); }
+.ed-b2b {
+  display: flex; align-items: center; gap: 10px;
+  font-family: var(--font-mono); font-weight: var(--w-micro-b); font-size: 9.5px;
+  letter-spacing: var(--track-micro); text-transform: uppercase;
+  color: var(--acc-3);
+}
+.ed-b2b::before, .ed-b2b::after {
+  content: ""; flex: 1; height: 1px; background: var(--bg-hairline);
+}
+
+/* ============================================================
+   5 · Die Nacht in Zahlen
+   `.stats` ist in takeoff.css ein BAND — Linie oben, Linie unten, viel
+   Innenpolster, gedacht als Zwischenelement zwischen zwei Sektionen.
+   Im Block ist es keins. Der Inline-Style, der das bisher notduerftig
+   erledigt hat (`border: 0; padding: 10px 0`), steht jetzt hier und
+   macht aus dem Band vier Instrumentenfelder im Rahmen.
+   ============================================================ */
+.ed-numbers .stats {
+  border: 0;
+  padding: 0;
+  gap: 0;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 148px), 1fr));
+}
+.ed-numbers .stats > div {
+  padding: var(--sp-5) var(--sp-3);
+  border-left: 1px solid var(--bg-hairline);
+}
+.ed-numbers .stats > div:first-child { border-left: 0; }
+
+/* ============================================================
+   6 · Marktplatz
+   ============================================================ */
+.ed-stall { display: flex; flex-direction: column; gap: 5px; }
+.ed-stall-name {
+  font-family: var(--font-display); font-weight: var(--w-head);
+  font-size: clamp(15px, 1.6vw, 18px); color: var(--ink);
+  overflow-wrap: anywhere;
+}
+.ed-stall-text { font-size: 14px; line-height: 1.5; color: var(--ink-dim); }
+
+/* ============================================================
+   7 · Contest
+   `status: "abgelaufen"` ist der Normalfall im Bestand — die Fristen
+   sind vorbei. Ein Rueckblick darf sich nicht wie ein offener Aufruf
+   lesen, deshalb steht die Plakette VOR den Bedingungen und ist
+   bewusst grau statt in der Eventfarbe.
+   ============================================================ */
+.ed-panel { padding: clamp(18px, 2.4vw, 28px) clamp(16px, 2.2vw, 26px); }
+.ed-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-family: var(--font-mono); font-weight: var(--w-micro-b); font-size: 10px;
+  letter-spacing: var(--track-label); text-transform: uppercase;
+  padding: 5px 10px; border-radius: 999px;
+  border: 1px solid var(--bg-hairline); background: var(--bg-overlay);
+  color: var(--ink-dim);
+}
+.ed-panel-title {
+  font-family: var(--font-display); font-weight: var(--w-head);
+  font-size: clamp(17px, 2vw, 22px); line-height: 1.2;
+  color: var(--ink);
+  margin-top: var(--sp-2);
+}
+.ed-panel-text { margin-top: var(--sp-2); color: var(--ink-dim); font-size: 14.5px; line-height: 1.6; }
+/* `.m-rows` bringt seinen eigenen Abstand nach oben mit. */
+.ed-panel .m-rows { margin-top: var(--sp-3); }
+
+/* ============================================================
+   8 · Hausregeln
+   Ernst und knapp, wie die Aushaenge selbst. Der Strich davor ist
+   derselbe wie vor jeder Ueberschrift (.eblock h3::before) — nur in
+   der Signalfarbe, weil eine Hausregel eine Ansage ist.
+   ============================================================ */
+.ed-rule {
+  display: flex; align-items: baseline; gap: 12px;
+  font-family: var(--font-mono); font-weight: var(--w-micro-b);
+  font-size: clamp(12.5px, 1.5vw, 15px);
+  letter-spacing: var(--track-label); text-transform: uppercase;
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+.ed-rule::before {
+  content: ""; flex: none; width: 14px; height: 1px;
+  background: var(--acc-1); transform: translateY(-4px);
+}
+
+/* ============================================================
+   9 · Awareness, Credits, Contest-Fakten
+   Alle drei sind Label-Wert-Listen und benutzen deshalb `.m-rows`/
+   `.m-row` (AGENTS.md: „Label-Wert-Listen sind ein Subgrid" — alle
+   Werte beginnen links auf einer Linie, kein eigenes Flex-Layout).
+   ============================================================ */
+.ed-principle {
+  margin-top: var(--sp-4);
+  font-family: var(--font-display); font-weight: var(--w-head);
+  font-size: clamp(16px, 2vw, 20px); line-height: 1.3;
+  color: var(--ink);
+}
+.ed-note {
+  margin-top: var(--sp-3);
+  color: var(--ink-faint); font-size: 13.5px; line-height: 1.55;
+  font-family: var(--font-mono);
+}
+
+/* ============================================================
+   10 · Galerie
+   Die drei Werte standen als Inline-Style an jedem <img>.
+   ============================================================ */
+.ed-shot {
+  border-radius: var(--radius);
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  width: 100%;
+  display: block;
+}
+
+/* ============================================================
+   11 · Kopf und Fuss der Seite
+   ============================================================ */
+.ed-mission {
+  display: inline-flex; align-items: center;
+  font-family: var(--font-mono); font-weight: var(--w-micro-b); font-size: 10.5px;
+  letter-spacing: var(--track-micro); text-transform: uppercase;
+  padding: 4px 10px; border-radius: 999px;
+  border: 1px solid var(--bg-hairline); background: var(--bg-overlay);
+  color: var(--ink-dim);
+  margin-bottom: var(--sp-3);
+}
+.ed-hero-genres { justify-content: center; margin-top: var(--sp-4); }
+.ed-hero-cta { justify-content: center; margin-top: var(--sp-5); }
+.ed-hero-note { margin-top: var(--sp-4); }
+.ed-foot {
+  display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-3) var(--sp-5);
+  margin-top: var(--sp-8);
+  padding-top: var(--sp-4);
+  border-top: 1px solid var(--bg-hairline);
+}
+.ed-page .ed-foot .back-link { margin: 0; }
+
+/* ============================================================
+   12 · Schmale Schirme
+   Kontrolliert wird hier nur, was sonst ueberlaeuft: die Frames haben
+   `overflow: hidden`, die Zeilen `minmax(0, 1fr)` und jeder lange Wert
+   `overflow-wrap: anywhere`. Bleibt das Innenpolster.
+   ============================================================ */
+@media (max-width: 480px) {
+  .ed-item { padding-inline: var(--sp-3); }
+  .ed-panel { padding-inline: var(--sp-3); }
+  .ed-numbers .stats > div { padding-inline: var(--sp-2); }
+}
+
+/* ============================================================
+   13 · Bewegung
+   Es gibt genau eine: der Farbwechsel an Namen und Handles. Alles
+   andere auf dieser Seite steht still — der eine Bewegungsmoment der
+   Event-Route gehoert der Abflugtafel.
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  a.ed-act-name { transition: none; }
+}

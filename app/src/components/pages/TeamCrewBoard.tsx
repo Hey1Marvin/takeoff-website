@@ -162,84 +162,96 @@ export default function TeamCrewBoard({
 
   return (
     <div className="kt-depts">
-      {departments.map(dept => dept.members.length > 0 && (
-        <section className="kt-dept" data-dept={dept.id} key={dept.id}>
-          {/* Titel, Untertitel und Einleitung liegen in EINEM Kopfblock.
-              Als Geschwister trugen sie nachts zwei getrennte Traegerflaechen,
-              und die untere ragte bauartbedingt bis zu 34px in die obere
-              hinein — im Screenshot als halb weggeblendeter Satz sichtbar.
-              Ein Block, eine Flaeche, kein Ueberlapp. */}
-          <div className="kt-dept-head">
-            <div className="kt-dept-name">
-              <span className="kt-dept-dot" aria-hidden="true" />
-              <h3 className="kt-dept-title">{dept.title}</h3>
-              {dept.subtitle && <span className="kt-dept-sub">{dept.subtitle}</span>}
+      {departments.map(dept => {
+        if (dept.members.length === 0) return null;
+        /* Veredelung: sobald eine Karte dieses Bereichs offen ist, treten
+           die uebrigen dezent zurueck (team.css, .kt-dimmed) — Antwort auf
+           eine Handlung, bewusst PRO BEREICH statt seitenweit. Aus dem
+           ohnehin vorhandenen `flipped`-State abgeleitet statt per CSS
+           `:has()`: React rendert bei jeder Aenderung ohnehin neu, eine
+           Klasse aus State ist damit die verlaesslichere Grundlage (siehe
+           Kommentar in team.css). */
+        const anyOpenInDept = dept.members.some(m => flipped.has(m.id));
+        return (
+          <section className="kt-dept" data-dept={dept.id} key={dept.id}>
+            {/* Titel, Untertitel und Einleitung liegen in EINEM Kopfblock.
+                Als Geschwister trugen sie nachts zwei getrennte Traegerflaechen,
+                und die untere ragte bauartbedingt bis zu 34px in die obere
+                hinein — im Screenshot als halb weggeblendeter Satz sichtbar.
+                Ein Block, eine Flaeche, kein Ueberlapp. */}
+            <div className="kt-dept-head">
+              <div className="kt-dept-name">
+                <span className="kt-dept-dot" aria-hidden="true" />
+                <h3 className="kt-dept-title">{dept.title}</h3>
+                {dept.subtitle && <span className="kt-dept-sub">{dept.subtitle}</span>}
+              </div>
+              {dept.intro && <p className="kt-dept-intro">{dept.intro}</p>}
             </div>
-            {dept.intro && <p className="kt-dept-intro">{dept.intro}</p>}
-          </div>
-          <div className="crewgrid kt-grid">
-            {dept.members.map(m => {
-              const backId = `kt-back-${m.id}`;
-              const isOpen = flipped.has(m.id);
-              return (
-                <div
-                  className={`kt-card${isOpen ? " flipped" : ""}`}
-                  key={m.id}
-                  onKeyDown={e => onCardKeyDown(e, m.id, isOpen)}
-                >
-                  <div className="kt-card-inner">
-                    <button
-                      type="button"
-                      className="ccard kt-face kt-face-front"
-                      aria-expanded={isOpen}
-                      aria-controls={backId}
-                      // Tier L (3D-Flip) haelt per CSS !important beide Seiten
-                      // opacity:1/visibility:visible (sonst kein Fluchtpunkt
-                      // fuers Drehen) — ohne inert bliebe die weggedrehte
-                      // Vorderseite trotzdem per Tab erreichbar und fuer
-                      // Screenreader sichtbar. inert deckt Fokus UND A11y-
-                      // Baum unabhaengig vom CSS-Zustand ab (ARIA-Regel:
-                      // aria-hidden darf NIE auf einem fokussierbaren
-                      // Element ohne begleitendes inert/tabIndex stehen).
-                      inert={isOpen}
-                      ref={el => { if (el) openRefs.current.set(m.id, el); }}
-                      onClick={() => flip(m.id, true)}
-                    >
-                      <span className="kt-scan" aria-hidden="true" />
-                      <span className="avatar" aria-hidden="true">
-                        {m.avatarIcon && ICONS[m.avatarIcon] ? ICONS[m.avatarIcon] : m.avatarText}
-                      </span>
-                      <b>{m.name}</b>
-                      <span className="kt-card-role">{m.role}</span>
-                      <span className="kt-card-foot">
-                        {m.since && <span className="kt-since">{sinceLabel} {m.since}</span>}
-                        <span className="kt-flip-hint">
-                          {flipOpenLabel} <span aria-hidden="true">→</span>
-                        </span>
-                      </span>
-                    </button>
-                    <div className="kt-face kt-face-back" id={backId} aria-hidden={!isOpen} inert={!isOpen}>
-                      <ul className="kt-tasks">
-                        {m.tasks.map(task => <li key={task}>{task}</li>)}
-                      </ul>
-                      {m.contact && <p className="kt-contact">{m.contact}</p>}
-                      {m.href && <Link className="kt-more" href={m.href}>{m.linkText ?? moreLabel}</Link>}
+            <div className="crewgrid kt-grid">
+              {dept.members.map(m => {
+                const backId = `kt-back-${m.id}`;
+                const isOpen = flipped.has(m.id);
+                const dimmed = !isOpen && anyOpenInDept;
+                return (
+                  <div
+                    className={`kt-card${isOpen ? " flipped" : ""}${dimmed ? " kt-dimmed" : ""}`}
+                    key={m.id}
+                    onKeyDown={e => onCardKeyDown(e, m.id, isOpen)}
+                  >
+                    <div className="kt-card-inner">
                       <button
                         type="button"
-                        className="kt-flip-close"
-                        ref={el => { if (el) closeRefs.current.set(m.id, el); }}
-                        onClick={() => flip(m.id, false)}
+                        className="ccard kt-face kt-face-front"
+                        aria-expanded={isOpen}
+                        aria-controls={backId}
+                        // Tier L (3D-Flip) haelt per CSS !important beide Seiten
+                        // opacity:1/visibility:visible (sonst kein Fluchtpunkt
+                        // fuers Drehen) — ohne inert bliebe die weggedrehte
+                        // Vorderseite trotzdem per Tab erreichbar und fuer
+                        // Screenreader sichtbar. inert deckt Fokus UND A11y-
+                        // Baum unabhaengig vom CSS-Zustand ab (ARIA-Regel:
+                        // aria-hidden darf NIE auf einem fokussierbaren
+                        // Element ohne begleitendes inert/tabIndex stehen).
+                        inert={isOpen}
+                        ref={el => { if (el) openRefs.current.set(m.id, el); }}
+                        onClick={() => flip(m.id, true)}
                       >
-                        {flipCloseLabel}
+                        <span className="kt-scan" aria-hidden="true" />
+                        <span className="avatar" aria-hidden="true">
+                          {m.avatarIcon && ICONS[m.avatarIcon] ? ICONS[m.avatarIcon] : m.avatarText}
+                        </span>
+                        <b>{m.name}</b>
+                        <span className="kt-card-role">{m.role}</span>
+                        <span className="kt-card-foot">
+                          {m.since && <span className="kt-since">{sinceLabel} {m.since}</span>}
+                          <span className="kt-flip-hint">
+                            {flipOpenLabel} <span aria-hidden="true">→</span>
+                          </span>
+                        </span>
                       </button>
+                      <div className="kt-face kt-face-back" id={backId} aria-hidden={!isOpen} inert={!isOpen}>
+                        <ul className="kt-tasks">
+                          {m.tasks.map(task => <li key={task}>{task}</li>)}
+                        </ul>
+                        {m.contact && <p className="kt-contact">{m.contact}</p>}
+                        {m.href && <Link className="kt-more" href={m.href}>{m.linkText ?? moreLabel}</Link>}
+                        <button
+                          type="button"
+                          className="kt-flip-close"
+                          ref={el => { if (el) closeRefs.current.set(m.id, el); }}
+                          onClick={() => flip(m.id, false)}
+                        >
+                          {flipCloseLabel}
+                        </button>
+                      </div>
                     </div>
                   </div>
-                </div>
-              );
-            })}
-          </div>
-        </section>
-      ))}
+                );
+              })}
+            </div>
+          </section>
+        );
+      })}
       <div className={`toast${toast ? " show" : ""}`} role="status" aria-live="polite">
         {toast && <span className="kt-unicorn-pop" aria-hidden="true">🦄</span>}
         {toast}

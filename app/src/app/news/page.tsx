@@ -187,7 +187,11 @@ export default async function NewsPage() {
       <div className="wrap">
         <div className="rx-desk">
           <div className="rx-desk-faq">
-            <header className="section-head">
+            {/* `.reveal`: die geteilte Scroll-Choreografie (SceneReveals.tsx,
+                takeoff.css) — sonst hatte der Empfangsschalter als einzige
+                Sektion der Seite keinerlei Bewegungsmoment, weder den
+                Typewriter oben noch irgendeinen Übergang beim Reinscrollen. */}
+            <header className="section-head reveal">
               <p className="eyebrow">{page.faqSection?.eyebrow || "Bevor du fragst"}</p>
               <h2 className="h2">{page.faqSection?.title || "Häufige Fragen"}</h2>
             </header>
@@ -198,7 +202,7 @@ export default async function NewsPage() {
             </dl>
           </div>
 
-          <div className="rx-cta">
+          <div className="rx-cta reveal">
             <p className="eyebrow">{page.channelCta.eyebrow}</p>
             <h2>{page.channelCta.title}</h2>
             <p>{page.channelCta.text}</p>

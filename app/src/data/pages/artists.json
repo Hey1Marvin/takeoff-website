@@ -14,7 +14,15 @@
     "eyebrow": "Crew Select",
     "title": "Residents",
     "filterAllLabel": "Alle",
-    "filterAria": "Nach Genre filtern"
+    "filterAria": "Nach Genre filtern",
+    "toggleLabel": "Profil",
+    "roleLabel": "Rolle",
+    "sinceLabel": "seit",
+    "lastLabel": "Zuletzt",
+    "nextLabel": "Nächster Start",
+    "listenLabel": "Hören",
+    "profileLabel": "Zum Profil",
+    "soundcloudLabel": "SoundCloud ↗"
   },
   "sets": {
     "eyebrow": "Aufzeichnungen",
@@ -23,7 +31,8 @@
     "randomLabel": "Random Transmission",
     "randomHint": "Ein Klick, ein zufälliges Set aus dem Archiv.",
     "randomEmpty": "Noch keine Sets im Archiv — check bald wieder rein.",
-    "consentText": "Demo: Hier würde jetzt der Player laden (Zwei-Klick, DSGVO-freundlich). Kein Klick = kein Tracking."
+    "consentText": "Demo: Hier würde jetzt der Player laden (Zwei-Klick, DSGVO-freundlich). Kein Klick = kein Tracking.",
+    "countLabel": "Sets"
   },
   "gaeste": {
     "eyebrow": "Gäste-Log",
@@ -72,14 +81,30 @@
     "unit": "BPM",
     "min": 135,
     "max": 153,
-    "ticks": [138, 145, 150],
-    "spread": 2.5,
+    "ticks": [
+      138,
+      145,
+      150
+    ],
+    "spread": 1.8,
     "otherLabel": "ohne festes Tempo",
     "genres": [
-      { "match": "Trance", "bpm": 138 },
-      { "match": "Hard Trance", "bpm": 145 },
-      { "match": "Bounce", "bpm": 150 },
-      { "match": "Hard Bounce", "bpm": 150 }
+      {
+        "match": "Trance",
+        "bpm": 138
+      },
+      {
+        "match": "Hard Trance",
+        "bpm": 145
+      },
+      {
+        "match": "Bounce",
+        "bpm": 150
+      },
+      {
+        "match": "Hard Bounce",
+        "bpm": 150
+      }
     ]
   }
 }

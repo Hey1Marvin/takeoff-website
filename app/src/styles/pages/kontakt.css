@@ -64,11 +64,13 @@
    0 · Seitengerüst und Abstände (Ersatz für die Inline-Paddings)
    ============================================================ */
 
-/* Der EINE Ausbruch aus der Textspalte: die Konsole ist ein Instrument
-   und darf breiter stehen als Fließtext. Hero, Vergleich und FAQ behalten
-   --maxw — ein Ausbruch liest sich als Absicht, drei Breiten als Zufall.
-   (Gleiche Begründung und gleiche Rechnung wie .ev-wrap in events.css.) */
-.fs-wrap { max-width: calc(var(--maxw) + 2 * var(--sp-8)); }
+/* EINE Breite für die ganze Seite: --maxw. Ein Ausbruch für die Konsole war
+   der erste Entwurf (wie .ev-wrap auf /events), ist aber hier falsch — die
+   Kopfzeile stünde dann 84px weiter links als der Hero darüber, und genau
+   diese wandernde linke Textkante ist das, was eine Seite unruhig macht.
+   Bei 1440px bleiben in --maxw 1040px Inhalt: 640px Textspalte (dieselbe
+   Maßeinheit wie .section-intro) plus 340px Instrumentensäule plus Spalte.
+   Die Fläche rechts füllt damit die Säule, nicht eine größere Zahl. */
 
 /* Die erste Sektion sitzt direkt unter dem Hero, der bereits eigene
    Fußpolsterung mitbringt — voller --sp-section stünde dort doppelt. */
@@ -562,6 +564,19 @@
 /* ============================================================
    10 · Schmale Schirme
    ============================================================ */
+/* Tablet: die Säule liegt quer über die volle Breite. Eine 200px-Scheibe
+   mittig über einer breiten Liste sähe verloren aus — also nebeneinander,
+   dasselbe Instrument nur gekippt. */
+@media (min-width: 620px) and (max-width: 999px) {
+  .fs-instr {
+    display: grid;
+    grid-template-columns: 200px minmax(0, 1fr);
+    column-gap: var(--sp-5);
+    align-items: center;
+  }
+  .fs-instr-title { grid-column: 1 / -1; }
+  .fs-instr .fs-readout { margin-top: 0; }
+}
 @media (max-width: 999px) {
   .fs-radar { width: min(100%, 200px); }
 }

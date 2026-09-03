@@ -181,16 +181,26 @@ export default function NewsConsole({
       lastYear = year;
     }
     const match = active === "all" || item.badge === active;
+    /* `.reveal` sitzt auf einem WRAPPER statt auf `.ncard` selbst: die
+       Klasse traegt bis zum Ende ihrer .8s-Transition ein `transform`, und
+       ein `transform` auf `.ncard` macht die Karte zum Containing Block
+       fuer das fixierte `.toast` darin ("Link kopiert") — dieselbe Falle,
+       die news.css oben (Kopfkommentar) schon einmal dokumentiert und
+       entfernt hat, nur diesmal ueber die Reveal-Klasse statt ueber
+       `:hover`. `hidden` steht zusaetzlich auch hier: sonst behielte der
+       jetzt leere Wrapper beim Kanalfilter seine Rasterzeile samt `gap` und
+       risse eine Luecke in die gefilterte Liste. */
     nodes.push(
-      <NewsCard
-        key={item.id}
-        item={item}
-        crosslink={crosslinks[item.id] ?? null}
-        feedback={feedbacks[item.id] ?? null}
-        share={share}
-        insta={insta}
-        hidden={!match}
-      />
+      <div className="reveal" key={item.id} hidden={!match}>
+        <NewsCard
+          item={item}
+          crosslink={crosslinks[item.id] ?? null}
+          feedback={feedbacks[item.id] ?? null}
+          share={share}
+          insta={insta}
+          hidden={!match}
+        />
+      </div>
     );
   });
 

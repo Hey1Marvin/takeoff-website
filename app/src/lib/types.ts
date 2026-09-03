@@ -12,6 +12,35 @@ export interface LineupSlot {
   name: string;
   genres?: string;
   time?: string;
+  /** Instagram-Handle inkl. @ — die Acts sind dort auffindbar, wir nicht. */
+  handle?: string;
+  /** Kollektiv-Zugehoerigkeit: takeoff, rundfunk, styx … */
+  crew?: string;
+  /** Name des B2B-Partners. Vorher wurde das in den Namen geschrieben
+      ("Cyonic B2B Niico") — damit war weder verlinkbar noch zaehlbar, wer
+      gespielt hat. */
+  b2bWith?: string;
+  /** Redaktionelle Anmerkung, auch fuer offene Fragen an die Daten. */
+  note?: string;
+}
+
+/** Pop-up-Stand oder Marktplatz beim Event. */
+export interface MarketStall {
+  name: string;
+  handle?: string;
+  beschreibung?: string;
+}
+
+/** DJ-Contest zu einem Event. `status` haelt fest, dass eine Frist vorbei
+    ist — sonst liest sich ein Rueckblick wie ein offener Aufruf. */
+export interface EventContest {
+  titel: string;
+  veranstalter?: string;
+  status: "offen" | "abgelaufen" | string;
+  bedingungen?: string;
+  deadline?: string;
+  bekanntgabe?: string;
+  ergebnis?: string;
 }
 
 export interface EventTheme {
@@ -83,6 +112,16 @@ export interface TakeoffEvent {
   media?: MediaItem[];
   /** Sets, die bei diesem Event gespielt wurden. */
   sets?: MediaSet[];
+  /** Pop-up-Staende und Marktplatz. */
+  market?: MarketStall[];
+  /** DJ-Contest, auch rueckblickend. */
+  contest?: EventContest;
+  /** Hausregeln des Abends ("no ghb", "no photo" …). */
+  rules?: string[];
+  /** Wer Artwork, Foerderung, Getraenke beigesteuert hat. */
+  credits?: Record<string, string>;
+  /** Track-ID aus dem Ankuendigungsvideo. */
+  trackId?: string;
 }
 
 export interface Artist {
@@ -99,6 +138,10 @@ export interface Artist {
   appearances: string[];   // Event-Slugs
   page?: string;
   visible?: boolean;
+  /** Instagram-Handle inkl. @. */
+  handle?: string;
+  /** Redaktionelle Notiz, auch fuer offene Fragen. */
+  note?: string;
 }
 
 export interface TeamMember {

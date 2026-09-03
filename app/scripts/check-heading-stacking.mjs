@@ -3,8 +3,9 @@
    fremden Element mit hoeherem Stapelrang verdeckt werden.
 
    Batch-Pruefung (siehe AGENTS.md-Verifizieren-Pflicht, Punkt 5 des
-   Auftrags nach polish:artists/kollektiv/kontakt): fuer jede polierte
-   Seite und jede section-Ueberschrift (h1/h2/h3 in <main>) muss
+   Auftrags nach polish:artists/kollektiv/kontakt; erweitert um
+   polish:musik/team/news-kalender): fuer jede polierte Seite und jede
+   section-Ueberschrift (h1/h2/h3 in <main>) muss
    elementFromPoint auf der Mitte der Ueberschrift die Ueberschrift
    selbst oder ein Kind/Elternteil davon treffen. Trifft es etwas
    anderes, liegt ein fremdes Element (Deko-Layer, Traegerflaeche,
@@ -37,6 +38,11 @@ const ROUTES = [
   "/artists", "/artists/jojo", "/artists/platzhalter", "/artists/cyonic", "/artists/blaulicht",
   "/kollektiv",
   "/kontakt",
+  /* polish:musik/team/news-kalender (Batch-Check danach) */
+  "/musik",
+  "/team",
+  "/news",
+  "/kalender",
 ];
 const WIDTHS = [360, 768, 1440];
 const THEMES = ["space", "mars"];

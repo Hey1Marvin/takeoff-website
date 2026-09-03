@@ -217,6 +217,30 @@
           "type": "text",
           "label": "Genre / Zeit-Info",
           "help": "z. B. „Trance“ oder „Floor 3 · 20:00“."
+        },
+        {
+          "key": "handle",
+          "type": "text",
+          "label": "Instagram-Handle",
+          "help": "Mit @, z. B. „@mimi404.dj“. Die Acts sind dort auffindbar — bei uns bisher nicht."
+        },
+        {
+          "key": "crew",
+          "type": "text",
+          "label": "Kollektiv",
+          "help": "z. B. „takeoff“, „rundfunk“, „styx“."
+        },
+        {
+          "key": "b2bWith",
+          "type": "text",
+          "label": "B2B mit",
+          "help": "Name der zweiten Person. Früher stand das im Namen („Cyonic B2B Niico“) und war damit nicht auswertbar."
+        },
+        {
+          "key": "note",
+          "type": "text",
+          "label": "Anmerkung",
+          "help": "Interne Notiz, auch für offene Fragen zu diesem Eintrag."
         }
       ],
       "help": "Reihenfolge der Einträge = Anzeige-Reihenfolge auf der Event-Seite."
@@ -420,6 +444,114 @@
           }
         ]
       }
+    },
+    {
+      "key": "market",
+      "type": "list",
+      "label": "Pop-up-Stände",
+      "of": [
+        {
+          "key": "name",
+          "type": "text",
+          "label": "Name"
+        },
+        {
+          "key": "handle",
+          "type": "text",
+          "label": "Handle"
+        },
+        {
+          "key": "beschreibung",
+          "type": "text",
+          "label": "Beschreibung"
+        }
+      ],
+      "help": "Marktstände beim Event — Name, Instagram-Handle, ein Satz dazu."
+    },
+    {
+      "key": "contest.titel",
+      "type": "text",
+      "label": "Contest — Titel"
+    },
+    {
+      "key": "contest.veranstalter",
+      "type": "text",
+      "label": "Contest — veranstaltet von"
+    },
+    {
+      "key": "contest.status",
+      "type": "select",
+      "label": "Contest — Status",
+      "options": [
+        "offen",
+        "abgelaufen"
+      ],
+      "help": "„abgelaufen“ zeigt den Contest als Rückblick. Ohne das liest sich eine tote Frist wie ein offener Aufruf."
+    },
+    {
+      "key": "contest.bedingungen",
+      "type": "richtextLite",
+      "label": "Contest — Bedingungen"
+    },
+    {
+      "key": "contest.deadline",
+      "type": "text",
+      "label": "Contest — Einsendeschluss",
+      "help": "Freitext, kein Datum: kann auch „TBA“ sein."
+    },
+    {
+      "key": "contest.bekanntgabe",
+      "type": "text",
+      "label": "Contest — Bekanntgabe"
+    },
+    {
+      "key": "contest.ergebnis",
+      "type": "text",
+      "label": "Contest — Ergebnis"
+    },
+    {
+      "key": "rules",
+      "type": "list",
+      "label": "Hausregeln",
+      "of": [
+        {
+          "key": "value",
+          "type": "text",
+          "label": "Regel"
+        }
+      ],
+      "help": "z. B. „no ghb“, „no photo“, „no racism · no discrimination · no sexism“."
+    },
+    {
+      "key": "credits.artwork",
+      "type": "text",
+      "label": "Credits — Artwork"
+    },
+    {
+      "key": "credits.foerderung",
+      "type": "text",
+      "label": "Credits — Förderung"
+    },
+    {
+      "key": "credits.drinks",
+      "type": "text",
+      "label": "Credits — Getränke"
+    },
+    {
+      "key": "credits.kooperation",
+      "type": "text",
+      "label": "Credits — Kooperation"
+    },
+    {
+      "key": "credits.hinweis",
+      "type": "text",
+      "label": "Credits — Hinweis"
+    },
+    {
+      "key": "trackId",
+      "type": "text",
+      "label": "Track-ID",
+      "help": "Titel aus dem Ankündigungsvideo, z. B. „Sixten — Here We Go Yo“."
     }
   ],
   "list": {

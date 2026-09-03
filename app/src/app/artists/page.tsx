@@ -24,9 +24,14 @@ export interface ArtistsPageContent {
     registerLabel: string; countArtists: string; countSets: string; countGuests: string;
     bandCaption: string;
   };
-  residents: { eyebrow: string; title: string; filterAllLabel: string; filterAria: string };
+  residents: {
+    eyebrow: string; title: string; filterAllLabel: string; filterAria: string;
+    toggleLabel: string; roleLabel: string; sinceLabel: string;
+    lastLabel: string; nextLabel: string; listenLabel: string;
+    profileLabel: string; soundcloudLabel: string;
+  };
   sets: {
-    eyebrow: string; title: string; titleGlow: string;
+    eyebrow: string; title: string; titleGlow: string; countLabel: string;
     randomLabel: string; randomHint: string; randomEmpty: string; consentText: string;
   };
   gaeste: {
@@ -54,11 +59,15 @@ const DEFAULT_CONTENT: ArtistsPageContent = {
   residents: {
     eyebrow: "Crew Select", title: "Residents",
     filterAllLabel: "Alle", filterAria: "Nach Genre filtern",
+    toggleLabel: "Profil", roleLabel: "Rolle", sinceLabel: "seit",
+    lastLabel: "Zuletzt", nextLabel: "Nächster Start", listenLabel: "Hören",
+    profileLabel: "Zum Profil", soundcloudLabel: "SoundCloud ↗",
   },
   sets: {
     eyebrow: "Aufzeichnungen",
     title: "Sets &",
     titleGlow: "Podcast",
+    countLabel: "Sets",
     randomLabel: "Random Transmission",
     randomHint: "Ein Klick, ein zufälliges Set aus dem Archiv.",
     randomEmpty: "Noch keine Sets im Archiv — check bald wieder rein.",
@@ -119,9 +128,9 @@ export default async function ArtistsPage() {
         .filter(e => !isPastEvent(e, todayStr))
         .sort((x, y) => x.date.localeCompare(y.date))[0];
       const historyRow = lastPast
-        ? { label: "Zuletzt", title: lastPast.title, dateLabel: fmtDate(lastPast.date) }
+        ? { label: content.residents.lastLabel, title: lastPast.title, dateLabel: fmtDate(lastPast.date) }
         : nextUpcoming
-        ? { label: "Nächster Start", title: nextUpcoming.title, dateLabel: fmtDate(nextUpcoming.date) }
+        ? { label: content.residents.nextLabel, title: nextUpcoming.title, dateLabel: fmtDate(nextUpcoming.date) }
         : undefined;
       return {
         slug: a.slug,
@@ -165,7 +174,7 @@ export default async function ArtistsPage() {
       {/* Kopf: links der Text, rechts das Register (wie gross ist das Archiv?),
           darunter ueber die volle Satzbreite das Archivband. Vorher war der
           Kopf eine 520px-Spalte mit 900px Schwarz daneben. */}
-      <section className="phero ar-sec ar-sec--hero">
+      <section className="phero ar-sec">
         <div className="wrap ar-hero">
           <div className="ar-hero-text">
             <p className="eyebrow">{content.hero.eyebrow}</p>
@@ -199,7 +208,7 @@ export default async function ArtistsPage() {
         </div>
       </section>
 
-      <section className="section ar-sec ar-sec--first" id="residents">
+      <section className="section ar-sec" id="residents">
         <div className="wrap">
           <ArtistsSectionHead
             eyebrow={content.residents.eyebrow}
@@ -211,6 +220,7 @@ export default async function ArtistsPage() {
             soundcloud={s.soundcloud}
             allLabel={content.residents.filterAllLabel}
             filterAria={content.residents.filterAria}
+            labels={content.residents}
           />
         </div>
       </section>
@@ -222,7 +232,7 @@ export default async function ArtistsPage() {
             eyebrow={content.sets.eyebrow}
             title={content.sets.title}
             titleGlow={content.sets.titleGlow}
-            note={readout(flatSets.length, content.hero.countSets)}
+            note={readout(flatSets.length, content.sets.countLabel)}
             randomLabel={content.sets.randomLabel}
             randomHint={content.sets.randomHint}
             randomEmpty={content.sets.randomEmpty}
@@ -249,7 +259,7 @@ export default async function ArtistsPage() {
         </div>
       </section>
 
-      <section className="section ar-sec ar-sec--last">
+      <section className="section ar-sec">
         <div className="wrap">
           <div className="transmission ar-odl">
             <div className="ar-odl-main">

@@ -32,9 +32,20 @@
       Dauer und Easing.
    4. SCOPING. `.flog::before` und `.gph` standen hier UNGESCOPET. `.flog`
       gibt es auch auf der Startseite und auf /events, `.gph` auch auf
-      /team: Seiten-CSS wird global gebuendelt, nach einer Client-Navigation
-      lagen die Regeln also auf fremden Seiten. Alles haengt jetzt an
-      `.bp-blueprint`.
+      /team (dort ebenfalls global definiert): Seiten-CSS wird in Next global
+      gebuendelt, nach einer Client-Navigation lagen die Regeln also auf
+      fremden Seiten und die Quellreihenfolge entschied, wie deren Zeitlinie
+      aussieht.
+
+      Die Regel dieser Datei ist ab jetzt zweistufig:
+        · JEDE eigene Klasse traegt das Praefix `bp-`. Es kommt nachgeprueft
+          in keiner anderen Datei des Projekts vor (`grep -rn "bp-" src/`)
+          und ist damit der Namensraum dieser Seite.
+        · JEDE Regel, die eine GETEILTE Klasse anfasst — `.gph`, `.crewgrid`,
+          `.m-rows`, `.chip`, die Flightlog-Liste — haengt zusaetzlich an
+          einem Vorfahren aus diesem Namensraum (`.bp-blueprint`, `.bp-faq`,
+          `.bp-roles`, `.bp-crew`). Nur diese Regeln koennten fremde Seiten
+          treffen; nur sie brauchen den Anker.
    5. TAG-MODUS. Es gab hier NULL day-mode-Regeln. Der Zufall war
       freundlich: --acc-3 loest tags nach #0B3D91 auf — Blaupausenblau. Der
       Tag-Modus ist deshalb kein Kompromiss, sondern die zweite historische

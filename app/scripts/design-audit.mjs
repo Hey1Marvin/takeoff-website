@@ -27,6 +27,16 @@
                      in verify-ui.mjs) und inklusive Tag-Modus (dort
                      laeuft die Pruefung bisher gar nicht).
 
+   GRENZE DER UEBERLAPPUNGS-PRUEFUNG — bitte lesen, bevor jemand die
+   Restmeldungen jagt: verglichen werden KAESTEN, nicht Farbe. Ein
+   Chronometer-Zifferblatt ist ein Quadrat mit durchsichtiger Mitte; seine
+   Bildunterschrift liegt absichtlich darin. Der Kasten ueberlappt, die
+   Tinte nicht. Rund 45 solcher Meldungen bleiben nach It. 14 stehen
+   (/kalender Zifferblatt, /kollektiv Odometer, /kontakt Statuszeile,
+   Wortmarke ueber der Tagline) — jede davon wurde am Screenshot
+   nachgesehen und ist gewollt. Neue Meldungen also immer erst am Bild
+   pruefen, nicht blind wegkonfigurieren.
+
    Aufruf:
      npm run build && npm run start -- -p 3210
      node scripts/design-audit.mjs                    # alles
@@ -81,7 +91,31 @@ const MESSEN = () => {
     const s = getComputedStyle(el);
     if (s.display === "none" || s.visibility === "hidden" || +s.opacity === 0) return false;
     const r = el.getBoundingClientRect();
-    return r.width > 0 && r.height > 0;
+    if (!(r.width > 0 && r.height > 0)) return false;
+    /* Zugeklappte Bereiche zaehlen nicht. Ein geschlossenes <details> und
+       das eingeklappte `.m-more` (grid-template-rows: 0fr + overflow:hidden)
+       lassen ihren Inhalt weiter eine Position melden — er ist nur nicht zu
+       sehen. Ohne diese Wache meldet die Pruefung reihenweise Treffer
+       zwischen Dingen, die nie gleichzeitig sichtbar sind. */
+    if (el.closest("details:not([open])")) return false;
+    if (el.closest("[hidden], [inert]")) return false;
+    /* Beschnitt durch Vorfahren: ein eingeklapptes `.m-more-inner` ist
+       17px hoch und `overflow: hidden`, sein Inhalt legt sich aber ueber
+       224px aus. Wer nur die eigene Box misst, haelt diesen Inhalt fuer
+       sichtbar und meldet Ueberlappungen mit allem, was zufaellig an
+       derselben Stelle steht. Die Box wird deshalb gegen JEDEN
+       beschneidenden Vorfahren verschnitten; bleibt nichts uebrig, ist das
+       Element nicht zu sehen. */
+    let box = r;
+    for (let n = el.parentElement; n && n !== document.body; n = n.parentElement) {
+      if (getComputedStyle(n).overflow === "visible") continue;
+      const c = n.getBoundingClientRect();
+      const top = Math.max(box.top, c.top), links = Math.max(box.left, c.left);
+      const unten = Math.min(box.bottom, c.bottom), rechts = Math.min(box.right, c.right);
+      if (unten - top < 2 || rechts - links < 2) return false;
+      box = new DOMRect(links, top, rechts - links, unten - top);
+    }
+    return true;
   };
   const pfad = el => {
     const teile = [];
@@ -116,8 +150,18 @@ const MESSEN = () => {
     return hatGrund || hatVor;
   });
 
-  for (const t of document.querySelectorAll("main h1, main h2, main h3")) {
-    if (!sicht(t) || !text(t)) continue;
+  /* Nicht nur Ueberschriften: die Doppelplatte in Label-Wert-Listen
+     (.m-rows UND .m-row trugen je eine) verdeckte die letzte Zeile der
+     Zeile darueber — reiner Fliesstext, also unsichtbar fuer eine
+     Pruefung, die nur h1/h2/h3 ansieht. Genau daran ist sie It. 14
+     vorbeigelaufen und wurde erst beim Lesen eines Agent-Berichts
+     gefunden. */
+  for (const t of document.querySelectorAll(
+        "main h1, main h2, main h3, main p, main dd, main dt, main li")) {
+    if (!sicht(t) || text(t).length < 8) continue;
+    /* Container ueberspringen: wer selbst Textbloecke enthaelt, ist
+       kein Textknoten, und seine Box umschliesst die Kinder. */
+    if (t.querySelector("p, li, h1, h2, h3, dd, dt")) continue;
     const zeilen = [...t.getClientRects()];
     if (!zeilen.length) continue;
 

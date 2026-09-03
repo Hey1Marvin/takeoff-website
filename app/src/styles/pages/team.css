@@ -388,6 +388,33 @@
 .kt-card.flipped .kt-face-front { opacity: 0; visibility: hidden; }
 .kt-card.flipped .kt-face-back  { opacity: 1; visibility: visible; }
 
+/* VEREDELUNG: eine offene Karte bekommt die Aufmerksamkeit ihrer Reihe.
+   Die uebrigen Karten DESSELBEN Bereichs (eigener .kt-grid, nicht
+   seitenweit — ein Klick in Flugdeck soll Bau & Gastgeber nicht anfassen)
+   treten dezent zurueck, solange eine von ihnen offen ist. Antwort auf
+   eine Handlung, kein Dauerlauf.
+   BEWUSST kein `.kt-grid:has(.kt-card.flipped) .kt-card:not(.flipped)`:
+   das sah auf dem Papier nach derselben Sprache wie die Ring-Hervorhebung
+   in Abschnitt 4 aus, hat sich aber in Chromium (nachgemessen: eigens
+   dafuer per getComputedStyle/gebautem Testharness geprueft) nicht
+   verlaesslich neu ausgewertet, wenn eine GESCHWISTER-Karte per JS die
+   Klasse `.flipped` bekam — der Selektor traf laut `.matches()` zu, die
+   Opacity blieb aber am alten Wert haengen, bis irgendein unabhaengiger
+   Stylesheet-Vorgang eine volle Neuberechnung erzwang. Die Ring-
+   Hervorhebung trifft dasselbe Problem nicht: sie haengt an :hover/
+   :focus-within, die der Browser nativ und zuverlaessig nachfuehrt, nicht
+   an einen JS-Klassenwechsel auf einem Geschwisterelement. Statt einer
+   Fx-Politur, die im Zweifel gar nichts tut, traegt TeamCrewBoard.tsx die
+   Klasse `.kt-dimmed` direkt aus dem ohnehin vorhandenen `flipped`-State —
+   React rendert bei jeder Aenderung neu, kein Invalidierungsrisiko. */
+.kt-dimmed {
+  transition: opacity .4s var(--ease-out);
+  opacity: .5;
+}
+.kt-dimmed:is(:hover, :focus-within) {
+  opacity: .85;
+}
+
 /* Vorderseite: die .ccard-Grundform aus takeoff.css bleibt (Rahmen, Grund,
    Avatar-Rund), nur Groesse und Ausrichtung werden auf das Kartenformat
    gebracht. Spezifitaet (0,3,0) gegen `.ccard .avatar` (0,2,0) — bewusst
@@ -448,8 +475,13 @@
   background: rgb(var(--kt-dept-rgb, var(--acc-2-rgb)));
 }
 .kt-crew .kt-contact { margin: var(--sp-2) 0 0; font-size: 12px; color: var(--ink-faint); }
+/* `.kt-face-back` ist eine Flex-Spalte (align-items:auto -> stretch): der
+   Link streckt sich auf die volle Kartenbreite, seine Trefferflaeche folgt
+   dabei aber nur der Textzeile — gemessen 282 x 18px. 18px liegt unter der
+   24px-Mindestgroesse aus WCAG 2.5.8; das Polster hebt sie ueber die
+   Schwelle, ohne Schriftgroesse oder Farbe anzufassen. */
 .kt-crew .kt-more {
-  display: inline-block; margin-top: var(--sp-2);
+  display: inline-block; margin-top: var(--sp-2); padding-block: 4px;
   color: var(--acc-1-tint); font-size: 11.5px; letter-spacing: var(--track-wide);
 }
 .kt-crew .kt-more:hover, .kt-crew .kt-more:focus-visible { text-decoration: underline; text-underline-offset: 3px; }
@@ -583,12 +615,11 @@
   padding: var(--sp-4);
 }
 /* Die Foto-Notiz steht frei unter der Platzliste, nicht in einem Panel —
-   sie bekommt deshalb die enge Textplatte am Text selbst (das Primitiv aus
-   takeoff.css), keine Flaeche. */
-.kt-strip-note {
-  display: block;
-  width: fit-content;
-  padding: .14em .5em;
-  border-radius: .5em;
-}
-:root:not(.day-mode) .kt-strip-note { background: rgb(var(--bg-void-rgb) / .74); }
+   sie bekommt deshalb die enge Textplatte am Text selbst statt einer
+   Flaeche. Das Primitiv dafuer (display:block, width:fit-content, Polster,
+   Radius, nachtgebundener Grund) liegt bereits fertig in takeoff.css als
+   `.txfit` — die Klasse steht direkt im Markup (page.tsx), hier bleibt nur
+   noch die Typografie. Vorher stand dasselbe Polster/Radius/Grund-Tripel
+   ein zweites Mal hier — Wert fuer Wert identisch mit `.txfit` und damit
+   genau die Seiten-Redefinition, die takeoff.css an dieser Stelle laut
+   eigenem Kommentar ablösen sollte ("VORHER dreimal ungescopet definiert"). */

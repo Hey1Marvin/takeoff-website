@@ -186,7 +186,10 @@ export default function KontaktFunkkanaele({
           </div>
           <div className="m-row">
             <dt>{readout.statusLabel}</dt>
-            <dd className="fs-instr-status" aria-live="polite">
+            {/* Bewusst KEIN aria-live: den Sende-Puls meldet bereits der
+                Toast in KontaktBodenstation. Zwei Live-Regionen zur selben
+                Handlung lesen Screenreader doppelt vor. */}
+            <dd className="fs-instr-status">
               <span className="fs-dot" aria-hidden="true" />
               {sending ? readout.statusSending : readout.statusIdle}
             </dd>

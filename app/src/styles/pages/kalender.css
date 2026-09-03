@@ -147,6 +147,21 @@
   position: absolute; inset: 0; z-index: 0;
   border-radius: 50%;
   border: 1px solid rgb(var(--acc-3-rgb) / .3);
+  /* PFLICHT, kein Kosmetik-Rest: `.bc-hand` (Kind, `inset:0`, siehe unten)
+     ist ein quadratischer Kasten, der sich per `rotate()` um die Mitte
+     dreht. `getBoundingClientRect()` eines rotierten Elements ist die
+     achsenparallele Huelle der gedrehten Flaeche — bei 45 Grad wächst sie
+     um Faktor sqrt(2). Ohne Deckelung reisst das die Scrollbreite des
+     GESAMTEN Dokuments auf: nachgemessen bei 360px mit `data-fx="m"`
+     (Standard-Tier, der Zeiger laeuft dort bereits) 47px horizontaler
+     Overflow, sobald die Sekunde den Zeiger in eine Diagonale dreht —
+     zeitabhaengig und deshalb flackernd/nicht reproduzierbar ohne feste
+     Rotation. `overflow:hidden` + das `border-radius:50%` von oben machen
+     aus dem Zifferblatt sein eigenes rundes Sichtfenster: der sichtbare
+     Zeigerstrich (naeher an der Kante als der leere Rotationskasten) bleibt
+     bei jedem Winkel unangetastet, nur die unsichtbare Kastenecke wird
+     gekappt. */
+  overflow: hidden;
 }
 /* Nachts braucht die Uhrzeit Grund — dieselbe Logik wie .txplate, nur
    rund und an der Sache: das Zifferblatt IST die Flaeche unter dem Text.

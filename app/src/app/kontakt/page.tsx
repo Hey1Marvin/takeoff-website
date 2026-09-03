@@ -210,7 +210,7 @@ export default async function KontaktPage() {
           als klebende Instrumentensäule rechts. Ein Kopf, ein Gegenstand,
           keine tote Fläche. */}
       <section className="section fs-sec--konsole">
-        <div className="wrap fs-wrap">
+        <div className="wrap">
           <header className="section-head">
             <p className="eyebrow">{page.sections.konsole.eyebrow}</p>
             <h2 className="h2">{page.sections.konsole.title}</h2>

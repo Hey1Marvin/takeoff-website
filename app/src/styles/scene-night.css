@@ -214,6 +214,25 @@
   .aw-spiking, .aw-quiet-line
 )::before { content: none; }
 
+/* ---------- Doppelplatte in Label-Wert-Listen (It. 14) ----------
+   `.m-rows` UND `.m-row` stehen beide in der Liste oben. Wo eine Liste
+   `.m-rows` traegt, bekamen damit Eltern und Kind je eine Platte: die des
+   Kindes ragt 34px nach oben, das Zeilenpolster betraegt 10px — die Platte
+   von Zeile N+1 lag ueber der letzten Textzeile von N. Das traf jede Seite
+   mit einer Label-Wert-Liste.
+
+   `.m-row` ganz aus der Liste zu nehmen war der erste Versuch und ging
+   daneben: /news baut seine FAQ aus `.m-row` OHNE `.m-rows` (dl.rx-faq),
+   dort verschwand die Traegerflaeche komplett — von verify-ui sofort
+   gemeldet. Abgeschaltet wird deshalb nur die INNERE Platte, und nur wenn
+   es wirklich eine aeussere gibt.
+
+   Spezifitaet: `html` vorn hebt die Regel auf (0,4,1) und damit ueber die
+   (0,4,0) der :is()-Liste — die entsteht dort aus `.section-head +
+   .section-intro`, dem staerksten Argument. Ohne den Elementselektor waere
+   es ein Gleichstand, den allein die Quellreihenfolge entscheidet. */
+html:root:not(.day-mode) .m-rows .m-row::before { content: none; }
+
 /* Auf schmalen Schirmen steht ohnehin kaum Szene neben dem Text — dort
    darf die Flaeche bis an den Rand laufen, sonst franst sie im Nichts aus. */
 @media (max-width: 720px) {
@@ -248,3 +267,17 @@
         rgb(var(--bg-void-rgb) / 0)   100%);
   }
 }
+
+/* ============================================================
+   It.-14-Patch (Orchestrator, Vorschlag des Startseiten-Polish-Agents):
+   .section-intro steht in der Traegerflaechen-Liste UND liegt in einem
+   .section-head, der bereits eine Flaeche traegt. Die Intro-eigene
+   ::before-Platte ragte mit ihrem -34px-Ueberstand in die Unterlaengen
+   der H2 darueber — der sitewide gemeldete "Headline angeschnitten"-Bug
+   („Naechste Missionen", „Unser Sound", „Warum wir das tun", …).
+   Die Kopf-Platte traegt das Intro weiterhin; die Doppel-Platte entfaellt.
+   Ans DATEIENDE gesetzt: gleiche Spezifitaet (0,4,0) wie die :is()-Listen,
+   Quellreihenfolge entscheidet. Home/Awareness haben zusaetzlich eigene
+   page-scoped Fixes — die bleiben mit diesem Patch deckungsgleich.
+   ============================================================ */
+:root:not(.day-mode) .section-head .section-intro::before { content: none; }

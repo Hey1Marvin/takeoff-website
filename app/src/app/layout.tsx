@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { indexingAllowed } from "@/lib/seo";
 import "@/styles/takeoff.css";
 /* Reihenfolge ist Vertrag, nicht Geschmack: `:root.day-mode` hat exakt
    dieselbe Spezifitaet wie `:root[data-theme=…]` und die P3-Selektoren in
@@ -18,6 +19,9 @@ import { I18nProvider } from "@/components/I18nProvider";
 import { activeTheme, settings } from "@/lib/data";
 
 export const metadata: Metadata = {
+  /* Solange die Seite als Prototyp laeuft: nicht in den Index.
+     Der Schalter dafuer steht in lib/seo.ts. */
+  robots: indexingAllowed ? undefined : { index: false, follow: false },
   title: "takeoff — rave kollektiv potsdam",
   description: "takeøff — ehrenamtliches Rave-Kollektiv aus Potsdam. Trance · Hard Trance · Bounce.",
   icons: {
@@ -62,6 +66,13 @@ const boot = (fxDefault: string, groundDefault: boolean) => `
   if (gr === null ? ${groundDefault ? "true" : "false"} : gr !== "off") h.classList.add("ground-on");
   if (get("takeoff-day") === "on") h.classList.add("day-mode");
   h.dataset.video = get("takeoff-video") === "off" ? "off" : "on";
+
+  /* Zustimmung zu externen Playern (SoundCloud/YouTube). Standard ist AUS —
+     ohne ausdrueckliche Zustimmung geht kein Request an Dritte. Einmal
+     gegeben, gilt sie fuer alle Player und laesst sich im Panel zuruecknehmen.
+     Wie die uebrigen Schalter lebt der Zustand auf <html>, damit Boot-Script,
+     Panel und Player dieselbe Wahrheit lesen. */
+  h.dataset.embeds = get("takeoff-embed-consent") === "on" ? "on" : "off";
 
   /* Sprache vor dem ersten Paint stempeln, damit bei gewaehltem Englisch
      nicht kurz die deutsche Fassung aufblitzt. Der Provider liest das als

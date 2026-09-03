@@ -167,16 +167,16 @@
       "state": "past",
       "patchNo": "M6",
       "title": "Pride-Party",
-      "subtitle": "3 stages of love",
+      "subtitle": "Bands, Drag & DJs · fahrradCSD-Afterparty",
       "date": "2026-06-27",
       "weekday": "SA",
-      "doors": "18:00",
-      "end": "05:30",
+      "doors": "17:00",
+      "end": "06:00",
       "venue": {
         "name": "KuZe",
-        "address": "Potsdam",
+        "address": "Hermann-Elflein-Straße 10, 14467 Potsdam",
         "transit": "",
-        "mapsQuery": "KuZe Potsdam"
+        "mapsQuery": "KuZe Potsdam Hermann-Elflein-Straße 10"
       },
       "pricing": {
         "mode": "free",
@@ -190,16 +190,81 @@
       ],
       "lineup": [
         {
-          "name": "Emmy",
-          "genres": "Floor 3 · 20:00"
+          "name": "DJ Atzenmietze",
+          "handle": "@dj.atzenmietze"
         },
         {
-          "name": "Kolja",
-          "genres": "Floor 3 · 21:00"
+          "name": "DJ Steuerhinterziehung",
+          "handle": "@dj.steuerhinterziehung"
         },
         {
-          "name": "takeoff-Crew",
-          "genres": "alle Floors"
+          "name": "TOYBOYS",
+          "handle": "@toyboysband",
+          "genres": "Live-Band"
+        },
+        {
+          "name": "Theresa Zanon",
+          "handle": "@theresazanon.music",
+          "genres": "Live"
+        },
+        {
+          "name": "Hades of Drag",
+          "handle": "@hadesofdrag",
+          "genres": "Drag"
+        },
+        {
+          "name": "Jade Pearl Baker",
+          "handle": "@jade_pearl_baker",
+          "genres": "Drag"
+        },
+        {
+          "name": "DJ Merean"
+        },
+        {
+          "name": "JOJO",
+          "handle": "@djojo.dj",
+          "crew": "takeoff",
+          "genres": "Live"
+        },
+        {
+          "name": "DJ Platzhalter",
+          "handle": "@dj_platzhalter",
+          "crew": "takeoff"
+        },
+        {
+          "name": "dshanna",
+          "handle": "@dshanna_",
+          "genres": "Live"
+        },
+        {
+          "name": "ochser",
+          "handle": "@ochser.wav",
+          "crew": "styx"
+        },
+        {
+          "name": "Zwiespalt",
+          "handle": "@zwiespxlt"
+        },
+        {
+          "name": "Pfötchen",
+          "handle": "@pfoetchen.music"
+        },
+        {
+          "name": "E.P.L.E.",
+          "handle": "@_e.p.l.e._"
+        },
+        {
+          "name": "DJ Demenzflöte",
+          "handle": "@roth_baum._.pdm"
+        },
+        {
+          "name": "ollekolle",
+          "handle": "@ollekolle_"
+        },
+        {
+          "name": "FLAVA",
+          "handle": "@flavaaez",
+          "crew": "rundfunk"
         }
       ],
       "brief": "40 °C, Sturmwarnung, die Demo wurde abgesagt — die Party nicht. Drei Floors, Free Water gegen die Hitze, Sonnensegel-Abbau im Sturm. „Bestes Event, das wir je hatten.“",
@@ -246,7 +311,16 @@
           "orientation": "hoch",
           "dauer": 25
         }
-      ]
+      ],
+      "contest": {
+        "titel": "Zwei FLINTA-Slots",
+        "veranstalter": "takeoff",
+        "status": "abgelaufen",
+        "bedingungen": "Gesucht waren Hard Bounce, Trance oder NeoRave über 155 BPM — ein bis zwei Stunden, allein oder B2B, Bewerbung per SoundCloud-Link in die DMs.",
+        "deadline": "",
+        "bekanntgabe": "",
+        "ergebnis": ""
+      }
     },
     {
       "slug": "free-entry-rave",
@@ -277,22 +351,34 @@
       ],
       "lineup": [
         {
-          "name": "Cyonic"
+          "name": "Cyonic",
+          "handle": "@cyonic.wav",
+          "crew": "takeoff"
         },
         {
-          "name": "dj st4rlight"
+          "name": "dj st4rlight",
+          "handle": "@djst4rlight",
+          "crew": "rundfunk"
         },
         {
-          "name": "FLAVA"
+          "name": "FLAVA",
+          "handle": "@flavaaez",
+          "crew": "rundfunk"
         },
         {
-          "name": "JOJO"
+          "name": "ochser",
+          "handle": "@ochser.wav",
+          "crew": "styx",
+          "b2bWith": "JOJO"
         },
         {
-          "name": "ochser"
+          "name": "JOJO",
+          "handle": "@djojo.dj",
+          "crew": "takeoff",
+          "b2bWith": "ochser"
         }
       ],
-      "brief": "Lineup A–Z, Eintritt auf Spendenbasis, Feuerschale & Steinofen-Pizza im Hof.",
+      "brief": "Lokales Line-up, Community-Fokus — und deshalb freier Eintritt für alle. Möglich gemacht durch das **Kinder- und Jugendbudget Potsdam**.",
       "extras": [
         "Feuerschale",
         "Steinofen-Pizza"
@@ -325,18 +411,28 @@
           "orientation": "hoch",
           "dauer": 18
         }
-      ]
+      ],
+      "rules": [
+        "no ghb",
+        "no photo",
+        "no racism · no discrimination · no sexism"
+      ],
+      "credits": {
+        "artwork": "@kuenstlicht_design",
+        "foerderung": "Kinder- und Jugendbudget Potsdam",
+        "hinweis": "Spenden vor Ort helfen beim Bau der eigenen Technik."
+      }
     },
     {
       "slug": "groesstes-event",
       "visible": true,
       "state": "past",
       "patchNo": "M4",
-      "title": "Mario Kart Rave",
-      "subtitle": "Rave on Rainbow",
+      "title": "takeoff × No Gravity",
+      "subtitle": "Rave on Rainbow · Mario-Kart-Nacht",
       "date": "2025-09-27",
       "weekday": "SA",
-      "doors": "",
+      "doors": "23:00",
       "end": "",
       "venue": {
         "name": "Spartacus",
@@ -345,23 +441,73 @@
         "mapsQuery": ""
       },
       "pricing": {
-        "mode": "",
-        "label": ""
+        "mode": "presale",
+        "label": "10 € im Vorverkauf · die ersten Tickets günstiger"
       },
       "age": "18+",
-      "genres": [],
+      "genres": [
+        "Techno",
+        "Trance"
+      ],
       "lineup": [
         {
-          "name": "mølly (on molly)"
+          "name": "Bruno Brero",
+          "handle": "@brunobrero"
         },
         {
-          "name": "MIMI404"
+          "name": "Caro Tin",
+          "handle": "@caarotin"
         },
         {
-          "name": "SENAIDA"
+          "name": "C-Boy",
+          "handle": "@cboy_de"
+        },
+        {
+          "name": "Cyonic",
+          "handle": "@cyonicbeats",
+          "crew": "takeoff"
+        },
+        {
+          "name": "Da Somazo",
+          "handle": "@dasomazo_ofc"
+        },
+        {
+          "name": "DJ Ayen",
+          "handle": "@dj.ayen"
+        },
+        {
+          "name": "DJ Hanne B",
+          "handle": "@djhanne.b"
+        },
+        {
+          "name": "DJ Platzhalter",
+          "handle": "@dj_platzhalter",
+          "crew": "takeoff"
+        },
+        {
+          "name": "JOJO",
+          "handle": "@djojo.dj",
+          "crew": "takeoff"
+        },
+        {
+          "name": "Karlo Sport",
+          "handle": "@karlo_sport"
+        },
+        {
+          "name": "MIMI404",
+          "handle": "@mimi404.dj"
+        },
+        {
+          "name": "mølly (on molly)",
+          "handle": "@molly_on_molly_dj"
+        },
+        {
+          "name": "SENAIDA",
+          "genres": "Gewinnerin des FLINTA-Contests",
+          "note": "B2B gespielt; der Name der zweiten Person ist uns nicht überliefert"
         }
       ],
-      "brief": "Unser bis dahin größtes Event — Mario Kart auf der Leinwand, Fragezeichen-Blöcke über dem Pult und ein DJ-Contest, dessen Gewinnerinnen den Abend B2B zu Ende gespielt haben.",
+      "brief": "Unser bis dahin größtes Event, zusammen mit **No Gravity Berlin**: Mario Kart auf der Leinwand, Fragezeichen-Blöcke über dem Pult, Pop-up-Stände im Foyer — und ein bezahlter Prime-Time-Slot, den ein FLINTA-DJ-Contest vergeben hat.",
       "theme": {
         "preset": "space",
         "accent": "#a18fe0",
@@ -690,6 +836,47 @@
           "orientation": "hoch",
           "dauer": 18
         }
+      ],
+      "market": [
+        {
+          "name": "dumbdry.studio",
+          "handle": "@dumbdry.studio",
+          "beschreibung": "„we make art not clothes\""
+        },
+        {
+          "name": "fireheadfairy",
+          "handle": "@fireheadfairy",
+          "beschreibung": "Handgemachte Feuerzeuge und Anhänger"
+        },
+        {
+          "name": "vomito.shop",
+          "handle": "@vomito.shop",
+          "beschreibung": "Handgemachte Accessoires"
+        },
+        {
+          "name": "Tattoo & Tooth Gems",
+          "handle": "",
+          "beschreibung": "Stand war zum Zeitpunkt der Ankündigung noch offen"
+        }
+      ],
+      "contest": {
+        "titel": "FLINTA-only DJ-Contest",
+        "veranstalter": "@unseenberlin_",
+        "status": "abgelaufen",
+        "bedingungen": "Bezahlter Prime-Time-Slot. Eingereicht wurde das jüngste Set per DM — allein oder B2B. Bewertet wurde nach Leidenschaft und Können, nicht nach Reichweite.",
+        "deadline": "21.09.2025",
+        "bekanntgabe": "24.09.2025",
+        "ergebnis": "SENAIDA hat gewonnen und den Abend B2B zu Ende gespielt."
+      },
+      "credits": {
+        "drinks": "@mampe.berlin",
+        "kooperation": "No Gravity Berlin · @nogravityberlin"
+      },
+      "extras": [
+        "Pop-up-Stände",
+        "Drinks von Mampe",
+        "Free Water",
+        "Awareness-Team"
       ]
     },
     {
@@ -720,19 +907,33 @@
       ],
       "lineup": [
         {
-          "name": "Cyonic"
+          "name": "Cyonic",
+          "handle": "@cyonic.wav",
+          "crew": "takeoff"
         },
         {
-          "name": "DJ Loveletter"
+          "name": "DJ Platzhalter",
+          "handle": "@dj_platzhalter",
+          "crew": "takeoff"
         },
         {
-          "name": "Jacky Ickx"
+          "name": "Jacky Ickx",
+          "handle": "@jacky__ickx"
         },
         {
-          "name": "mølly (on molly)"
+          "name": "mølly (on molly)",
+          "handle": "@molly_on_molly_dj"
         },
         {
-          "name": "DJ Platzhalter"
+          "name": "DJ Ordnungsamt",
+          "handle": "@dj__ordnungsamt",
+          "b2bWith": "Lovestory",
+          "note": "Zu klären: die Datenbank führte hier „DJ Loveletter\" — der Dank-Post nennt @dj__ordnungsamt und @lovestory_bln als Paar."
+        },
+        {
+          "name": "Lovestory",
+          "handle": "@lovestory_bln",
+          "b2bWith": "DJ Ordnungsamt"
         }
       ],
       "brief": "Brennender Schriftzug überm Tempel — deutlich größer, weil beim letzten Mal nach 200 Leuten Schluss war.",
@@ -791,7 +992,7 @@
       },
       "pricing": {
         "mode": "door",
-        "label": "5 € · 3 € für Studis"
+        "label": "3–5 € Abendkasse · kein Vorverkauf"
       },
       "age": "18+",
       "genres": [
@@ -801,23 +1002,22 @@
       "lineup": [
         {
           "name": "Niico",
-          "genres": "Trance / Bouncy Techno"
-        },
-        {
-          "name": "Cedric Lawrence",
-          "genres": "Trance / Hardgroove"
+          "handle": "@niico.off",
+          "b2bWith": "Cyonic"
         },
         {
           "name": "Cyonic",
-          "genres": "Techno / Trance"
+          "handle": "@cyonicbeats",
+          "crew": "takeoff",
+          "b2bWith": "Niico"
+        },
+        {
+          "name": "Cedric Lawrence",
+          "handle": "@cedric_lawrence_"
         },
         {
           "name": "DJ Trancesetter",
-          "genres": "Trance / Techno"
-        },
-        {
-          "name": "Cyonic B2B Niico",
-          "genres": "Hard Techno"
+          "handle": "@dj.trancesetter"
         }
       ],
       "brief": "Sternenhimmel, Raumstation, Pixel-Typo — und Einlassstopp bei 200, weil der Keller voll war.",
@@ -839,7 +1039,11 @@
           "orientation": "hoch",
           "dauer": 23
         }
-      ]
+      ],
+      "credits": {
+        "artwork": "@niico.off"
+      },
+      "trackId": "Sixten — Here We Go Yo"
     },
     {
       "slug": "sky-high",
@@ -909,6 +1113,7 @@
       "slug": "jojo",
       "initials": "JO",
       "name": "JOJO",
+      "handle": "@djojo.dj",
       "role": "Resident",
       "genres": "Hard Trance · Bounce",
       "since": "2025",
@@ -967,6 +1172,7 @@
       "slug": "platzhalter",
       "initials": "PL",
       "name": "DJ Platzhalter",
+      "handle": "@dj_platzhalter",
       "role": "Resident · Mitgründer",
       "genres": "Trance",
       "since": "2024",
@@ -1009,6 +1215,7 @@
       "slug": "cyonic",
       "initials": "CY",
       "name": "Cyonic",
+      "handle": "@cyonicbeats",
       "role": "DJ · seit Tag 1",
       "genres": "Techno · Trance",
       "since": "2024",
@@ -1035,7 +1242,8 @@
         "out-of-space",
         "sky-high"
       ],
-      "page": "artist-cyonic.html"
+      "page": "artist-cyonic.html",
+      "note": "In älteren Ankündigungen als @cyonic.wav geführt — zu klären, welcher Handle aktuell ist."
     },
     {
       "slug": "blaulicht",

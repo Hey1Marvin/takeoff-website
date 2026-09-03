@@ -33,6 +33,12 @@
       "help": "Künstlername, z. B. „Cyonic“."
     },
     {
+      "key": "handle",
+      "type": "text",
+      "label": "Instagram-Handle",
+      "help": "Mit @, z. B. „@djojo.dj“."
+    },
+    {
       "key": "initials",
       "type": "text",
       "label": "Initialen",
@@ -160,6 +166,12 @@
           }
         ]
       }
+    },
+    {
+      "key": "note",
+      "type": "text",
+      "label": "Anmerkung",
+      "help": "Interne Notiz, auch für offene Fragen zum Datensatz."
     }
   ],
   "list": {

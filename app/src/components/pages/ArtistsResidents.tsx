@@ -42,6 +42,15 @@ import Link from "next/link";
 import ExpandCard from "@/components/ExpandCard";
 import { artistHref } from "@/lib/site";
 
+export interface ResidentLabels {
+  toggleLabel: string;
+  roleLabel: string;
+  sinceLabel: string;
+  listenLabel: string;
+  profileLabel: string;
+  soundcloudLabel: string;
+}
+
 export interface ResidentVM {
   slug: string;
   initials: string;
@@ -69,11 +78,15 @@ export default function ArtistsResidents({
   soundcloud,
   allLabel,
   filterAria,
+  labels,
 }: {
   artists: ResidentVM[];
   soundcloud: string;
   allLabel: string;
   filterAria: string;
+  /* Beschriftungen aus src/data/pages/artists.json — vorher standen sie als
+     deutscher Text mitten im JSX. */
+  labels: ResidentLabels;
 }) {
   const [selected, setSelected] = useState(ALL);
 
@@ -129,18 +142,21 @@ export default function ArtistsResidents({
           ))}
         </div>
       )}
-      <div className="card-grid ar-grid">
+      <div className="card-grid">
         {visible.map(a => (
           <ExpandCard
             key={a.slug}
             className="ar-card"
-            toggleLabel="Profil"
+            toggleLabel={labels.toggleLabel}
             more={
               <>
                 <dl className="m-rows">
                   <div className="m-row">
-                    <dt>Rolle</dt>
-                    <dd><b>{a.role}</b>{a.since && !/seit/i.test(a.role) ? ` · seit ${a.since}` : ""}</dd>
+                    <dt>{labels.roleLabel}</dt>
+                    <dd>
+                      <b>{a.role}</b>
+                      {a.since && !/seit/i.test(a.role) ? ` · ${labels.sinceLabel} ${a.since}` : ""}
+                    </dd>
                   </div>
                   {a.historyRow && (
                     <div className="m-row">
@@ -150,15 +166,15 @@ export default function ArtistsResidents({
                   )}
                   {a.listenTitle && (
                     <div className="m-row">
-                      <dt>Hören</dt>
+                      <dt>{labels.listenLabel}</dt>
                       <dd>{a.listenTitle}</dd>
                     </div>
                   )}
                 </dl>
                 <p className="m-brief">{a.bio}</p>
                 <div className="cta-row">
-                  <Link className="btn btn-primary" href={artistHref(a.slug)}>Zum Profil</Link>
-                  <a className="btn btn-ghost" href={soundcloud} target="_blank" rel="noopener">SoundCloud ↗</a>
+                  <Link className="btn btn-primary" href={artistHref(a.slug)}>{labels.profileLabel}</Link>
+                  <a className="btn btn-ghost" href={soundcloud} target="_blank" rel="noopener">{labels.soundcloudLabel}</a>
                 </div>
               </>
             }

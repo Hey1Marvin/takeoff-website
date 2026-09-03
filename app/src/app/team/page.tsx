@@ -287,7 +287,7 @@ export default async function TeamPage() {
                   </li>
                 ))}
               </ul>
-              <p className="kt-strip-note">{page.photoboard.slotNote}</p>
+              <p className="kt-strip-note txfit">{page.photoboard.slotNote}</p>
             </div>
             <p className="lu-note kt-consent">
               {page.photoboard.note} {page.photoboard.joinText}{" "}

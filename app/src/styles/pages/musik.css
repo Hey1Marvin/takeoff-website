@@ -232,6 +232,30 @@
 .tg-mark--you small { color: var(--ink); }
 .tg-mark--you small b { color: var(--chrome-hi); font-weight: var(--w-micro-b); }
 
+/* ---------- Veredelung: die "Du"-Marke schwingt ein, statt zu springen ----------
+   Antwort auf dieselbe Handlung, die die Bewegungsregel oben schon nennt
+   ("...die 'Du'-Marke auf der Skala") — bisher aber ohne jede Textur: das
+   erste Erscheinen sprang hart aus `hidden` (CSS-`transition` kennt keinen
+   Weg aus `display:none`), jeder weitere Tap sprang ohne Uebergang an die
+   neue Position. Jetzt: ein kurzes Einschwingen beim ersten Erscheinen
+   (`animation` startet zuverlaessig bei jedem Wechsel aus `display:none` —
+   anders als `transition`) und ein weiches Nachruecken danach (`transition:
+   left`, dieselbe Eigenschaft, die `--at` traegt). `translateX(-50%)` muss
+   in den Keyframes mitlaufen, sonst kollidiert die Animation mit der
+   Zentrierung aus der Grundregel oben. */
+.tg-mark--you {
+  transition: left .5s var(--ease-out);
+  animation: tg-you-in .45s var(--ease-out) both;
+}
+@keyframes tg-you-in {
+  from { opacity: 0; transform: translateX(-50%) scale(.6); }
+  to   { opacity: 1; transform: translateX(-50%) scale(1); }
+}
+:root[data-fx="s"] .tg-mark--you { transition: none; animation: none; }
+@media (prefers-reduced-motion: reduce) {
+  .tg-mark--you { transition: none; animation: none; }
+}
+
 /* Klammer über dem Kernbereich: sagt, welchen Ausschnitt der Skala die
    drei Spalten darunter vergrössern. `--from`/`--to` sind Prozentwerte
    aus der Komponente. */
@@ -316,6 +340,23 @@
 .tg-tap-bpm small {
   font-family: var(--font-mono); font-size: 12px; color: var(--ink-faint);
   letter-spacing: var(--track-label); text-transform: uppercase;
+}
+/* ---------- Veredelung: die Zahl setzt sich, statt nur zu wechseln ----------
+   Zweite, kleinere Antwort auf denselben Tap wie oben, hier per Trittbrett
+   auf `.is-tapped`: `flashRing()` (MusikTaktgeber.tsx) entfernt und setzt
+   die Klasse bei JEDEM Tap neu (erzwungener Reflow dazwischen) — genau der
+   Mechanismus, der bereits den Ring am Pad neu antriggert, startet hierueber
+   ohne weiteren JS-Code auch dieses Einschwingen neu. `flashRing()` prueft
+   vorher schon `fxOn()` (Tier s / reduced-motion) und setzt die Klasse dann
+   gar nicht erst — derselbe Schutz gilt damit hier mit, kein zweiter
+   CSS-Schalter noetig (gleiches Prinzip wie `.tg-tap-pad.is-tapped .tg-tap-ring`
+   oben, das ebenfalls ohne eigene Tier-Abfrage auskommt). */
+.tg-tap-pad.is-tapped ~ .tg-tap-readout .tg-tap-bpm b {
+  animation: tg-num-settle .4s var(--ease-out);
+}
+@keyframes tg-num-settle {
+  from { opacity: .45; transform: translateY(-.1em); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 .tg-tap-match {
   display: block; margin-top: var(--sp-2); color: var(--ink-dim);
@@ -566,6 +607,41 @@
 .tg-phase-genres .chip { font-size: 11px; padding: 5px 10px; }
 .tg-phase-text { margin: 0; color: var(--ink-dim); font-size: 14.5px; }
 
+/* ---------- Lesegrund fuer Bausteine ohne eigene Flaeche ----------
+   .tg-phase-time/.tg-phase-text und die FAQ-Frage (details.faq summary,
+   takeoff.css — nur ein Rahmen, keine Flaeche) sitzen auf der freien
+   Szene, nicht in der deckenden .tg-console. Nachts ist der Boden ueber
+   Mars/Strand hell genug (scene-night.css: Luminanz .05-.06), dass genau
+   diese beiden zeitweise auf dem Mond bzw. der Wasserspiegelung landen —
+   nachgemessen per Pixel-Sampling der Szenen-Canvas (360px, Strand/Nacht):
+   ".tg-phase-time" faellt auf Luminanz-Kontrast wie --ink-faint es ueberall
+   tut, eine FAQ-Frage stand einmal auf Luminanz 194 statt ~13 wie ihre
+   Nachbarn. .section-head/.section-intro/.faq-body/.m-rows haben dafuer
+   die :is()-Liste in scene-night.css (geteilt, TABU) — .tg-phase-* kommt
+   dort nicht vor (eigenes Layout dieser Seite) und `details.faq summary`
+   ist dort grundsaetzlich nicht gelistet (nur `.faq-body`, die Antwort).
+   Seiten-eigene Loesung nach demselben Rezept wie der Politur-Auftrag es
+   verlangt: ENG am Text statt einer Vollflaechen-Box dahinter — `display:
+   inline` + `box-decoration-break: clone` lassen die Flaeche mit jedem
+   Zeilenumbruch mitlaufen statt eine grosse Ellipse hinter den ganzen
+   Block zu legen. Tags braucht es das nicht (scene-day.css: flacher,
+   heller Grund traegt Dunkeltinte ohne Zusatzflaeche — siehe die
+   Tag-Sektion weiter unten, die bewusst keine Traegerflaechen einfuehrt). */
+.tg-txplate {
+  border-radius: .3em;
+}
+:root:not(.day-mode) .tg-txplate {
+  display: inline;
+  padding: .12em .4em;
+  background: rgb(var(--bg-void-rgb) / .76);
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
+/* Genre-Chips in der Zeitleiste: `.chip` (takeoff.css) ist nur ein Rahmen
+   ohne Fuellung. Eng genug ist die Pille schon (kein Vollflaechen-Problem),
+   ihr fehlt nachts nur der Kontrastgrund derselben Herkunft wie oben. */
+:root:not(.day-mode) .tg-phase-genres .chip { background: rgb(var(--bg-void-rgb) / .55); }
+
 @media (min-width: 880px) {
   .tg-night {
     display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -586,6 +662,12 @@
      der Punkt sitzt also 14px über der Phasenoberkante, mittig auf der
      Achse. */
   .tg-phase::before { left: 50%; top: -14px; transform: translate(-50%, -50%); }
+  /* `.tg-phase` selbst traegt es jetzt mit: `.tg-phase-time`/`.tg-phase-text`
+     sind seit der Lesegrund-Regel oben `display: inline` (fuer den engen,
+     zeilenweisen Textgrund) — `text-align` auf einem Inline-Element selbst
+     wirkt nicht mehr, es muss vom Block-Vorfahren erben, sonst faellt die
+     Zeitmarke links raus, waehrend Name und Chips brav zentriert bleiben. */
+  .tg-phase,
   .tg-phase-time,
   .tg-phase-label,
   .tg-phase-genres,

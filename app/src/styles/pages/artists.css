@@ -135,6 +135,7 @@
   display: flex; flex-direction: column;
   align-items: flex-start; gap: var(--sp-3);
 }
+.ar-lead--aside { max-width: 42ch; margin-top: 0; }
 .ar-count {
   font-family: var(--font-mono); font-size: 12px;
   letter-spacing: var(--track-label); text-transform: uppercase;
@@ -181,7 +182,7 @@
   color: var(--ink); border-color: rgb(var(--acc-2-rgb) / .5);
 }
 
-.ar-card { padding: var(--sp-5) var(--sp-5) var(--sp-4); }
+.ar-card.mcard { padding: var(--sp-5) var(--sp-5) var(--sp-4); }
 /* takeoff.css gibt nur einer festen Liste direkter Kinder die volle Breite —
    die beiden neuen Bausteine stehen nicht darin. */
 .ar-card > .ar-card-top,
@@ -204,25 +205,31 @@
     0 0 14px rgb(var(--card-acc-rgb) / .14);
 }
 .ar-card-id { min-width: 0; }
-.ar-card-id h3 { margin: 0; font-size: clamp(18px, 1.5vw, 21px); }
+.ar-card .ar-card-id h3 { margin: 0; font-size: clamp(18px, 1.5vw, 21px); }
 .ar-card-id .m-meta { margin: 3px 0 0; }
 
 /* ---------- Mini-EQ: der eine Bewegungsmoment der Uebersicht ----------
-   Im Fluss statt absolut positioniert (die alte Fassung haing an einem
-   `position: relative`, das gar nicht in diesem Blatt stand). In Ruhe ist der
-   EQ ein flacher Kamm auf der Fusslinie und liest als Teil des Rahmens; auf
-   Zeigen oder Tastaturfokus steigt er zum Spektrum auf.
+   Im Fluss statt absolut positioniert (die alte Fassung hing an einem
+   `position: relative`, das gar nicht in diesem Blatt stand). Die Fusslinie
+   der Karte ist die Nulllinie, darauf sitzt links ein schmaler Analyser: in
+   Ruhe ein flacher Kamm, der als Teil des Rahmens liest, auf Zeigen oder
+   Tastaturfokus steigt er zum Spektrum auf.
+   `margin-top: auto` schiebt ihn an den Fuss — und hebt zugleich das
+   `margin-top: auto` auf, das takeoff.css dem Umschalter gibt (zwei
+   Auto-Raender wuerden den freien Platz teilen und beide in der Mitte
+   parken); der Umschalter bekommt darum unten wieder einen festen Abstand.
    Die Farbfolge ist nicht Dekoration: tiefe Baender kuehl (--acc-3), Mitten
    violett (--acc-2), Hoehen im Leitton (--acc-1) — links Bass, rechts
    Hoehen, wie auf jedem Analyser. */
+.ar-card > .ar-eq { margin-top: auto; padding-top: var(--sp-5); }
+.ar-card.mcard > .m-toggle { margin-top: var(--sp-3); }
 .ar-eq {
-  margin-top: var(--sp-4);
   display: flex; align-items: flex-end; gap: 3px;
   height: 32px;
   border-bottom: 1px solid var(--bg-hairline);
 }
 .ar-eq i {
-  flex: 1 1 0; min-width: 2px;
+  flex: none; width: 4px;
   height: 3px; border-radius: 2px 2px 0 0;
   opacity: .4;
   background: var(--acc-2);
@@ -308,7 +315,7 @@
    sind in der Traegerflaechen-Liste von scene-night.css eingetragen und
    damit geteiltes Vokabular.
    ============================================================ */
-.ar-guests { gap: var(--sp-2); }
+.glog.ar-guests { gap: var(--sp-2); }
 .ar-guest { flex: 0 0 auto; }
 .ar-guest[open] { flex-basis: 100%; }
 .ar-guest summary {
@@ -321,7 +328,10 @@
   color: var(--ink); border-color: rgb(var(--acc-2-rgb) / .6);
   background: rgb(var(--acc-2-rgb) / .12);
 }
-.ar-guest-panel { margin-top: var(--sp-3); padding-top: var(--sp-3); }
+.ar-guest-panel {
+  margin-top: var(--sp-3); padding-top: var(--sp-3);
+  border-top: 1px solid var(--bg-hairline);
+}
 .ar-guest-label {
   font-family: var(--font-mono); font-size: 11px;
   letter-spacing: var(--track-micro); text-transform: uppercase;
@@ -416,18 +426,22 @@
     inset 0 0 0 3px rgb(var(--acc-2-rgb) / .16),
     0 0 22px rgb(var(--acc-1-rgb) / .1);
 }
+/* Die Insets haengen an der Groesse, nicht an Prozent des Elements — und sie
+   bleiben bewusst unter dem schmalsten Seitenrand (--pad wird nie kleiner als
+   18px). Mit -27 % waere die aeussere Bahn auf einem 360px-Schirm 4-5px ueber
+   den Rand hinausgeragt und haette waagerechten Overflow erzeugt. */
 .ar-orbit-path {
-  position: absolute; inset: -13%; border-radius: 50%;
+  position: absolute; inset: calc(var(--ar-orbit-size) * -0.11); border-radius: 50%;
   border: 1px dashed rgb(var(--acc-3-rgb) / .3);
   pointer-events: none;
 }
 .ar-orbit-path.is-outer {
-  inset: -27%;
+  inset: calc(var(--ar-orbit-size) * -0.18);
   border-style: solid;
   border-color: rgb(var(--acc-2-rgb) / .16);
 }
 .ar-orbit-sat {
-  position: absolute; inset: -13%; border-radius: 50%;
+  position: absolute; inset: calc(var(--ar-orbit-size) * -0.11); border-radius: 50%;
   pointer-events: none;
   animation: ar-orbit-spin 18s linear infinite;
 }
@@ -516,6 +530,10 @@
 /* ---------- Sehen | Hören ---------- */
 .ar-spread { display: grid; gap: var(--sp-8); }
 .ar-col { min-width: 0; }
+/* Im Spread sind die beiden Ueberschriften der Seiten-H1 untergeordnet — und
+   in einer halb so breiten Spalte braeuchte der volle Displaygrad drei
+   Zeilen. */
+.ar-col .h2 { font-size: clamp(26px, 3vw, 38px); }
 .ar-col .mgal { margin-top: 0; }
 .ar-setgrid { margin-top: 0; }
 
@@ -536,7 +554,14 @@
    .section-intro` und hebt die ganze Gruppe auf zwei Klassen.
    Die Lesbarkeit uebernehmen die engen `.txplate` an Datum, Name und Ort
    (im Markup) statt einer 800-1000px breiten Platte hinter der Liste. */
-.ar-flog { margin-top: 0; }
+.flog.ar-flog { margin-top: 0; }
+/* Zwei Kanten statt einer: Datum und Missionsname links, der Ort an der
+   rechten Satzkante — so belegt jede Zeile die volle Breite, wie in einem
+   echten Logbuch. Erst ab 700px, darunter waere das ein Riss quer durch
+   eine dreizeilige Zeile. */
+@media (min-width: 700px) {
+  .flog.ar-flog li .fvenue { margin-left: auto; text-align: right; }
+}
 :root:not(.day-mode) main .ar-sec .ar-flog::before {
   content: "";
   position: absolute;
@@ -555,12 +580,28 @@
    Block), sondern eng am Text. `.txplate`/`.txfit` sitzen im Markup; hier
    stehen nur die Bauteile, die keine Textzeile sind.
    ============================================================ */
-:root:not(.day-mode) .ar-sec .eyebrow {
+/* Mass und Polster stehen in BEIDEN Modi (sonst springt das Layout beim
+   Umschalten zwischen Tag und Nacht — dieselbe Ueberlegung wie bei
+   `.txplate` in takeoff.css); nur die Fuellung ist nachtgebunden. Der
+   negative linke Rand haelt den Strich der Eyebrow optisch auf der
+   Satzkante. */
+.ar-sec .eyebrow {
   width: fit-content;
   padding: .25em .6em;
-  margin-left: -.6em;          /* Strich bleibt optisch auf der Satzkante */
+  margin-left: -.6em;
   border-radius: .4em;
-  background: rgb(var(--bg-void-rgb) / .62);
+}
+:root:not(.day-mode) .ar-sec .eyebrow { background: rgb(var(--bg-void-rgb) / .62); }
+/* Dieselbe Ursache wie bei den Ueberschriften (scene-night.css, It. 14): eine
+   Traegerflaeche ragt bauartbedingt 20-34px ueber ihr Element hinaus, und ihr
+   Element ist durch `position: relative` positioniert — sie wird also NACH
+   jedem nicht positionierten Geschwister davor gemalt und legt sich ueber
+   dessen Text. Betroffen sind hier die Zeile ueber der Zahlenliste im
+   Register, das Frequenzband ueber den Eckdaten und die Gaeste-Chips ueber
+   dem aufgeklappten Panel. Sie bekommen deshalb selbst einen Stapelrang. */
+:root:not(.day-mode) .ar-sec :is(.ar-kicker, .ar-freq, .ar-guest summary) {
+  position: relative;
+  z-index: var(--z-heading);
 }
 :root:not(.day-mode) .ar-sec :is(.ar-filter, .ar-guests) .chip {
   background: rgb(var(--bg-void-rgb) / .6);
@@ -616,16 +657,8 @@
    Spalten dazu, sobald wirklich Platz da ist.
    ============================================================ */
 
-/* Ab hier passen Messwert und Titel in eine Zeile. */
+/* Ab hier tragen zwei Spalten im Open-Decks-Kasten. */
 @media (min-width: 760px) {
-  .ar-head {
-    grid-template-columns: minmax(0, 1fr) minmax(0, auto);
-    column-gap: var(--sp-6);
-    align-items: end;
-  }
-  .ar-head-aside { align-items: flex-end; text-align: right; }
-  .ar-tool { align-items: flex-end; }
-  .ar-tool-note { text-align: right; }
   .ar-odl.transmission {
     grid-template-columns: minmax(0, 1.15fr) minmax(0, .85fr);
     column-gap: var(--sp-8);
@@ -633,7 +666,10 @@
   }
 }
 
-/* Der Satzspiegel der Uebersicht: Text | Register. */
+/* Der Satzspiegel: Text | Register, Titel | Messwert, Sehen | Hoeren.
+   Erst ab 900px — darunter bliebe fuer den Titel neben einem 420px breiten
+   Messwertblock zu wenig Spalte, und ein Displaygrad, der in vier Zeilen
+   umbricht, ist keine Ueberschrift mehr. */
 @media (min-width: 900px) {
   .ar-hero {
     grid-template-columns: minmax(0, 1fr) minmax(220px, 300px);
@@ -647,15 +683,33 @@
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     column-gap: var(--sp-8);
   }
+  .ar-head {
+    grid-template-columns: minmax(0, 1fr) minmax(0, auto);
+    column-gap: var(--sp-6);
+    align-items: end;
+  }
+  .ar-head-aside { align-items: flex-end; text-align: right; }
+  /* Der Block sitzt an der rechten Satzkante, sein Text bleibt linksbuendig —
+     eine rechtsbuendige Flattersatz-Spalte laesst sich nicht lesen. */
+  .ar-lead--aside { text-align: left; }
+  .ar-tool { align-items: flex-end; }
+  .ar-tool-note { text-align: right; }
 }
 
-/* Schmal: die rechte Spalte des Kopfes ist unter dem Titel gelandet — dort
-   soll der Messwert nicht rechtsbuendig in der Luft haengen. */
-@media (max-width: 759px) {
+/* In den halb so breiten Spalten des Spreads bleibt der Kopf gestapelt,
+   bis wirklich Platz fuer Titel UND Messwert nebeneinander ist. */
+@media (max-width: 1099px) {
+  .ar-col .ar-head { grid-template-columns: minmax(0, 1fr); }
+  .ar-col .ar-head-aside { align-items: flex-start; text-align: left; }
+}
+
+/* Schmal: alles steht untereinander, der Kopfschmuck wird kleiner. */
+@media (max-width: 899px) {
   .ar-band { margin-top: var(--sp-6); }
   .ar-band-svg { height: clamp(48px, 14vw, 72px); }
   .ar-eq { height: 26px; gap: 2px; }
-  .ar-card { padding: var(--sp-4); }
+  .ar-eq i { width: 3px; }
+  .ar-card.mcard { padding: var(--sp-4); }
   .ar-freq-keys li { flex-wrap: wrap; }
 }
 

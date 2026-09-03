@@ -100,7 +100,7 @@ const DEFAULT: ArtistsContent = {
     min: 135,
     max: 153,
     ticks: [138, 145, 150],
-    spread: 2.5,
+    spread: 1.8,
     otherLabel: "ohne festes Tempo",
     genres: [
       { match: "Trance", bpm: 138 },
@@ -140,7 +140,7 @@ export default async function ArtistDetail(
 
   return (
     <>
-      <section className="phero ar-sec ar-sec--hero">
+      <section className="phero ar-sec">
         <div className="wrap ar-dhero">
           <div className="ar-dmain">
             <div className="ar-ident">
@@ -191,7 +191,7 @@ export default async function ArtistDetail(
           die Satzbreite besser als eines, das links klebt. Fehlt eine der
           beiden Haelften, laeuft die andere allein ueber die volle Breite. */}
       {(hasMedia || hasSets) && (
-        <section className="section ar-sec ar-sec--first">
+        <section className="section ar-sec">
           <div className={`wrap ar-spread${hasMedia && hasSets ? " is-split" : ""}`}>
             {hasMedia && (
               <div className="ar-col">
@@ -256,10 +256,10 @@ export default async function ArtistDetail(
         </section>
       )}
 
-      <section className="section ar-sec ar-sec--last">
+      <section className="section ar-sec">
         <div className="wrap">
           <div className="cta-row">
-            <a className="btn btn-ghost" href={s.soundcloud} target="_blank" rel="noopener">SoundCloud ↗</a>
+            <a className="btn btn-ghost" href={s.soundcloud} target="_blank" rel="noopener">{t.socialsValue}</a>
             <Link className="btn btn-ghost" href={pageHref("artists")}>{t.backLabel}</Link>
           </div>
         </div>
