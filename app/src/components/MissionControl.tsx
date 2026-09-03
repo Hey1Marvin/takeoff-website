@@ -7,7 +7,8 @@
    neu auf. Deshalb gibt es hier keinen Import aus sky/ — und keinen
    Doppelzustand zwischen React und Canvas ("Panel sagt Tag, Canvas malt
    Nacht"). Gleiche localStorage-Schluessel wie im Prototyp. */
-import { useEffect, useId, useState, useSyncExternalStore } from "react";
+import { useId, useSyncExternalStore } from "react";
+import { useT } from "./I18nProvider";
 
 const FX = [
   { v: "s", label: "Aus",    title: "Statisch — spart Akku & Daten" },
@@ -31,7 +32,7 @@ const save = (k: string, v: string) => { try { localStorage.setItem(k, v); } cat
    er erzeugt Kaskaden-Renders und ginge an Aenderungen von aussen vorbei. */
 function subscribe(cb: () => void) {
   const mo = new MutationObserver(cb);
-  mo.observe(document.documentElement, { attributes: true, attributeFilter: ["data-fx", "data-theme", "data-video", "class"] });
+  mo.observe(document.documentElement, { attributes: true, attributeFilter: ["data-fx", "data-theme", "data-video", "data-embeds", "class"] });
   const mq = matchMedia("(prefers-reduced-motion: reduce)");
   mq.addEventListener("change", cb);
   return () => { mo.disconnect(); mq.removeEventListener("change", cb); };
@@ -48,19 +49,68 @@ function snapshot(): string {
     h.classList.contains("ground-on") ? "1" : "0",
     h.classList.contains("day-mode") ? "1" : "0",
     h.dataset.video !== "off" ? "1" : "0",
+    h.dataset.embeds === "on" ? "1" : "0",
     matchMedia("(prefers-reduced-motion: reduce)").matches ? "1" : "0",
   ].join("|");
 }
 
 /* Serverseitig gibt es weder <html>-Dataset noch Storage. Der Wert muss zum
    ersten Client-Render passen, sonst gibt es einen Hydration-Mismatch. */
-const SERVER_SNAPSHOT = "m|space|1|0|1|0";
+const SERVER_SNAPSHOT = "m|space|1|0|1|0|0";
+
+/* ---------- Auf/zu — der einzige Zustand, der NICHT auf <html> lebt ----------
+   Eingeklappt als Standard. Das Panel ist `position: fixed` in der
+   rechten unteren Ecke und war einmal IMMER offen — rund 330x230px, die
+   auf jeder Seite ueber dem Inhalt lagen (auf /awareness neben dem
+   Fliesstext, auf der 404 ueber dem Motiv). Es ist ein
+   Einstellungswerkzeug, kein Seiteninhalt; es gehoert griffbereit, nicht
+   dauerhaft im Bild. Wer es aufklappt, findet es beim naechsten
+   Seitenaufruf offen vor.
+
+   Bewusst NICHT auf <html>: eine reine Bedien-Vorliebe, die die
+   Szenen-Engine nichts angeht.
+
+   Der localStorage IST hier der externe Speicher — deshalb
+   useSyncExternalStore und kein useState+useEffect. Letzteres schlaegt
+   an der Lint-Regel `set-state-in-effect` an, und zu Recht: der Wert
+   kommt von aussen, nicht aus React. Nebenbei zieht ein zweiter Tab mit,
+   weil `storage` mit abonniert ist. */
+const PANEL_KEY = "takeoff-mctrl";
+const panelHoerer = new Set<() => void>();
+const panelFeuern = () => { for (const l of panelHoerer) l(); };
+
+function abonnierePanel(cb: () => void) {
+  panelHoerer.add(cb);
+  addEventListener("storage", panelFeuern);
+  return () => {
+    panelHoerer.delete(cb);
+    if (panelHoerer.size === 0) removeEventListener("storage", panelFeuern);
+  };
+}
+
+/* Gibt einen Boolean zurueck, keinen frisch gebauten Wert — sonst
+   vergleicht useSyncExternalStore mit Object.is immer "neu". */
+function panelSnapshot(): boolean {
+  try { return localStorage.getItem(PANEL_KEY) === "open"; } catch { return false; }
+}
+
+function setPanel(offen: boolean) {
+  save(PANEL_KEY, offen ? "open" : "closed");
+  panelFeuern();   // `storage` feuert nur in ANDEREN Tabs, hier also selbst
+}
 
 export default function MissionControl() {
+  const t = useT();
   const snap = useSyncExternalStore(subscribe, snapshot, () => SERVER_SNAPSHOT);
-  const [fx, theme, groundS, dayS, videoS, reducedS] = snap.split("|");
+  /* Reihenfolge MUSS zu snapshot() passen. Sie tat es einmal nicht —
+     `embeds` und `reduced` standen vertauscht, womit eine erteilte
+     Player-Zustimmung als "reduzierte Bewegung" gelesen wurde und die
+     FX-Stufen Normal/Voll sperrte. Wer snapshot() aendert, aendert
+     diese Zeile mit. */
+  const [fx, theme, groundS, dayS, videoS, embedsS, reducedS] = snap.split("|");
   const ground = groundS === "1", day = dayS === "1";
   const video = videoS === "1", reduced = reducedS === "1";
+  const embeds = embedsS === "1";
 
   /* Bei reduzierter Bewegung darf die Wahl "Voll" nicht durchkommen —
      dieselbe Sperre wie im Prototyp (main.js:6136-6142). */
@@ -78,6 +128,11 @@ export default function MissionControl() {
   const applyDay = (on: boolean) => {
     html().classList.toggle("day-mode", on); save("takeoff-day", on ? "on" : "off");
   };
+  /* Zuruecknehmen muss genauso leicht sein wie Zustimmen — sonst ist eine
+     gespeicherte Zustimmung nicht sauber. */
+  const applyEmbeds = (on: boolean) => {
+    html().dataset.embeds = on ? "on" : "off"; save("takeoff-embed-consent", on ? "on" : "off");
+  };
   const applyVideo = (on: boolean) => {
     html().dataset.video = on ? "on" : "off"; save("takeoff-video", on ? "on" : "off");
   };
@@ -86,34 +141,11 @@ export default function MissionControl() {
      (main.js:6094-6104). Die Reihe bleibt sichtbar, aber gedimmt. */
   const groundOff = theme === "space";
 
-  /* Eingeklappt als Standard. Das Panel ist `position: fixed` in der rechten
-     unteren Ecke und war bisher IMMER offen — rund 330x230px, die auf jeder
-     Seite ueber dem Inhalt lagen (auf /awareness neben dem Fliesstext, auf
-     der 404 ueber dem Motiv). Es ist ein Einstellungswerkzeug, kein
-     Seiteninhalt; es gehoert griffbereit, nicht dauerhaft im Bild.
-     Der Zustand liegt im localStorage: wer es aufklappt, findet es beim
-     naechsten Seitenaufruf offen vor. Bewusst NICHT auf <html> — es ist
-     eine reine Bedien-Vorliebe, die die Szenen-Engine nichts angeht. */
-  const [offen, setOffen] = useState(false);
+  /* Auf/zu — Begruendung und Speicher stehen oben bei PANEL_KEY. */
+  const offen = useSyncExternalStore(abonnierePanel, panelSnapshot, () => false);
   const panelId = useId();
 
-  /* Nach der Hydration den gespeicherten Wunsch nachziehen. Direkt im
-     useState-Initialisierer ginge das nicht: der Server kennt den Storage
-     nicht, und ein abweichender erster Client-Render ist ein
-     Hydration-Fehler. Einmalig, deshalb leere Abhaengigkeitsliste. */
-  useEffect(() => {
-    try {
-      if (localStorage.getItem("takeoff-mctrl") === "open") setOffen(true);
-    } catch { /* privater Modus — dann bleibt es zu */ }
-  }, []);
-
-  const umschalten = () => {
-    setOffen(o => {
-      const neu = !o;
-      save("takeoff-mctrl", neu ? "open" : "closed");
-      return neu;
-    });
-  };
+  const umschalten = () => setPanel(!offen);
 
   return (
     <div className={`mctrl${offen ? " is-open" : ""}`}>
@@ -165,6 +197,14 @@ export default function MissionControl() {
         <span className="lbl">Video</span>
         <button type="button" aria-pressed={!video} onClick={() => applyVideo(false)}>Aus</button>
         <button type="button" aria-pressed={video}  onClick={() => applyVideo(true)}>An</button>
+      </div>
+
+      <div className="row">
+        <span className="lbl">{t("mctrl.embeds")}</span>
+        <button type="button" title="Keine Verbindung zu SoundCloud oder YouTube"
+          aria-pressed={!embeds} onClick={() => applyEmbeds(false)}>Aus</button>
+        <button type="button" title="Player laden nach einem Klick direkt"
+          aria-pressed={embeds} onClick={() => applyEmbeds(true)}>An</button>
       </div>
 
       <div className="row">

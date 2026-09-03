@@ -1,0 +1,431 @@
+/* ============================================================
+   embeds.css — Medien-Player: Fremd-Embeds und eigene Clips
+
+   Gehoert zu EmbedConsent.tsx, ArtistsSetCard.tsx, MediaGallery.tsx und
+   MediaPlayer.tsx und wird VON DIESEN importiert, nicht vom Layout —
+   wer keine Player auf der Seite hat, laedt diese Regeln nicht.
+
+   ── Warum fast alles eine Doppelklasse traegt ──────────────
+   `.setcard`, `.mgal`, `.mgal-item` stehen in takeoff.css (geteilte
+   Datei, hier nicht angefasst). Bei Stylesheets, die aus Komponenten
+   importiert werden, ist die Ladereihenfolge gegenueber dem globalen
+   Blatt nicht garantiert. Regeln, die etwas Bestehendes ueberschreiben,
+   haengen deshalb an einer ZWEITEN Klasse (`.setcard.setcard--facade`,
+   `.mgal.mgal-v2`) und gewinnen ueber Spezifitaet statt ueber Position.
+   Genau die Falle aus AGENTS.md ("die spaetere Media-Query verliert
+   trotz Quellreihenfolge"), nur andersherum.
+
+   Ausschliesslich bestehende Tokens: --sp-*, --radius*, --shadow-*,
+   --acc-*, --bg-*, --ink*, --font-*, --track-*, --z-*, --ease-*.
+   Kein einziger neuer Hex-Wert.
+   ============================================================ */
+
+
+/* ============================================================
+   1 · Das Plattform-Zeichen
+
+   Als CSS-MASKE geladen, nicht als <img>: nur so faerbt currentColor
+   die Form ein und passt damit in Space-, Mars- und Strand-Theme. Die
+   Dateien liegen lokal unter /img — vor der Zustimmung darf kein Byte
+   an SoundCloud oder YouTube gehen, ein Vorschaubild von dort waere
+   bereits ein Request.
+   ============================================================ */
+.ec-logo {
+  display: block;
+  width: 42px; height: 28px;
+  flex: none;
+  background-color: currentColor;
+  -webkit-mask-repeat: no-repeat;
+          mask-repeat: no-repeat;
+  -webkit-mask-position: left center;
+          mask-position: left center;
+  -webkit-mask-size: contain;
+          mask-size: contain;
+}
+.ec-logo[data-platform="soundcloud"] {
+  -webkit-mask-image: url("/img/logo-soundcloud.svg");
+          mask-image: url("/img/logo-soundcloud.svg");
+}
+.ec-logo[data-platform="youtube"] {
+  -webkit-mask-image: url("/img/logo-youtube.svg");
+          mask-image: url("/img/logo-youtube.svg");
+}
+
+
+/* ============================================================
+   2 · Set-Karte, Fassade (vor dem Abspielen)
+
+   Vorher: 16:9-Deckflaeche mit einem Play-Kreis darauf, darunter zwei
+   Zeilen Text und ein aufklappender Hinweis. Die Deckflaeche war reine
+   Behauptung — dahinter lag kein Bild, sie war nur Farbe.
+
+   Jetzt traegt die Karte, was sie weiss: Dienst, Titel, Meta, was beim
+   Klick passiert. Die Flaeche wird materialisiert (Verlauf + flaches
+   Irisieren als Materialandeutung, dieselbe Sprache wie .ev-frame),
+   nicht mit einem leeren Rechteck gefuellt.
+   ============================================================ */
+.setcard.setcard--facade {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  padding: var(--sp-4);
+  text-align: left;
+  background:
+    var(--irid-veil),
+    linear-gradient(168deg, var(--bg-raised), var(--bg-base));
+  border: 1px solid var(--bg-hairline);
+  box-shadow: var(--shadow-1);
+  /* Die Karte ist kein Knopf mehr — sie enthaelt einen. Ohne diese
+     Zeile bliebe der Zeiger auf der ganzen Flaeche eine Hand und
+     verspraeche eine Klickflaeche, die es nicht gibt. */
+  cursor: default;
+}
+/* Ruhiger als die alte 4px-Hebung: die Karte ist jetzt Text, kein
+   Bildplatzhalter. Bewegt wird die Kante, nicht der Kasten. */
+.setcard.setcard--facade:hover {
+  transform: none;
+  border-color: rgb(var(--acc-2-rgb) / .45);
+  box-shadow: var(--shadow-2);
+}
+/* Wenn drinnen etwas den Fokus hat, muss die Karte es aussen zeigen —
+   sonst sucht man den Fokusring in einem Raster aus zwoelf Karten. */
+.setcard.setcard--facade:focus-within {
+  border-color: rgb(var(--acc-1-rgb) / .55);
+}
+
+.ec-head {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  color: var(--ink-dim);
+}
+.ec-service {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: var(--w-micro-b);
+  letter-spacing: var(--track-label);
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.ec-titles { display: grid; gap: 2px; }
+.ec-title {
+  font-family: var(--font-display);
+  font-weight: var(--w-head);
+  font-size: clamp(15px, 1.9vw, 18px);
+  line-height: 1.25;
+  color: var(--ink);
+}
+.ec-meta {
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  color: var(--ink-faint);
+}
+
+.ec-body {
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: var(--ink-dim);
+  margin: var(--sp-1) 0 0;
+}
+/* Der Ruecknahme-Hinweis steht bewusst kleiner als der Satz darueber:
+   er ist eine Zusicherung, keine Frage. Die gestrichelte Kante ist
+   dieselbe wie beim alten .consent-note — nur nicht mehr aufklappend,
+   sondern von Anfang an sichtbar. */
+.ec-remember {
+  margin: var(--sp-2) 0 0;
+  padding-top: var(--sp-2);
+  border-top: 1px dashed rgb(var(--acc-2-rgb) / .3);
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--ink-faint);
+}
+
+.ec-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sp-3);
+  margin-top: var(--sp-3);
+}
+.ec-accept {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  min-height: 44px;                 /* Fingerkuppe, nicht Mauszeiger */
+  padding: 0 var(--sp-4);
+  border-radius: 999px;
+  border: 1px solid rgb(var(--acc-1-rgb) / .42);
+  background: rgb(var(--acc-1-rgb) / .12);
+  color: var(--ink);
+  font-family: var(--font-text);
+  font-size: 13.5px;
+  font-weight: var(--w-strong);
+  cursor: pointer;
+  transition: background .3s, border-color .3s, transform .3s var(--ease-out);
+}
+.ec-accept:hover,
+.ec-accept:focus-visible {
+  background: rgb(var(--acc-1-rgb) / .24);
+  border-color: rgb(var(--acc-1-rgb) / .7);
+}
+.ec-accept:active { transform: scale(.98); }
+.ec-accept-icon {
+  display: grid;
+  place-items: center;
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  background: rgb(var(--bg-void-rgb) / .55);
+  font-size: 10px;
+}
+
+/* Der Ausweichweg. Ein normaler Link — er laedt nichts nach, er geht
+   weg. Deshalb darf er auch vor der Zustimmung dastehen. */
+.ec-alt {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  letter-spacing: var(--track-label);
+  text-transform: uppercase;
+  color: var(--acc-3-tint);
+  border-bottom: 1px solid rgb(var(--acc-3-rgb) / .35);
+  padding-bottom: 2px;
+}
+.ec-alt:hover, .ec-alt:focus-visible {
+  color: var(--ink);
+  border-bottom-color: rgb(var(--acc-1-rgb) / .6);
+}
+
+
+/* ============================================================
+   3 · Set-Karte, Player (nach dem Klick)
+
+   Die Flaechenlogik (16:9 fuer YouTube, 166px flach fuer SoundCloud)
+   steht weiterhin in takeoff.css unter `.set-player` — hier wird sie
+   NICHT wiederholt, sonst haette dieselbe Entscheidung zwei Quellen,
+   die auseinanderlaufen koennen. Hier steht nur, was den Rahmen angeht.
+   ============================================================ */
+.setcard.setcard--player {
+  padding: 0;
+  background: var(--bg-void);
+  box-shadow: var(--shadow-2);
+}
+/* Der Rahmen bekommt beim Umschalten den Fokus (tabIndex -1), damit die
+   Tastaturbedienung nicht auf <body> zurueckfaellt. Der Ring gehoert
+   dann sichtbar dazu. */
+.setcard.setcard--player:focus-visible {
+  outline: 2px solid rgb(var(--acc-1-rgb) / .7);
+  outline-offset: 2px;
+}
+
+
+/* ============================================================
+   4 · Galerie — Kacheln groesser und ruhiger
+
+   Vorher `minmax(190px, 1fr)`: bei 32 Clips war jede Kachel eine
+   Briefmarke. Jetzt eine Grundspalte von 240px, die auf schmalen
+   Schirmen per `min(…, 100%)` auf die volle Breite zusammenfaellt,
+   statt einen horizontalen Ueberlauf zu erzwingen.
+
+   `grid-auto-flow: row dense`, `align-items: start` und der Doppel-
+   Spalten-Sprung der Querformate bleiben, wie sie in takeoff.css
+   stehen — sie waren richtig.
+   ============================================================ */
+.mgal.mgal-v2 {
+  --mgal-col: 240px;
+  grid-template-columns: repeat(auto-fill, minmax(min(var(--mgal-col), 100%), 1fr));
+  gap: var(--sp-3);
+}
+
+/* Ruhiger: die Kachel hebt nicht mehr an, sie leuchtet nur die Kante
+   nach. Zwoelf gleichzeitig wippende Kacheln waren die Unruhe. */
+.mgal-v2 .mgal-item:hover {
+  transform: none;
+  border-color: rgb(var(--acc-2-rgb) / .45);
+  box-shadow: var(--shadow-2);
+}
+.mgal-v2 .mgal-flaeche { cursor: pointer; }
+.mgal-v2 .mgal-flaeche:focus-visible {
+  outline: 2px solid rgb(var(--acc-1-rgb) / .7);
+  outline-offset: -2px;
+}
+/* Groesser heisst auch: die Unterschrift darf gelesen werden. */
+.mgal-v2 .mgal-cap {
+  font-size: 13px;
+  color: var(--ink);
+  text-shadow: 0 1px 3px rgb(var(--bg-void-rgb) / .9);
+}
+/* Der Play-Kreis bleibt AUCH bei FX-Stufe s sichtbar. takeoff.css blendet
+   ihn dort aus — das stammt aus der Zeit, in der die Kachel selbst
+   abspielte und bei "s" tot war. Jetzt wird sie zum Player, und ein
+   Klickziel ohne Affordanz ist schlechter als eine ruhige Andeutung. */
+:root[data-fx="s"] .mgal-v2 .mgal-play { display: grid; }
+
+
+/* ============================================================
+   5 · Der Video-Player (media-chrome)
+
+   media-chrome liefert Verhalten, kein Aussehen: jeder Knopf ist ein
+   leeres Gehaeuse, das sein Icon aus einem Slot bezieht. Das Aussehen
+   entsteht hier — mit denselben Tokens wie der Rest der Seite, damit
+   der Player nicht als Fremdkoerper im Space-System sitzt.
+
+   Gesteuert wird ueber die dokumentierten --media-*-Variablen. Sie
+   direkt zu setzen ist der vorgesehene Weg; an den Innereien der
+   Shadow-Roots vorbeizugreifen waere es nicht.
+   ============================================================ */
+.tp {
+  --media-font-family: var(--font-mono);
+  --media-primary-color: var(--ink);
+  --media-secondary-color: transparent;
+  --media-text-color: var(--ink);
+
+  /* Die Leiste liegt auf dem Bild — ein Verlauf traegt sie, keine
+     Kante. Eine harte Kante quer durchs Video waere ein zweiter
+     Horizont neben dem der Szene. */
+  --media-control-background: transparent;
+  --media-control-hover-background: rgb(var(--acc-1-rgb) / .22);
+  --media-control-height: 34px;
+
+  --media-range-track-height: 3px;
+  --media-range-track-background: rgb(var(--ink-rgb, 255 255 255) / .22);
+  --media-range-bar-color: var(--acc-1);
+  --media-range-thumb-background: var(--ink);
+  --media-range-thumb-width: 11px;
+  --media-range-thumb-height: 11px;
+
+  --media-loading-indicator-color: var(--acc-1);
+  /* Die eingebauten Sprechblasen sind ein fremdes Vokabular; die
+     aria-labels bleiben, sie sind das, was zaehlt. */
+  --media-tooltip-display: none;
+
+  display: block;
+  width: 100%;
+  background: var(--bg-void);
+  border-radius: var(--radius);
+  overflow: hidden;
+  /* Bezugsgroesse fuer die @container-Abfrage weiter unten: die Leiste
+     richtet sich nach der KACHEL, nicht nach dem Fenster. Bei einem
+     auto-fill-Raster sagt die Fensterbreite nichts darueber aus, wie
+     breit die einzelne Kachel geworden ist. */
+  container-type: inline-size;
+}
+.tp[data-orientation="hoch"] { aspect-ratio: 9 / 16; }
+.tp[data-orientation="quer"] { aspect-ratio: 16 / 9; }
+
+.tp video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+/* Im Vollbild wird aus "fuellen" ein "ganz zeigen": dort ist Platz fuer
+   das echte Verhaeltnis, und ein beschnittener Hochkant-Clip auf einem
+   Querformat-Schirm waere absurd. */
+.tp:fullscreen { aspect-ratio: auto; border-radius: 0; }
+.tp:fullscreen video { object-fit: contain; }
+
+.tp-bar {
+  width: 100%;
+  /* `gap` ist hier keine Kosmetik: ohne ihn stossen Ton- und
+     Vollbild-Knopf direkt aneinander und werden auf dem Telefon zu
+     einem einzigen, unsicher zu treffenden Ziel. */
+  gap: 2px;
+  padding: var(--sp-2) var(--sp-2) calc(var(--sp-2) + 2px);
+  background: linear-gradient(to top, rgb(var(--bg-void-rgb) / .92), rgb(var(--bg-void-rgb) / 0));
+}
+
+.tp-btn {
+  --media-button-icon-width: 19px;
+  /* 40px Kantenlaenge — die Mindestgroesse fuer ein Fingerziel. Das
+     Icon bleibt bei 19px, der Rest ist Griffflaeche. */
+  min-width: 40px;
+  padding: 0;
+  border-radius: 999px;
+  color: var(--ink);
+  transition: background .25s, color .25s;
+}
+.tp-btn svg { width: 19px; height: 19px; display: block; margin: 0 auto; }
+
+.tp-range { flex: 1 1 auto; min-width: 0; }
+
+.tp-time {
+  padding-inline: var(--sp-2);
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 11px;
+  letter-spacing: var(--track-label);
+  color: var(--ink-dim);
+}
+/* Auf sehr schmalen Kacheln (drei Spalten auf dem Telefon gibt es nicht,
+   aber eine 9:16-Kachel neben einer zweiten schon) hat die Zeitanzeige
+   keinen Platz mehr. Sie ist die entbehrlichste Angabe — der Balken
+   zeigt den Fortschritt ohnehin. */
+@container (max-width: 260px) { .tp-time { display: none; } }
+
+/* Solange die Web Components noch nicht registriert sind, waeren sie
+   nackte Inline-Elemente — kurz saehe man die Icons untereinander
+   stehen. Zwei Zeilen verhindern das Aufblitzen. */
+.tp:not(:defined) { min-height: 120px; }
+.tp:not(:defined) > *:not(video) { display: none; }
+
+
+/* ============================================================
+   6 · Die laufende Kachel
+
+   Der Player ersetzt das Standbild an Ort und Stelle — die Kachel
+   behaelt ihren Platz im Raster, damit die Wand beim Klick nicht
+   umspringt.
+   ============================================================ */
+.mgal-v2 .mgal-item.is-live {
+  position: relative;
+  transform: none;
+  border-color: rgb(var(--acc-1-rgb) / .55);
+  box-shadow: var(--shadow-2);
+}
+
+/* Zurueck zum Standbild. Oben rechts, ausserhalb der Player-Leiste —
+   die sitzt unten. */
+.mgal-zu {
+  position: absolute;
+  top: var(--sp-2);
+  right: var(--sp-2);
+  z-index: var(--z-deco);
+  width: 30px; height: 30px;
+  display: grid; place-items: center;
+  border-radius: 50%;
+  border: 1px solid var(--bg-hairline);
+  background: rgb(var(--bg-void-rgb) / .74);
+  color: var(--ink-dim);
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+  transition: color .25s, border-color .25s, background .25s;
+}
+.mgal-zu:hover, .mgal-zu:focus-visible {
+  color: var(--ink);
+  border-color: rgb(var(--acc-1-rgb) / .6);
+  background: rgb(var(--bg-void-rgb) / .92);
+}
+
+/* Die Unterschrift wandert unter den Player, statt auf ihm zu liegen —
+   auf dem Bild laege sie genau dort, wo jetzt die Bedienleiste ist. */
+.mgal-cap.mgal-cap--live {
+  position: static;
+  display: block;
+  padding: var(--sp-2) var(--sp-3);
+  font-size: 13px;
+  color: var(--ink-dim);
+  text-shadow: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .setcard.setcard--facade,
+  .setcard.setcard--facade:hover,
+  .mgal-v2 .mgal-item,
+  .mgal-v2 .mgal-item:hover,
+  .ec-accept,
+  .tp-btn,
+  .mgal-zu {
+    transition: none;
+    transform: none;
+  }
+}

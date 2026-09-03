@@ -161,9 +161,6 @@ console.log("\n== Sprache & Tag/Nacht-Knopf ==");
   const ctx=await browser.newContext(); const p=await ctx.newPage();
   const errs=[]; p.on("pageerror",e=>errs.push(e.message));
   await p.goto(BASE+"/",{waitUntil:"load"}); await p.waitForTimeout(700);
-  const vorher=await p.evaluate(()=>({lang:document.documentElement.lang,
-    nav:[...document.querySelectorAll(".nav-links a")].map(a=>a.textContent.trim()).join(","),
-    tel:document.querySelector(".hud-link")?.textContent.trim()}));
   const hatSwitch=await p.evaluate(()=>!!document.querySelector(".nav-lang"));
   note(hatSwitch,"Sprachumschalter in der Kopfleiste vorhanden");
   await p.click('.nav-lang button:last-child');           // EN
@@ -341,26 +338,147 @@ console.log("\n== Medien & Zwei-Klick ==");
   note(zuGross.length === 0, `kein Video über 4 MB${zuGross.length ? " — " + zuGross.join(", ") : ""}`);
 }
 {
-  const DRITTE = /soundcloud|sndcdn|youtube|youtu\.be|ytimg|googlevideo/i;
-  for (const [route, name] of [["/artists/jojo", "YouTube"], ["/events/spartacus-nacht", "SoundCloud"]]) {
+  /* ---------- Der Zustimmungs-Vertrag, in vier Messungen ----------
+
+     Der Vertrag hat sich in It. 15 geaendert und heisst jetzt: EINMAL
+     zustimmen, danach laden die Player ueberall von selbst. Was NICHT
+     verhandelbar ist und hier weiter gemessen wird: vor der Zustimmung
+     geht kein Byte an SoundCloud oder YouTube.
+
+     Gemessen wird deshalb in beide Richtungen:
+       a) ohne Zustimmung  -> null Dritt-Requests, kein <iframe>
+       b) Klick "Zustimmen und abspielen" -> Player laedt
+       c) NEUE Seite, gleicher Speicher   -> Player laedt OHNE Klick
+       d) Ruecknahme -> das <iframe> verschwindet wieder
+
+     (d) ist der Teil, den man gern vergisst: eine gespeicherte
+     Zustimmung, die sich nicht zurueckziehen laesst, ist keine.
+
+     Hostname-Test statt Substring: die Plattform-Zeichen sind lokale
+     SVGs (public/img/logo-soundcloud.svg), "soundcloud" im DATEINAMEN
+     matchte vorher faelschlich als Dritt-Request. */
+  const DRITTE_HOSTS = /(^|\.)(soundcloud\.com|sndcdn\.com|youtube\.com|youtube-nocookie\.com|youtu\.be|ytimg\.com|googlevideo\.com)$/i;
+  const istDrittRequest = url => { try { return DRITTE_HOSTS.test(new URL(url).hostname); } catch { return false; } };
+  const zaehlIframes = pg => pg.evaluate(() => document.querySelectorAll("iframe.set-player").length);
+
+  for (const [route, zweitroute, name] of [
+    ["/artists/jojo", "/musik", "YouTube"],
+    ["/events/spartacus-nacht", "/musik", "SoundCloud"],
+  ]) {
     const ctx = await browser.newContext();
     const page = await ctx.newPage();
     const extern = [];
-    page.on("request", r => { if (DRITTE.test(r.url())) extern.push(r.url()); });
+    page.on("request", r => { if (istDrittRequest(r.url())) extern.push(r.url()); });
+
+    // a) ohne Zustimmung
     await page.goto(BASE + route, { waitUntil: "load" });
     await page.waitForTimeout(1500);
     const vorher = extern.length;
-    const karte = await page.$(".setcard");
-    if (karte) { await karte.click(); await page.waitForTimeout(900); }
-    const nachErstem = extern.length;
-    if (karte) { await page.click(".setcard.asked"); await page.waitForTimeout(2200); }
-    const player = await page.evaluate(() => document.querySelector(".set-player")?.getAttribute("src") ?? "");
-    note(vorher === 0 && nachErstem === 0,
-      `${name}: kein Dritt-Request vor der Zustimmung (${nachErstem})`);
-    note(player.length > 0 && extern.length > nachErstem,
-      `${name}: Player lädt erst nach dem zweiten Klick`);
+    const iframesVorher = await zaehlIframes(page);
+    note(vorher === 0, `${name}: kein Dritt-Request vor der Zustimmung (${vorher})`);
+    note(iframesVorher === 0, `${name}: kein Player im DOM vor der Zustimmung (${iframesVorher})`);
+
+    // b) zustimmen
+    const knopf = await page.$(".ec-accept");
+    if (knopf) { await knopf.click(); await page.waitForTimeout(2200); }
+    const src = await page.evaluate(() =>
+      document.querySelector("iframe.set-player")?.getAttribute("src") ?? "");
+    note(!!knopf && src.length > 0 && extern.length > vorher,
+      `${name}: Player lädt nach Klick auf "Zustimmen und abspielen"`);
+
+    // c) neue Seite — die Zustimmung muss mitreisen, OHNE weiteren Klick
+    await page.goto(BASE + zweitroute, { waitUntil: "load" });
+    await page.waitForTimeout(2000);
+    const autoIframes = await zaehlIframes(page);
+    const nochKnopf = await page.$(".ec-accept");
+    note(autoIframes > 0,
+      `${name}: auf ${zweitroute} laden ${autoIframes} Player von selbst (Zustimmung gilt weiter)`);
+    note(!nochKnopf, `${name}: kein Zustimmungs-Knopf mehr auf ${zweitroute}`);
+
+    // d) Ruecknahme — dieselbe Schreibstelle wie Mission Control
+    await page.evaluate(() => {
+      document.documentElement.setAttribute("data-embeds", "off");
+      localStorage.setItem("takeoff-embed-consent", "off");
+    });
+    await page.waitForTimeout(600);
+    const nachRuecknahme = await zaehlIframes(page);
+    note(nachRuecknahme === 0,
+      `${name}: Rücknahme entfernt alle Player sofort (${nachRuecknahme} übrig)`);
+
     await ctx.close();
   }
+}
+
+/* ---------- 11) Der eigene Video-Player ----------
+   Die Kachel ist bis zum Klick nur ein Standbild; erst danach entsteht
+   der <media-controller>. Gemessen wird, dass er entsteht, dass er
+   seine Bedienleiste mitbringt und dass der Vollbild-Knopf da ist —
+   genau der fehlte vorher, weil das <iframe> die noetigen Attribute
+   nicht trug. */
+console.log("\n== Video-Player ==");
+{
+  const ctx = await browser.newContext();
+  const page = await ctx.newPage();
+  const errs = [];
+  page.on("pageerror", e => errs.push(e.message));
+  await page.goto(BASE + "/kollektiv", { waitUntil: "load" });
+  await page.waitForTimeout(1200);
+
+  const kachel = await page.$(".mgal-v2 .mgal-flaeche");
+  note(!!kachel, "Galerie-Kachel vorhanden");
+  const videosVorher = await page.evaluate(() => document.querySelectorAll("video").length);
+  note(videosVorher === 0, `kein <video> vor dem Klick (${videosVorher})`);
+
+  if (kachel) {
+    await kachel.click();
+    await page.waitForTimeout(1500);
+    const zustand = await page.evaluate(() => {
+      const mc = document.querySelector("media-controller");
+      return {
+        controller: !!mc,
+        /* :defined heisst: das Web Component ist registriert und
+           aufgebaut. Ohne das saehe man nur nackte Inline-Elemente. */
+        definiert: !!mc && mc.matches(":defined"),
+        vollbild: !!document.querySelector("media-fullscreen-button"),
+        abspielen: !!document.querySelector("media-play-button"),
+        videos: document.querySelectorAll("video").length,
+      };
+    });
+    note(zustand.controller, "Klick erzeugt den Player auf der Seite");
+    note(zustand.definiert, "media-chrome ist registriert (:defined)");
+    note(zustand.abspielen && zustand.vollbild, "Bedienleiste hat Abspiel- UND Vollbild-Knopf");
+    note(zustand.videos === 1, `genau EIN <video> im Dokument (${zustand.videos})`);
+
+    /* Vollbild hin und zurueck. Der Knopf allein beweist nichts — beim
+       <iframe> der Set-Karten war er monatelang da und tat nichts, weil
+       `allowFullScreen` fehlte.
+
+       Geprueft wird zusaetzlich, WELCHES Element ins Vollbild geht: der
+       <media-controller>, nicht das <video>. Nur dann bleibt unsere
+       eigene Leiste darin sichtbar; ginge das <video> allein, saehe man
+       die nackten Browser-Bedienelemente.
+
+       Escape wird hier NICHT geprueft: das Verlassen per Escape macht
+       die Browser-Oberflaeche, nicht die Seite — headless gibt es die
+       nicht, der Test waere immer rot. */
+    await page.click("media-fullscreen-button");
+    await page.waitForTimeout(1000);
+    const drin = await page.evaluate(() => ({
+      aktiv: !!document.fullscreenElement,
+      wurzel: document.fullscreenElement?.tagName?.toLowerCase() ?? null,
+      leiste: !!document.fullscreenElement?.querySelector("media-control-bar"),
+    }));
+    note(drin.aktiv, "Vollbild-Knopf schaltet wirklich ins Vollbild");
+    note(drin.wurzel === "media-controller" && drin.leiste,
+      `im Vollbild bleibt die eigene Leiste sichtbar (Wurzel: ${drin.wurzel})`);
+
+    await page.click("media-fullscreen-button");
+    await page.waitForTimeout(1000);
+    note(!(await page.evaluate(() => !!document.fullscreenElement)),
+      "derselbe Knopf fuehrt wieder heraus");
+  }
+  note(errs.length === 0, "keine Konsolenfehler im Player" + (errs.length ? ": " + errs[0] : ""));
+  await ctx.close();
 }
 
 await browser.close();

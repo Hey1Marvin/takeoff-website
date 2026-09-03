@@ -51,7 +51,8 @@ Deshalb:
 | **Text braucht eine Fläche.** Über Strand- und Marsszene ist der Hintergrund hell. Neue Textblöcke in die `:is()`-Liste in `scene-night.css` eintragen — auf der ENGSTEN sinnvollen Ebene, sonst wird ein halber Bildschirm dunkel | `src/styles/scene-night.css` |
 | **Label-Wert-Listen sind ein Subgrid** (`.m-rows`/`.m-row`): alle Werte beginnen links auf einer Linie. Keine eigenen Flex-Layouts dafür bauen | `src/styles/takeoff.css` |
 | **Medien gehoeren in die Datenschicht.** Videos als `MediaItem` am Event/Artist bzw. in `db.json → media.<seite>`, nie als Pfad im TSX. Neue Clips entstehen aus `scripts/encode-reels.sh` + `reels-map.tsv`; das Rohmaterial in `InstaReels/` bleibt lokal | `src/data/db.json`, `MediaGallery.tsx` |
-| **Fremd-Player nur in drei Stufen**: Ruhezustand → Hinweis → Embed. Vor der Zustimmung geht KEIN Request an SoundCloud/YouTube, auch kein Standbild. Prüfung 10 in `verify-ui.mjs` misst das | `ArtistsSetCard.tsx` |
+| **Fremd-Player: einmal zustimmen, dann überall.** Vor der Zustimmung geht KEIN Request an SoundCloud/YouTube, auch kein Standbild — die Plattform-Zeichen sind lokale SVGs. Danach lädt jeder Player von selbst (aber ohne Autoplay), auf jeder Seite, ohne erneut zu fragen. Die Zustimmung muss zurücknehmbar bleiben (Mission Control, Zeile „Player“); die Rücknahme entfernt laufende Player sofort. Prüfung 10 in `verify-ui.mjs` misst alle vier Richtungen | `EmbedConsent.tsx`, `ArtistsSetCard.tsx` |
+| **Eigene Clips laufen auf der Seite**, nicht in einem Fenster darüber: die Kachel wird zum Player, Vollbild über den Knopf in der Leiste. Der Player ist `media-chrome` (Web Components, gebündelt, keine Laufzeit-Requests) — das Aussehen kommt vollständig aus `embeds.css` über die `--media-*`-Variablen, nie durch Eingriffe in die Shadow-Roots | `MediaPlayer.tsx`, `src/styles/embeds.css` |
 | **FX-Tiers + reduced-motion** in jeder Client-Komponente respektieren | Boot-Script in `layout.tsx`, Muster in `Starfield.tsx` |
 | **Darstellungs-Zustand lebt auf `<html>`**, nicht in React: `data-fx`, `data-theme`, `data-video`, `lang` und die Klassen `day-mode`, `ground-on`, `scene-edges`, `is-event`, `js`. Schalter schreiben nur dorthin, Leser abonnieren per `MutationObserver`/`useSyncExternalStore` — nie ein zweiter Zustand daneben („Panel sagt Tag, Canvas malt Nacht") | `layout.tsx` (BOOT), `src/lib/sky/state.ts`, `MissionControl.tsx` |
 | Kein Tracking, keine Dritt-Requests, Embeds nur als Zwei-Klick-Facade | CLAUDE.md (Repo-Wurzel) |
@@ -122,3 +123,13 @@ Das Repository **ist** seit dem 02.09.2026 ein Git-Repository. Vor größeren
 Umbauten also: eigener Branch, Zwischenstände committen. Der Crew-Bereich liegt
 bewusst außerhalb der Versionskontrolle (Wurzel-`.gitignore`) — dort schützt nur
 eine Kopie.
+
+<!-- BEGIN:nextjs-agent-rules -->
+
+# This is NOT the Next.js you know
+
+This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
+
+This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
+
+<!-- END:nextjs-agent-rules -->

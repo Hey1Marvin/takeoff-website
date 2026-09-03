@@ -9,6 +9,10 @@ const eslintConfig = defineConfig([
   globalIgnores([
     // Default ignores of eslint-config-next:
     ".next/**",
+    // Prüf-Builds (`next build --distDir .next-audit`) sind Ausgabe, kein
+    // Quelltext. Ohne diese Zeile meldet der Linter mehrere hundert Fehler
+    // aus gebündelten Fremd-Chunks und verdeckt damit die echten.
+    ".next-*/**",
     "out/**",
     "build/**",
     "next-env.d.ts",

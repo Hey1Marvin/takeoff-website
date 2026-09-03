@@ -1153,7 +1153,17 @@ html { scroll-padding-top: calc(var(--topbar-h) + 14px); }
 .h2 {
   font-family: var(--font-display);
   font-size: clamp(30px, 5.4vw, 54px);
-  font-weight: 800; line-height: 1.08;
+  font-weight: 800;
+  /* 1.14 statt 1.08 (It. 14, nachgemessen auf /artists bei 360px):
+     Unbounded hat einen Schriftkasten von rund 1.17em. Ein Zeilenvorschub
+     DARUNTER heisst, dass sich die Zeilenkaesten einer umbrechenden
+     Ueberschrift ueberlappen — Oberlaengen der zweiten Zeile stossen an
+     Unterlaengen der ersten. Bei einer einzeiligen Displayzeile faellt das
+     nicht auf, auf schmalen Schirmen bricht die H2 aber fast immer um.
+     1.14 liegt knapp unter dem Kasten und bleibt optisch eng; darunter
+     kollidiert es wieder. (Dieselbe Messung steht in awareness.css, dort
+     als Begruendung fuer den fit-content-Block der Ueberschriftenplatte.) */
+  line-height: 1.14;
   letter-spacing: -.01em;
 }
 /* 3-Schicht-Glow (Doc 42): heller Kern (Tint-Farbe) + enger Schein + weiter Halo */
@@ -1324,7 +1334,11 @@ html { scroll-padding-top: calc(var(--topbar-h) + 14px); }
 /* Sound */
 .genres { display: flex; flex-wrap: wrap; gap: 10px; margin: 22px 0 34px; }
 .genres .chip { font-size: 12.5px; padding: 9px 16px; }
-.setgrid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+/* 300px Grundspalte, nicht 240: seit die Zustimmung projektweit gilt, sind
+   diese Karten keine Textfassaden mehr, sondern geladene Player. Der
+   visuelle SoundCloud-Player wird unter ~300px unleserlich (Titelzeile
+   und Wellenform teilen sich dieselbe Breite). */
+.setgrid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr)); }
 .setcard {
   border-radius: var(--radius);
   border: 1px solid rgb(var(--acc-2-rgb) / .2);
@@ -2112,9 +2126,10 @@ body.has-sticky .mctrl { bottom: 72px; }
   aspect-ratio: 16 / 9;                 /* YouTube */
   background: var(--bg-void);
 }
-/* SoundCloud braucht keine 16:9-Flaeche — der Wellenform-Player ist flach.
-   Erkennbar an der Quelle, deshalb ueber das src-Attribut adressiert. */
-.set-player[src*="soundcloud"] { aspect-ratio: auto; height: 166px; }
+/* SoundCloud laeuft als visueller Player (Wellenform ueber dem Artwork) —
+   der ist quadratisch, nicht flach wie die alte 166px-Leiste. Erkennbar
+   an der Quelle, deshalb ueber das src-Attribut adressiert. */
+.set-player[src*="soundcloud"] { aspect-ratio: 1 / 1; height: auto; }
 
 /* ============================================================
    Medien-Galerie — die Clips des Kollektivs

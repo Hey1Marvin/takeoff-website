@@ -12,7 +12,11 @@ import MusikTaktgeber, {
   type MusikWayfindCopy,
   type MusikWayfindLink,
 } from "@/components/pages/MusikTaktgeber";
-import MusikSetCard from "@/components/pages/MusikSetCard";
+/* Dieselbe Fassade wie auf Artists- und Event-Seiten. Vorher lag hier eine
+   eigene, schlanke Kopie (MusikSetCard) ohne Player — seit die Sets echte
+   Quellen haben, waere das zwei verschiedene Antworten auf dieselbe Frage:
+   auf /artists laeuft der Track, auf /musik nicht. */
+import ArtistsSetCard from "@/components/pages/ArtistsSetCard";
 import MusikShareButton from "@/components/pages/MusikShareButton";
 import "@/styles/pages/musik.css";
 
@@ -263,9 +267,11 @@ export default async function MusikPage() {
                 const metaBits = [set.meta, artist.genres].filter(Boolean).join(" · ");
                 return (
                   <div className="tg-setitem" key={key}>
-                    <MusikSetCard
-                      title={set.title}
-                      meta={metaBits}
+                    <ArtistsSetCard
+                      data={{
+                        id: key, title: set.title, meta: metaBits,
+                        quelle: { platform: set.platform, id: set.id, url: set.url },
+                      }}
                       consentText={content.listen.consentNote}
                       ariaLabel={`${isPodcast ? "Podcast" : "Set"} abspielen: ${set.title}`}
                     />
@@ -293,7 +299,7 @@ export default async function MusikPage() {
           <ol className="tg-night">
             {content.nightGuide.phases.map(p => (
               <li className="tg-phase" key={p.time}>
-                <span className="tg-phase-time">{p.time}</span>
+                <span className="tg-phase-time tg-txplate">{p.time}</span>
                 <span className="tg-phase-label">{p.label}</span>
                 <span className="tg-phase-genres">
                   {p.genreIds.map(gid => {
@@ -305,7 +311,7 @@ export default async function MusikPage() {
                     );
                   })}
                 </span>
-                <p className="tg-phase-text">{p.text}</p>
+                <p className="tg-phase-text tg-txplate">{p.text}</p>
               </li>
             ))}
           </ol>
@@ -341,7 +347,7 @@ export default async function MusikPage() {
               <div className="tg-faqlist">
                 {content.faq.items.map(item => (
                   <details className="faq" key={item.q}>
-                    <summary>{item.q}</summary>
+                    <summary><span className="tg-txplate">{item.q}</span></summary>
                     <div className="faq-body">{item.a}</div>
                   </details>
                 ))}

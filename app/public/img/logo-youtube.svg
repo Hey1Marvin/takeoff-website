@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 32" fill="currentColor" aria-hidden="true">
+  <!-- Abgerundetes Rechteck mit ausgestanztem Play-Dreieck. BEWUSST keine
+       Nachbildung der geschuetzten YouTube-Marke (kein Rot, keine Proportion
+       des Originals) — nur das generische "Video"-Zeichen. Lokal, weil vor
+       der Zustimmung kein Request nach draussen darf. -->
+  <path fill-rule="evenodd" d="M8 3h32a7 7 0 0 1 7 7v12a7 7 0 0 1-7 7H8a7 7 0 0 1-7-7V10a7 7 0 0 1 7-7Zm12 7v12l13-6-13-6Z"/>
+</svg>
