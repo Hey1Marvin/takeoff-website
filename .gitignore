@@ -42,6 +42,7 @@ app/scripts/crew-*
 app/scripts/verify-crew.mjs
 app/scripts/pruef-nav.mjs
 app/scripts/_env.mjs
+app/.data-seed/
 
 # ---- Arbeitsanweisungen der KI-Sitzungen, keine Projektdoku.
 #      CLAUDE.md nennt Klarnamen hinter Kuenstler-Pseudonymen

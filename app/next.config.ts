@@ -9,6 +9,21 @@ const nextConfig: NextConfig = {
        NEXT_DIST_DIR=.next-awareness npx next dev -p 3221
      Ohne die Variable bleibt alles wie vorher (`.next`). */
   distDir: process.env.NEXT_DIST_DIR || ".next",
+
+  /* Vorfuehr-Deploy (TAKEOFF_DEMO=1, siehe lib/intern/db.ts): die Saat-
+     Datenbank wird zur Laufzeit ueber fs gelesen, nicht importiert — ohne
+     diesen Eintrag kennt die Dateispuren-Analyse sie nicht und sie fehlt im
+     Bundle. Im normalen Build aendert der Schalter nichts. */
+  ...(process.env.TAKEOFF_DEMO === "1"
+    ? {
+        outputFileTracingIncludes: {
+          "/crew": ["./.data-seed/**"],
+          "/crew/**": ["./.data-seed/**"],
+          "/admin": ["./.data-seed/**"],
+          "/admin/**": ["./.data-seed/**"],
+        },
+      }
+    : {}),
 };
 
 export default nextConfig;
