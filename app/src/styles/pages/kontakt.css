@@ -609,3 +609,63 @@
 :root.js[data-fx="m"] .fs-blip.fs-blip-in, :root.js[data-fx="l"] .fs-blip.fs-blip-in {
   opacity: 1;
 }
+
+/* ============================================================
+   12 · Mobil-Feinschliff (≤560px) — Lesbarkeit + Tap-Zeilen
+
+   Aus dem gemessenen Mobil-Report (360/390px): drei seiteneigene
+   Captions lagen unter dem lesbaren Boden — `.fs-instr-title` (10px,
+   ein echtes Mono-Mikro-Label, jetzt auf die 12px-Untergrenze wie die
+   Eyebrows), `.fs-status` (12.5px, Fliesstext-artige Statuszeile im
+   Hero) und `.lu-note` in der vCard-Kachel (12px, erklaerender
+   Hinweistext). Nur die Fusszeilen-Mikroschrift (no-track/proto-note,
+   11px) bleibt bewusst unangetastet — laut Auftrag in Ordnung, nicht
+   aufblähen.
+
+   Dazu: in den Funkkanal-Zeilen ist nur der schmale Text-Link
+   (`.fs-ch-direct`/`.fs-ch-link`, z. B. "Mehr dazu ansehen ↗") das
+   eigentliche Tap-Ziel — nicht die ganze Zeile, die Zeile traegt
+   daneben noch Flieszttext und die Signalbalken-Deko. Statt die Zeile
+   selbst klickbar zu machen (mehrere mögliche Ziele je Zeile: Link +
+   ggf. weiterer Inhalt), bekommt der Link ein unsichtbares `::before`
+   mind. 44×44px, mittig auf seinem sichtbaren Text — vergroessert nur
+   die Trefferflaeche, laesst das Schriftbild der Zeile unveraendert. */
+@media (max-width: 560px) {
+  .fs-instr-title { font-size: 12px; }
+  .fs-status { font-size: 13.5px; }
+  .fs-compare-vcard .lu-note { font-size: 13px; }
+
+  .fs-ch-row .fs-ch-direct,
+  .fs-ch-row .fs-ch-link {
+    position: relative;
+  }
+  .fs-ch-row .fs-ch-direct::before,
+  .fs-ch-row .fs-ch-link::before {
+    content: "";
+    position: absolute;
+    inset: 50% auto auto 50%;
+    width: max(100%, 44px);
+    height: 44px;
+    transform: translate(-50%, -50%);
+  }
+
+  /* Radar/Bodenstation nicht über Text: `.fs-ground` ist `position: fixed`
+     und bleibt beim Scrollen an derselben Stelle im Sichtfenster stehen —
+     auf breiten Schirmen faellt ihre Position (right: 8%) ausserhalb der
+     zentrierten Inhaltsspalte, auf dem Handy liegt der volle Inhalt aber
+     genau darunter. Nachgemessen: Dish + Mast standen sichtbar HINTER der
+     "Instagram"-Vergleichskachel und der dritten FAQ-Karte durch, weil
+     beide dort nur 6% Deckkraft mitbringen (fuer die Sternenszene gedacht,
+     nicht fuer ein Objekt direkt dahinter). Gleiches Rezept wie
+     `.fs-instr` (Abschnitt 6): ein deckender Verlauf aus den Basistokens,
+     oben mit der Akzentfarbe angetoent statt eines flachen Farbtons. */
+  .fs-compare-item {
+    background: linear-gradient(175deg, rgb(var(--acc-3-rgb) / .16), var(--bg-raised) 55%, var(--bg-base));
+  }
+  .fs-compare-vcard {
+    background: linear-gradient(175deg, rgb(var(--acc-1-rgb) / .16), var(--bg-raised) 55%, var(--bg-base));
+  }
+  .fs-faqlist details.faq {
+    background: linear-gradient(175deg, var(--bg-raised), var(--bg-base));
+  }
+}

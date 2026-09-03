@@ -7,6 +7,7 @@ import { menuLinks, eventHref } from "@/lib/site";
 import { useI18n } from "./I18nProvider";
 import { formatEventDate, tLabel } from "@/lib/i18n";
 import LangSwitch from "./LangSwitch";
+import DayToggle from "./DayToggle";
 
 /** `when` ist ein ISO-Datum — die Sprache entscheidet erst beim Rendern. */
 interface NextInfo { slug: string; title: string; when: string; where: string }
@@ -53,11 +54,25 @@ export default function BurgerMenu({ next, socials }: { next: NextInfo | null; s
               <span className="mn-go">{t("menu.go")}</span>
             </Link>
           )}
-          {/* Vollwertige Kopie des Sprachumschalters, wie im Prototyp.
-              Endonyme (Deutsch/English) statt uebersetzter Labels — sie sind
-              in beiden Sprachen richtig. Kein Wrapper: .menu-lang bringt sein
-              Layout selbst mit. */}
-          <LangSwitch variant="menu" />
+          {/* Einstellungen im Menue. Auf schmalen Schirmen (<=560px) blendet
+              takeoff.css die Kopfzeilen-Varianten von Sprache UND Tag/Nacht aus
+              — beide sind ausschliesslich hier erreichbar, damit Burger, Marke
+              und Status-Pille oben je ein 44px-Beruehrziel bekommen (der Header
+              hatte bei 320-390px null Spielraum, nachgemessen). Auf breiteren
+              Schirmen sind sie zusaetzlich oben — dieser Block schadet nie.
+              Endonyme (Deutsch/English) statt uebersetzter Labels: in beiden
+              Sprachen richtig. */}
+          <div className="menu-settings">
+            <p className="menu-eyebrow">{t("menu.settings")}</p>
+            <div className="menu-set-row">
+              <span className="menu-set-label">{t("menu.language")}</span>
+              <LangSwitch variant="menu" />
+            </div>
+            <div className="menu-set-row">
+              <span className="menu-set-label">{t("menu.view")}</span>
+              <DayToggle />
+            </div>
+          </div>
           <div className="menu-social">
             <a href={socials.instagram} target="_blank" rel="noopener">Instagram</a>
             <a href={socials.telegram} target="_blank" rel="noopener">Telegram</a>

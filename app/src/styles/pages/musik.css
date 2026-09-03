@@ -127,7 +127,7 @@
   display: flex; flex-direction: column;
 }
 .tg-caption {
-  font-family: var(--font-mono); font-size: 11px; font-weight: var(--w-micro-b);
+  font-family: var(--font-mono); font-size: 12px; font-weight: var(--w-micro-b);
   letter-spacing: var(--track-micro); text-transform: uppercase; color: var(--acc-1-tint);
 }
 .tg-caption-sub {
@@ -723,7 +723,7 @@
 }
 .tg-trackid-text { flex: 1 1 340px; min-width: 0; }
 .tg-trackid-eyebrow {
-  font-family: var(--font-mono); font-size: 11px; font-weight: var(--w-micro-b);
+  font-family: var(--font-mono); font-size: 12px; font-weight: var(--w-micro-b);
   letter-spacing: var(--track-micro); text-transform: uppercase;
   color: var(--acc-1-tint); margin-bottom: var(--sp-2);
 }
@@ -860,4 +860,36 @@
   .tg-share-row { justify-content: flex-start; }
   .tg-trackid { text-align: left; }
   .tg-trackid-btn { width: 100%; justify-content: center; }
+
+  /* ---------- Touch-Ziele auf Mobil ----------
+     Gemessener Befund (360/390px): Genre-Chips in der Zeitleiste, die
+     Wegweiser-Chips je Genre-Spalte und die Rueck-Links unter den
+     Set-Karten lagen bei 21-29px Hoehe — unter der 44px-Untergrenze.
+     Fix NUR hier (≤560px), Desktop-Dichte bleibt unangetastet: die Pille
+     waechst per `min-height` + `inline-flex`-Zentrierung, die Schrift
+     bleibt wie sie ist (reine Mikro-Labels, an anderer Stelle schon als
+     unkritisch geprueft). */
+  .tg-phase-genres .chip {
+    display: inline-flex; align-items: center;
+    min-height: 44px; padding: 4px 14px;
+  }
+  .tg-wayfind .chip {
+    display: inline-flex; align-items: center;
+    min-height: 44px; padding: 4px 12px;
+  }
+  /* Der Pfeil (`::after`) zaehlt zum Tapptext, die Hoehe allein reichte
+     aber nicht: kurze Artist-Namen ("Cyonic" o.ae.) blieben unter 44px
+     breit (gemessen: 43px). min-width faengt das ab, ohne die Zeile fuer
+     laengere Namen zu verbreitern (die liegen ohnehin darueber). */
+  .tg-setlink {
+    display: inline-flex; align-items: center;
+    min-height: 44px; min-width: 44px; padding: 4px 2px;
+  }
+  /* Der Zuruecksetzen-Knopf ist bis zum ersten Tap `hidden` und faellt
+     deshalb aus jeder statischen Messung heraus — bekommt die 44px aber
+     mit, sobald er erscheint. */
+  .tg-tap-reset {
+    display: inline-flex; align-items: center; justify-content: center;
+    min-height: 44px; padding: 4px 10px;
+  }
 }

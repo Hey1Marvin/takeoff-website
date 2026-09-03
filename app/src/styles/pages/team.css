@@ -591,6 +591,36 @@
   /* Der Plan bleibt — er ist das Motiv, nicht Zierrat —, aber er braucht
      auf dem Telefon nicht die volle Spaltenbreite. */
   .kt-plan .kt-map > svg { max-width: 240px; justify-self: start; }
+
+  /* ---------- Touch-Ziele auf Mobil ----------
+     Gemessener Befund (360/390px): "mehr"-Link und Zuklapp-Knopf auf der
+     Kartenrueckseite lagen bei 26px bzw. 30px Hoehe — unter der
+     44px-Untergrenze. Beide sitzen in derselben Flex-Spalte
+     (.kt-face-back) wie Aufgabenliste und Kontakt; die zusaetzliche Hoehe
+     wandert dort in denselben Freiraum, den `grid-auto-rows: 1fr` (Abschnitt 5)
+     ohnehin schon fuer die laengere Kartenseite reserviert — kein Sprung
+     beim Drehen, nur mehr Luft. Fix NUR hier (≤640px), Desktop-Dichte
+     bleibt unangetastet. */
+  .kt-crew .kt-more {
+    display: inline-flex; align-items: center;
+    min-height: 44px; padding-block: 4px;
+  }
+  .kt-crew .kt-flip-close {
+    display: inline-flex; align-items: center;
+    min-height: 44px;
+  }
+
+  /* ---------- Lesbarkeit auf Mobil ----------
+     Vier Captions lagen unter dem lesbaren Boden (>=12px). kt-contact und
+     kt-map-note sind Fliesstext (kein --font-mono) und heben auf 13.5px
+     an — denselben Wert, den .kt-tasks/.kt-consent auf dieser Seite schon
+     tragen. kt-strip-note und kt-slot sind echte Mono-Mikro-Labels
+     (Grossbuchstaben, Tracking) und heben auf 12px — Charakter als Label
+     bleibt, nur die Zumutung faellt weg. */
+  .kt-crew .kt-contact { font-size: 13.5px; }
+  .kt-plan .kt-map-note { font-size: 13.5px; }
+  .kt-photos .kt-strip-note { font-size: 12px; }
+  .kt-photos .kt-slot { font-size: 12px; }
 }
 
 /* Tages-Modus: keine eigene Regel noetig. Das galt frueher NICHT — die

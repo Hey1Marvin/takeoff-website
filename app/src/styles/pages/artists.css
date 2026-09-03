@@ -112,7 +112,7 @@
 .ar-band-cap {
   margin: var(--sp-3) 0 0;
   max-width: 62ch;
-  font-family: var(--font-mono); font-size: 12.5px; line-height: 1.6;
+  font-family: var(--font-mono); font-size: 13.5px; line-height: 1.6;
   color: var(--ink-faint);
 }
 
@@ -178,6 +178,12 @@
   margin-bottom: var(--sp-5);
 }
 .ar-filter .chip { min-height: 36px; display: inline-flex; align-items: center; }
+/* Mobil (≤560px): 36px verfehlt die Fingerkuppe knapp — die Karte drumherum
+   bleibt gleich, nur die Antipp-Flaeche waechst. Desktop-Dichte bleibt bei
+   36px, dort ist es ein Mauszeiger. */
+@media (max-width: 560px) {
+  .ar-filter .chip { min-height: 44px; padding-block: 10px; }
+}
 .ar-filter .chip:hover, .ar-filter .chip:focus-visible {
   color: var(--ink); border-color: rgb(var(--acc-2-rgb) / .5);
 }
@@ -313,7 +319,7 @@
 .ar-random:disabled { opacity: .45; cursor: default; }
 .ar-tool-note {
   max-width: 34ch;
-  font-family: var(--font-mono); font-size: 12.5px; line-height: 1.55;
+  font-family: var(--font-mono); font-size: 13.5px; line-height: 1.55;
   color: var(--ink-faint);
 }
 /* GESCOPET: `.setcard` steht auch auf /events/[slug]. Die alte Fassung
@@ -341,6 +347,12 @@
 }
 .ar-guest summary::-webkit-details-marker { display: none; }
 .ar-guest summary::marker { content: ""; }
+/* Mobil (≤560px): der Gast-Chip (.glog .chip, 12px/8px 14px aus takeoff.css)
+   misst nur ~37px — knapp unter der Fingerkuppe. Nur hier gedehnt, Desktop
+   bleibt bei der dichteren Chip-Reihe. */
+@media (max-width: 560px) {
+  .ar-guest summary.chip { min-height: 44px; padding-block: 12px; }
+}
 .ar-guest[open] summary.chip {
   color: var(--ink); border-color: rgb(var(--acc-2-rgb) / .6);
   background: rgb(var(--acc-2-rgb) / .12);
@@ -350,7 +362,7 @@
   border-top: 1px solid var(--bg-hairline);
 }
 .ar-guest-label {
-  font-family: var(--font-mono); font-size: 11px;
+  font-family: var(--font-mono); font-size: 12px;
   letter-spacing: var(--track-micro); text-transform: uppercase;
   color: var(--ink-faint);
   margin-bottom: var(--sp-2);
@@ -494,7 +506,7 @@
   display: grid; gap: var(--sp-4);
 }
 .ar-freq-label {
-  font-family: var(--font-mono); font-size: 11px;
+  font-family: var(--font-mono); font-size: 12px;
   letter-spacing: var(--track-micro); text-transform: uppercase;
   color: var(--ink-faint);
 }

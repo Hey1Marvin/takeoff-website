@@ -248,6 +248,13 @@
   color: var(--ink-faint);
 }
 .bp-titleblock dd { margin: 0; font-size: 11.5px; color: var(--ink-dim); }
+/* Mobil: die dd-Werte sind Fliesstext (Projektname, Datum, Massstab), keine
+   Mono-Mikro-Labels wie .bp-titleblock dt daneben — auf dem Handy auf den
+   Fliesstext-Boden (>=13px) gehoben. dt bleibt ein echtes Label und damit
+   bei 9.5px, wie die uebrigen Schriftfeldzeilen der Seite (.bp-plate). */
+@media (max-width: 560px) {
+  .bp-titleblock dd { font-size: 13px; }
+}
 
 /* ---------- Herzstueck: Ethos-Text + Anlagen-Diagramm ---------- */
 .bp-rig-inner { display: grid; gap: var(--sp-5); margin-top: var(--sp-7); }
@@ -458,6 +465,10 @@
   color: var(--ink-faint);
   margin-bottom: var(--sp-3);
 }
+/* Mobil: 10px unterschreitet den lesbaren Boden (>=12px). */
+@media (max-width: 560px) {
+  .bp-wall-label { font-size: 12px; }
+}
 /* Gleiche Rechnung wie beim Summenfeld: die Traegerflaeche einer .lu-note
    ragt bis 34px nach oben und verschleierte sonst die letzte Zeile
    darueber. --sp-6 deckt den Ueberstand bei jeder Breite ab. */
@@ -484,6 +495,10 @@
   padding-bottom: var(--sp-4);
   font-family: var(--font-mono); font-size: 11px; letter-spacing: .18em; text-transform: uppercase;
   color: var(--ink-faint);
+}
+/* Mobil: 11px unterschreitet den lesbaren Boden (>=12px). */
+@media (max-width: 560px) {
+  .bp-orbit { font-size: 12px; }
 }
 .bp-orbit b { color: var(--acc-3-tint); font-weight: var(--w-micro-b); font-variant-numeric: tabular-nums; }
 .bp-orbit-dot {

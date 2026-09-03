@@ -182,6 +182,14 @@
 /* Der Ausweichweg. Ein normaler Link — er laedt nichts nach, er geht
    weg. Deshalb darf er auch vor der Zustimmung dastehen. */
 .ec-alt {
+  /* Ausweich-Link der Consent-Fassade. War als Text nur ~21px hoch; als
+     echtes Beruehrziel auf 44px, analog .ec-accept daneben (It. 16b, von
+     drei Mobil-Agents unabhaengig gemeldet — .ec-alt ist ueber artists/
+     musik/events geteilt, deshalb hier zentral). Der Unterstrich bleibt am
+     Text (border-bottom auf einem inneren Sinn nicht noetig — die kurze
+     Zeile traegt ihn weiter). */
+  display: inline-flex; align-items: center;
+  min-height: 44px;
   font-family: var(--font-mono);
   font-size: 11.5px;
   letter-spacing: var(--track-label);

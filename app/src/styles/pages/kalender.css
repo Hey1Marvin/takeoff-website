@@ -613,7 +613,48 @@ a.bc-day.has-event:hover, a.bc-day.has-event:focus-visible {
 @media (max-width: 560px) {
   .bc-toolbar { align-items: stretch; }
   .bc-toolbar .btn { justify-content: center; }
+
+  /* Das Instrument skaliert per `width:100%` auf die volle Spaltenbreite —
+     auf dem Telefon (einspaltiges Layout, kein Grid-Track begrenzt es wie
+     ab 1000px) macht das aus dem Chronometer einen Kreis fast in
+     Bildschirmbreite (gemessen: 324px bei 360px Viewport). Der "Kopf" der
+     Seite frisst dadurch fast einen ganzen Screen, bevor ueberhaupt Inhalt
+     kommt. Eigener, engerer Deckel nur fuer schmale Schirme — ab 561px
+     bleibt die bestehende Groesse (min(26rem, 54vh)) unangetastet. */
+  .bc-instrument { max-width: min(15rem, 34vh); }
+
+  /* .bc-caption ist ein echtes Mono-Mikro-Label, lag mit 10.5px unter dem
+     lesbaren Boden (>=12px). */
+  .bc-caption { font-size: 12px; }
+
+  /* Kalender-Quick-Add: reine Textlinks ohne Polster (Google-Kalender-Link,
+     .ics-Button) massen zuvor nur ~20px in der Hoehe — Tastensinn statt
+     Schrift bleibt gleich, das Polster gibt die 44px-Taste dazu, ohne den
+     Text optisch aufzublasen. */
+  .bc-caladd a, .bc-caladd button {
+    display: inline-flex; align-items: center;
+    min-height: 44px;
+  }
+
+  /* Erste Terminzeile eines Jahres-/Heute-Abschnitts stand direkt unter dem
+     Trenner (0px Abstand — die :first-child-Regel oben nullt padding-top
+     bewusst nur fuer den Trenner selbst). Auf dem Telefon, wo die Zeilen
+     eh schon dichter aufeinander folgen als am Desktop-Editorial-Raster,
+     braucht die erste Zeile spuerbare Luft zur Rubrik ueber ihr. */
+  .bc-rows .m-row.bc-year,
+  .bc-rows .m-row.bc-today { padding-bottom: var(--sp-2); }
 }
 @media (max-width: 480px) {
   .bc-rows .m-row dd { text-align: left; }
+}
+/* Monatsgitter-Tage: unter 400px reicht die verfuegbare Breite (Randabstand
+   der Seite + Kartenpolster + 7 Spalten) nicht fuer 44px-Zellen (gemessen
+   38px bei 360px, 42px bei 390px) — ab 400px traegt das bestehende Polster
+   bereits eigenstaendig ueber die Schwelle. Kartenpolster faellt seitlich
+   weg (Kopfzeile behaelt ihr eigenes), die Luecke schrumpft von 4px auf
+   2px: beides zusammen reicht die Zellen auf ueber 44px an. */
+@media (max-width: 400px) {
+  .bc-month { padding-inline: 0; }
+  .bc-month-head { padding-inline: var(--sp-3); }
+  .bc-month-grid { gap: 2px; }
 }

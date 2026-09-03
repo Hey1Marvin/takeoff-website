@@ -316,6 +316,20 @@
 .aw-aid-link::after { content: " ↓"; }
 .aw-aid-link:hover, .aw-aid-link:focus-visible { color: var(--ink); border-color: rgb(var(--aw-violet-rgb) / .6); }
 
+/* Mobil ist der Soforthilfe-Link der einzige eigenstaendige Tap-Ziel-Verstoss
+   der Seite (213x22 gemessen, Report mobil-detail-{360,390}) — auf dem
+   Schreibtisch bleibt die schmale Mono-Zeile unangetastet.
+   align-items: flex-end statt center: die Reserve waechst NACH OBEN, sodass
+   der Unterstrich weiter direkt unter Text und Pfeil klebt statt als
+   schwebende Linie in der Boxmitte zu haengen. */
+@media (max-width: 560px) {
+  .aw-aid-link {
+    display: inline-flex; align-items: flex-end;
+    min-height: 44px;
+    margin-inline-start: -.5em; padding-inline: .5em;
+  }
+}
+
 /* ============================================================
    5 · Randspalte "So erkennst du uns": die Weste als Marginalie
 
@@ -511,6 +525,12 @@
 .aw-substances .aw-disclaimer {
   margin-top: var(--sp-4); padding-top: var(--sp-3); border-top: 1px dashed var(--bg-hairline);
   font-family: var(--font-mono); font-size: 11.5px; color: var(--ink-faint);
+}
+/* Kein Fusszeilen-Rand, sondern ein ganzer Satz mit der Notrufnummer darin
+   ("Im Notfall: 112") — auf dem Mobil-Boden angehoben, waehrend die
+   Mono-Anmutung (Schrift, Farbe, Buendigkeit) unangetastet bleibt. */
+@media (max-width: 560px) {
+  .aw-substances .aw-disclaimer { font-size: 13px; line-height: 1.55; }
 }
 
 /* ============================================================

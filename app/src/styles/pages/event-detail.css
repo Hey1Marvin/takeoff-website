@@ -345,6 +345,45 @@ a.ed-act-name:hover, a.ed-act-name:focus-visible { color: var(--acc-1-tint); }
 }
 
 /* ============================================================
+   12b · Mobil: Tap-Ziele und Lesboden (It. 14 Mobil-Durchgang)
+
+   Zwei seiteneigene Elemente lagen unter der 44px-Marke, weil sie
+   ihre Zeile nur mit der reinen Textzeile fuellten:
+     · `.ed-act-name` — der Lineup-Link auf die Artist-Seite trug nur
+       die Zeilenhoehe der Schrift (19px), obwohl er die volle Breite
+       der Karte einnimmt. `min-height` + `align-items: center` gibt
+       ihm die fehlende Hoehe, ohne den Textfluss der Karte zu aendern
+       (Breite/Umbruch bleiben, wie sie waren).
+     · `.back-link` (aus takeoff.css, hier NUR fuer die Instanz im
+       Fuss dieser Seite ueberschrieben — die geteilte Basisregel
+       bleibt unangetastet) — dieselbe Diagnose, derselbe Kniff.
+   `ed-act-meta` (11.5px) war die einzige seiteneigene Caption unter
+   dem mobilen Lesboden; die anderen (`ed-note`, `lu-note`) lagen mit
+   13.5px bereits darueber. Nur bis 560px, damit die Desktop-Dichte
+   unangetastet bleibt.
+   ============================================================ */
+@media (max-width: 560px) {
+  a.ed-act-name {
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+    /* Die zusaetzliche Tapflaeche wird oben/unten aus dem Block
+       herausgezogen, statt die Karte zu strecken — der Abstand zur
+       Meta-Zeile darunter bleibt optisch, wie er war. */
+    margin-block: -6px;
+  }
+  .ed-act-meta { font-size: 13px; }
+
+  .ed-page .ed-foot .back-link {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding-block: 6px;
+    margin-block: -6px;
+  }
+}
+
+/* ============================================================
    13 · Bewegung
    Es gibt genau eine: der Farbwechsel an Namen und Handles. Alles
    andere auf dieser Seite steht still — der eine Bewegungsmoment der

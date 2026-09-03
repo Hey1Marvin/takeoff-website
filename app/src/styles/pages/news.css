@@ -625,4 +625,45 @@
 @media (max-width: 619px) {
   .rx-sec .rx-feed > * + * { margin-top: var(--sp-4); }
   .rx-sec .rx-feed > .rx-arch-title { margin-top: var(--sp-6); }
+
+  /* ---- Lesbarkeit: die kleinsten Mikro-Labels der ganzen Site
+     (rx-scope-cap 9.5px, rx-rail-eyebrow 10px) auf den lesbaren Boden
+     (>=12px) heben; rx-count traegt eine laufende Zahl ("4 von 4 Funksprüchen")
+     und ist damit naeher an einer Caption als an einem reinen Mikro-Label. */
+  .rx-sec .rx-rail-eyebrow { font-size: 12px; }
+  .rx-sec .rx-scope-cap { font-size: 12px; }
+  .rx-sec .rx-count { font-size: 12.5px; }
+
+  /* ---- Insta-Zweiklick: der Freigabe-Link ("Bei Instagram öffnen ↗")
+     sitzt in Fliesstext (`.rx-consent`), also einem NICHT ersetzten
+     inline-Element — `min-height` greift dort per Spezifikation gar
+     nicht, egal wie viel Padding man vergibt. Gemessen: 275x40 bei 390px
+     Breite, weil der Text ueber zwei Zeilen bricht und NUR DIE BOUNDING
+     BOX zufaellig hoch genug wirkt, die eigentliche Tapflaeche pro Zeile
+     aber ~20px blieb. Ab hier eine eigene Zeile mit echten 44px, im
+     gleichen gestrichelten Chip-Stil wie `.n-insta` darueber. */
+  /* .ncard.asked .rx-consent (3 Klassen, Zeile 429) schlaegt .rx-sec .rx-consent
+     (2 Klassen) an Spezifitaet — dieselbe Falle wie bei :is() in AGENTS.md.
+     Deshalb hier dieselben drei Klassen treffen, sonst bleibt display:block
+     stehen und der Link faellt zurueck in Fliesstext. */
+  .rx-sec .ncard.asked .rx-consent { display: flex; flex-direction: column; align-items: flex-start; gap: var(--sp-2); }
+  .rx-sec .ncard.asked .rx-consent a {
+    display: inline-flex; align-items: center; justify-content: center;
+    min-height: 44px; padding: 0 16px;
+    border: 1px dashed rgb(var(--acc-3-rgb) / .4); border-radius: 999px;
+  }
+
+  /* ---- Feedback-Zeile: derselbe Fliesstext-Fehler wie oben bei .rx-consent,
+     nur unabhaengig davon aufgetreten (`.rx-feedback` ist immer im DOM,
+     nicht erst nach einem Klick) — der Mail-Link sass in Fliesstext hinter
+     dem Prompt-Satz. Gemessen: 271x40 bei 360px Breite (zwei Zeilen Text,
+     Tapflaeche pro Zeile aber nur ~20px). Gleiche Loesung: eigene Zeile mit
+     echten 44px im gestrichelten Chip-Stil. */
+  .rx-sec .rx-feedback { display: flex; flex-direction: column; align-items: flex-start; gap: var(--sp-2); }
+  .rx-sec .rx-feedback a {
+    display: inline-flex; align-items: center; justify-content: center;
+    min-height: 44px; padding: 0 16px;
+    border: 1px dashed rgb(var(--acc-1-rgb) / .4); border-radius: 999px;
+    border-bottom: none;
+  }
 }
