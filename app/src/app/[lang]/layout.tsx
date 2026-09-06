@@ -9,6 +9,12 @@ import "@/styles/takeoff.css";
    (Begruendung im Original: prototype/assets/css/style.css:385) */
 import "@/styles/scene-night.css";
 import "@/styles/scene-day.css";
+/* Als LETZTES: die Mobil-Ebene (It. 18). Sie setzt keine Farben, nur
+   Schriftgrade, Kopfleiste, Footer und die klebende Leiste bei <=560px —
+   Media Queries erhoehen die Spezifitaet nicht, dieses Blatt gewinnt also
+   allein durch seine Position. Davor eingereiht wuerde jede Grundregel
+   aus takeoff.css es stillschweigend ueberschreiben. */
+import "@/styles/mobile.css";
 import Topbar from "@/components/Topbar";
 import Footer from "@/components/Footer";
 import Starfield from "@/components/Starfield";
@@ -17,6 +23,7 @@ import SceneFlags from "@/components/SceneFlags";
 import SceneReveals from "@/components/SceneReveals";
 import { I18nProvider } from "@/components/I18nProvider";
 import { activeTheme, settings } from "@/lib/data";
+import { t, LOCALES, DEFAULT_LOCALE, type Locale } from "@/lib/i18n";
 
 export const metadata: Metadata = {
   /* Solange die Seite als Prototyp laeuft: nicht in den Index.
@@ -88,20 +95,39 @@ const boot = (fxDefault: string, groundDefault: boolean) => `
      der den Rest des Skripts verschluckt. Schwer zu sehen, teuer zu finden. */
   var p = location.pathname;
   while (p.length > 1 && p.charAt(p.length - 1) === "/") p = p.slice(0, -1);
+  /* Sprachpraefix abschneiden: seit die englische Fassung unter /en/ liegt,
+     heisst die Event-Liste dort "/en/events". Ohne diesen Schnitt bekaeme
+     die englische Seite weder scene-edges noch is-event — und niemand
+     wuerde es mit einem gruenen Build merken. Dieselbe Regel steht in
+     src/lib/sky/scene-routes.ts; wer eine aendert, muss die andere
+     mitziehen. */
+  if (p === "/en" || p.indexOf("/en/") === 0) p = p.slice(3) || "/";
   if (!p) p = "/";
   var isEv = p === "/events" || p.indexOf("/events/") === 0;
   if (p === "/" || isEv) h.classList.add("scene-edges");
   if (isEv) h.classList.add("is-event");
 })();`;
 
-export default async function RootLayout({ children }: { children: React.ReactNode }) {
+/* Beide Sprachen werden vorgebaut. Ohne diese Liste waeren die Seiten
+   dynamisch — sie sind heute statisch, und das soll so bleiben. */
+export function generateStaticParams() {
+  return LOCALES.map(lang => ({ lang }));
+}
+
+export default async function RootLayout({
+  children, params,
+}: {
+  children: React.ReactNode;
+  params: Promise<{ lang: string }>;
+}) {
   /* Regel: Die Site trägt das Theme des nächsten Events (Standard: space). */
-  const [theme, s] = await Promise.all([activeTheme(), settings()]);
+  const [theme, s, { lang }] = await Promise.all([activeTheme(), settings(), params]);
   const BOOT = boot(s.fxDefault, s.groundEnabled);
+  const locale: Locale = lang === "en" ? "en" : DEFAULT_LOCALE;
 
   return (
     <html
-      lang="de"
+      lang={locale}
       data-fx="m"
       {...(theme.preset !== "space" ? { "data-theme": theme.preset } : {})}
       suppressHydrationWarning
@@ -109,7 +135,9 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       <body>
         <script dangerouslySetInnerHTML={{ __html: BOOT }} />
         <I18nProvider>
-          <a className="skip-link" href="#main">Zum Inhalt springen</a>
+          {/* Der erste Text, den eine Vorlesesoftware ansagt — er war als
+              einziger im Layout fest deutsch verdrahtet. */}
+          <a className="skip-link" href="#main">{t("a11y.skiplink", locale)}</a>
           <Starfield />
           <SceneFlags />
           <SceneReveals />

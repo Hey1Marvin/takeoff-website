@@ -83,3 +83,6 @@ Thumbs.db
 
 # ---- Messergebnisse der Gestaltungspruefung (Screenshots, ~100 MB) ----
 app/.design-audit/
+
+# ---- Vorher-Stand fuer design-diff.mjs (It. 18) ----
+app/.design-audit-vorher/

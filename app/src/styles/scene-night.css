@@ -200,7 +200,7 @@
    Spezifitaet: (0,2,0) + (0,1,0) + (0,2,0) = (0,5,0) und damit ueber der
    (0,4,0) der Basisliste (die ihr staerkstes Argument
    `.section-head + .section-intro` auf zwei Klassen hebt). */
-:root:not(.day-mode) :is(.mcard, .next-card, .setcard, .ccard, .m-more-inner) :is(
+:root:not(.day-mode) :is(.mcard, .next-card, .setcard, .ccard, .m-more-inner, .ehero) :is(
   .section-head, .stats, .flog, .note, .aw-note, .crewgrid, .sound-list,
   .section-intro, .section-head + .section-intro,
   .faq-body, .transmission, .m-rows, .aw-principle, .lu-note,

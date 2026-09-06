@@ -1,0 +1,168 @@
+/* ============================================================
+   mobile.css — die Mobil-Ebene des Rahmens (It. 18)
+
+   Was hier steht, gilt nur auf dem Telefon. Das Blatt setzt KEINE Farben
+   und keine Themes — es ordnet nur an: Schriftgrade, Kopfleiste, Footer,
+   Mission Control, die klebende Leiste. Deshalb darf es als letztes
+   Blatt hinter scene-day.css stehen, ohne mit dessen `:root.day-mode`-
+   Regeln in Konflikt zu geraten (gleiche Spezifitaet, spaetere Quelle
+   gewinnt — und hier gibt es nichts zu gewinnen, weil nichts gefaerbt
+   wird).
+
+   ZWEI Breiten, keine dritte:
+     560px  Telefon  — die Mobil-Ebene; jede neue Regel nimmt diese Zahl
+     900px  Tablet   — nur der Nav-Einklapp-Punkt (takeoff.css)
+   Vorher standen 19 verschiedene Breiten in 17 Dateien. Wer eine dritte
+   Zahl braucht, hat meistens ein Layout-Problem, kein Breiten-Problem.
+
+   Media Queries erhoehen die Spezifitaet nicht. Dieses Blatt gewinnt
+   allein durch die Quellreihenfolge (letzter Import in layout.tsx).
+   Seiten-Regeln in src/styles/pages/*.css muessen takeoff.css dagegen
+   ueberbieten (z. B. `.hero .hero-m` statt `.hero-m`).
+   ============================================================ */
+
+@media (max-width: 560px) {
+  :root {
+    /* ---- Schriftleiter Telefon ----
+       Verhaeltnis ~1.2 (kleine Terz) ab 17px Grundschrift. rem-gemischt,
+       damit der Browser-Zoom greift (reine vw-Typo bricht ihn). Die
+       Desktop-Werte stehen in takeoff.css und sind exakt die alten
+       Ausdruecke — auf dem Schreibtisch aendert sich durch die Tokens
+       kein Pixel (design-diff.mjs beweist es). */
+    --fs-micro:     11px;
+    --fs-label:     11.5px;
+    --fs-caption:   14.5px;                              /* Boden des Mobil-Audits: 14 */
+    --fs-small:     15px;
+    --fs-body:      1.0625rem;                           /* 17px */
+    --fs-lead:      1.125rem;                            /* 18px */
+    --fs-clock:     1.375rem;                            /* 22px */
+    --fs-title:     clamp(1.25rem, 1rem + 1.4vw, 1.5rem);      /* 20.5–24 */
+    --fs-h2:        clamp(1.625rem, 1.2rem + 2vw, 1.875rem);   /* 26–30 */
+    --fs-h1:        clamp(1.75rem, 1.3rem + 2.4vw, 2.125rem);  /* 28–34 */
+    /* Planet Kosmos laeuft breit (~.78em je Zeichen): „marsmission" mass
+       bei 41px rund 350px und brach auf 390px MITTEN im Wort. Bei 32px
+       passen elf Zeichen in 318px, bei 360px in 324px. */
+    --fs-etitle:    clamp(1.5rem, .5rem + 6.2vw, 2.5rem);      /* 30–40 */
+    /* Die Wortmarke tritt zurueck, das Datum ist das groesste Element im
+       ersten Bildschirm (ADE-Muster, Entscheidung 06.09.2026). */
+    --fs-wordmark:  clamp(1.875rem, .6rem + 8vw, 2.5rem);      /* 30–40 */
+    --fs-hero-date: clamp(2.75rem, 1rem + 12vw, 4rem);         /* 44–64 */
+
+    /* Die Telemetrie-Zeile faellt auf dem Telefon weg (unten). Ueber das
+       Token folgen Hero-Hoehe, Video-Einzug und scroll-padding von allein:
+       --topbar-h ist calc(--nav-h + --hud-h). 100px -> 60px. */
+    --hud-h: 0px;
+  }
+
+  /* ---- Kopfleiste ----
+     40px Laufband auf 780px Bildschirm, dauerhaft: `.topbar.is-flying`
+     (die Regel, die es beim Scrollen einfahren sollte) hat in src/ keinen
+     Erzeuger. Die Status-Pille daneben traegt dasselbe Datum. */
+  .topbar .hud { display: none; }
+
+  /* ---- Vignette ----
+     78%x74% Ellipse auf einem 360px-Schirm heisst: fast der ganze Rand
+     liegt im Dunkeln, die Mitte ist ein Tunnel. Weiter und flacher. */
+  html::after {
+    background: radial-gradient(ellipse 110% 96% at 50% 46%,
+        rgb(0 0 0 / 0) 0%, rgb(0 0 0 / .04) 60%, rgb(0 0 0 / .12) 84%, rgb(0 0 0 / .26) 100%);
+  }
+
+  /* ---- Fliesstext ----
+     17px mit Zeilenvorschub >= 1.5 (research/31 §4.7, NN/g). */
+  body { font-size: var(--fs-body); line-height: 1.55; }
+
+  /* ---- Footer ----
+     Hatte bisher keine einzige Mobil-Regel: 14,5px-Textlinks in 8px-Reihen
+     (nachgemessen 20px hoch — die einzigen Bedienelemente unter 44px, die
+     das Mobil-Audit nur deshalb nicht meldet, weil sie in <li> stehen).
+     Die Kanaele werden Pillen — Instagram/Telegram/SoundCloud sind die
+     Aktionen, die man am Seitenende wirklich sucht. */
+  footer {
+    padding: var(--sp-7) 0 calc(var(--sp-8) + env(safe-area-inset-bottom));
+  }
+  .foot-grid { gap: var(--sp-5); }
+  footer ul { gap: 0; }
+  footer li a {
+    display: inline-flex; align-items: center;
+    min-height: 44px;
+  }
+  .foot-grid > div:first-child ul { display: flex; flex-wrap: wrap; gap: 8px; }
+  .foot-grid > div:first-child li a {
+    padding: 0 14px;
+    border: 1px solid var(--bg-hairline);
+    border-radius: 999px;
+    font-family: var(--font-mono); font-size: var(--fs-label);
+    letter-spacing: var(--track-label); text-transform: uppercase;
+  }
+
+  /* ---- Mission Control ----
+     Unten rechts, ueber der Systemleiste (safe-area) und ueber der
+     klebenden Leiste, wenn es eine gibt. `:has()` ist 2026 ueberall da;
+     die Grundposition bleibt als Rueckfall stehen. */
+  .mctrl { right: 10px; bottom: calc(10px + env(safe-area-inset-bottom)); }
+  body:has(.sticky-cta) .mctrl {
+    bottom: calc(var(--sticky-h) + 10px + env(safe-area-inset-bottom));
+  }
+  body:has(.sticky-cta) footer {
+    padding-bottom: calc(var(--sticky-h) + var(--sp-7) + env(safe-area-inset-bottom));
+  }
+
+  /* ---- Overlay-Menue ----
+     27–40px Menuepunkte plus Naechstes-Event-Karte plus Einstellungen
+     passten auf 780px nicht ohne Scrollen (nachgesehen: bei 390x844 war
+     der Einstellungsblock abgeschnitten). Sieben Zeilen zu ~56px, dann
+     die Karte, dann die Schalter — und das Menue darf scrollen, falls
+     ein Geraet noch flacher ist. */
+  .menu { max-height: 100svh; overflow-y: auto; }
+  .menu-list a {
+    font-size: clamp(1.375rem, .9rem + 3.6vw, 1.75rem);
+    min-height: 48px; padding: 8px 0;
+  }
+  .menu-inner { padding-top: calc(var(--nav-h) + 6px); }
+  .menu-eyebrow { margin-bottom: 14px; }
+}
+
+/* ============================================================
+   Klebende Leiste (Event-Seiten, nur Telefon)
+
+   Der Daumen wohnt im unteren Drittel. Sobald der Hero-Knopf aus dem
+   Bild scrollt, steht die eine Aktion der Seite dort — mit dem Satz, den
+   man braucht, um sie zu treffen ("SA 19.09. · 23:00 · Free Entry").
+   Erzeugt von EventStickyCta.tsx (IntersectionObserver, kein Scroll-
+   Listener). Lag seit dem Prototyp als tote Regel in takeoff.css mit
+   hartem `rgb(9 7 20)`; hier auf Tokens.
+   Stapel: --z-sticky (90) unter Topbar (100) und Mission Control (120).
+   ============================================================ */
+.sticky-cta {
+  position: fixed; inset: auto 0 0; z-index: var(--z-sticky);
+  min-height: var(--sticky-h);
+  padding: 8px max(var(--pad), env(safe-area-inset-right))
+           max(8px, env(safe-area-inset-bottom)) max(var(--pad), env(safe-area-inset-left));
+  display: flex; align-items: center; gap: var(--sp-3);
+  background: rgb(var(--bg-void-rgb) / .9);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+  border-top: 1px solid rgb(var(--acc-1-rgb) / .3);
+  transform: translateY(110%);
+  transition: transform .35s var(--ease-out);
+}
+.sticky-cta.is-shown { transform: none; }
+.sticky-cta .sc-info {
+  flex: 1; min-width: 0;
+  font-family: var(--font-mono); font-weight: 700;
+  font-size: var(--fs-label); line-height: 1.3;
+  letter-spacing: var(--track-label);
+  color: var(--ink-dim);
+  /* Zwei Zeilen statt „Free En…": mit nowrap + Ellipse fiel bei 390px
+     genau der Preis weg (nachgesehen), und der ist der Grund, die Zeile
+     zu lesen. Zwei Zeilen zu 11,5px passen in die 44px des Knopfs. */
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.sticky-cta .sc-info b { color: var(--ink); }
+/* Schmaler Knopf, damit der Satz daneben („SA 19.09. · 23:00 · Free
+   Entry") bei 390px nicht in „Free E…" endet — nachgesehen am Screenshot. */
+.sticky-cta .btn { flex: none; min-height: 44px; padding-inline: 18px; }
+@media (min-width: 561px) { .sticky-cta { display: none; } }
+@media (prefers-reduced-motion: reduce) { .sticky-cta { transition: none; } }

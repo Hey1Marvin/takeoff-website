@@ -161,14 +161,10 @@ export const de = {
   "social.tiktok": "TikTok",
   "social.email": "info@takeoff-potsdam.de",
 
-  /* ---------- Hero (index.html) ---------- */
-  "hero.pretitle": "rave kollektiv · potsdam · est. 2024",
-  "hero.tagline": "Wir bauen unsere Anlage selbst, unsere Deko selbst und unsere Nächte selbst.<br><b>Trance · Hard Trance · Bounce</b> — ehrenamtlich, DIY, für alle.",
-  "hero.tminus.label": "T-Minus",
-  "hero.scrollhint": "Scroll für Boarding",
-  "hero.next.meta": "{venue}, {city} · {note}",
-  "hero.cta.missions": "Nächste Missionen →",
-  "hero.cta.telegram": "Telegram · Presale & Infos",
+  /* Hero-Texte: NICHT hier. Der Hero ist eine Server-Komponente und liest
+     src/data/pages/home.json (Inhalt gehoert der Datenschicht). Die alten
+     hero.*-Schluessel hier hatten keinen Leser und wichen vom echten Text
+     ab — entfernt in It. 18, damit niemand den falschen pflegt. */
 
   /* ---------- Missionen / Event-Karten (index.html, events.html) ---------- */
   "missions.eyebrow": "Flugplan",
@@ -176,6 +172,8 @@ export const de = {
   "missions.intro": "Jedes takeoff-Event hat ein Thema — und die ganze Seite zieht sich das passende Gewand an. Tippe eine Karte an für das Briefing.",
   "missions.headlink": "Alle Events & Flight Log",
   "card.briefing": "Briefing",
+  "card.row.date": "Datum",
+  "card.row.venue": "Ort",
   "card.row.boarding": "Boarding",
   "card.row.landing": "Landeplatz",
   "card.row.entry": "Eintritt",
@@ -384,6 +382,8 @@ export const de = {
   "event.page.credits.kooperation": "Zusammen mit",
   "event.page.trackid": "Track im Ankündigungsvideo",
   "event.page.lineup.b2b": "b2b",
+  "event.page.lineup.listen": "Anhören",
+  "event.page.sticky.aria": "Nächster Schritt: Telegram-Kanal",
   "event.page.extras.h3": "Gut zu wissen",
   "event.page.awareness.h3": "Awareness an Bord",
   "event.page.maps.h3": "Landeplatz",

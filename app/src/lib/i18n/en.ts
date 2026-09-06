@@ -164,14 +164,9 @@ export const en: Record<Key, string> = {
   "social.tiktok": "TikTok",
   "social.email": "info@takeoff-potsdam.de",
 
-  /* ---------- Hero ---------- */
-  "hero.pretitle": "rave collective · potsdam · est. 2024",
-  "hero.tagline": "We build our own sound system, our own decorations and our own nights.<br><b>Trance · Hard Trance · Bounce</b> — volunteer-run, DIY, for everyone.",
-  "hero.tminus.label": "T-Minus",
-  "hero.scrollhint": "Scroll to board",
-  "hero.next.meta": "{venue}, {city} · {note}",
-  "hero.cta.missions": "Upcoming missions →",
-  "hero.cta.telegram": "Telegram · presale & info",
+  /* Hero copy lives in src/data/pages/home.json (server component, data
+     layer) — the former hero.* keys here had no reader and were removed
+     in It. 18. */
 
   /* ---------- Missionen / Event-Karten ---------- */
   "missions.eyebrow": "Flight plan",
@@ -179,6 +174,8 @@ export const en: Record<Key, string> = {
   "missions.intro": "Every takeoff event has a theme — and the whole site dresses to match. Tap a card for the briefing.",
   "missions.headlink": "All events & flight log",
   "card.briefing": "Briefing",
+  "card.row.date": "Date",
+  "card.row.venue": "Venue",
   "card.row.boarding": "Boarding",
   "card.row.landing": "Landing site",
   "card.row.entry": "Entry",
@@ -387,6 +384,8 @@ export const en: Record<Key, string> = {
   "event.page.credits.kooperation": "Together with",
   "event.page.trackid": "Track from the announcement video",
   "event.page.lineup.b2b": "b2b",
+  "event.page.lineup.listen": "Listen",
+  "event.page.sticky.aria": "Next step: Telegram channel",
   "event.page.extras.h3": "Good to know",
   "event.page.awareness.h3": "Awareness on board",
   "event.page.maps.h3": "Landing site",

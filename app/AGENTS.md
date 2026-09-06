@@ -20,6 +20,13 @@ node app/scripts/verify-crew.mjs 3210 # interne Prüfmatrix — PORT-ARGUMENT PF
 node app/scripts/mess-leistung.mjs              # Bildzeiten beim Scrollen (s. u.)
 node app/scripts/mess-leistung.mjs --grundlinie # aktuellen Stand als Vergleichsbasis ablegen
 node app/scripts/mess-leistung.mjs --vergleich  # gegen die Grundlinie halten
+cd app && node scripts/mobile-audit.mjs 3210 [360|390|412] [--report] [--json]
+                                      # Telefon: Overflow, Tap-Ziele, Schriftboden,
+                                      # Kopfleiste, Hero-Kontrast, erster Bildschirm
+cd app && STATIC=1 AUS=.design-audit-vorher node scripts/design-audit.mjs   # vor dem Umbau
+cd app && STATIC=1 node scripts/design-audit.mjs                            # danach
+cd app && node scripts/design-diff.mjs .design-audit-vorher .design-audit --widths 1210,1440
+                                      # "Desktop unveraendert" als Messung, nicht als Behauptung
 ```
 
 ## Verifizieren (Pflicht vor „fertig")
@@ -57,8 +64,19 @@ Deshalb:
    Hintergrund verfälscht die Messung um ein Vielfaches — real passiert:
    dieselbe Route kam mit Nebenläufer auf 104 ms, ohne auf 43 ms, und der
    Vergleich meldete daraufhin eine „Verschlechterung", die es nicht gab.
-4. Eigene Interaktionen zusätzlich per Klick testen — das Skript kennt sie nicht.
-5. A11y: aria auf Interaktivem, Tastatur-bedienbar, `aria-current` in Navs.
+4. **`node scripts/mobile-audit.mjs 3210`** (aus `app/`) — sobald du Layout
+   oder Typografie anfasst. Misst bei 360/390/412 px, was `verify-ui.mjs`
+   nicht sieht: Tap-Ziele unter 44 px, Fließtext unter 14 px, Kopfleisten-
+   Höhe, horizontalen Overflow in beiden Richtungen, den Kontrast der
+   Hero-Texte über dem laufenden Video, wie viele Blöcke im ersten
+   Bildschirm stehen und ob der Hauptknopf im Daumenbereich liegt.
+5. **Desktop unverändert?** Nur wer es misst, weiß es: vor dem Umbau
+   `STATIC=1 AUS=.design-audit-vorher node scripts/design-audit.mjs`, danach
+   `STATIC=1 node scripts/design-audit.mjs` und `design-diff.mjs` über
+   1210/1440 px. `STATIC=1` ist Pflicht — mit laufender Uhr, Laufband und
+   Sternfeld unterscheidet sich ein Bild von sich selbst.
+6. Eigene Interaktionen zusätzlich per Klick testen — das Skript kennt sie nicht.
+7. A11y: aria auf Interaktivem, Tastatur-bedienbar, `aria-current` in Navs.
 
 ## Verträge (global, überall einhalten)
 
@@ -68,7 +86,8 @@ Deshalb:
 | **Links NUR über den Generator** — neue Seite dort eintragen → Nav/Menü/Footer überall aktuell; Einzelverweise über `pageHref("kollektiv", "mitmachen")` statt roher Strings | `src/lib/site.ts` |
 | **UI-Chrome-Texte über i18n**, DE **und** EN. Ein fehlender EN-Schlüssel ist ein Build-Fehler, kein stiller Textverlust. Sichtbarer Text gehört in eine Client-Komponente — sonst wechselt er beim Umschalten nicht mit | `src/lib/i18n/` + `I18nProvider` |
 | **Inhalte gehören der Datenschicht**, nicht dem Wörterbuch: Events/Artists/News kommen aus `db.json`, Seitentexte aus `data/pages/<slug>.json` | `src/data/` |
-| **Farben/Typo/Abstände NUR über die Tokens** — keine neuen Hex-Werte erfinden | `src/styles/takeoff.css` (`--acc-*`, `--bg-*`, `--chrome-*`, `--font-*`) |
+| **Farben/Typo/Abstände NUR über die Tokens** — keine neuen Hex-Werte erfinden. Schriftgrade über `--fs-*` (Desktop-Werte in takeoff.css, Telefon-Werte in mobile.css), Abstände über `--sp-*` | `src/styles/takeoff.css` (`--acc-*`, `--bg-*`, `--chrome-*`, `--font-*`, `--fs-*`, `--sp-*`) |
+| **Zwei Breiten, keine dritte:** `max-width: 560px` ist das Telefon (die Mobil-Ebene), `900px` der Nav-Einklapp-Punkt. Rahmen-Regeln (Kopfleiste, Footer, Mission Control, Sticky-Leiste) in `mobile.css` — letzter Import, gewinnt nur durch Reihenfolge; Seiten-Regeln in der eigenen `pages/<slug>.css`, so spezifisch, dass sie takeoff.css schlagen. Desktop bleibt pixelgleich: `design-diff.mjs` bei 1210/1440 muss 0 melden | `src/styles/mobile.css` |
 | **Datentypen = Contracts** (werden später Supabase-Tabellen + Admin-Formulare) | `src/data/contracts/*.json` + `src/lib/types.ts` synchron halten |
 | **Text braucht eine Fläche.** Über Strand- und Marsszene ist der Hintergrund hell. Neue Textblöcke in die `:is()`-Liste in `scene-night.css` eintragen — auf der ENGSTEN sinnvollen Ebene, sonst wird ein halber Bildschirm dunkel | `src/styles/scene-night.css` |
 | **Label-Wert-Listen sind ein Subgrid** (`.m-rows`/`.m-row`): alle Werte beginnen links auf einer Linie. Keine eigenen Flex-Layouts dafür bauen | `src/styles/takeoff.css` |
