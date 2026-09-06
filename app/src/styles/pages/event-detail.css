@@ -293,7 +293,7 @@ a.ed-act-name:hover, a.ed-act-name:focus-visible { color: var(--acc-1-tint); }
 }
 .ed-note {
   margin-top: var(--sp-3);
-  color: var(--ink-faint); font-size: 13.5px; line-height: 1.55;
+  color: var(--ink-faint); font-size: var(--fs-caption); line-height: 1.55;
   font-family: var(--font-mono);
 }
 
@@ -372,7 +372,8 @@ a.ed-act-name:hover, a.ed-act-name:focus-visible { color: var(--acc-1-tint); }
        Meta-Zeile darunter bleibt optisch, wie er war. */
     margin-block: -6px;
   }
-  .ed-act-meta { font-size: 13px; }
+  /* Seit It. 18 aus der Leiter (mobile.css: 14.5px) statt 13px fest. */
+  .ed-act-meta { font-size: var(--fs-caption); }
 
   .ed-page .ed-foot .back-link {
     display: inline-flex;
@@ -384,6 +385,171 @@ a.ed-act-name:hover, a.ed-act-name:focus-visible { color: var(--acc-1-tint); }
 }
 
 /* ============================================================
+   12c · Hero-Fakten: Vertrag im Markup, alte Zeile im Bild (It. 18)
+
+   Die Fakten im Hero (Datum, Boarding, Ort, Eintritt) sind jetzt eine
+   Label-Wert-Liste (`dl.facts.ed-facts` > `.m-row` > dt/dd) — bewusst
+   OHNE `m-rows`: diese Klasse verspricht eine gemeinsame linke Kante
+   aller Werte (verify-ui misst das), die zentrierte Desktop-Zeile haelt
+   das mit Absicht nicht ein. Alle Regeln stehen hier. Ueber 560px
+   soll davon aber NICHTS zu sehen sein — der Desktop bleibt pixelgleich
+   zur alten `.facts`-Zeile (takeoff.css: Flex, zentriert, 10px 26px,
+   26px Abstand nach oben, Mono 14px, dd in --ink-dim, b in --ink 700).
+
+   Der Weg dorthin, Zeile fuer Zeile:
+     · `.m-row` wird `display: contents` — dt und dd sind damit selbst
+       die Flex-Kinder, so wie vorher jedes <span> eines war. Kante und
+       Polster von `.m-row` verschwinden mit (contents zeichnet keine
+       Box), werden hier trotzdem genullt, damit es auch ohne
+       contents-Unterstuetzung nicht wackelt.
+     · dt ist nur fuer Screenreader da (Klassiker: 1px, clip-path) —
+       ein Gewinn fuer a11y, ohne dass sich ein Pixel bewegt.
+     · AUSNAHME Boarding: „Boarding 23:00 · open end" — das Wort stand
+       immer sichtbar vor der Uhrzeit. Diese Zeile bleibt darum EIN
+       Flex-Kind (`display: block`), dt und dd laufen inline hintereinander
+       und das `{" "}` aus dem Markup ist der Wortabstand. Die
+       Mikro-Typo von `.m-row dt` (10px, .2em, uppercase) wird dafuer
+       auf die Zeilentypo zurueckgesetzt.
+     · `.m-row` setzt --fs-small (14.5px); `display: contents` nimmt
+       das Element zwar aus dem Layout, NICHT aus der Vererbung. dd
+       bekommt deshalb seine 14px ausdruecklich.
+     · 18+ war ein eigenes Flex-Kind mit 26px Luecke. Es haengt jetzt am
+       Eintritt (`.ed-fact-age`), der Punkt dazwischen ist ueber 560px
+       weg und die Luecke kommt als Rand: 26px minus das 1ch des
+       Leerzeichens davor (Mono: ein Leerzeichen ist genau 1ch).
+   Alles mit `.ehero .ed-facts` (0,2,0) statt `.facts` (0,1,0), weil
+   auf die Buendel-Reihenfolge zweier globaler CSS-Dateien kein Verlass
+   ist (siehe §1).
+   ============================================================ */
+@media (min-width: 561px) {
+  .ehero .ed-facts {
+    display: flex; flex-wrap: wrap; justify-content: center;
+    gap: 10px 26px;
+    margin: 26px 0 0; padding: 0; border: 0;
+    font-family: var(--font-mono); font-size: 14px;
+    text-align: center;
+  }
+  .ehero .ed-facts .m-row {
+    display: contents;
+    padding: 0; border: 0;
+  }
+  .ehero .ed-facts dt {
+    position: absolute; width: 1px; height: 1px;
+    margin: -1px; padding: 0; border: 0;
+    overflow: hidden; clip-path: inset(50%); white-space: nowrap;
+  }
+  .ehero .ed-facts dd {
+    margin: 0; padding: 0;
+    font-family: var(--font-mono); font-size: 14px;
+    color: var(--ink-dim); text-align: center;
+  }
+  .ehero .ed-facts dd b { color: var(--ink); font-weight: 700; }
+
+  /* Boarding: Label sichtbar, inline, in der Zeilentypo. */
+  .ehero .ed-facts .ed-fact--boarding { display: block; }
+  .ehero .ed-facts .ed-fact--boarding dt,
+  .ehero .ed-facts .ed-fact--boarding dd { display: inline; }
+  .ehero .ed-facts .ed-fact--boarding dt {
+    position: static; width: auto; height: auto; margin: 0;
+    overflow: visible; clip-path: none; white-space: normal;
+    font-family: var(--font-mono); font-size: 14px;
+    letter-spacing: normal; text-transform: none;
+    color: var(--ink-dim);
+  }
+
+  /* 18+: alte Luecke statt Punkt. */
+  .ehero .ed-facts .ed-fact-sep { display: none; }
+  .ehero .ed-facts b + .ed-fact-age { margin-left: calc(26px - 1ch); }
+}
+
+/* Der „Anhoeren"-Link im Lineup ist in dieser Iteration ein reines
+   Telefon-Bauteil (§12d). Kandidat fuer den Desktop, sobald das
+   Lineup dort neu gemessen wird — dann faellt nur diese Zeile. */
+.ed-page .ed-listen { display: none; }
+
+/* ============================================================
+   12d · Die Mobil-Ebene (≤ 560px, It. 18)
+
+   Dieselbe Leseachse wie der Hero der Startseite: links ausgerichtet,
+   das Datum zuerst, ein Knopf ueber die volle Breite — und darunter
+   die klebende Leiste (mobile.css), sobald der Knopf aus dem Bild ist.
+   Alles ueber die Leiter (--fs-*, --sp-*), nichts in freien Pixeln.
+   ============================================================ */
+@media (max-width: 560px) {
+  /* ---- Hero ---- */
+  .ehero { padding-top: var(--sp-6); text-align: left; }
+  /* Die Plakette schrumpft von 92 auf 56px und rueckt an die linke
+     Kante — auf 360px ist sie sonst ein Viertel des ersten Schirms. */
+  .ehero .patch-hero { width: 56px; height: 56px; margin: 0 0 var(--sp-3); }
+  .ehero .patch-hero svg { width: 26px; height: 26px; }
+  .ehero .etitle { text-align: left; }
+  .ehero .esub { font-size: var(--fs-small); }
+  .ehero .ed-hero-genres { justify-content: flex-start; }
+  .ehero .ed-hero-cta { justify-content: stretch; }
+  .ehero .ed-hero-cta .btn { width: 100%; justify-content: center; }
+
+  /* ---- Fakten als zweispaltige Tabelle ----
+     takeoff.css stapelt `.m-row` ab 620px (Label ueber Wert). Hier
+     sind die Labels kurz (Datum/Boarding/Ort/Eintritt) — zwei Spalten
+     lesen sich schneller, deshalb wird die Stapel-Regel ueberstimmt.
+     Die sr-only-Regel aus §12c gilt nur ueber 560px, dt ist hier also
+     von Haus aus wieder im Fluss. `gap: 0` schlaegt die alte
+     `.facts`-Regel bei 480px (8px 16px), die sonst Luft zwischen die
+     Zeilen legen wuerde. */
+  .ehero .ed-facts {
+    display: grid; grid-template-columns: minmax(0, 1fr); gap: 0;
+    text-align: left;
+    margin: var(--sp-4) 0 0; padding: 0;
+    border: 0; border-top: 1px solid var(--bg-hairline);
+    font-family: var(--font-mono); font-size: var(--fs-small);
+  }
+  .ehero .ed-facts .m-row {
+    display: grid; grid-template-columns: 6.5rem minmax(0, 1fr);
+    column-gap: var(--sp-3); row-gap: 0;
+    align-items: baseline;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--bg-hairline);
+  }
+  .ehero .ed-facts dt {
+    display: block;
+    font-family: var(--font-mono); font-size: var(--fs-micro);
+    letter-spacing: var(--track-label); text-transform: uppercase;
+    color: var(--ink-faint);
+  }
+  .ehero .ed-facts dd {
+    display: block; margin: 0;
+    font-size: var(--fs-small); color: var(--ink-dim); text-align: left;
+    overflow-wrap: anywhere;
+  }
+  .ehero .ed-facts dd b { color: var(--ink); font-weight: 700; }
+
+  /* ---- Lineup: Anhoeren ----
+     44px hoch, ohne die Karte zu strecken: das Polster wird wie beim
+     Namen (§12b) links und unten aus dem Block herausgezogen. */
+  .ed-page .ed-listen {
+    display: inline-flex; align-items: center; gap: 6px;
+    align-self: flex-start;
+    min-height: 44px; padding: 0 12px;
+    margin: 2px 0 -6px -12px;
+    border-radius: 999px;
+    font-family: var(--font-mono); font-size: var(--fs-label); font-weight: 700;
+    letter-spacing: var(--track-label); text-transform: uppercase;
+    color: var(--acc-3-tint);
+  }
+  .ed-page .ed-listen:hover, .ed-page .ed-listen:focus-visible { color: var(--ink); }
+
+  /* ---- Bloecke ---- */
+  .ed-page .eblock + .eblock { margin-top: var(--sp-7); }
+  /* Vier Zahlen als 2×2 statt vier schmale Streifen. */
+  .ed-numbers .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .ed-numbers .stats > div:nth-child(odd) { border-left: 0; }
+  .ed-numbers .stats > div:nth-child(n + 3) { border-top: 1px solid var(--bg-hairline); }
+  .ed-page .vcard .vname { font-size: var(--fs-title); }
+  /* Zwei Kartenknoepfe nebeneinander, jeder ein Daumenziel. */
+  .ed-page .route-row .btn { flex: 1 1 45%; justify-content: center; min-height: 44px; }
+}
+
+/* ============================================================
    13 · Bewegung
    Es gibt genau eine: der Farbwechsel an Namen und Handles. Alles
    andere auf dieser Seite steht still — der eine Bewegungsmoment der
@@ -391,4 +557,27 @@ a.ed-act-name:hover, a.ed-act-name:focus-visible { color: var(--acc-1-tint); }
    ============================================================ */
 @media (prefers-reduced-motion: reduce) {
   a.ed-act-name { transition: none; }
+}
+
+/* ============================================================
+   12e · Tag-Modus: die Fakten im Hero waren unsichtbar (It. 18)
+
+   scene-day.css nimmt .ehero bewusst von der hellen Tagesplatte aus — der
+   Event-Hero bleibt tags ein dunkler Anker wie Kopfleiste und Footer. Die
+   Fakten darunter trugen aber die TAGES-Tinte: dunkle Schrift auf dunklem
+   Himmel, nachgemessen 1,6:1 (Titel) und 1,9:1 (Werte) bei 390px
+   (mobile-audit --tag), auf dem Schreibtisch nach Augenschein genauso
+   (vorher-Screenshot 1440 tag). Kein Mobil-Thema, ein Tag-Thema: gilt
+   deshalb in jeder Breite. Derselbe Griff wie beim Hero-Video: die
+   Nachttinte lokal zurueckholen. Die Chips daneben bleiben, sie haben
+   eigene Tages-Regeln.
+   NUR im Space-Theme: Mars und Strand haben tags KEINEN dunklen Anker im
+   Hero (heller Himmel, scene-day.css) — dort blieben die Tageswerte
+   richtig, mit Nachttinte fielen sie auf 1,5:1 (mobile-audit --theme
+   strand --tag).
+   ============================================================ */
+:root.day-mode:not([data-theme="mars"]):not([data-theme="strand"]) .ehero .ed-facts {
+  --ink:       var(--nite-ink);
+  --ink-dim:   var(--nite-ink-dim);
+  --ink-faint: var(--nite-ink-faint);
 }

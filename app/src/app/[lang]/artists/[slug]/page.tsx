@@ -205,7 +205,9 @@ export default async function ArtistDetail(
               </div>
             )}
             {hasSets && (
-              <div className="ar-col">
+              /* id="sets": Sprungziel des „Anhoeren"-Links aus dem Lineup
+                 der Event-Seite (wie /artists, dort ebenfalls #sets). */
+              <div className="ar-col" id="sets">
                 <ArtistsSectionHead
                   eyebrow={t.setsEyebrow}
                   title={t.setsTitle}

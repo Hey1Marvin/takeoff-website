@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import MediaGallery from "@/components/pages/MediaGallery";
 import ArtistsSetCard from "@/components/pages/ArtistsSetCard";
+import EventStickyCta from "@/components/pages/EventStickyCta";
 import { events, event, settings, artists, fmtDate } from "@/lib/data";
 import { t } from "@/lib/i18n";
 import { pageHref, artistHref } from "@/lib/site";
@@ -93,6 +94,13 @@ function richText(text: string): React.ReactNode[] {
  *  Wortlos und damit sprachneutral. */
 const count2 = (n: number) => String(n).padStart(2, "0");
 
+/** Datum ohne Jahr („19.09.") — fuer die klebende Leiste, die auf
+ *  360px jedes Zeichen zweimal braucht. Das Jahr steht im Hero. */
+function fmtDateShort(iso: string) {
+  const [, m, d] = iso.split("-");
+  return `${d}.${m}.`;
+}
+
 /* ============================================================
    Lineup
 
@@ -143,7 +151,18 @@ function artistFor(slot: LineupSlot, list: Artist[]): Artist | undefined {
   );
 }
 
-function Act({ slot, artist }: { slot: LineupSlot; artist?: Artist }) {
+/* `eventHasSets`: das Event selbst hat Sets zum Nachhoeren (Block 7,
+   id="sets"). Wer keine Artist-Seite mit Sets hat, bekommt dann den
+   Sprung dorthin — besser als gar kein Weg zum Ton. */
+function Act({ slot, artist, eventHasSets }: {
+  slot: LineupSlot; artist?: Artist; eventHasSets?: boolean;
+}) {
+  /* „Anhoeren" — auf dem Telefon der kuerzeste Weg vom Namen zum Set.
+     Erst die eigene Artist-Seite (Sektion #sets), sonst die Sets dieses
+     Events auf derselben Seite. Sichtbar nur bis 560px (event-detail.css). */
+  const listenHref = artist && artist.sets.length > 0
+    ? `${artistHref(artist.slug)}#sets`
+    : eventHasSets ? "#sets" : null;
   return (
     <div className="ed-act">
       {artist
@@ -160,6 +179,11 @@ function Act({ slot, artist }: { slot: LineupSlot; artist?: Artist }) {
           {slot.genres && <span>{slot.genres}</span>}
           {slot.time && <span>{slot.time}</span>}
         </p>
+      )}
+      {listenHref && (
+        <Link className="ed-listen" href={listenHref}>
+          <span aria-hidden="true">▶</span> {t("event.page.lineup.listen")}
+        </Link>
       )}
       {slot.note && <p className="ed-act-note">{slot.note}</p>}
     </div>
@@ -228,6 +252,15 @@ export default async function EventDetail(
   const creditNote = credits.hinweis;
   const hasCredits = creditRows.length > 0 || Boolean(e.trackId) || Boolean(creditNote);
 
+  /* Fakten fuer Hero und klebende Leiste: „TBA" ist kein Wert. */
+  const doors = e.doors && e.doors !== "TBA" ? e.doors : null;
+  const is18 = e.age === "18+";
+  const stickyParts = [doors, e.pricing.label].filter(Boolean);
+  /* Der lange Hero-Text („Telegram · Updates zuerst") passt neben der
+     Info-Zeile nicht auf 360px; die Leiste bekommt das kurze Wort. */
+  const telegramLabel = t("event.page.cta.telegram");
+  const stickyLabel = telegramLabel.length <= 20 ? telegramLabel : "Telegram";
+
   const galleryNote = t("event.page.gallery.consent_note", "de", { link: SPLIT }).split(SPLIT);
 
   return (
@@ -243,15 +276,53 @@ export default async function EventDetail(
           {e.patchNo && <p className="ed-mission">{e.patchNo}</p>}
           <h1 className="etitle">{e.title.replace(/^takeoff:\s*/i, "").toLowerCase()}</h1>
           {e.subtitle && <p className="esub">{e.subtitle}</p>}
-          <div className="facts">
-            <span><b>{e.weekday} {fmtDate(e.date)}</b></span>
-            {e.doors && e.doors !== "TBA" && (
-              <span>{t("card.row.boarding")} <b>{e.doors}</b>{e.end ? ` · ${e.end}` : ""}</span>
+          {/* Fakten als Label-Wert-Liste (Zeilen als .m-row wie ueberall).
+              Ueber 560px sehen sie aus wie die alte .facts-Zeile: die
+              Labels sind dort nur fuer Screenreader da — bis auf
+              „Boarding", das schon immer sichtbar vor der Uhrzeit stand
+              und deshalb inline bleibt (event-detail.css §12c). Auf dem
+              Telefon wird die Liste zur zweispaltigen Tabelle.
+              BEWUSST ohne die Klasse `m-rows`: die steht fuer „alle Werte
+              auf einer linken Kante" (verify-ui misst das nach), und die
+              zentrierte Desktop-Zeile bricht diese Zusage mit Absicht.
+              event-detail.css traegt alle Regeln fuer beide Breiten selbst.
+              Das `{" "}` zwischen dt und dd ist der Wortabstand der
+              Inline-Fassung; im Raster ist es ein Leerzeichen zwischen
+              Zellen und damit nichts. */}
+          <dl className="facts ed-facts">
+            <div className="m-row">
+              <dt>{t("card.row.date")}</dt>
+              <dd><b>{e.weekday} {fmtDate(e.date)}</b></dd>
+            </div>
+            {doors && (
+              <div className="m-row ed-fact--boarding">
+                <dt>{t("card.row.boarding")}</dt>{" "}
+                <dd><b>{doors}</b>{e.end ? ` · ${e.end}` : ""}</dd>
+              </div>
             )}
-            <span><b>{e.venue.name}</b>{e.venue.address ? `, ${e.venue.address}` : ""}</span>
-            {e.pricing.label && <span><b>{e.pricing.label}</b></span>}
-            {e.age === "18+" && <span><b>18+</b></span>}
-          </div>
+            <div className="m-row">
+              <dt>{t("card.row.venue")}</dt>
+              <dd><b>{e.venue.name}</b>{e.venue.address ? `, ${e.venue.address}` : ""}</dd>
+            </div>
+            {(e.pricing.label || is18) && (
+              <div className="m-row">
+                <dt>{t("card.row.entry")}</dt>
+                <dd>
+                  {e.pricing.label && <b>{e.pricing.label}</b>}
+                  {/* 18+ war eine eigene Fakte; ueber 560px steht es
+                      weiter mit dem alten Abstand daneben, auf dem
+                      Telefon als „· 18+" hinter dem Preis. */}
+                  {e.pricing.label && is18 && " "}
+                  {is18 && (
+                    <span className="ed-fact-age">
+                      {e.pricing.label && <span className="ed-fact-sep">· </span>}
+                      <b>18+</b>
+                    </span>
+                  )}
+                </dd>
+              </div>
+            )}
+          </dl>
           {e.genres.length > 0 && (
             <div className="chips ed-hero-genres">
               {e.genres.map(g => <span className="chip" key={g}>{g}</span>)}
@@ -271,6 +342,18 @@ export default async function EventDetail(
           )}
         </div>
       </section>
+
+      {/* Klebende Leiste (nur Telefon, mobile.css): erscheint, sobald der
+          Hero-Knopf oben aus dem Bild ist. Vergangene Events haben keine
+          Aktion mehr — also auch keine Leiste. */}
+      {!isPast && (
+        <EventStickyCta
+          info={<><b>{e.weekday} {fmtDateShort(e.date)}</b>{stickyParts.map(p => ` · ${p}`).join("")}</>}
+          href={s.telegram}
+          label={stickyLabel}
+          ariaLabel={t("event.page.sticky.aria")}
+        />
+      )}
 
       <section className="section ed-sec" style={acc}>
         <div className="wrap ed-wrap ed-page">
@@ -308,12 +391,15 @@ export default async function EventDetail(
                     >
                       {entry.slots.length > 1 ? (
                         <div className="ed-pair">
-                          <Act slot={entry.slots[0]} artist={artistFor(entry.slots[0], allArtists)} />
+                          <Act slot={entry.slots[0]} artist={artistFor(entry.slots[0], allArtists)}
+                            eventHasSets={sets.length > 0} />
                           <p className="ed-b2b">{t("event.page.lineup.b2b")}</p>
-                          <Act slot={entry.slots[1]} artist={artistFor(entry.slots[1], allArtists)} />
+                          <Act slot={entry.slots[1]} artist={artistFor(entry.slots[1], allArtists)}
+                            eventHasSets={sets.length > 0} />
                         </div>
                       ) : (
-                        <Act slot={entry.slots[0]} artist={artistFor(entry.slots[0], allArtists)} />
+                        <Act slot={entry.slots[0]} artist={artistFor(entry.slots[0], allArtists)}
+                          eventHasSets={sets.length > 0} />
                       )}
                     </div>
                   ))}
@@ -402,7 +488,7 @@ export default async function EventDetail(
 
           {/* 7 · Sets zum Nachhoeren (Zwei-Klick-Fassade). */}
           {sets.length > 0 && (
-            <div className="eblock eblock--wide">
+            <div className="eblock eblock--wide" id="sets">
               <BlockHead title={t("event.page.sets.h3")} n={sets.length} />
               <div className="setgrid">
                 {sets.map((set, i) => (
