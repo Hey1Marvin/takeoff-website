@@ -527,8 +527,16 @@ console.log("\n== Qualitaetsregler ==");
 
   /* c) Last weg: sie kommt wieder hoch. Der alte Watchdog konnte das nie. */
   await cdp.send("Emulation.setCPUThrottlingRate", { rate: 1 });
+  /* 30 statt 18 Durchlaeufen, und das ist keine Nachsicht, sondern Arithmetik:
+     der Faktor steigt um 0,1 je VIER ruhiger Fenster zu 250 ms, von 0 auf 90
+     sind das neun Schritte = mindestens 9 s ruhiger Messfenster. 18 x 700 ms
+     Scrollen sind 12,6 s brutto — abzueglich der Fenster, die auf einer
+     nebenher beschaeftigten Maschine nicht ruhig sind, bleibt davon zu wenig
+     uebrig. Der Test war damit von der Konstruktion her auf Kante gebaut und
+     schlug zufaellig fehl, waehrend der Verlauf sauber 0 -> 100 durchlief.
+     Die Zusage selbst bleibt unveraendert scharf: q MUSS 90 erreichen. */
   let erholt = false;
-  for (let i = 0; i < 18 && !erholt; i++) { await scrollen(700); erholt = (await lies()).q >= 90; }
+  for (let i = 0; i < 30 && !erholt; i++) { await scrollen(700); erholt = (await lies()).q >= 90; }
   note(erholt, "nach dem Wegfall der Last steigt die Qualitaet wieder");
 
   await ctx.close();
