@@ -148,8 +148,20 @@ export function startQualitaet(env: SkyEnv): () => void {
   let fensterLangsam = 0;
 
   /* Hysterese: wie oft hintereinander muss es gut aussehen, bevor wieder
-     hochgeregelt wird. Runter reicht ein schlechtes Fenster. */
+     hochgeregelt wird. Sie bleibt unsymmetrisch — runter mit zwei Fenstern,
+     hoch erst mit vier —, damit die Regelung nicht sichtbar pendelt. */
   let gutInFolge = 0;
+  /* Gegenstueck dazu: wie oft es hintereinander schlecht aussehen muss,
+     BEVOR Qualitaet faellt. Vorher genuegte ein einziges Fenster — und ein
+     einzelnes Fenster ist alles Moegliche: der Ruck beim Scrollbeginn, ein
+     nachladendes Bild, eine Speicherbereinigung. Nachgemessen fiel der
+     Faktor auf einem unbelasteten Rechner allein beim Scrollbeginn von 100
+     auf 90 und kam nicht mehr hoch. Die STUFE hatte immer eine Geduld von
+     acht Fenstern; dass der Faktor gar keine hatte, war schlicht eine
+     Luecke. Zwei Fenster sind 500 ms — fuer echte Ueberlast belanglos
+     (dort ist jedes Fenster schlecht), fuer einen einzelnen Ruckler
+     entscheidend. */
+  let schlechtInFolge = 0;
   let amBoden = 0;
   let flipflops = 0;
   let zuletztRichtung = 0;
@@ -232,7 +244,7 @@ export function startQualitaet(env: SkyEnv): () => void {
     html.dataset.fx = naechste;
     q = 1; html.setAttribute(Q_ATTR, "100");   // in der neuen Stufe frisch anfangen
     setzeSpar(0);
-    flipflops = 0; amBoden = 0; zuletztRichtung = 0; gutInFolge = 0;
+    flipflops = 0; amBoden = 0; zuletztRichtung = 0; gutInFolge = 0; schlechtInFolge = 0;
     fensterStart = 0; fensterBilder = 0; fensterLangsam = 0;
   };
 
@@ -336,6 +348,7 @@ export function startQualitaet(env: SkyEnv): () => void {
 
     if (anteil > 0.25) {
       gutInFolge = 0;
+      if (++schlechtInFolge < 2) return;
       if (q > 0) { setzeQ(q - 0.1); amBoden = 0; }
       else if (++amBoden >= 8) {
         /* Faktor am Boden UND acht Fenster (~2 s) lang weiter zu langsam:
@@ -350,8 +363,9 @@ export function startQualitaet(env: SkyEnv): () => void {
       /* Pendelt es zwischen hoch und runter, ist die Stufe selbst zu hoch. */
       if (flipflops >= 6) { stufeRunter(); amBoden = 0; }
     } else if (anteil < 0.05) {
+      schlechtInFolge = 0;
       /* Hochregeln nach vier ruhigen Fenstern (~1 s) je Schritt. Runter geht
-         es mit jedem schlechten Fenster, hoch nur mit jedem vierten guten —
+         es mit zwei schlechten Fenstern, hoch nur mit jedem vierten guten —
          das ist die Hysterese, die sichtbares Pendeln verhindert. Mit acht
          Fenstern (dem ersten Versuch) dauerte der Weg vom Boden zurueck auf
          volle Qualitaet sechzehn Sekunden; das ist keine Vorsicht mehr,
@@ -368,6 +382,7 @@ export function startQualitaet(env: SkyEnv): () => void {
       }
     } else {
       gutInFolge = 0;
+      schlechtInFolge = 0;
     }
   };
 
@@ -388,7 +403,7 @@ export function startQualitaet(env: SkyEnv): () => void {
     versuchLaeuft = 0;
     q = 1; html.setAttribute(Q_ATTR, "100");
     spar = 0; html.setAttribute(SPAR_ATTR, "0");
-    gutInFolge = 0; flipflops = 0; zuletztRichtung = 0; amBoden = 0;
+    gutInFolge = 0; schlechtInFolge = 0; flipflops = 0; zuletztRichtung = 0; amBoden = 0;
     fensterStart = 0; fensterBilder = 0; fensterLangsam = 0;
   });
   obs.observe(html, { attributes: true, attributeFilter: ["data-fx"] });
