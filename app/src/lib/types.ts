@@ -61,7 +61,7 @@ export interface EventTheme {
    ============================================================ */
 export interface MediaItem {
   kind: "video" | "image";
-  rolle: "teaser" | "galerie" | "portrait";
+  rolle: "teaser" | "galerie" | "portrait" | "hero";
   src: string;
   poster: string;
   caption: string;

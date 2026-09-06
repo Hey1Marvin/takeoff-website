@@ -365,7 +365,8 @@
             "options": [
               "teaser",
               "galerie",
-              "portrait"
+              "portrait",
+              "hero"
             ]
           },
           {

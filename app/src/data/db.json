@@ -1514,6 +1514,28 @@
         "orientation": "hoch",
         "dauer": 8
       }
+    ],
+    "start": [
+      {
+        "kind": "video",
+        "rolle": "hero",
+        "src": "/media/mariokart-molly-04.mp4",
+        "poster": "/media/mariokart-molly-04.jpg",
+        "caption": "Aus der Menge aufs Pult — Mario-Kart-Rave",
+        "ton": false,
+        "orientation": "quer",
+        "dauer": 18
+      },
+      {
+        "kind": "video",
+        "rolle": "hero",
+        "src": "/media/mariokart-molly-04-hoch.mp4",
+        "poster": "/media/mariokart-molly-04-hoch.jpg",
+        "caption": "Aus der Menge aufs Pult — Mario-Kart-Rave (Hochformat)",
+        "ton": false,
+        "orientation": "hoch",
+        "dauer": 18
+      }
     ]
   }
 }

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Fragment, type ReactNode } from "react";
 import {
   settings, pageContent, upcoming, past, nextEvent, artists, team, fmtDate,
+  pageMedia,
 } from "@/lib/data";
 import { eventHref, artistHref } from "@/lib/site";
 import type { TakeoffEvent } from "@/lib/types";
@@ -135,9 +136,12 @@ function timeRange(ev: TakeoffEvent): string {
 }
 
 export default async function Home() {
-  const [s, page, up, gone, next, arts, crew] = await Promise.all([
+  const [s, page, up, gone, next, arts, crew, heroMedien] = await Promise.all([
     settings(), pageContent<HomePageContent>("home"),
     upcoming(), past(), nextEvent(), artists(), team(),
+    /* Der Hero-Clip gehoert der Startseite, nicht einem Event — also ein
+       Seitenmedium ueber den Gateway, nie ein Pfad im TSX. */
+    pageMedia("start"),
   ]);
 
   /* Ohne home.json bliebe die Startseite leer — sie ist der Einstieg, das
@@ -166,6 +170,9 @@ export default async function Home() {
   const artistSlugs = new Set(arts.map(a => a.slug));
   const crewCards = crew.slice(0, page.crew.maxItems);
   const flog = gone.slice(0, page.flightlog.maxItems);
+  /* Zwei Ausrichtungen: quer fuer breite Schirme, hoch fuers Telefon. Welche
+     genommen wird, entscheidet HeroVideo zur Laufzeit. */
+  const heroQuellen = heroMedien.filter(m => m.rolle === "hero");
 
   return (
     <>
@@ -174,7 +181,7 @@ export default async function Home() {
         {/* Der Container bleibt im Markup leer: HeroVideo hängt das <video>
             erst zur Laufzeit ein und nur, wenn es erlaubt ist. Ohne
             JavaScript wird dadurch keine einzige Videodatei angefordert. */}
-        <HeroVideo />
+        <HeroVideo quellen={heroQuellen} />
         <div className="hero-inner">
           <p className="pretitle">{s.claim}</p>
           <div className="hero-mark"><h1 className="wordmark" translate="no">takeoff</h1></div>

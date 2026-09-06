@@ -11,7 +11,11 @@
    Drei Sperren, alle drei überstimmen die Nutzerwahl:
      · FX-Stufe "s"    — die Abstufung nach Gerät/Netz wäre sonst wertlos
      · reduced motion  — ein tanzendes Publikum ist genau diese Bewegung
-     · saveData        — 1,4 MB sind ein Vielfaches der übrigen Seite
+     · saveData        — 1,1 MB sind ein Vielfaches der übrigen Seite
+
+   Dazu die Sparleiter (src/lib/sky/qualitaet.ts): ab Stufe 2 hält das Video
+   an, ohne abgeräumt zu werden. Das ist Priorität 1 der Leiter — bei
+   Knappheit fällt hier zuerst etwas weg, vor den Sternen.
 
    Das Boot-Script in layout.tsx stempelt `data-video` (anders als im
    Prototyp) NICHT vor — das würde die geteilte Datei anfassen. Der
@@ -20,21 +24,29 @@
    `is-ready` aufblendet.
    ============================================================ */
 import { useEffect, useRef } from "react";
+import type { MediaItem } from "@/lib/types";
 
 const KEY = "takeoff-video";
-/* Echtes Material statt Platzhalter: ein Mitschnitt vom Mario-Kart-Rave,
-   aus der Menge aufs Pult gefilmt — von Marvin als Hero-Kandidat benannt.
-   Dunkel genug, dass die Wortmarke darueber lesbar bleibt.
-   Austauschen heisst: hier zwei Zeilen aendern (Kandidaten stehen in
-   scripts/reels-map.tsv, z. B. mariokart-molly-02 fuer mehr Bewegung). */
-const POSTER = "/media/mariokart-molly-04.jpg";
-const SOURCES = [
-  { src: "/media/mariokart-molly-04.webm", type: "video/webm" },
-  { src: "/media/mariokart-molly-04.mp4", type: "video/mp4" },
-];
+
+/* Dieselbe Grenze wie die Media Query in hero-video.css: darunter steht der
+   Hero im Hochformat, und dort zeigt `object-fit: cover` von einem
+   Querformat-Clip nur noch den mittleren Streifen — der Rest wird geladen
+   und weggeschnitten. Deshalb gibt es zwei Fassungen. */
+const SCHMAL = "(max-width: 700px)";
+
 /* Unterhalb dieses Anteils sichtbarer Hero-Höhe darf der Boden (Mars-/
    Strandhorizont) wieder erscheinen — siehe hv-cover in hero-video.css. */
 const COVER_AT = 0.55;
+
+/* Nur EIN Format, und zwar H.264. Vorher standen hier zwei Quellen, WebM
+   zuerst — und die WebM war mit 1 180 988 B GRÖSSER als die MP4 mit
+   1 140 471 B. Chrome, Firefox und Edge luden also die teurere Fassung.
+   Nachgemessen liesse sich VP9 zwar unter H.264 druecken (crf 36 → 1 048 kB,
+   −8 %), aber der Aufwand lohnt den zweiten Satz Dateien nicht — und auf
+   genau den schwachen Geräten, um die es hier geht, ist H.264 das bessere
+   Format: es wird praktisch überall in Hardware dekodiert, VP9 auf älteren
+   Telefonen nicht. Ein Hardware-Dekoder ist sparsamer als 8 % weniger Bytes. */
+const TYP = "video/mp4";
 
 const store = {
   get(k: string): string | null {
@@ -45,7 +57,12 @@ const store = {
   },
 };
 
-export default function HeroVideo() {
+/* Die Quellen kommen aus der Datenschicht (db.json → media.start, Rolle
+   "hero") und werden von page.tsx hereingereicht. Vorher standen Pfad und
+   Standbild hart in dieser Datei — das verletzte den Vertrag „Medien gehören
+   in die Datenschicht" aus AGENTS.md, und derselbe Clip lag daneben schon
+   korrekt als Galerie-Eintrag in db.json. */
+export default function HeroVideo({ quellen }: { quellen: MediaItem[] }) {
   const wrapRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -53,13 +70,29 @@ export default function HeroVideo() {
     if (!wrap) return;
     const html = document.documentElement;
     const motionQuery = matchMedia("(prefers-reduced-motion: reduce)");
+    const schmalQuery = matchMedia(SCHMAL);
+
+    /* Die passende Fassung zur Bildschirmbreite. Die Wahl faellt in
+       JavaScript und nicht ueber `<source media="…">`: das Attribut ist bei
+       Video-Quellen nicht verlaesslich umgesetzt, und das Element entsteht
+       hier ohnehin zur Laufzeit. */
+    const passende = (): MediaItem | null => {
+      const hoch = quellen.find(m => m.orientation === "hoch");
+      const quer = quellen.find(m => m.orientation === "quer");
+      return (schmalQuery.matches ? hoch ?? quer : quer ?? hoch) ?? null;
+    };
 
     let video: HTMLVideoElement | null = null;
+    /* Welche Fassung gerade im DOM haengt — damit ein Wechsel der
+       Bildschirmbreite (Drehen des Telefons, Fenster ziehen) die richtige
+       nachziehen kann, ohne bei jeder Kleinigkeit neu zu laden. */
+    let geladen = "";
     const timers = new Set<number>();
     let inView = true;          /* der Hero steht beim Laden im Bild */
     let disposed = false;
 
     function allowed(): boolean {
+      if (!passende()) return false;
       if (html.dataset.fx === "s") return false;
       if (motionQuery.matches) return false;
       const c = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection;
@@ -86,20 +119,23 @@ export default function HeroVideo() {
       v.setAttribute("aria-hidden", "true");
       v.setAttribute("tabindex", "-1");
       v.disablePictureInPicture = true;
-      /* preload="auto" ist hier harmlos: das Element entsteht erst im
-         Leerlauf nach dem Laden. Der Clip läuft in Schleife — ein
-         nachladender Ruckler alle 9 s wäre teurer als die Übertragung. */
-      v.preload = "auto";
+      /* preload="auto" ist auf breiten Schirmen harmlos: das Element entsteht
+         erst im Leerlauf nach dem Laden, und der Clip läuft in Schleife — ein
+         nachladender Ruckler alle 18 s wäre teurer als die Übertragung.
+         Auf schmalen Schirmen ist die Rechnung eine andere: dort steckt
+         häufiger ein Mobilfunkvertrag dahinter, und die volle Datei im
+         Voraus zu ziehen ist die teuerste der drei Möglichkeiten. */
+      v.preload = schmalQuery.matches ? "metadata" : "auto";
       /* Das Poster ist das erste Bild des Clips — der Wechsel vom Standbild
          zum laufenden Video ist dadurch unsichtbar. */
-      v.poster = POSTER;
+      const m = passende()!;
+      v.poster = m.poster;
+      geladen = m.src;
 
-      for (const s of SOURCES) {
-        const el = document.createElement("source");
-        el.src = s.src;
-        el.type = s.type;
-        v.appendChild(el);
-      }
+      const el = document.createElement("source");
+      el.src = m.src;
+      el.type = TYP;
+      v.appendChild(el);
 
       /* Aufblenden, sobald überhaupt etwas zu sehen ist. `loadeddata` ist der
          erste Zeitpunkt mit echtem Videobild; bleibt es aus, blendet der
@@ -126,6 +162,7 @@ export default function HeroVideo() {
 
     function teardown() {
       wrap!.classList.remove("is-ready");
+      geladen = "";
       const v = video;
       if (!v) return;
       video = null;
@@ -246,6 +283,16 @@ export default function HeroVideo() {
     const onMotionChange = () => apply();
     motionQuery.addEventListener("change", onMotionChange);
 
+    /* Breite gewechselt (Telefon gedreht, Fenster gezogen): nur dann neu
+       laden, wenn dadurch wirklich eine ANDERE Datei faellig wird. */
+    const onSchmalChange = () => {
+      const m = passende();
+      if (!m || !video || m.src === geladen) { apply(); return; }
+      teardown();
+      apply();
+    };
+    schmalQuery.addEventListener("change", onSchmalChange);
+
     apply(true);
 
     return () => {
@@ -254,6 +301,7 @@ export default function HeroVideo() {
       io?.disconnect();
       fxObserver.disconnect();
       motionQuery.removeEventListener("change", onMotionChange);
+      schmalQuery.removeEventListener("change", onSchmalChange);
       document.removeEventListener("visibilitychange", onVisibility);
       document.removeEventListener("click", onClick);
       timers.forEach(t => clearTimeout(t));
@@ -263,7 +311,7 @@ export default function HeroVideo() {
       html.classList.remove("hv-cover");
       delete html.dataset.video;
     };
-  }, []);
+  }, [quellen]);
 
   return <div className="hero-video" aria-hidden="true" ref={wrapRef} />;
 }
