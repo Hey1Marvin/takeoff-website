@@ -571,6 +571,98 @@ console.log("\n== Qualitaetsregler ==");
   await ctx.close();
 }
 
+/* ============================================================
+   Sparleiter und Rueckkehr (It. 17b)
+
+   Vier Zusagen, die ohne Pruefung leise verschwinden — und die dritte ist
+   die, an der die Vorgaenger-Fassung gescheitert ist: was abgeschaltet
+   wird, muss auch wieder angehen.
+   ============================================================ */
+console.log("\n== Sparleiter und Rueckkehr ==");
+{
+  const ctx = await browser.newContext({ viewport: { width: 1280, height: 800 } });
+  const page = await ctx.newPage();
+  await page.addInitScript(() => { try { localStorage.setItem("takeoff-fx", "l"); } catch { /* egal */ } });
+  await page.goto(BASE + "/", { waitUntil: "load" });
+  await page.waitForTimeout(1800);
+  const cdp = await ctx.newCDPSession(page);
+  const scrollen = ms => page.evaluate(m => new Promise(f => {
+    const t0 = performance.now();
+    const s = () => { scrollBy(0, 12); if (performance.now() - t0 < m) requestAnimationFrame(s); else f(); };
+    requestAnimationFrame(s);
+  }), ms);
+  const lies = () => page.evaluate(() => {
+    const v = document.querySelector(".hero-video video");
+    return {
+      spar: Number(document.documentElement.dataset.spar ?? -1),
+      fx: document.documentElement.dataset.fx,
+      videoDa: !!v, videoLaeuft: v ? !v.paused : null,
+      merk: (() => { try { return localStorage.getItem("takeoff-fx"); } catch { return null; } })(),
+    };
+  });
+
+  /* a) Unter Last steigt die Leiter — und zwar in Marvins Reihenfolge:
+        das Video haelt an, BEVOR die Sterne stehenbleiben. */
+  await cdp.send("Emulation.setCPUThrottlingRate", { rate: 20 });
+  const spuren = [];
+  let videoStandBeiStufe = -1;
+  for (let i = 0; i < 16; i++) {
+    await scrollen(600);
+    const r = await lies();
+    spuren.push(r.spar);
+    if (videoStandBeiStufe < 0 && r.videoDa && r.videoLaeuft === false) videoStandBeiStufe = r.spar;
+    if (r.fx !== "l") break;
+  }
+  note(spuren.some(v => v >= 2), `unter Last steigt die Sparleiter (${spuren.join(" → ")})`);
+  note(videoStandBeiStufe >= 1 && videoStandBeiStufe <= 3,
+    `das Video haelt zuerst an — bei Sparstufe ${videoStandBeiStufe}`);
+
+  /* b) Pausiert, nicht abgeraeumt: das Standbild muss stehen bleiben,
+        sonst klafft im Hero ein Loch. */
+  const beiLast = await lies();
+  note(beiLast.videoDa, "das Video wird pausiert, nicht abgeraeumt (Standbild bleibt)");
+
+  /* c) DIE KERNZUSAGE: Last weg -> die Stufe kommt von selbst zurueck.
+        Der Vorgaenger konnte das nie; l -> m -> s war eine Einbahnstrasse. */
+  const gefallen = beiLast.fx;
+  await cdp.send("Emulation.setCPUThrottlingRate", { rate: 1 });
+  let zurueck = null;
+  for (let i = 0; i < 50 && !zurueck; i++) {
+    await scrollen(1000);
+    const r = await lies();
+    if (r.spar === 0 && r.fx !== gefallen) zurueck = r;
+  }
+  note(!!zurueck, zurueck
+    ? `die Stufe kommt von selbst zurueck (${gefallen} → ${zurueck.fx}, Sparstufe 0)`
+    : `die Stufe kommt NICHT zurueck (haengt bei ${gefallen})`);
+
+  /* d) Nichts davon wird dauerhaft gemerkt — genau das machte den
+        Vorgaenger zur Sackgasse ueber Sitzungen hinweg. */
+  const nachher = await lies();
+  note(nachher.merk === "l",
+    `die Automatik schreibt nichts fest (takeoff-fx = ${nachher.merk})`);
+  await ctx.close();
+}
+
+/* Die zwei Sperren, die die Automatik NICHT ueberstimmen darf. */
+{
+  const ctx = await browser.newContext({
+    viewport: { width: 1280, height: 800 },
+    reducedMotion: "reduce",
+  });
+  const page = await ctx.newPage();
+  await page.addInitScript(() => { try { localStorage.setItem("takeoff-fx", "s"); } catch { /* egal */ } });
+  await page.goto(BASE + "/", { waitUntil: "load" });
+  await page.waitForTimeout(6000);
+  const r = await page.evaluate(() => ({
+    fx: document.documentElement.dataset.fx,
+    video: !!document.querySelector(".hero-video video"),
+  }));
+  note(r.fx === "s", `reduzierte Bewegung wird NICHT ueberstimmt (Stufe ${r.fx})`);
+  note(!r.video, "und das Hero-Video bleibt dabei aus");
+  await ctx.close();
+}
+
 await browser.close();
 console.log(`\n==== ${fails.length ? fails.length + " FEHLER" : "ALLES GRUEN"} ====`);
 if (fails.length) { fails.forEach(f => console.log("  - " + f)); process.exit(1); }
