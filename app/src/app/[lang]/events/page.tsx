@@ -221,10 +221,18 @@ export default async function EventsPage() {
                         : extra?.capacityNote
                           ? { icon: "⚠", text: extra.capacityNote }
                           : null;
-                      const whenLine = [
-                        e.doors && e.doors !== "TBA" ? `ab ${e.doors}` : "",
-                        e.pricing.label,
-                      ].filter(Boolean).join(" · ");
+                      /* Weder Einlass noch Preis bekannt: EIN „TBA" statt
+                         „ab TBA · TBA" oder einer leeren Zeile — die
+                         Ortszeile der Tafel soll dann trotzdem sagen,
+                         dass die Angabe noch kommt. */
+                      const doorsKnown = Boolean(e.doors) && e.doors !== "TBA";
+                      const priceKnown = Boolean(e.pricing.label) && e.pricing.label !== "TBA";
+                      const whenLine = !doorsKnown && !priceKnown
+                        ? "TBA"
+                        : [
+                            doorsKnown ? `ab ${e.doors}` : "",
+                            e.pricing.label,
+                          ].filter(Boolean).join(" · ");
                       const endLine = e.end
                         ? e.end === "open end"
                           ? ` · ${br?.boardingOpenEnd ?? "open end"}`

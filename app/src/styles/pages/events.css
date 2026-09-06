@@ -276,6 +276,9 @@
   border: 1px solid rgb(var(--card-acc-rgb) / .2);
   color: var(--ink-dim); font-size: 13px;
 }
+/* Auf dem Telefon auf den Schriftboden (14,5px, mobile-audit); der
+   Desktop behaelt seine 13px. */
+@media (max-width: 560px) { .ev-board .ev-note { font-size: var(--fs-caption); } }
 .ev-route { margin-top: var(--sp-3); }
 /* .cta-row bringt margin-top: 20px mit; im Raster ist der Abstand die
    Rasterluecke, sonst steht er doppelt. */
@@ -623,12 +626,104 @@
   .ev-c-toggle { align-self: center; }
   .ev-more-inner { padding-bottom: var(--sp-4); }
 }
+/* ============================================================
+   12b · Telefon (die Mobil-Ebene, 560px — siehe mobile.css)
+   Schriftgrade kommen aus den --fs-*-Tokens, die mobile.css unter 560px
+   umstellt; hier wird nur ANGEORDNET. Alles ueberbietet die Regeln von
+   takeoff.css und des 959er-Blocks per Spezifitaet (`.ev-board .x` statt
+   `.x`), weil Media Queries selbst keine Spezifitaet mitbringen.
+
+   Warum die Zeile so umgebaut ist: im Mobil-Audit fiel der Blick zuerst
+   auf „GATE 01" — eine Dekoration, die auf dem Telefon nichts ordnet
+   (die Spaltenkoepfe, die sie erklaerten, sind ab 959px weg). Das Datum
+   ist die Angabe, nach der man eine Abflugtafel liest; es steht jetzt
+   zuerst und am groessten, der Status daneben, Titel und Ort darunter.
+   Der Untertitel wandert ins Briefing — in der geschlossenen Zeile hat
+   er auf 360px nur Zeilen gekostet.
+   ============================================================ */
 @media (max-width: 560px) {
+  /* ---- Seitenkopf ---- */
+  .phero .section-intro { font-size: var(--fs-lead); }
+  /* takeoff.css stapelt .tminus unter 480px (Label ueber Uhr, zentriert).
+     Auf dieser Seite steht der Countdown linksbuendig unter dem Intro —
+     als eine Zeile liest er sich wie eine Anzeige, gestapelt wie ein
+     verrutschter Absatz. */
+  .phero .tminus {
+    flex-direction: row; gap: 10px;
+    justify-content: flex-start; align-items: baseline;
+  }
+
+  /* ---- Kopfzeile der Tafel ---- */
   .ev-frame .board-toprow { flex-wrap: wrap; row-gap: 6px; }
   .ev-frame .board-clock { margin-left: auto; }
+  .ev-board .ev-frame .board-title { font-size: var(--fs-small); }
+  .ev-board .ev-frame .board-clock { font-size: var(--fs-clock); }
   .ev-foot { justify-content: flex-start; }
-  .ev-patch { width: 30px; height: 30px; }
-  .ev-patch svg { width: 15px; height: 15px; }
+
+  /* ---- Zeile: Datum zuerst, Gate weg ----
+     Die Gate-Nummer kommt aus der Listenposition (page.tsx) und bleibt
+     im DOM; sie ist Dekoration, kein Inhalt — unsichtbar verliert
+     niemand eine Information. */
+  .ev-board .ev-c-gate { display: none; }
+  .ev-board .ev-rowbtn {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      "date    status"
+      "mission mission"
+      "place   chev";
+    row-gap: 6px;
+    /* Mit Polster und drei Bandzeilen ist die Zeile ~110px hoch — das
+       Beruehrziel ist die ganze Zeile, nicht das Winkelzeichen. */
+    padding-block: var(--sp-4);
+  }
+  .ev-board .ev-c-date { flex-direction: row; align-items: baseline; gap: 8px; }
+  .ev-board .ev-day { font-size: var(--fs-title); }
+  .ev-board .ev-wd { font-size: var(--fs-label); }
+  /* Statuspille auf der Datumszeile mittig, damit „TBA 🤫" und
+     „ANNOUNCED" (nowrap, ~85px) neben dem 24px-Datum nicht am oberen
+     Rand kleben. Die 1fr-Spalte laesst ihr auch bei 360px Platz. */
+  .ev-board .ev-c-status { align-self: center; justify-content: flex-end; }
+  .ev-board .ev-c-mission { align-items: center; }
+  .ev-board .ev-title { font-size: var(--fs-small); }
+  .ev-board .ev-sub { display: none; }          /* Untertitel lebt im Briefing */
+  .ev-board .ev-patch { width: 28px; height: 28px; }
+  .ev-board .ev-patch svg { width: 14px; height: 14px; }
+  /* Ort und Zeit nebeneinander statt untereinander — eine Zeile weniger
+     pro Event; bei langen Ortsnamen bricht die Zeit sauber um. */
+  .ev-board .ev-c-place { flex-direction: row; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; }
+  .ev-board .ev-venue, .ev-board .ev-when { font-size: var(--fs-caption); }
+  .ev-board .ev-c-toggle { align-self: center; }
+
+  /* ---- Briefing ---- */
+  .ev-board .ev-more-inner { gap: var(--sp-3); }
+  /* Knoepfe als Zweierraster statt Flex-Umbruch: vier Knoepfe in einer
+     Spalte waren vier Zeilen, und `.cta-row .btn { flex: 1 1 100% }`
+     (takeoff.css, 640px) erzwang genau das. Der Hauptknopf nimmt die
+     volle Breite, der Rest teilt sich zu zweit eine Zeile. */
+  .ev-board .ev-cta { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .ev-board .ev-cta .btn-primary { grid-column: 1 / -1; }
+  /* Der .ics-Knopf ist eine Attrappe (aria-disabled, href="#") — auf dem
+     Telefon kostet er eine halbe Zeile und tut nichts. Der echte
+     Kalender-Weg ist der Abo-Link in der Fusszeile der Tafel. */
+  .ev-board .ev-cta .btn[aria-disabled="true"] { display: none; }
+  /* Engere Seitenpolster, damit „Telegram · zuerst erfahren" in einer
+     139px-Spalte hoechstens zweizeilig wird; min-height sichert das
+     Beruehrziel, egal wie der Text umbricht. */
+  .ev-board .ev-cta .btn { padding: 11px 12px; min-height: 44px; }
+  /* Routen-Zeile: drei Knoepfe, die wachsen duerfen — bei 360px stehen
+     Google Maps und Apple Karten nebeneinander, OSM fuellt die zweite
+     Zeile. In EINE Zeile passen die drei Beschriftungen unter 400px
+     nicht ohne Abschneiden. */
+  .ev-board .ev-route { gap: 8px; }
+  .ev-board .ev-route .btn {
+    flex: 1 1 auto;
+    padding: 10px 12px; min-height: 44px;
+    font-size: var(--fs-label);
+  }
+
+  /* ---- FAQ ---- */
+  .ev-endgrid .ev-faq .faqlist summary { font-size: var(--fs-small); }
+  .ev-endgrid .ev-faq .faqlist .fq-a { font-size: var(--fs-small); }
 }
 
 /* ============================================================
