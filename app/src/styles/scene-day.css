@@ -533,10 +533,14 @@
      was auf Beton auch physikalisch die richtige Richtung ist.
    Deckkraft .055 statt .045: auf Hell faellt Rauschen staerker auf, deshalb
    liegt der brauchbare Korridor bei .04-.07 statt .05-.12. */
+/* Kein `mix-blend-mode` mehr, und deshalb hier auch KEINE eigene Textur mehr:
+   die Begruendung steht bei `body::after` in takeoff.css. Was `multiply` auf
+   hellem Grund leistete (Rauschen als Schmutz DRAUF statt Aufhellung),
+   leistet das zweiseitige Korn von selbst — es traegt helle UND dunkle
+   Koerner und ist damit vom Untergrund unabhaengig. Uebrig bleibt genau die
+   Dosis, um die es im Absatz darueber geht. */
 :root.day-mode body::after {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
-  opacity: .055;
-  mix-blend-mode: multiply;
+  opacity: .07;
 }
 /* Vignette: nachts .42 am Rand. Auf hellem Grund liest dieselbe Staerke als
    Dreck statt als Objektiv. Deutlich flacher und mit der Tinte statt mit
@@ -699,8 +703,7 @@
    Grund — dort gelten die Nachtwerte. `multiply` auf Schwarz ergaebe nichts,
    und eine helle Vignette auf Schwarz waere ein Rahmen. */
 :root.day-mode:not([data-theme="mars"]):not([data-theme="strand"]) body::after {
-  mix-blend-mode: overlay;
-  opacity: .045;
+  opacity: .085;
 }
 :root.day-mode:not([data-theme="mars"]):not([data-theme="strand"])::after {
   background: radial-gradient(ellipse 78% 74% at 50% 46%,

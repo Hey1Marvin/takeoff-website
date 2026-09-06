@@ -473,11 +473,37 @@ body::before {
 /* Der Grain lag mit z-index:90 UEBER allem — auch ueber der Wortmarke, deren
    saubere Kanten er entsaettigte. Er gehoert hinter den Inhalt.
    `inset: -50%` (= vierfache Viewportflaeche) war ausserdem unnoetig teuer. */
+/* ── Warum hier KEIN `mix-blend-mode` mehr steht ──────────────────────
+   Diese Ebene ist `position: fixed` ueber die volle Flaeche und lag mit
+   `mix-blend-mode: overlay` ueber den sechs Canvas-Ebenen der Szene. Ein
+   Blendmodus muss den Hintergrund LESEN; da weder `body` noch `html` einen
+   eigenen Stapelkontext aufmachen (`isolation` kommt in dieser Datei
+   nirgends auf der Wurzel vor), mischte sie gegen den Wurzel-Kontext — und
+   damit gegen `#stars`. Jedes Sternenbild zwang den Compositor, den
+   kompletten Viewport zu flatten und neu zu blenden. Gemessen war der
+   Abstand zwischen Skriptzeit (20-35 ms) und Bildzeit (bis 84 ms) genau
+   diese Arbeit: `slMs` war auf allen Routen 0, es war nie Stil oder Layout.
+   `isolation: isolate` auf `body` haette nichts geholfen — die Canvas-Ebenen
+   sind selbst Kinder von `body`, die Blendung faende weiter gegen sie statt.
+   Stattdessen traegt das Rauschen seine Helligkeit jetzt im ALPHAKANAL —
+   und zwar ZWEISEITIG. Der erste Versuch war einfarbig weiss, und genau
+   daran sieht man, warum das nicht reicht: nachgemessen hob er den
+   Nachthimmel von 14,2 auf 19,8 (fast 40 % heller im dunkelsten Bereich)
+   und senkte die Koernung von 4,37 auf 2,88 — ein Schleier statt Korn. Auf
+   hellem Grund kippte dasselbe umgekehrt ins Dunkle (Strand -9,4). Ein
+   einseitiges Korn kann die Helligkeit gar nicht halten; `overlay` konnte
+   es, weil es je nach Untergrund in beide Richtungen arbeitet.
+   Deshalb zwei Rechtecke aus DERSELBEN Turbulenz mit demselben `seed`:
+   wo das Rauschen ueber 0,5 liegt, sitzt ein weisses Korn, darunter ein
+   schwarzes (`feFuncA` mit Steigung +2/-2 schneidet die jeweils andere
+   Haelfte weg). Die beiden Verschiebungen heben sich auf, die Streuung
+   addiert sich — und der Hintergrund wird dabei nie gelesen.
+   `color-interpolation-filters='sRGB'` ist Pflicht und nicht Kosmetik:
+   der Standardwert linearRGB verschoebe die Alphakurve sichtbar ins Helle. */
 body::after {
   content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
-  opacity: .045;
-  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='w' color-interpolation-filters='sRGB'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch' seed='3'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 1 0 0 0 0'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='linear' slope='2' intercept='-1'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Cfilter id='b' color-interpolation-filters='sRGB'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch' seed='3'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='linear' slope='-2' intercept='1'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23w)'/%3E%3Crect width='100%25' height='100%25' filter='url(%23b)'/%3E%3C/svg%3E");
+  opacity: .085;
 }
 
 /* Vignette — fehlte bisher ganz. Eigene Ebene, weil die opacity:.045 des

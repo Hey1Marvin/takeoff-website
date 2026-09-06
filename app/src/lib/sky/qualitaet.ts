@@ -64,10 +64,33 @@ export function startQualitaet(env: SkyEnv): () => void {
   const html = document.documentElement;
   let gestoppt = false;
 
-  /* Bildwiederholrate: die ersten Bilder messen, danach steht sie. Ohne sie
-     waere jede Schwelle eine Annahme ueber fremde Hardware. */
+  /* ---------- Bildwiederholrate ----------
+     Sie wurde frueher EINMAL aus den ersten dreissig Bildern bestimmt
+     (Median) und stand dann fest. Das hat sich als Fehler erwiesen, und
+     zwar als einer, der sich selbst versteckt: die ersten dreissig Bilder
+     fallen in die Ladephase, in der die Szene noch gar nicht laeuft.
+     Nachgemessen an dieser Seite — dieselbe Maschine, derselbe Browser:
+
+       Seite startet langsam  -> Median 33 ms -> gemerkt: 30 Hz -> "langsam"
+                                 ab 55 ms -> nie etwas zu tun
+       Seite startet schnell  -> Median 17 ms -> gemerkt: 60 Hz -> "langsam"
+                                 ab 28 ms -> 46 % der Bilder gelten als
+                                 langsam, obwohl die Seite SCHNELLER ist
+
+     Je schlechter eine Seite startet, desto nachsichtiger wurde der Regler.
+     Aufgefallen ist es, als eine Verbesserung am Kompositing die Startphase
+     beschleunigte — woraufhin sich die Seite fuer ihre eigene Verbesserung
+     bis auf q=0 herunterregelte.
+
+     Jetzt fortlaufend aus dem 10. Perzentil eines gleitenden Fensters: die
+     SCHNELLSTEN Bilder verraten die Rate des Bildschirms, denn schneller als
+     sein Takt kann kein Bild erscheinen. Kein Monotonie-Zwang nach oben —
+     sonst faengt sich der Stromsparmodus (der auf 30 Hz deckelt) genau den
+     Dauerueberlast-Fehlschluss ein, an dem der alte Watchdog gestorben ist. */
   let hz = 60;
-  let messProben: number[] = [];
+  const PROBEN_MAX = 240;                       /* ~4 s bei 60 Hz */
+  const proben = new Float64Array(PROBEN_MAX);
+  let probenN = 0, probenI = 0;
   let gemessen = false;
 
   /* Fenster von ~250 ms statt 180 Bildern: ein Scroll-Ruckler dauert keine
@@ -116,33 +139,54 @@ export function startQualitaet(env: SkyEnv): () => void {
     if (gestoppt || document.hidden) return;
     if (html.dataset.fx === "s" || env.reduced || env.perf) return;
 
-    /* Phase 1: Bildwiederholrate bestimmen. */
-    if (!gemessen) {
-      if (dt > 1 && dt < 200) messProben.push(dt);
-      if (messProben.length >= 30) {
-        messProben.sort((a, b) => a - b);
-        const median = messProben[messProben.length >> 1];
-        hz = Math.round(1000 / median);
-        /* Auf plausible Werte klemmen: ein Hintergrund-Tab oder ein
-           Messfehler darf keine absurde Zielrate setzen. */
-        hz = Math.max(24, Math.min(144, hz));
-        gemessen = true;
-        messProben = [];
-      }
-      return;
+    /* Jedes brauchbare Bild wandert in den Ringpuffer, aus dem die Rate
+       kommt. Ausgewertet wird er nur beim Fensterwechsel (viermal je
+       Sekunde) — sortieren in jedem Bild waere Arbeit fuer nichts. */
+    if (dt > 1 && dt < 200) {
+      proben[probenI] = dt;
+      probenI = (probenI + 1) % PROBEN_MAX;
+      if (probenN < PROBEN_MAX) probenN++;
     }
+    if (!gemessen && probenN < 30) return;
 
     const budget = 1000 / hz;
-    /* Grenzen relativ zur echten Rate (research §2.2): unter 0,6x der Rate
-       ist es zu langsam, ueber 0,9x ist Luft nach oben. In Bildzeit
-       gerechnet heisst das: langsam ab budget/0.6, gut unter budget/0.9. */
-    const langsamAb = budget / 0.6;
+    /* Ab wann ein Bild "langsam" heisst. Vorher stand hier `budget / 0.6`
+       (1,67x). Nachgemessen auf dieser Seite, Regler stillgelegt, beim
+       Scrollen der Startseite in Stufe l:
+
+                     ungedrosselt   unter 6x CPU-Drossel
+       ueber 27.8 ms      20 %              98 %      <- alte Grenze (1,67x)
+       ueber 33.3 ms      14 %              98 %      <- 2x
+       ueber 41.7 ms       1 %              96 %      <- 2,5x, diese Grenze
+
+       Entscheidend ist nicht nur, dass die Grenze unter Last ausloest —
+       das taten alle drei —, sondern dass der GESUNDE Zustand weit genug
+       unter der Erholungsschwelle von 5 % liegt. Bei 1,67x und 2x sitzt
+       eine gesunde Seite mit 14-20 % mitten in der Totzone zwischen
+       "erholen" (unter 5 %) und "weiter senken" (ueber 25 %): der Faktor
+       faellt beim ersten Scroll-Ruckler um einen Schritt und bleibt dort
+       fuer den Rest der Sitzung stehen — gemessen genau so, q fiel bei
+       1500 ms auf 90 und ruehrte sich danach nicht mehr.
+       Mit 2,5x liegt der gesunde Zustand bei 1 % und damit klar im
+       Erholungsbereich, waehrend echte Ueberlast mit 96 % unveraendert
+       ausloest. Auf 30-Hz-Geraeten sind das 83 ms je Bild — wer dort so
+       lange braucht, zeigt 12 Bilder je Sekunde und ist wirklich zu
+       langsam; der Stromsparmodus allein reicht dafuer nicht. */
+    const langsamAb = budget * 2.5;
 
     if (!fensterStart) fensterStart = performance.now();
     fensterBilder++;
     if (dt > langsamAb) fensterLangsam++;
 
     if (performance.now() - fensterStart < 250) return;
+
+    /* Fenster ist voll: erst die Rate nachfuehren, dann urteilen.
+       Die Reihenfolge im Ringpuffer ist fuer ein Perzentil egal — nur der
+       gefuellte Teil zaehlt, solange er noch nicht rundgelaufen ist. */
+    const sortiert = Array.from(proben.subarray(0, probenN)).sort((a, b) => a - b);
+    const p10 = sortiert[Math.floor(sortiert.length * 0.1)];
+    if (p10 > 0) hz = Math.max(24, Math.min(144, Math.round(1000 / p10)));
+    gemessen = true;
 
     const anteil = fensterLangsam / Math.max(1, fensterBilder);
     fensterStart = 0; fensterBilder = 0; fensterLangsam = 0;
