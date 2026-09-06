@@ -224,8 +224,10 @@ console.log("\n== Sprache & Tag/Nacht-Knopf ==");
    geerbt), und die Kopfleiste sprengte bei 320px die Zeile, seit
    Sprachumschalter und Tag/Nacht-Knopf darin stehen. */
 console.log("\n== Breiten (horizontaler Overflow) ==");
-for (const r of ["/", "/kollektiv", "/events"]) {
-  for (const w of [320, 360, 412, 560, 768, 900, 1100, 1440]) {
+/* 390 ist die haeufigste iPhone-Breite; /events/marsmission traegt den
+   Telefon-Hero mit Sticky-Leiste und den langen Titel. */
+for (const r of ["/", "/kollektiv", "/events", "/events/marsmission"]) {
+  for (const w of [320, 360, 390, 412, 560, 768, 900, 1100, 1440]) {
     const ctx = await browser.newContext({ viewport: { width: w, height: 800 } });
     const page = await ctx.newPage();
     await page.goto(BASE + r, { waitUntil: "load" });
@@ -481,7 +483,69 @@ console.log("\n== Video-Player ==");
   await ctx.close();
 }
 
-/* ---------- 12) Der stufenlose Qualitaetsregler ----------
+/* ---------- 12) Die Sticky-Leiste der Event-Seite ----------
+   Der Daumenbereich: auf einem Telefon erreicht der Daumen einhaendig nur
+   das untere Drittel bis Viertel des Bildschirms, ohne dass man umgreift.
+   Deshalb wandert der Hauptknopf der Event-Seite in eine feste Leiste am
+   unteren Rand, sobald der Knopf im Hero (.ed-hero-cta) nach oben aus dem
+   Bild gescrollt ist. Drei Dinge gehen dabei kaputt, ohne dass der Build
+   es merkt: die Leiste erscheint nie (is-shown fehlt), Mission Control
+   sitzt darunter und wird verdeckt, oder der Footer endet hinter der
+   Leiste und seine letzte Zeile ist nie lesbar. Ab 561px gibt es die Leiste
+   nicht — dort haengt der Knopf im Hero, und ein Balken auf dem Tablet
+   waere ein Fehler. Steht VOR dem Qualitaetsregler, damit dessen
+   CPU-Drosselung diese Messung nicht beruehrt. */
+console.log("\n== Sticky-Leiste ==");
+{
+  const ctx = await browser.newContext({ viewport: { width: 390, height: 844 } });
+  const page = await ctx.newPage();
+  await page.goto(BASE + "/events/marsmission", { waitUntil: "load" });
+  await page.waitForTimeout(900);
+  await page.evaluate(() => window.scrollTo(0, 800));
+  await page.waitForTimeout(600);
+  const d = await page.evaluate(() => {
+    const s = document.querySelector(".sticky-cta.is-shown");
+    const r = s ? s.getBoundingClientRect() : null;
+    const m = document.querySelector(".mctrl");
+    const mr = m && getComputedStyle(m).display !== "none" ? m.getBoundingClientRect() : null;
+    const f = document.querySelector("footer");
+    return {
+      da: !!s,
+      top: r ? Math.round(r.top) : null, bottom: r ? Math.round(r.bottom) : null,
+      hoehe: r ? Math.round(r.height) : 0,
+      mctrlUnten: mr && mr.height > 0 ? Math.round(mr.bottom) : null,
+      footerPolster: f ? Math.round(parseFloat(getComputedStyle(f).paddingBottom)) : null,
+      H: innerHeight,
+    };
+  });
+  note(d.da, "390px: .sticky-cta.is-shown nach 800px Scroll vorhanden");
+  note(d.da && d.top >= 0 && d.top < d.H && d.bottom <= d.H + 1,
+    `390px: Leiste liegt im Bild (top ${d.top}, bottom ${d.bottom}, Viewport ${d.H})`);
+  note(d.da && (d.mctrlUnten === null || d.mctrlUnten <= d.top - 8),
+    `390px: Mission Control bleibt ueber der Leiste (mctrl bottom ${d.mctrlUnten ?? "—"} <= Leiste top ${d.top} − 8)`);
+  note(d.da && d.footerPolster !== null && d.footerPolster >= d.hoehe,
+    `390px: Footer haelt Platz fuer die Leiste (padding-bottom ${d.footerPolster ?? "?"}px >= ${d.hoehe}px)`);
+  await ctx.close();
+}
+{
+  const ctx = await browser.newContext({ viewport: { width: 768, height: 1024 } });
+  const page = await ctx.newPage();
+  await page.goto(BASE + "/events/marsmission", { waitUntil: "load" });
+  await page.waitForTimeout(900);
+  await page.evaluate(() => window.scrollTo(0, 800));
+  await page.waitForTimeout(600);
+  const d = await page.evaluate(() => {
+    const s = document.querySelector(".sticky-cta");
+    if (!s) return { sichtbar: false, grund: "kein Element" };
+    const cs = getComputedStyle(s), r = s.getBoundingClientRect();
+    const sichtbar = cs.display !== "none" && cs.visibility !== "hidden" && r.height > 0 && r.top < innerHeight && r.bottom > 0;
+    return { sichtbar, grund: cs.display === "none" ? "display none" : `top ${Math.round(r.top)}, Viewport ${innerHeight}` };
+  });
+  note(!d.sichtbar, `768px: keine Sticky-Leiste sichtbar (${d.grund})`);
+  await ctx.close();
+}
+
+/* ---------- 13) Der stufenlose Qualitaetsregler ----------
    Der Vorgaenger (watchdog.ts) hatte einen Fehler, der Geraete DAUERHAFT
    beschaedigte: er zaehlte jedes Bild ueber 33 ms als langsam. Ein iPhone im
    Stromsparmodus ist auf 30 fps gedeckelt — dort ist jedes Bild 33,3 ms lang,

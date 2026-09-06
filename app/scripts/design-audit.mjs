@@ -42,6 +42,10 @@
      node scripts/design-audit.mjs                    # alles
      node scripts/design-audit.mjs /awareness /events # nur diese Routen
      BASE=http://localhost:3000 node scripts/design-audit.mjs
+     STATIC=1 node scripts/design-audit.mjs           # deterministische Bilder
+       (Stufe s, kein Video, Uhren/Laufband/Canvas unsichtbar) — nur so
+       lassen sich zwei Staende per design-diff.mjs pixelgenau vergleichen.
+       Ein Bild mit laufender Uhr unterscheidet sich von sich selbst.
 
    Ergebnis:
      .design-audit/<route>__<modus>__<breite>.png     Screenshots
@@ -54,7 +58,10 @@ import { mkdir, writeFile, rm } from "node:fs/promises";
 import path from "node:path";
 
 const BASE = process.env.BASE || "http://localhost:3210";
-const AUS = ".design-audit";
+const AUS = process.env.AUS || ".design-audit";
+/* STATIC=1: deterministische Screenshots fuer den Vorher/Nachher-Vergleich
+   (design-diff.mjs). Siehe Kopfkommentar. */
+const STATISCH = process.env.STATIC === "1";
 
 const ALLE_ROUTEN = [
   "/", "/events", "/events/freiraeume", "/events/marsmission",
@@ -71,6 +78,7 @@ const routen = ROUTEN.length ? ROUTEN : ALLE_ROUTEN;
    (home.css dokumentiert das nachgemessen). */
 const BREITEN = [
   { name: "360", w: 360, h: 780 },
+  { name: "390", w: 390, h: 844 },
   { name: "768", w: 768, h: 1024 },
   { name: "1210", w: 1210, h: 900 },
   { name: "1440", w: 1440, h: 900 },
@@ -311,7 +319,15 @@ let summeU = 0, summeB = 0, summeL = 0;
 for (const route of routen) {
   for (const modus of MODI) {
     for (const b of BREITEN) {
-      const ctx = await browser.newContext({ viewport: { width: b.w, height: b.h } });
+      /* STATIC: reduzierte Bewegung. Stufe s allein reicht seit It. 17b
+         nicht mehr — die Automatik regelt von s wieder hoch, und dann
+         laufen Intro und Chromglanz in zufaelliger Phase ins Bild (die
+         Event-Karte der Startseite war in zwei Laeufen zu 100 % verschieden).
+         prefers-reduced-motion ueberstimmt der Regler laut Vertrag nie. */
+      const ctx = await browser.newContext({
+        viewport: { width: b.w, height: b.h },
+        ...(STATISCH ? { reducedMotion: "reduce" } : {}),
+      });
       /* Tag/Nacht vor dem ersten Frame setzen — das BOOT-Script liest den
          localStorage-Schluessel, ein spaeterer Klick wuerde nachladen. */
       await ctx.addInitScript(([tag, theme]) => {
@@ -321,12 +337,49 @@ for (const route of routen) {
           localStorage.setItem("takeoff-day", tag ? "on" : "off");
           if (theme) localStorage.setItem("takeoff-theme", theme);
           /* Volle Effektstufe, sonst misst man eine Seite, auf der
-             Reveals und Deko-Parallaxe gar nicht laufen. */
-          localStorage.setItem("takeoff-fx", "l");
+             Reveals und Deko-Parallaxe gar nicht laufen. Im STATIC-Lauf
+             das Gegenteil: Stufe s und kein Video, damit zwei Laeufe
+             dasselbe Bild liefern. */
+          localStorage.setItem("takeoff-fx", statisch ? "s" : "l");
+          if (statisch) localStorage.setItem("takeoff-video", "off");
         } catch {}
-      }, [modus.tag, process.env.THEME || ""]);
+      }, [modus.tag, process.env.THEME || "", STATISCH]);
+
+      /* STATIC: die Uhr steht. Mond, Himmelsdrehung und Countdown haengen an
+         der Zeit — zwei Laeufe im Abstand von 40 Minuten unterschieden sich
+         auf /impressum um 1,1 % der Pixel, ohne dass sich eine Zeile CSS
+         geaendert hatte. Fester Zeitpunkt: 06.09.2026 12:00 UTC. */
+      if (STATISCH) {
+        await ctx.addInitScript(() => {
+          const fest = 1788696000000;
+          const Echt = Date;
+          class Fest extends Echt {
+            constructor(...a) { if (a.length) super(...a); else super(fest); }
+            static now() { return fest; }
+          }
+          // eslint-disable-next-line no-global-assign
+          Date = Fest;
+          /* Und der Zufall steht auch: Sterne, Glints und Rauschtexturen
+             werden mit Math.random gesetzt (engine.ts, astro.ts, noise.ts).
+             Ohne festen Samen unterschieden sich zwei Bilder derselben
+             Seite um ~1 % — lauter Sterne an anderen Stellen. */
+          let s = 0x9e3779b9;
+          Math.random = () => {
+            s = (s + 0x6d2b79f5) | 0;
+            let t = Math.imul(s ^ (s >>> 15), 1 | s);
+            t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+            return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+          };
+        });
+      }
 
       const page = await ctx.newPage();
+      if (STATISCH) {
+        await page.addStyleTag({ content: `
+          canvas, .marquee-track, .tminus .clock, .board-clock, .hud .dot,
+          .mctrl-mess { visibility: hidden !important; }
+        ` }).catch(() => {});
+      }
       const fehler = [];
       page.on("console", m => { if (m.type() === "error") fehler.push(m.text()); });
 
