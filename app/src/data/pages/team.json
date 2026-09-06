@@ -173,6 +173,153 @@
         "eyebrow": "Team board",
         "h1": "The <span class=\"glow\">crew</span>",
         "intro": "takeoff is collective work: every night is made by many hands. Photos will follow once everyone has agreed — until then, tap a card to see roles and tasks."
+      },
+      "stats": [
+        {
+          "key": "crewSize",
+          "mode": "auto",
+          "label": "roles on the board"
+        },
+        {
+          "key": "missions",
+          "mode": "auto",
+          "label": "missions supported"
+        },
+        {
+          "key": "activeSince",
+          "mode": "manual",
+          "value": "2024",
+          "label": "active since"
+        },
+        {
+          "key": "volunteerPercent",
+          "mode": "manual",
+          "value": "100%",
+          "label": "volunteer-run"
+        }
+      ],
+      "crew": {
+        "eyebrow": "Station plan",
+        "h2": "Who sits <span class=\"glow\">where</span>",
+        "intro": "The crew spreads across three stations on board — from the flight deck to the ground crew. Tap a card to flip it and see the tasks behind it.",
+        "flipOpenLabel": "Tasks",
+        "flipCloseLabel": "← Back",
+        "sinceLabel": "since",
+        "moreLabel": "More →"
+      },
+      "plan": {
+        "label": "Stations",
+        "note": "One ring per station, one dot per role. The dashed ring on the outside is still free.",
+        "reserveLabel": "Room for new roles"
+      },
+      "departments": [
+        {
+          "id": "flugdeck",
+          "title": "Flight deck",
+          "subtitle": "Sound & light",
+          "intro": "Whoever's standing at the decks and the desks."
+        },
+        {
+          "id": "boden",
+          "title": "Ground crew",
+          "subtitle": "Safety & care",
+          "intro": "Whoever looks out for you when it matters."
+        },
+        {
+          "id": "bau",
+          "title": "Build & hosting",
+          "subtitle": "Decor, bar, door",
+          "intro": "Whoever builds the place and keeps the door open."
+        }
+      ],
+      "departmentFallbackTitle": "More crew",
+      "members": {
+        "Nico · DJ Platzhalter": {
+          "tasks": [
+            "Bookings & permits",
+            "Timetable",
+            "On the decks: Trance"
+          ]
+        },
+        "Mik · Blaulicht": {
+          "tasks": [
+            "Lighting design & DMX programming",
+            "Tech setup",
+            "On the decks: Hard Trance"
+          ]
+        },
+        "JOJO": {
+          "tasks": [
+            "On the decks: Hard Trance & Bounce",
+            "Podcast series"
+          ]
+        },
+        "Cyonic": {
+          "tasks": [
+            "On the decks: Trance & Techno",
+            "B2B sets",
+            "On board since mission 1"
+          ]
+        },
+        "Awareness-Team": {
+          "tasks": [
+            "Around all night long",
+            "Looking after the quiet room",
+            "De-escalation"
+          ],
+          "contact": "Purple vest — talk to us any time, no consequences."
+        },
+        "Sani-Team": {
+          "tasks": [
+            "First aiders doing the rounds",
+            "First-aid kit & quiet room",
+            "Handing out water"
+          ]
+        },
+        "Deko & Bau": {
+          "tasks": [
+            "Building the themed decor",
+            "Getting the venue ready",
+            "Setup & takedown"
+          ]
+        },
+        "Bar & Einlass": {
+          "tasks": [
+            "Serving & till",
+            "Door & bag checks",
+            "Explaining the solidarity prices"
+          ]
+        }
+      },
+      "tasksFallback": [
+        "Tasks to follow"
+      ],
+      "roleLinks": {
+        "Awareness-Team": {
+          "linkText": "Awareness concept →"
+        },
+        "Sani-Team": {
+          "linkText": "First aid & rules →"
+        }
+      },
+      "artistLink": {
+        "linkText": "Profile & sets →"
+      },
+      "nextMission": {
+        "label": "Next mission",
+        "introTemplate": "Live on board for the launch on {date}: {lineup} — plus awareness, first aid, bar and door, like every night.",
+        "fallbackText": "The next mission is still being planned — the ground crew is standing by anyway."
+      },
+      "photoboard": {
+        "eyebrow": "Photo board to follow",
+        "h2": "Soon with <span class=\"glow\">faces</span>",
+        "slotNote": "One slot per role — photos follow once they're cleared",
+        "note": "The team photo board arrives once everyone pictured has agreed — consent applies to us too.",
+        "joinText": "Want to be on the board?",
+        "joinLabel": "Join in."
+      },
+      "easterEgg": {
+        "toastText": "You now know the whole crew"
       }
     }
   }

@@ -186,5 +186,239 @@
   "images": {
     "heroBg": "",
     "vestIcon": "assets/img/pages/awareness/vest.svg"
+  },
+
+  "i18n": {
+    "en": {
+      "hero": {
+        "h1": "Partying you can count on.",
+        "intro": "Awareness isn't a notice on the wall for us, it's daily practice: our own team, our own first aiders, free water — on every single mission. Safer space, not safe space. But we do everything we can."
+      },
+      "heroAid": {
+        "label": "If it's urgent right now",
+        "note": "At the event: talk to a purple vest. The awareness team is there all night.",
+        "linkLabel": "All numbers & ways to reach us"
+      },
+      "teamTiles": [
+        {
+          "icon": "team",
+          "title": "Awareness team",
+          "text": "There to talk to all night — you'll spot us by the purple vest. Come to us and we'll take care of it. Right away."
+        },
+        {
+          "icon": "sani",
+          "title": "Medic team",
+          "text": "Trained first aiders at every event. Getting help never has consequences — for anyone."
+        },
+        {
+          "icon": "water",
+          "title": "Free Water",
+          "text": "Free water at the awareness point. Drink before you get thirsty."
+        },
+        {
+          "icon": "camera",
+          "title": "No photos",
+          "text": "No photo without asking. What happens in the dark stays there."
+        }
+      ],
+      "recognition": {
+        "eyebrow": "How to spot us",
+        "title": "Purple vest, open ear",
+        "text": "Our awareness team wears purple vests — there to talk to all night, at every event. A symbol of our own (a small rocket, say) is on the cards, but not final yet.",
+        "vestColor": "purple",
+        "iconAlt": "Purple awareness vest with reflective stripes"
+      },
+      "approachReasons": {
+        "eyebrow": "What you can come to us about",
+        "intro": "There is no such thing as “too small”.",
+        "items": [
+          "Someone keeps dancing up to you even though you move away",
+          "A comment went too far",
+          "You feel dizzy or something feels off",
+          "You can't find your people any more",
+          "You just want ten minutes of quiet"
+        ],
+        "closing": "No questions, no shame, no drama."
+      },
+      "ruheraum": {
+        "eyebrow": "Quiet room",
+        "line": "When it gets too much: a bench, a first-aid kit, and nobody asking why."
+      },
+      "principlesHead": {
+        "eyebrow": "Our principles",
+        "title": "Four rules for us",
+        "intro": "The awareness team sticks to these — with every report, every time."
+      },
+      "principles": [
+        {
+          "title": "Only yes means yes",
+          "text": "Dancing, flirting, touching: get an okay before you start."
+        },
+        {
+          "title": "You define your boundary",
+          "text": "Where something becomes an assault is yours to decide. Nobody else's."
+        },
+        {
+          "title": "We believe you",
+          "text": "If you come to us, we won't argue about what you experienced."
+        },
+        {
+          "title": "What you tell us stays with us",
+          "text": "We only discuss incidents anonymised, inside the team."
+        }
+      ],
+      "consequences": {
+        "label": "Escalation",
+        "text": "Cross someone's boundaries and you get one warning at most — after that: out, no discussion, no refund. In cases of assault we support the person affected in going to the police, if that's what they want."
+      },
+      "helpHead": {
+        "eyebrow": "Help & emergencies",
+        "title": "When it gets serious"
+      },
+      "reportChannels": {
+        "labels": {
+          "atEvent": "At the event",
+          "afterEvent": "Afterwards",
+          "principle": "Principle"
+        },
+        "atEvent": "Talk to the awareness team, the medics or anyone from the crew — we're all connected.",
+        "afterEvent": {
+          "intro": "Did something happen? Write to us:",
+          "subject": "Awareness – feedback",
+          "responseNote": "We'll get back to you as fast as we can — usually within a few days."
+        },
+        "principleText": "Getting help never has consequences. For anyone. Ever."
+      },
+      "emergencyNumbers": [
+        {
+          "label": "Emergency number",
+          "number": "112",
+          "note": "for any medical emergency, without hesitating"
+        },
+        {
+          "label": "Police",
+          "number": "110",
+          "note": ""
+        },
+        {
+          "label": "Helpline: violence against women",
+          "number": "116016",
+          "note": "24/7, free"
+        },
+        {
+          "label": "Helpline: sexual abuse",
+          "number": "08002255530",
+          "note": ""
+        },
+        {
+          "label": "Poison emergency Berlin-Brandenburg",
+          "number": "03019240",
+          "note": ""
+        },
+        {
+          "label": "Weisser Ring",
+          "number": "116006",
+          "note": "victim support"
+        },
+        {
+          "label": "Heimwegtelefon",
+          "number": "03012074182",
+          "note": "walk-home hotline · check opening hours before launch"
+        }
+      ],
+      "substances": {
+        "toleranceText": "Selling or taking illegal substances is not allowed at takeoff and is not tolerated. Deal, and you're out on the spot.",
+        "healthText": "We care more about you getting home healthy than about lecturing you. There is no risk-free use — get your information from the people who know:",
+        "disclaimer": "This page is not an invitation to use. Possession and dealing are criminal offences. In an emergency: 112."
+      },
+      "spiking": {
+        "title": "Spiked drinks — what to watch for",
+        "signs": [
+          "Sudden dizziness, nausea or loss of control for no clear reason",
+          "Your drink was left unattended, or tastes or smells strange",
+          "Someone near you suddenly seems very different"
+        ],
+        "action": "Go to the awareness team or the medics straight away — or call 112. Never leave drinks unattended."
+      },
+      "gettingHome": {
+        "eyebrow": "Next mission",
+        "title": "Safely there & back",
+        "intro": "Get home well — the end of the mission isn't the end of awareness.",
+        "tipsLabel": "Getting home",
+        "tips": [
+          "Don't go alone if you can avoid it",
+          "Tell someone when you set off",
+          "If you feel uneasy: Heimwegtelefon 030 12074182"
+        ],
+        "mapsNote": "Maps open externally in your own app — no tracker loads here.",
+        "nextLabel": "Next launch:"
+      },
+      "houseRules": {
+        "eyebrow": "House rules",
+        "title": "Short & clear",
+        "intro": "Cross someone's boundaries and you're out — no discussion.",
+        "rules": [
+          {
+            "text": "Consent is mandatory",
+            "hot": true
+          },
+          {
+            "text": "No discrimination",
+            "hot": true
+          },
+          {
+            "text": "No photo without asking",
+            "hot": false
+          },
+          {
+            "text": "18+ with ID",
+            "hot": false
+          },
+          {
+            "text": "Zero tolerance for spiking",
+            "hot": false
+          },
+          {
+            "text": "Awareness is there to talk to",
+            "hot": false
+          }
+        ],
+        "venueNote": "The rules of each venue apply on top of ours (for example the freiLand Grundkonsens at the Spartacus)."
+      },
+      "faqHead": {
+        "eyebrow": "Before you ask",
+        "title": "Awareness FAQ"
+      },
+      "faq": [
+        {
+          "q": "Should I come to the awareness team even if it's only something small?",
+          "a": "Yes. There is no such thing as “too small” — just come by."
+        },
+        {
+          "q": "Does it stay anonymous if I report something?",
+          "a": "Yes. We only discuss incidents anonymised inside the team, and we do nothing without your okay."
+        },
+        {
+          "q": "Does the no-photo rule apply to my own story too?",
+          "a": "Yes — ask everyone before they end up in the shot, your own story included."
+        },
+        {
+          "q": "Can I join the awareness team?",
+          "a": "Yes please — write to us or drop by kollektiv.html#mitmachen."
+        }
+      ],
+      "share": {
+        "label": "Share the help page",
+        "text": "Awareness at takeoff: the team, emergency numbers, house rules.",
+        "copiedToast": "Link copied ✓"
+      },
+      "transmission": {
+        "text": "The awareness policy as a PDF, in plain language and in English — as soon as it's all been agreed with the team."
+      },
+      "meta": {
+        "label": "As of:",
+        "statusNote": "Agreed with the whole team as we go — nothing here is final."
+      }
+    }
   }
 }

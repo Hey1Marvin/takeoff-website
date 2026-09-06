@@ -101,5 +101,133 @@
   "patchTeaser": {
     "label": "Missions-Patches sammeln →",
     "href": "/events#flightlog"
+  },
+  "i18n": {
+    "en": {
+      "hero": {
+        "eyebrow": "Always up to date",
+        "h1": "The <span class=\"glow\">event calendar</span>",
+        "intro": "Subscribe once, stay up to date forever — until the real feed arrives, you pull every date into your calendar one click at a time."
+      },
+      "clock": {
+        "label": "Countdown to the next launch",
+        "fallbackTarget": "next launch",
+        "caption": "Ship time · Europe/Berlin",
+        "tplusLabel": "T–Plus since the last launch",
+        "liftoffNote": "under way",
+        "units": {
+          "days": "d"
+        }
+      },
+      "calendarActions": {
+        "googleLabel": "Google Calendar",
+        "icsLabel": "＋ Download .ics",
+        "icsAllLabel": "All upcoming dates (.ics)",
+        "subscribeLabel": "＋ Subscribe to the calendar (webcal)",
+        "subscribeTitle": "Demo — the real feed comes with the backend",
+        "subscribeNote": "The full feed comes with the backend — until then: save each date on its own, that already works.",
+        "tbaNote": "Date and time aren't fixed yet — the calendar entry follows as soon as we know."
+      },
+      "stats": {
+        "items": [
+          {
+            "mode": "auto",
+            "key": "upcomingCount",
+            "label": "planned missions"
+          },
+          {
+            "mode": "auto",
+            "key": "pastCount",
+            "label": "completed missions"
+          },
+          {
+            "mode": "manual",
+            "value": "2024",
+            "label": "on the go since"
+          },
+          {
+            "mode": "auto",
+            "key": "venueCount",
+            "label": "regular venues"
+          }
+        ]
+      },
+      "monthGrid": {
+        "eyebrow": "When do we launch",
+        "titleHtml": "The next few <span class=\"glow\">weeks</span>",
+        "lead": "Only months where something actually happens. Tap a marked day and you jump straight to that mission on the timeline.",
+        "emptyMonthNote": "No date this month — Telegram knows first.",
+        "todayLabel": "Today",
+        "gridLabelTemplate": "Calendar {month} {year}"
+      },
+      "timeline": {
+        "eyebrow": "The full picture",
+        "titleHtml": "All <span class=\"glow\">dates</span>",
+        "lead": "From the very first night to the next one — everything on a single line, with a calendar button on every upcoming date.",
+        "filters": [
+          {
+            "key": "all",
+            "label": "All"
+          },
+          {
+            "key": "upcoming",
+            "label": "Upcoming"
+          },
+          {
+            "key": "past",
+            "label": "Archive"
+          }
+        ],
+        "filterGroupLabel": "Filter the timeline",
+        "yearCountTemplate": "{n} missions",
+        "yearCountSingular": "1 mission",
+        "todayLabel": "Today",
+        "emptyNote": "No dates in this selection yet."
+      },
+      "venues": {
+        "eyebrow": "Where exactly",
+        "titleHtml": "Our <span class=\"glow\">landing sites</span>",
+        "lead": "Two places, that's all it takes. Both are easy to reach by tram and by bike."
+      },
+      "venueNotes": {
+        "Spartacus": "Our home base — most takeoff nights happen here.",
+        "Bastion am Schillerplatz": "Green space for open airs, daytime only."
+      },
+      "howto": {
+        "label": "How the subscription works",
+        "textHtml": "<b>Google Calendar:</b> Settings → \"Add calendar\" → \"From URL\" → paste our feed address. <b>iPhone/Mac &amp; Outlook:</b> tap the webcal link, done. (Until the real feed is up: the download buttons on every date already work for real.)"
+      },
+      "faqSection": {
+        "eyebrow": "Before you subscribe",
+        "titleHtml": "Questions about the <span class=\"glow\">subscription</span>",
+        "lead": "What the subscription can do today, what's still missing and how you won't miss anything until then."
+      },
+      "faq": [
+        {
+          "q": "Why can't I just subscribe?",
+          "a": "The server for a feed kept live comes with the website relaunch. Until then you can save every date on its own."
+        },
+        {
+          "q": "Does it work with every calendar app?",
+          "a": "Google, Apple Calendar and Outlook can all open .ics files — for most of them a double-click on the downloaded file is enough."
+        },
+        {
+          "q": "How do I find out when a date changes?",
+          "a": "Until the real subscription: join the Telegram channel, that's where the crew posts changes first."
+        },
+        {
+          "q": "Can I subscribe to only certain events?",
+          "a": "Not right now — either save single dates or (later) subscribe to the whole feed."
+        }
+      ],
+      "share": {
+        "label": "Share the calendar",
+        "text": "Every takeoff date at a glance.",
+        "copiedToast": "Link copied ✓"
+      },
+      "patchTeaser": {
+        "label": "Collect mission patches →"
+      }
+    }
   }
 }

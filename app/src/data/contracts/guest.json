@@ -5,7 +5,11 @@
   "labelPlural": "Gäste",
   "icon": "star",
   "description": "Gast-DJs & Acts ohne eigenes Profil (z. B. aus alten Lineups). Für ein volles Profil mit Bio/Bild stattdessen einen Artist anlegen.",
-  "storage": { "scope": "db", "collection": "guests", "key": "name" },
+  "storage": {
+    "scope": "db",
+    "collection": "guests",
+    "key": "name"
+  },
   "fields": [
     {
       "key": "name",
@@ -16,8 +20,23 @@
     }
   ],
   "list": {
-    "columns": ["name"],
+    "columns": [
+      "name"
+    ],
     "sort": "name"
   },
-  "actions": ["create", "edit", "delete"]
+  "actions": [
+    "create",
+    "edit",
+    "delete"
+  ],
+  "i18n": {
+    "_hinweis": "Uebersetzungen liegen als duennes Overlay am Datensatz: \"i18n\": { \"en\": { … } }. Der Formular-Generator MUSS diesen Schluessel kennen und beim Speichern durchreichen — sonst loescht er beim ersten Speichern alle Uebersetzungen. Aufgeloest wird das Overlay im Gateway (src/lib/i18n/overlay.ts).",
+    "locales": [
+      "en"
+    ],
+    "felder": [
+      "name"
+    ]
+  }
 }

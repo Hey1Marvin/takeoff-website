@@ -106,5 +106,74 @@
         "bpm": 150
       }
     ]
+  },
+  "i18n": {
+    "en": {
+      "hero": {
+        "eyebrow": "Frequencies",
+        "intro": "The people behind the decks — residents, guests and the takeoff podcast. No headliner hierarchy here, just good music.",
+        "registerLabel": "Archive",
+        "countArtists": "Channels",
+        "countSets": "Recordings",
+        "countGuests": "Guests",
+        "bandCaption": "One spike per recording — that's the archive, from the very first night to today."
+      },
+      "residents": {
+        "filterAllLabel": "All",
+        "filterAria": "Filter by genre",
+        "toggleLabel": "Profile",
+        "roleLabel": "Role",
+        "sinceLabel": "since",
+        "lastLabel": "Last played",
+        "nextLabel": "Next launch",
+        "listenLabel": "Listen",
+        "profileLabel": "View profile"
+      },
+      "sets": {
+        "eyebrow": "Recordings",
+        "randomHint": "One click, one random set out of the archive.",
+        "randomEmpty": "No sets in the archive yet — check back soon.",
+        "consentText": "Demo: the player would load here (two clicks, GDPR-friendly). No click, no tracking."
+      },
+      "gaeste": {
+        "eyebrow": "Guest log",
+        "title": "Already",
+        "titleGlow": "on our airwaves",
+        "intro": "Thanks to everyone who has shaped our nights — one click shows when we were on air together.",
+        "appearanceLabel": "Played at",
+        "appearanceEmpty": "Date still to be matched up."
+      },
+      "opendecks": {
+        "title": "Want to play for us?",
+        "text": "Send us your demo — we listen to everything.",
+        "checklistLabel": "What we need",
+        "checklist": [
+          "Set link (SoundCloud/Mixcloud, 20–30 min)",
+          "2–3 dates that would work for you",
+          "A line or two about you and your sound"
+        ],
+        "mailSubject": "Open Decks application",
+        "ctaLabel": "Send your demo"
+      },
+      "detail": {
+        "roleLabel": "Role",
+        "sinceLabel": "since",
+        "debutLabel": "Debut",
+        "mediaEyebrow": "Footage",
+        "mediaTitle": "In front of the",
+        "mediaTitleGlow": "decks",
+        "setsEyebrow": "Listen",
+        "setsCountLabel": "Recordings",
+        "logTitle": "Played at",
+        "logTitleGlow": "takeoff",
+        "logCountLabel": "Nights",
+        "backLabel": "← All artists",
+        "consentText": "Demo: the player would load here (two clicks, GDPR-friendly). No click, no tracking."
+      },
+      "frequenzband": {
+        "label": "Frequency band",
+        "otherLabel": "no fixed tempo"
+      }
+    }
   }
 }

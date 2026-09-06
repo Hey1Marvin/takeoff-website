@@ -25,12 +25,10 @@
    portiert werden — dort stehen sie noch nicht.
    ============================================================ */
 
-/* Import mit explizitem "/index": solange die alte Datei
-   src/lib/i18n.ts noch daneben liegt, gewinnt sie bei
-   "@/lib/i18n" die Modulaufloesung. Sobald der Orchestrator sie
-   entfernt hat, kann das "/index" hier weg. */
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useI18n } from "./I18nProvider";
-import { LOCALES, type Locale } from "@/lib/i18n";
+import { LOCALES, DEFAULT_LOCALE, type Locale } from "@/lib/i18n";
 
 /** "nav" = kompakt (DE/EN) fuer die Kopfleiste,
  *  "menu" = ausgeschrieben (Deutsch/English) fuers Overlay-Menue. */
@@ -41,6 +39,27 @@ const LABELS: Record<LangSwitchVariant, Record<Locale, string>> = {
   menu: { de: "Deutsch", en: "English" },
 };
 
+/* Dieselbe Seite in der anderen Sprache. Deutsch laeuft praefixlos,
+   Englisch unter /en/.
+
+   ACHTUNG, hier lag ein Fehler: `usePathname()` liefert den INTERN
+   umgeschriebenen Pfad, nicht den aus der Adressleiste. Der Proxy
+   schreibt /awareness auf /de/awareness um — die Komponente sieht also
+   "/de/awareness", obwohl im Browser "/awareness" steht. Wer nur "/en"
+   abschneidet, baut daraus "/en/de/awareness". Deshalb wird JEDES
+   bekannte Sprachpraefix entfernt, bevor das neue gesetzt wird. */
+export function pfadInSprache(pfad: string, ziel: Locale): string {
+  let ohne = pfad;
+  for (const l of LOCALES) {
+    if (ohne === `/${l}` || ohne.startsWith(`/${l}/`)) {
+      ohne = ohne.slice(l.length + 1) || "/";
+      break;
+    }
+  }
+  if (ziel === DEFAULT_LOCALE) return ohne;
+  return ohne === "/" ? "/en" : `/en${ohne}`;
+}
+
 export function LangSwitch({
   variant = "nav",
   className,
@@ -49,6 +68,7 @@ export function LangSwitch({
   className?: string;
 }) {
   const { locale, locked, setLocale } = useI18n();
+  const pfad = usePathname() || "/";
 
   /* Zweisprachiges aria-label, wie im Prototyp: der Umschalter
      wird von beiden Seiten aus gesucht, und ein Label in nur
@@ -68,21 +88,29 @@ export function LangSwitch({
       hidden={locked || undefined}
     >
       {LOCALES.map((code) => (
-        <button
+        /* Seit It. 18 ein LINK, kein Knopf mehr. Die Sprache steckt in
+           der Adresse, also ist der Wechsel eine Navigation — und damit
+           teilbar, per Rechtsklick in einem neuen Tab zu oeffnen und
+           fuer Suchmaschinen sichtbar. Als Knopf war er beides nicht.
+           `aria-current` statt `aria-pressed`: ein Link wird nicht
+           gedrueckt, er ist der aktuelle. */
+        <Link
           key={code}
-          type="button"
+          href={pfadInSprache(pfad, code)}
           /* data-set-lang bleibt im Markup: gleicher Schalter-Vertrag
              wie data-set-fx/data-set-theme, und Styles wie Tests im
              Prototyp greifen darauf zu. */
           data-set-lang={code}
-          aria-pressed={locale === code}
+          aria-current={locale === code ? "true" : undefined}
           lang={code}
           translate="no"
-          disabled={locked || undefined}
+          /* Den Wunsch trotzdem merken: er entscheidet nichts an dieser
+             Seite (das tut die Adresse), aber spaetere Einstiege ueber
+             die Startseite koennen ihn auswerten. */
           onClick={() => setLocale(code)}
         >
           {LABELS[variant][code]}
-        </button>
+        </Link>
       ))}
     </div>
   );

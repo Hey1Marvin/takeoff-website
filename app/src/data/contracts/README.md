@@ -103,6 +103,61 @@ Die Reihenfolge der Einträge im Formular entspricht der Array-Reihenfolge und d
 
 `type: "theme"` ist ein zusammengesetztes Widget, kein Klartext-Objekt-Feld. Es rendert einen Preset-Wähler (`options.presets`), eine Akzentfarbe (Hex) und einen Patch-Symbol-Wähler (`options.patches`). Beim Speichern schreibt der Generator sowohl `accent` (Hex) als auch das daraus abgeleitete `accentRgb` („R G B"-Trio) in den Datensatz — `accentRgb` muss nicht separat gepflegt werden. Fehlt `preset` in den Daten, gilt laut Gateway (`TakeoffData.activeTheme()`) automatisch `"space"`.
 
+## Übersetzungen (`i18n`)
+
+Die Website ist zweisprachig: Deutsch unter `/…`, Englisch unter `/en/…`.
+Übersetzungen liegen **am Datensatz**, nicht im UI-Wörterbuch — sonst müsste
+derselbe Text zweimal gepflegt werden, einmal in der Datenbank und einmal in
+`de.ts`/`en.ts`, und eine der beiden Fassungen veraltet still.
+
+Die Form ist ein **dünnes Overlay**:
+
+```json
+{
+  "slug": "pride",
+  "title": "Pride-Party",
+  "brief": "Eine Nacht für alle …",
+  "i18n": { "en": { "title": "Pride Party" } }
+}
+```
+
+Nur `title` ist übersetzt; `brief` fällt still auf Deutsch zurück. Genau so
+ist es gewollt — eine fehlende Übersetzung darf nichts verschwinden lassen.
+Aufgelöst wird das Overlay im Gateway (`src/lib/i18n/overlay.ts`), nicht in
+den Seiten.
+
+**Was das für den Formular-Generator heißt — und es ist die teuerste Falle
+im ganzen Contract-System:** Der Schlüssel `i18n` muss beim Speichern
+**durchgereicht** werden. Ein Generator, der nur die Felder schreibt, die er
+kennt, löscht beim ersten Speichern eines Datensatzes sämtliche
+Übersetzungen — und niemand merkt es, bis jemand die englische Seite
+aufruft.
+
+Jeder Contract, der übersetzbare Felder hat, führt deshalb einen
+`i18n`-Block:
+
+```json
+"i18n": {
+  "locales": ["en"],
+  "felder": ["title", "subtitle", "brief", "…"]
+}
+```
+
+`felder` nennt die Feld-Schlüssel, für die eine Übersetzung sinnvoll ist —
+Fließtext und Beschriftungen, nicht IDs, Slugs, Daten, Farben, URLs oder
+Handles. Der Generator kann daraus die Übersetzungsmaske bauen; die Liste ist
+eine Empfehlung, keine Sperre.
+
+Regeln beim Mischen (siehe `overlay.ts`):
+
+- Objekte werden **tief** gemischt.
+- Listen werden **ersetzt**, nicht elementweise gemischt — eine übersetzte
+  Aufzählung hat oft eine andere Länge.
+- **Ausnahme:** Listen von Objekten mit `slug` oder `id` werden über diesen
+  Schlüssel zugeordnet. Deshalb muss man nicht alle neun Events wiederholen,
+  um eines zu übersetzen.
+- Schlüssel mit `_` am Anfang (`_labels`) bleiben unangetastet.
+
 ## Auto-Registrierungs-Konvention
 
 **Neue Entity-Contracts:** Einfach eine neue `<name>.json`-Datei in diesem Ordner ablegen und in `manifest.json` unter `entities` eintragen (Dateiname). Kein Code in `admin.html`/`admin.js` muss angefasst werden — der Formular-Generator liest `manifest.json`, lädt jeden gelisteten Contract und baut Formular + Tabelle daraus.

@@ -5,7 +5,10 @@
   "labelPlural": "News-Seite (Kopftexte)",
   "icon": "newspaper",
   "description": "Nur der Kopfbereich (Hero) der News-Seite. Die einzelnen Meldungen selbst legst du über den Contract „News-Meldung“ an — sie erscheinen hier automatisch, neueste zuerst.",
-  "storage": { "scope": "page", "slug": "news" },
+  "storage": {
+    "scope": "page",
+    "slug": "news"
+  },
   "fields": [
     {
       "key": "hero.eyebrow",
@@ -31,5 +34,18 @@
       "help": "Kurzer Absatz direkt unter der Überschrift. **Fett** möglich, Absätze mit Leerzeile."
     }
   ],
-  "actions": ["edit"]
+  "actions": [
+    "edit"
+  ],
+  "i18n": {
+    "_hinweis": "Uebersetzungen liegen als duennes Overlay am Datensatz: \"i18n\": { \"en\": { … } }. Der Formular-Generator MUSS diesen Schluessel kennen und beim Speichern durchreichen — sonst loescht er beim ersten Speichern alle Uebersetzungen. Aufgeloest wird das Overlay im Gateway (src/lib/i18n/overlay.ts).",
+    "locales": [
+      "en"
+    ],
+    "felder": [
+      "hero.eyebrow",
+      "hero.h1",
+      "hero.intro"
+    ]
+  }
 }

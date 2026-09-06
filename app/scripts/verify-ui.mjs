@@ -163,7 +163,7 @@ console.log("\n== Sprache & Tag/Nacht-Knopf ==");
   await p.goto(BASE+"/",{waitUntil:"load"}); await p.waitForTimeout(700);
   const hatSwitch=await p.evaluate(()=>!!document.querySelector(".nav-lang"));
   note(hatSwitch,"Sprachumschalter in der Kopfleiste vorhanden");
-  await p.click('.nav-lang button:last-child');           // EN
+  await p.click('.nav-lang :is(a, button):last-child');   // EN — seit It. 18 ein Link
   await p.waitForTimeout(500);
   const nachher=await p.evaluate(()=>({lang:document.documentElement.lang,
     tel:document.querySelector(".hud-link")?.textContent.trim(),

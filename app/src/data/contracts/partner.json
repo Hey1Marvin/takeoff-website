@@ -5,7 +5,11 @@
   "labelPlural": "Partner",
   "icon": "handshake",
   "description": "Kooperationspartner & unterstützende Kollektive/Institutionen. Neu angelegt und Events zugewiesen — erscheinen dort automatisch.",
-  "storage": { "scope": "db", "collection": "partners", "key": "slug" },
+  "storage": {
+    "scope": "db",
+    "collection": "partners",
+    "key": "slug"
+  },
   "fields": [
     {
       "key": "slug",
@@ -49,8 +53,26 @@
     }
   ],
   "list": {
-    "columns": ["name", "url", "events"],
+    "columns": [
+      "name",
+      "url",
+      "events"
+    ],
     "sort": "name"
   },
-  "actions": ["create", "edit", "delete"]
+  "actions": [
+    "create",
+    "edit",
+    "delete"
+  ],
+  "i18n": {
+    "_hinweis": "Uebersetzungen liegen als duennes Overlay am Datensatz: \"i18n\": { \"en\": { … } }. Der Formular-Generator MUSS diesen Schluessel kennen und beim Speichern durchreichen — sonst loescht er beim ersten Speichern alle Uebersetzungen. Aufgeloest wird das Overlay im Gateway (src/lib/i18n/overlay.ts).",
+    "locales": [
+      "en"
+    ],
+    "felder": [
+      "name",
+      "beschreibung"
+    ]
+  }
 }

@@ -97,5 +97,189 @@
     "vcard.name": "Titel der Kontaktkarten-Kachel",
     "vcard.buttonLabel": "vCard-Button-Beschriftung",
     "vcard.note": "vCard-Hinweistext"
+  },
+  "i18n": {
+    "en": {
+      "hero": {
+        "eyebrow": "Radio contact",
+        "h1": "Say hello.",
+        "intro": "One inbox, real people behind it. We're all volunteers — give us a few days and you'll hear back. For quick questions about events, Telegram is the fast lane."
+      },
+      "sections": {
+        "konsole": {
+          "eyebrow": "Where to write",
+          "title": "What are you looking for?",
+          "intro": "Pick what you need — the station tells you which channel fits, how long it takes, and drafts the email for you.",
+          "channelsTitle": "All channels in plain language"
+        },
+        "vergleich": {
+          "eyebrow": "Channel comparison",
+          "title": "What suits you?",
+          "intro": "For anything confidential: email is better. For quick questions: Telegram — but it's public, everyone reads along."
+        },
+        "faq": {
+          "eyebrow": "Before you write",
+          "title": "Frequently asked",
+          "intro": "The five questions that reach us most often — your answer might already be here."
+        }
+      },
+      "station": {
+        "label": "Ground station Potsdam",
+        "statusNote": "Standing by · usually a reply within 2–5 days",
+        "sendPulseToast": "Signal on its way 📡",
+        "telegramToast": "Opening the channel …",
+        "copyToast": "Address copied ✓",
+        "recoHint": "Pick what you need above — the matching channel and its response time show up here.",
+        "readout": {
+          "title": "Station data",
+          "callsignLabel": "Call sign",
+          "positionLabel": "Position",
+          "position": "52.39° N · 13.06° E",
+          "timeLabel": "Local time",
+          "statusIdle": "Standing by",
+          "statusSending": "Signal on its way",
+          "channelLabel": "Channel",
+          "channelIdle": "all standing by"
+        }
+      },
+      "topics": [
+        {
+          "id": "allgemein",
+          "label": "General",
+          "text": "Everything that doesn't fit anywhere else.",
+          "mailSubject": "General question",
+          "responseNote": "usually 2–5 days"
+        },
+        {
+          "id": "booking",
+          "label": "Booking / artists",
+          "text": "A short intro, a demo link, the dates you'd like — we'll write back.",
+          "mailSubject": "Booking",
+          "mailBody": "A bit about me:\nDemo link:\nPreferred dates:",
+          "responseNote": "usually 2–5 days",
+          "linkLabel": "See the booking facts"
+        },
+        {
+          "id": "presse",
+          "label": "Press / partners",
+          "text": "Subject line \"Press\" is enough — the fact sheet is already up.",
+          "mailSubject": "Press",
+          "responseNote": "usually 2–5 days",
+          "linkLabel": "See the fact sheet"
+        },
+        {
+          "id": "awareness",
+          "label": "Awareness",
+          "text": "Did something happen at an event? We read carefully and in confidence.",
+          "mailSubject": "Awareness",
+          "responseNote": "confidential, usually 1–3 days",
+          "linkLabel": "Emergency & immediate help"
+        },
+        {
+          "id": "fundsachen",
+          "label": "Lost property",
+          "text": "The event, roughly when and where, and a short description are enough.",
+          "mailSubject": "Lost property",
+          "mailBody": "Event:\nWhere/when it was found:\nDescription:",
+          "responseNote": "usually 2–5 days"
+        },
+        {
+          "id": "mitmachen",
+          "label": "Get involved",
+          "text": "Bar, door, awareness, decor, first aid — take a look at the open roles.",
+          "mailSubject": "Get involved",
+          "mailBody": "I'd like to help out with:\n(Bar / door / awareness / decor building / first aid)",
+          "responseNote": "usually 2–5 days",
+          "linkLabel": "See the open roles"
+        },
+        {
+          "id": "schnell",
+          "label": "Quick & public",
+          "text": "For easy questions about the next event.",
+          "responseNote": "often faster — but everyone reads along"
+        }
+      ],
+      "channels": [
+        {
+          "label": "General",
+          "text": "",
+          "link": "mailto:info@takeoff-potsdam.de"
+        },
+        {
+          "label": "Booking / artists",
+          "text": "Demo link or enquiry by email — subject line \"Booking\". Fact sheet on the collective page.",
+          "link": "kollektiv.html#booking"
+        },
+        {
+          "label": "Press / partners",
+          "text": "Email with the subject line \"Press\" · press kit to follow.",
+          "link": "kollektiv.html#booking"
+        },
+        {
+          "label": "Awareness",
+          "text": "Did something happen at an event? Write to us — we read carefully and in confidence.",
+          "link": "awareness.html#hilfe"
+        },
+        {
+          "label": "Lost property",
+          "text": "Left something behind? Tell us the event and what it looks like.",
+          "link": ""
+        },
+        {
+          "label": "Get involved",
+          "text": "Bar, door, awareness, decor, first aid — take a look at the open roles.",
+          "link": "kollektiv.html#mitmachen"
+        },
+        {
+          "label": "Quick",
+          "text": "",
+          "link": "https://t.me/takeoffpotsdam"
+        }
+      ],
+      "channelCompare": [
+        {
+          "name": "Email",
+          "value": "info@takeoff-potsdam.de",
+          "note": "private · volunteer-run, usually 2–5 days"
+        },
+        {
+          "name": "Telegram",
+          "value": "@takeoffpotsdam",
+          "note": "public group · often faster, but everyone reads along"
+        },
+        {
+          "name": "Instagram",
+          "value": "@takeoff.potsdam",
+          "note": "DMs get checked now and then"
+        }
+      ],
+      "faq": [
+        {
+          "q": "How fast will I get an answer?",
+          "a": "We do this in our spare time — usually 2–5 days by email, Telegram is often quicker. Just before events it can take a little longer."
+        },
+        {
+          "q": "Is the Telegram group private?",
+          "a": "No, it's an open group — every member reads along. For sensitive topics, write us an email instead."
+        },
+        {
+          "q": "What belongs in a booking email?",
+          "a": "A demo link, a short intro and 2–3 dates you'd like, subject line \"Booking\". The fact sheet is on the collective page."
+        },
+        {
+          "q": "Is my awareness message confidential?",
+          "a": "Yes — we read carefully and pass nothing on without asking. In an acute emergency: call 112 or find the team on site."
+        },
+        {
+          "q": "Why isn't there a contact form?",
+          "a": "On purpose — no tracking, no third-party backend. Email or Telegram, with real people answering."
+        }
+      ],
+      "vcard": {
+        "name": "Contact card",
+        "buttonLabel": "Save contact (.vcf)",
+        "note": "Saves email, Telegram and Instagram straight into your contacts app."
+      }
+    }
   }
 }

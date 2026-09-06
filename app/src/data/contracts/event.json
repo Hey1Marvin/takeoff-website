@@ -569,5 +569,42 @@
     "edit",
     "toggleVisible",
     "delete"
-  ]
+  ],
+  "i18n": {
+    "_hinweis": "Uebersetzungen liegen als duennes Overlay am Datensatz: \"i18n\": { \"en\": { … } }. Der Formular-Generator MUSS diesen Schluessel kennen und beim Speichern durchreichen — sonst loescht er beim ersten Speichern alle Uebersetzungen. Aufgeloest wird das Overlay im Gateway (src/lib/i18n/overlay.ts).",
+    "locales": [
+      "en"
+    ],
+    "felder": [
+      "title",
+      "subtitle",
+      "venue.name",
+      "venue.address",
+      "venue.transit",
+      "pricing.label",
+      "age",
+      "lineup",
+      "brief",
+      "extras",
+      "raLink",
+      "page",
+      "stats",
+      "internalNote",
+      "media",
+      "sets",
+      "market",
+      "contest.titel",
+      "contest.veranstalter",
+      "contest.bedingungen",
+      "contest.deadline",
+      "contest.bekanntgabe",
+      "contest.ergebnis",
+      "rules",
+      "credits.artwork",
+      "credits.foerderung",
+      "credits.drinks",
+      "credits.kooperation",
+      "credits.hinweis"
+    ]
+  }
 }

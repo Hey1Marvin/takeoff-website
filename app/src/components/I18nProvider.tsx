@@ -211,9 +211,12 @@ export function I18nProvider({
   children,
   /** Sperre auch ohne DOM-Attribut erzwingen (z. B. aus einem Layout). */
   locked: lockedProp,
+  /** Die Sprache der ADRESSE. Seit It. 18 die Wahrheit — siehe unten. */
+  locale: localeProp,
 }: {
   children: ReactNode;
   locked?: boolean;
+  locale?: Locale;
 }) {
   /* Dritter Parameter = Server-Schnappschuss: beim Rendern auf dem
      Server und beim Hydrieren gilt Deutsch bzw. "nicht gesperrt",
@@ -222,7 +225,16 @@ export function I18nProvider({
   const domLocked = useSyncExternalStore(subscribeLock, getLockSnapshot, () => false);
 
   const locked = lockedProp ?? domLocked;
-  const locale: Locale = locked ? DEFAULT_LOCALE : preferred;
+  /* ── Die ADRESSE entscheidet, nicht der Speicher (It. 18) ──────
+     Seit die englische Fassung unter /en/ liegt, rendert der Server
+     die Seite bereits in einer Sprache. Naehme der Provider hier
+     weiter den localStorage-Wunsch, stuenden auf einer englischen
+     Seite deutsche Client-Texte, sobald jemand vorher einmal auf DE
+     geschaltet hat — ein Widerspruch zwischen zwei Wahrheiten, und
+     genau die Sorte Fehler, die nur bei manchen Besuchern auftritt.
+     Der gespeicherte Wunsch bleibt trotzdem erhalten: er entscheidet
+     nur noch, WOHIN der Umschalter fuehrt, nicht was hier steht. */
+  const locale: Locale = locked ? DEFAULT_LOCALE : (localeProp ?? preferred);
 
   /* <html lang> mitschreiben: Screenreader, Silbentrennung und
      die Browser-Uebersetzung haengen daran. */

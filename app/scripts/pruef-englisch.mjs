@@ -66,14 +66,22 @@ const ERLAUBT = [
   "straße", "strasse", "str.", "platz", "berlin", "flinta", "über uns",
 ];
 
-/* Deutsche Funktionswoerter. Nur solche, die im Englischen nicht
-   vorkommen — "die" waere z. B. untauglich (englisches Verb). */
+/* Deutsche Funktionswoerter. Nur solche, die im Englischen NICHT
+   vorkommen. Die Liste ist zweimal geschrumpft, weil sie falsche Treffer
+   erzeugte:
+   · "die" ist ein englisches Verb.
+   · "was" und "war" sind gewoehnliche englische Woerter — sie meldeten
+     korrekt uebersetzte Saetze wie "I was there" als deutsch.
+   · "wo" ist zwar kein englisches Wort, taucht aber in Eigennamen auf.
+   Wer hier etwas ergaenzt: erst pruefen, ob das Wort im Englischen
+   vorkommt. Ein Pruefer, der falsche Treffer meldet, wird ignoriert —
+   und dann meldet er die echten auch umsonst. */
 const MARKER = [
   "und", "oder", "nicht", "kein", "keine", "keinen", "für", "fuer", "mit",
-  "wird", "werden", "sind", "ist", "war", "waren", "mehr", "uhr", "seite",
+  "wird", "werden", "sind", "ist", "waren", "mehr", "uhr", "seite",
   "sich", "auch", "noch", "schon", "immer", "wenn", "dann", "aber", "weil",
   "vom", "zum", "zur", "beim", "durch", "gegen", "ohne", "über", "unter",
-  "jede", "jeder", "alle", "alles", "etwas", "wie", "was", "wer", "wo",
+  "jede", "jeder", "alle", "alles", "etwas", "wie", "wer",
   "ein", "eine", "einen", "einem", "eines", "dem", "den", "des", "das",
   "wir", "uns", "unser", "unsere", "euch", "eure", "dich", "dir", "dein",
   "abflug", "nächste", "naechste", "termine", "hören", "hoeren", "zurück",

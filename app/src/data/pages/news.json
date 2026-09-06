@@ -144,5 +144,126 @@
     "feedback.prompt": "Feedback-Frage",
     "statusBanner.active": "Lage-Banner einblenden (an/aus)",
     "statusBanner.text": "Text im Lage-Banner"
+  },
+  "i18n": {
+    "en": {
+      "hero": {
+        "h1": "What's happening",
+        "intro": "No blog, no waffle — short transmissions from the workshop and from the floors. The long posts live on Instagram, linked from here."
+      },
+      "status": {
+        "prefix": "Last transmission",
+        "todayLabel": "today",
+        "dayLabel": "1 day ago",
+        "daysTemplate": "{days} days ago",
+        "fallback": "Standing by — the latest transmission is right below."
+      },
+      "terminal": {
+        "label": "Incoming"
+      },
+      "station": {
+        "eyebrow": "Ground station",
+        "scopeCaption": "Receiving dish · Potsdam",
+        "readoutLabel": "Signal stats",
+        "channelsLabel": "Channels",
+        "channelsAria": "Filter by channel"
+      },
+      "stats": {
+        "totalLabel": "transmissions in total",
+        "topBadgeLabel": "most frequent badge",
+        "sinceLabel": "last transmission"
+      },
+      "filter": {
+        "allLabel": "All",
+        "countTemplate": "{shown} of {total} transmissions",
+        "emptyText": "Nothing with this badge — try \"All\"."
+      },
+      "archive": {
+        "eyebrow": "Archive",
+        "title": "Log archive"
+      },
+      "hint": {
+        "label": "Note",
+        "text": "Instagram posts only load after a click — before that, not a single request goes out to Instagram. New entries will come straight from the admin later."
+      },
+      "crosslinks": {
+        "n5": {
+          "label": "To the „Freiräume“ event"
+        },
+        "n4": {
+          "label": "To the Marsmission page"
+        },
+        "n3": {
+          "label": "To the Pride Party page"
+        },
+        "n2": {
+          "label": "To JOJO's artist page"
+        },
+        "n1": {
+          "label": "Collective log"
+        }
+      },
+      "countdown": {
+        "template": "→ in {days} days",
+        "tomorrowLabel": "→ tomorrow",
+        "todayLabel": "→ today!"
+      },
+      "share": {
+        "buttonLabel": "Share",
+        "copiedToast": "Link copied ✓",
+        "groupAria": "Share this transmission"
+      },
+      "instaCard": {
+        "buttonLabel": "View the Instagram post · only loads after a click",
+        "consentNote": "Two-click protection: only this second click goes to Instagram. Nothing loads from there before that.",
+        "openLabel": "Open on Instagram ↗"
+      },
+      "faqSection": {
+        "eyebrow": "Before you ask",
+        "title": "Frequently asked"
+      },
+      "channelCta": {
+        "eyebrow": "Stay in the loop",
+        "title": "Telegram first.",
+        "text": "Announcements and day-of updates land in the channel first — the website catches up when there's time.",
+        "ctaLabel": "Join Telegram"
+      },
+      "crossPromo": {
+        "historyLabel": "The whole story in the collective log →",
+        "calendarLabel": "Every date in the calendar →"
+      },
+      "feedback": {
+        "eyebrow": "Were you there?",
+        "prompt": "How was the last mission?",
+        "linkLabel": "Send us quick feedback →"
+      },
+      "faq": [
+        {
+          "q": "How often do you post here?",
+          "a": "Irregularly — whenever there's something to say. For day-to-day news: Telegram."
+        },
+        {
+          "q": "Why less than on Instagram?",
+          "a": "Only the short versions with a link live here — the long posts stay on Instagram."
+        },
+        {
+          "q": "Can I comment here?",
+          "a": "No — write to us directly instead, see contact or Telegram."
+        }
+      ],
+      "emptyState": {
+        "eyebrow": "Radio silence",
+        "title": "No transmission yet",
+        "text": "Nothing on the air right now — but Telegram knows first when that changes.",
+        "ctaLabel": "Join Telegram"
+      },
+      "statusBanner": {
+        "label": "Status update"
+      },
+      "feed": {
+        "label": "RSS / radio feed",
+        "note": "Coming with the backend — until then: Telegram."
+      }
+    }
   }
 }

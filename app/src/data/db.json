@@ -15,7 +15,12 @@
     ],
     "hudTicker": [],
     "fxDefault": "m",
-    "groundEnabled": true
+    "groundEnabled": true,
+    "i18n": {
+      "en": {
+        "claim": "rave collective · potsdam · est. 2024"
+      }
+    }
   },
   "events": [
     {
@@ -64,7 +69,22 @@
         "accentRgb": "111 201 232",
         "patch": "star"
       },
-      "image": "/img/placeholders/openair-gold.svg"
+      "image": "/img/placeholders/openair-gold.svg",
+      "i18n": {
+        "en": {
+          "subtitle": "with Schranzverbot & Stadtjugendring",
+          "venue": {
+            "address": "Green space, Potsdam West",
+            "transit": "Tram to Schillerplatz · bikes very welcome"
+          },
+          "age": "All ages — an open air in daylight",
+          "brief": "Free space for free beats: together with the collective Schranzverbot and the Stadtjugendring we're taking over the green by the Bastion — officially permitted, organised in solidarity, open to everyone.",
+          "extras": [
+            "Free Water",
+            "Awareness team in purple vests"
+          ]
+        }
+      }
     },
     {
       "slug": "marsmission",
@@ -123,7 +143,22 @@
         "patch": "planet"
       },
       "image": "/img/placeholders/mars-dust.svg",
-      "page": "event-marsmission.html"
+      "page": "event-marsmission.html",
+      "i18n": {
+        "en": {
+          "title": "takeoff: Mars Mission",
+          "venue": {
+            "address": "Friedrich-Engels-Straße 22, 14473 Potsdam (inside freiLand)",
+            "transit": "5 min walk from Potsdam main station"
+          },
+          "brief": "We're launching the Spartacus at the red planet — a papier-mâché Mars, blacklight, glow tubes standing in for outer space.",
+          "extras": [
+            "Free Water",
+            "Quiet room",
+            "Awareness team in purple vests"
+          ]
+        }
+      }
     },
     {
       "slug": "strandparty",
@@ -159,7 +194,17 @@
         "accentRgb": "229 194 92",
         "patch": "umbrella"
       },
-      "image": "/img/placeholders/water-cyan.svg"
+      "image": "/img/placeholders/water-cyan.svg",
+      "i18n": {
+        "en": {
+          "title": "takeoff: Beach Party",
+          "subtitle": "Working title · summer in November",
+          "venue": {
+            "transit": "5 min walk from Potsdam main station"
+          },
+          "brief": "Cocktails against the November rain. Line-up, times and decor secrets go out on the Telegram channel first."
+        }
+      }
     },
     {
       "slug": "pride",
@@ -200,7 +245,12 @@
         {
           "name": "TOYBOYS",
           "handle": "@toyboysband",
-          "genres": "Live-Band"
+          "genres": "Live-Band",
+          "i18n": {
+            "en": {
+              "genres": "Live band"
+            }
+          }
         },
         {
           "name": "Theresa Zanon",
@@ -279,11 +329,21 @@
         },
         {
           "n": "150",
-          "l": "outdoor-Kapazität"
+          "l": "outdoor-Kapazität",
+          "i18n": {
+            "en": {
+              "l": "outdoor capacity"
+            }
+          }
         },
         {
           "n": "∞",
-          "l": "Liebe"
+          "l": "Liebe",
+          "i18n": {
+            "en": {
+              "l": "Love"
+            }
+          }
         }
       ],
       "gallery": [
@@ -309,7 +369,12 @@
           "caption": "Animierter Teaser zur Pride-Party im KuZe",
           "ton": true,
           "orientation": "hoch",
-          "dauer": 25
+          "dauer": 25,
+          "i18n": {
+            "en": {
+              "caption": "Animated teaser for the Pride Party at KuZe"
+            }
+          }
         }
       ],
       "contest": {
@@ -320,6 +385,17 @@
         "deadline": "",
         "bekanntgabe": "",
         "ergebnis": ""
+      },
+      "i18n": {
+        "en": {
+          "title": "Pride Party",
+          "subtitle": "Bands, drag & DJs · fahrradCSD afterparty",
+          "brief": "40 °C, a storm warning, the demo called off — the party wasn't. Three floors, free water against the heat, taking down sun sails in a storm. “Best event we've ever had.”",
+          "contest": {
+            "titel": "Two FLINTA slots",
+            "bedingungen": "We were looking for Hard Bounce, Trance or NeoRave above 155 BPM — one to two hours, solo or B2B, apply with a SoundCloud link in the DMs."
+          }
+        }
       }
     },
     {
@@ -399,7 +475,12 @@
           "caption": "„Cute Date Idea\" — Teaser zum Free Entry Rave am 17.01.",
           "ton": true,
           "orientation": "hoch",
-          "dauer": 35
+          "dauer": 35,
+          "i18n": {
+            "en": {
+              "caption": "“Cute Date Idea” — teaser for the Free Entry Rave on 17.01."
+            }
+          }
         },
         {
           "kind": "video",
@@ -409,7 +490,12 @@
           "caption": "Animierter Teaser mit den DJ-Ankündigungen zum 17.01.",
           "ton": true,
           "orientation": "hoch",
-          "dauer": 18
+          "dauer": 18,
+          "i18n": {
+            "en": {
+              "caption": "Animated teaser with the DJ announcements for 17.01."
+            }
+          }
         }
       ],
       "rules": [
@@ -421,6 +507,25 @@
         "artwork": "@kuenstlicht_design",
         "foerderung": "Kinder- und Jugendbudget Potsdam",
         "hinweis": "Spenden vor Ort helfen beim Bau der eigenen Technik."
+      },
+      "i18n": {
+        "en": {
+          "subtitle": "Local line-up · community focus",
+          "venue": {
+            "transit": "5 min walk from Potsdam main station"
+          },
+          "pricing": {
+            "label": "By donation"
+          },
+          "brief": "Local line-up, community focus — and that's why entry is free for everyone. Made possible by the **Kinder- und Jugendbudget Potsdam**.",
+          "extras": [
+            "Fire bowl",
+            "Stone-oven pizza"
+          ],
+          "credits": {
+            "hinweis": "Donations on the night help us build our own sound system."
+          }
+        }
       }
     },
     {
@@ -504,7 +609,13 @@
         {
           "name": "SENAIDA",
           "genres": "Gewinnerin des FLINTA-Contests",
-          "note": "B2B gespielt; der Name der zweiten Person ist uns nicht überliefert"
+          "note": "B2B gespielt; der Name der zweiten Person ist uns nicht überliefert",
+          "i18n": {
+            "en": {
+              "genres": "Winner of the FLINTA contest",
+              "note": "Played B2B; the second person's name has not come down to us."
+            }
+          }
         }
       ],
       "brief": "Unser bis dahin größtes Event, zusammen mit **No Gravity Berlin**: Mario Kart auf der Leinwand, Fragezeichen-Blöcke über dem Pult, Pop-up-Stände im Foyer — und ein bezahlter Prime-Time-Slot, den ein FLINTA-DJ-Contest vergeben hat.",
@@ -524,7 +635,12 @@
           "caption": "Trailer zum Mario-Kart-Rave mit Ausschnitten",
           "ton": true,
           "orientation": "hoch",
-          "dauer": 31
+          "dauer": 31,
+          "i18n": {
+            "en": {
+              "caption": "Trailer for the Mario Kart rave, with clips"
+            }
+          }
         },
         {
           "kind": "video",
@@ -534,7 +650,12 @@
           "caption": "Animiertes Intro mit allen DJ-Namen",
           "ton": true,
           "orientation": "hoch",
-          "dauer": 21
+          "dauer": 21,
+          "i18n": {
+            "en": {
+              "caption": "Animated intro with all the DJ names"
+            }
+          }
         },
         {
           "kind": "video",
@@ -544,7 +665,12 @@
           "caption": "Der Fernseher mit Mario Kart mitten im Rave",
           "ton": true,
           "orientation": "hoch",
-          "dauer": 9
+          "dauer": 9,
+          "i18n": {
+            "en": {
+              "caption": "The TV running Mario Kart in the middle of the rave"
+            }
+          }
         },
         {
           "kind": "video",
@@ -554,7 +680,12 @@
           "caption": "Die Deko-Karte wird angebracht",
           "ton": true,
           "orientation": "hoch",
-          "dauer": 19
+          "dauer": 19,
+          "i18n": {
+            "en": {
+              "caption": "Putting up the decor map"
+            }
+          }
         },
         {
           "kind": "video",
@@ -564,7 +695,12 @@
           "caption": "mølly (on molly) am Pult, von hinten in die Menge",
           "ton": false,
           "orientation": "quer",
-          "dauer": 14
+          "dauer": 14,
+          "i18n": {
+            "en": {
+              "caption": "mølly (on molly) at the booth, filmed from behind into the crowd"
+            }
+          }
         },
         {
           "kind": "video",
@@ -574,7 +710,12 @@
           "caption": "mølly (on molly) aus der Menge aufs Pult",
           "ton": false,
           "orientation": "quer",
-          "dauer": 34
+          "dauer": 34,
+          "i18n": {
+            "en": {
+              "caption": "mølly (on molly) from the crowd towards the booth"
+            }
+          }
         },
         {
           "kind": "video",
@@ -584,7 +725,12 @@
           "caption": "mølly (on molly) — Lichter über der Menge",
           "ton": false,
           "orientation": "quer",
-          "dauer": 19
+          "dauer": 19,
+          "i18n": {
+            "en": {
+              "caption": "mølly (on molly) — lights above the crowd"
+            }
+          }
         },
         {
           "kind": "video",
@@ -594,7 +740,12 @@
           "caption": "Aus der Menge aufs Pult — Leute im Vordergrund",
           "ton": false,
           "orientation": "quer",
-          "dauer": 18
+          "dauer": 18,
+          "i18n": {
+            "en": {
+              "caption": "From the crowd towards the booth — people in the foreground"
+            }
+          }
         },
         {
           "kind": "video",
@@ -604,7 +755,12 @@
           "caption": "mølly (on molly) von der anderen Ecke",
           "ton": false,
           "orientation": "quer",
-          "dauer": 45
+          "dauer": 45,
+          "i18n": {
+            "en": {
+              "caption": "mølly (on molly) from the other corner"
+            }
+          }
         },
         {
           "kind": "video",
@@ -614,7 +770,12 @@
           "caption": "Blick von der Seite aufs Pult",
           "ton": false,
           "orientation": "quer",
-          "dauer": 16
+          "dauer": 16,
+          "i18n": {
+            "en": {
+              "caption": "Side view of the booth"
+            }
+          }
         },
         {
           "kind": "video",
@@ -624,7 +785,12 @@
           "caption": "MIMI404 am Pult, von hinten in die Menge",
           "ton": false,
           "orientation": "quer",
-          "dauer": 21
+          "dauer": 21,
+          "i18n": {
+            "en": {
+              "caption": "MIMI404 at the booth, filmed from behind into the crowd"
+            }
+          }
         },
         {
           "kind": "video",
@@ -634,7 +800,12 @@
           "caption": "MIMI404 — Blick über das Pult in die Menge",
           "ton": false,
           "orientation": "quer",
-          "dauer": 18
+          "dauer": 18,
+          "i18n": {
+            "en": {
+              "caption": "MIMI404 — looking across the booth into the crowd"
+            }
+          }
         },
         {
           "kind": "video",
@@ -644,7 +815,12 @@
           "caption": "MIMI404 vom Pult aus in die Menge",
           "ton": false,
           "orientation": "quer",
-          "dauer": 16
+          "dauer": 16,
+          "i18n": {
+            "en": {
+              "caption": "MIMI404 from the booth into the crowd"
+            }
+          }
         },
         {
           "kind": "video",
@@ -654,7 +830,12 @@
           "caption": "MIMI404 aus der Menge",
           "ton": false,
           "orientation": "quer",
-          "dauer": 33
+          "dauer": 33,
+          "i18n": {
+            "en": {
+              "caption": "MIMI404 from the crowd"
+            }
+          }
         },
         {
           "kind": "video",
@@ -664,7 +845,12 @@
           "caption": "MIMI404 am Pult, seitlich",
           "ton": false,
           "orientation": "quer",
-          "dauer": 25
+          "dauer": 25,
+          "i18n": {
+            "en": {
+              "caption": "MIMI404 at the booth, from the side"
+            }
+          }
         },
         {
           "kind": "video",
@@ -674,7 +860,12 @@
           "caption": "MIMI404 aus der Menge gefilmt",
           "ton": false,
           "orientation": "quer",
-          "dauer": 15
+          "dauer": 15,
+          "i18n": {
+            "en": {
+              "caption": "MIMI404 filmed from the crowd"
+            }
+          }
         },
         {
           "kind": "video",
@@ -684,7 +875,12 @@
           "caption": "MIMI404 von hinten über die Menge",
           "ton": false,
           "orientation": "quer",
-          "dauer": 11
+          "dauer": 11,
+          "i18n": {
+            "en": {
+              "caption": "MIMI404 from behind, out over the crowd"
+            }
+          }
         },
         {
           "kind": "video",
@@ -694,7 +890,12 @@
           "caption": "Blick von weiter hinten aufs Pult",
           "ton": false,
           "orientation": "quer",
-          "dauer": 17
+          "dauer": 17,
+          "i18n": {
+            "en": {
+              "caption": "View of the booth from further back"
+            }
+          }
         },
         {
           "kind": "video",
@@ -704,7 +905,12 @@
           "caption": "MIMI404 von der Seite",
           "ton": false,
           "orientation": "quer",
-          "dauer": 13
+          "dauer": 13,
+          "i18n": {
+            "en": {
+              "caption": "MIMI404 from the side"
+            }
+          }
         },
         {
           "kind": "video",
@@ -714,7 +920,12 @@
           "caption": "MIMI404 seitlich aus der Menge",
           "ton": false,
           "orientation": "quer",
-          "dauer": 12
+          "dauer": 12,
+          "i18n": {
+            "en": {
+              "caption": "MIMI404 from the side, out of the crowd"
+            }
+          }
         },
         {
           "kind": "video",
@@ -724,7 +935,12 @@
           "caption": "SENAIDA und Partnerin B2B, von hinten in die Menge",
           "ton": false,
           "orientation": "quer",
-          "dauer": 14
+          "dauer": 14,
+          "i18n": {
+            "en": {
+              "caption": "SENAIDA and her B2B partner, filmed from behind into the crowd"
+            }
+          }
         },
         {
           "kind": "video",
@@ -734,7 +950,12 @@
           "caption": "Die beiden von der Seite",
           "ton": false,
           "orientation": "quer",
-          "dauer": 20
+          "dauer": 20,
+          "i18n": {
+            "en": {
+              "caption": "The two of them from the side"
+            }
+          }
         },
         {
           "kind": "video",
@@ -744,7 +965,12 @@
           "caption": "Aus der Menge auf die beiden",
           "ton": false,
           "orientation": "quer",
-          "dauer": 12
+          "dauer": 12,
+          "i18n": {
+            "en": {
+              "caption": "From the crowd towards the two of them"
+            }
+          }
         },
         {
           "kind": "video",
@@ -754,7 +980,12 @@
           "caption": "Von hinter den beiden in die Menge",
           "ton": false,
           "orientation": "quer",
-          "dauer": 18
+          "dauer": 18,
+          "i18n": {
+            "en": {
+              "caption": "From behind the two of them into the crowd"
+            }
+          }
         },
         {
           "kind": "video",
@@ -764,7 +995,12 @@
           "caption": "Die beiden seitlich am Pult",
           "ton": false,
           "orientation": "quer",
-          "dauer": 19
+          "dauer": 19,
+          "i18n": {
+            "en": {
+              "caption": "The two of them at the booth, from the side"
+            }
+          }
         },
         {
           "kind": "video",
@@ -774,7 +1010,12 @@
           "caption": "Die beiden von vorn",
           "ton": false,
           "orientation": "quer",
-          "dauer": 33
+          "dauer": 33,
+          "i18n": {
+            "en": {
+              "caption": "The two of them from the front"
+            }
+          }
         },
         {
           "kind": "video",
@@ -784,7 +1025,12 @@
           "caption": "Die beiden am Pult",
           "ton": false,
           "orientation": "hoch",
-          "dauer": 16
+          "dauer": 16,
+          "i18n": {
+            "en": {
+              "caption": "The two of them at the booth"
+            }
+          }
         },
         {
           "kind": "video",
@@ -794,7 +1040,12 @@
           "caption": "SENAIDA stellt sich vor — Gewinnerin des DJ-Contests",
           "ton": true,
           "orientation": "hoch",
-          "dauer": 30
+          "dauer": 30,
+          "i18n": {
+            "en": {
+              "caption": "Meet SENAIDA — winner of the DJ contest"
+            }
+          }
         },
         {
           "kind": "video",
@@ -804,7 +1055,12 @@
           "caption": "Zwei DJs, die B2B gespielt haben, stellen sich vor",
           "ton": true,
           "orientation": "hoch",
-          "dauer": 24
+          "dauer": 24,
+          "i18n": {
+            "en": {
+              "caption": "Meet the two DJs who played B2B"
+            }
+          }
         },
         {
           "kind": "video",
@@ -814,7 +1070,12 @@
           "caption": "Caro Tin stellt sich vor",
           "ton": true,
           "orientation": "hoch",
-          "dauer": 40
+          "dauer": 40,
+          "i18n": {
+            "en": {
+              "caption": "Meet Caro Tin"
+            }
+          }
         },
         {
           "kind": "video",
@@ -824,7 +1085,12 @@
           "caption": "Meme-Teaser zum 27.09.",
           "ton": true,
           "orientation": "hoch",
-          "dauer": 25
+          "dauer": 25,
+          "i18n": {
+            "en": {
+              "caption": "Meme teaser for 27.09."
+            }
+          }
         },
         {
           "kind": "video",
@@ -834,29 +1100,54 @@
           "caption": "Zweiter Meme-Teaser zum 27.09.",
           "ton": true,
           "orientation": "hoch",
-          "dauer": 18
+          "dauer": 18,
+          "i18n": {
+            "en": {
+              "caption": "Second meme teaser for 27.09."
+            }
+          }
         }
       ],
       "market": [
         {
           "name": "dumbdry.studio",
           "handle": "@dumbdry.studio",
-          "beschreibung": "„we make art not clothes\""
+          "beschreibung": "„we make art not clothes\"",
+          "i18n": {
+            "en": {
+              "beschreibung": "“we make art not clothes”"
+            }
+          }
         },
         {
           "name": "fireheadfairy",
           "handle": "@fireheadfairy",
-          "beschreibung": "Handgemachte Feuerzeuge und Anhänger"
+          "beschreibung": "Handgemachte Feuerzeuge und Anhänger",
+          "i18n": {
+            "en": {
+              "beschreibung": "Handmade lighters and pendants"
+            }
+          }
         },
         {
           "name": "vomito.shop",
           "handle": "@vomito.shop",
-          "beschreibung": "Handgemachte Accessoires"
+          "beschreibung": "Handgemachte Accessoires",
+          "i18n": {
+            "en": {
+              "beschreibung": "Handmade accessories"
+            }
+          }
         },
         {
           "name": "Tattoo & Tooth Gems",
           "handle": "",
-          "beschreibung": "Stand war zum Zeitpunkt der Ankündigung noch offen"
+          "beschreibung": "Stand war zum Zeitpunkt der Ankündigung noch offen",
+          "i18n": {
+            "en": {
+              "beschreibung": "The stall was still open at the time of the announcement"
+            }
+          }
         }
       ],
       "contest": {
@@ -877,7 +1168,27 @@
         "Drinks von Mampe",
         "Free Water",
         "Awareness-Team"
-      ]
+      ],
+      "i18n": {
+        "en": {
+          "subtitle": "Rave on Rainbow · Mario Kart night",
+          "pricing": {
+            "label": "€10 in advance · the first tickets cheaper"
+          },
+          "brief": "Our biggest event yet, together with **No Gravity Berlin**: Mario Kart on the big screen, question-mark blocks above the booth, pop-up stalls in the foyer — and a paid prime-time slot handed out by a FLINTA DJ contest.",
+          "extras": [
+            "Pop-up stalls",
+            "Drinks by Mampe",
+            "Free Water",
+            "Awareness team"
+          ],
+          "contest": {
+            "titel": "FLINTA-only DJ contest",
+            "bedingungen": "A paid prime-time slot. Entries were the most recent set, sent by DM — solo or B2B. Judged on passion and skill, not on reach.",
+            "ergebnis": "SENAIDA won and closed the night B2B."
+          }
+        }
+      }
     },
     {
       "slug": "spartacus-nacht",
@@ -928,7 +1239,12 @@
           "name": "DJ Ordnungsamt",
           "handle": "@dj__ordnungsamt",
           "b2bWith": "Lovestory",
-          "note": "Zu klären: die Datenbank führte hier „DJ Loveletter\" — der Dank-Post nennt @dj__ordnungsamt und @lovestory_bln als Paar."
+          "note": "Zu klären: die Datenbank führte hier „DJ Loveletter\" — der Dank-Post nennt @dj__ordnungsamt und @lovestory_bln als Paar.",
+          "i18n": {
+            "en": {
+              "note": "Still to clarify: the database had “DJ Loveletter” here — the thank-you post names @dj__ordnungsamt and @lovestory_bln as a pair."
+            }
+          }
         },
         {
           "name": "Lovestory",
@@ -953,7 +1269,12 @@
           "caption": "Recap der Spartacus-Nacht am 09.05.",
           "ton": true,
           "orientation": "hoch",
-          "dauer": 14
+          "dauer": 14,
+          "i18n": {
+            "en": {
+              "caption": "Recap of the Spartacus night on 09.05."
+            }
+          }
         }
       ],
       "sets": [
@@ -962,16 +1283,36 @@
           "meta": "Liveset · SoundCloud",
           "platform": "soundcloud",
           "id": "dj-platzhalter-0905",
-          "url": "https://soundcloud.com/takeoff-potsdam/dj-platzhalter-0905"
+          "url": "https://soundcloud.com/takeoff-potsdam/dj-platzhalter-0905",
+          "i18n": {
+            "en": {
+              "meta": "Live set · SoundCloud"
+            }
+          }
         },
         {
           "title": "Molly (on molly) 09.05. @ Takeoff",
           "meta": "Gast-Set · SoundCloud",
           "platform": "soundcloud",
           "id": "molly-on-molly-0905",
-          "url": "https://soundcloud.com/takeoff-potsdam/molly-on-molly-0905"
+          "url": "https://soundcloud.com/takeoff-potsdam/molly-on-molly-0905",
+          "i18n": {
+            "en": {
+              "meta": "Guest set · SoundCloud"
+            }
+          }
         }
-      ]
+      ],
+      "i18n": {
+        "en": {
+          "title": "Spartacus night",
+          "subtitle": "Antiquity meets trance",
+          "pricing": {
+            "label": "€10 until midnight, then €12 · door only"
+          },
+          "brief": "A burning sign above the temple — a good deal bigger, because last time it was over at 200 people."
+        }
+      }
     },
     {
       "slug": "out-of-space",
@@ -1037,13 +1378,29 @@
           "caption": "Animiertes Intro zum Nil-Rave am 11.01.",
           "ton": true,
           "orientation": "hoch",
-          "dauer": 23
+          "dauer": 23,
+          "i18n": {
+            "en": {
+              "caption": "Animated intro for the Nilkeller rave on 11.01."
+            }
+          }
         }
       ],
       "credits": {
         "artwork": "@niico.off"
       },
-      "trackId": "Sixten — Here We Go Yo"
+      "trackId": "Sixten — Here We Go Yo",
+      "i18n": {
+        "en": {
+          "venue": {
+            "transit": "Neues Palais university campus"
+          },
+          "pricing": {
+            "label": "€3–5 at the door · no advance tickets"
+          },
+          "brief": "Starry sky, space station, pixel type — and doors closed at 200, because the cellar was full."
+        }
+      }
     },
     {
       "slug": "sky-high",
@@ -1074,7 +1431,12 @@
       "lineup": [
         {
           "name": "Cyonic",
-          "genres": "Debüt · 22:00"
+          "genres": "Debüt · 22:00",
+          "i18n": {
+            "en": {
+              "genres": "Debut · 22:00"
+            }
+          }
         }
       ],
       "brief": "Hier ging alles los. Telegram-Crew kam früher rein — manche Traditionen sind von Anfang an da.",
@@ -1094,7 +1456,12 @@
           "caption": "Animiertes Intro zum allerersten Rave — takeoff-Thema",
           "ton": true,
           "orientation": "hoch",
-          "dauer": 36
+          "dauer": 36,
+          "i18n": {
+            "en": {
+              "caption": "Animated intro for the very first rave — takeoff theme"
+            }
+          }
         }
       ],
       "sets": [
@@ -1103,9 +1470,23 @@
           "meta": "Opening-Set · YouTube",
           "platform": "youtube",
           "id": "en6MHLd2ZTo",
-          "url": "https://www.youtube.com/watch?v=en6MHLd2ZTo"
+          "url": "https://www.youtube.com/watch?v=en6MHLd2ZTo",
+          "i18n": {
+            "en": {
+              "meta": "Opening set · YouTube"
+            }
+          }
         }
-      ]
+      ],
+      "i18n": {
+        "en": {
+          "subtitle": "The first takeoff",
+          "pricing": {
+            "label": "Advance tickets through our own shop"
+          },
+          "brief": "Where it all began. The Telegram crew got in earlier — some traditions are there from day one."
+        }
+      }
     }
   ],
   "artists": [
@@ -1138,7 +1519,12 @@
           "meta": "Liveset · YouTube",
           "platform": "youtube",
           "id": "p0nduaeveQc",
-          "url": "https://www.youtube.com/watch?v=p0nduaeveQc"
+          "url": "https://www.youtube.com/watch?v=p0nduaeveQc",
+          "i18n": {
+            "en": {
+              "meta": "Live set · YouTube"
+            }
+          }
         }
       ],
       "appearances": [
@@ -1154,7 +1540,12 @@
           "caption": "JOJO legt auf — Tageslicht",
           "ton": false,
           "orientation": "hoch",
-          "dauer": 14
+          "dauer": 14,
+          "i18n": {
+            "en": {
+              "caption": "JOJO on the decks — daylight"
+            }
+          }
         },
         {
           "kind": "video",
@@ -1164,9 +1555,19 @@
           "caption": "JOJO und DJ Platzhalter über ihren Sound",
           "ton": true,
           "orientation": "hoch",
-          "dauer": 37
+          "dauer": 37,
+          "i18n": {
+            "en": {
+              "caption": "JOJO and DJ Platzhalter on their sound"
+            }
+          }
         }
-      ]
+      ],
+      "i18n": {
+        "en": {
+          "bio": "Bio & photo to come — with consent, as it should be."
+        }
+      }
     },
     {
       "slug": "platzhalter",
@@ -1183,7 +1584,12 @@
           "meta": "09.05. · Liveset",
           "platform": "soundcloud",
           "id": "dj-platzhalter-0905",
-          "url": "https://soundcloud.com/takeoff-potsdam/dj-platzhalter-0905"
+          "url": "https://soundcloud.com/takeoff-potsdam/dj-platzhalter-0905",
+          "i18n": {
+            "en": {
+              "meta": "09.05. · live set"
+            }
+          }
         },
         {
           "title": "Cyonic B2B DJ Platzhalter @ Feel Festival",
@@ -1207,9 +1613,20 @@
           "caption": "JOJO und DJ Platzhalter über ihren Sound",
           "ton": true,
           "orientation": "hoch",
-          "dauer": 37
+          "dauer": 37,
+          "i18n": {
+            "en": {
+              "caption": "JOJO and DJ Platzhalter on their sound"
+            }
+          }
         }
-      ]
+      ],
+      "i18n": {
+        "en": {
+          "role": "Resident · Co-founder",
+          "bio": "Nico — helped build takeoff in 2024. The name says it all (Platzhalter = placeholder); the bio is still coming."
+        }
+      }
     },
     {
       "slug": "cyonic",
@@ -1243,7 +1660,13 @@
         "sky-high"
       ],
       "page": "artist-cyonic.html",
-      "note": "In älteren Ankündigungen als @cyonic.wav geführt — zu klären, welcher Handle aktuell ist."
+      "note": "In älteren Ankündigungen als @cyonic.wav geführt — zu klären, welcher Handle aktuell ist.",
+      "i18n": {
+        "en": {
+          "role": "DJ · since day one",
+          "bio": "On board from the very first mission. Speciality: B2B sets."
+        }
+      }
     },
     {
       "slug": "blaulicht",
@@ -1254,7 +1677,14 @@
       "since": "2025",
       "bio": "Mik — baut die komplette Lichttechnik des Kollektivs und steht auch selbst am Pult.",
       "sets": [],
-      "appearances": []
+      "appearances": [],
+      "i18n": {
+        "en": {
+          "role": "Lights & DJ",
+          "genres": "DMX · Tubes · Blacklight",
+          "bio": "Mik — builds the collective's entire lighting rig and plays the decks too."
+        }
+      }
     }
   ],
   "partners": [
@@ -1266,7 +1696,12 @@
       "beschreibung": "Co-Host Open Air „Freiräume“",
       "events": [
         "freiraeume"
-      ]
+      ],
+      "i18n": {
+        "en": {
+          "beschreibung": "Co-host of the Open Air “Freiräume”"
+        }
+      }
     },
     {
       "slug": "no-gravity-berlin",
@@ -1274,7 +1709,12 @@
       "url": "",
       "logo": "",
       "beschreibung": "Partner-Kollektiv Berlin",
-      "events": []
+      "events": [],
+      "i18n": {
+        "en": {
+          "beschreibung": "Partner collective in Berlin"
+        }
+      }
     },
     {
       "slug": "spartacus",
@@ -1288,7 +1728,12 @@
         "free-entry-rave",
         "groesstes-event",
         "spartacus-nacht"
-      ]
+      ],
+      "i18n": {
+        "en": {
+          "beschreibung": "Second home inside freiLand"
+        }
+      }
     },
     {
       "slug": "freiland-potsdam",
@@ -1308,7 +1753,12 @@
       "beschreibung": "Location Pride-Party",
       "events": [
         "pride"
-      ]
+      ],
+      "i18n": {
+        "en": {
+          "beschreibung": "Venue of the Pride Party"
+        }
+      }
     },
     {
       "slug": "nilkeller",
@@ -1328,7 +1778,12 @@
       "beschreibung": "Genehmigungs-Partner „Freiräume“",
       "events": [
         "freiraeume"
-      ]
+      ],
+      "i18n": {
+        "en": {
+          "beschreibung": "Permit partner for “Freiräume”"
+        }
+      }
     },
     {
       "slug": "regenbogen-potsdam-e-v",
@@ -1358,13 +1813,23 @@
       "slug": "nico",
       "initials": "NI",
       "name": "Nico · DJ Platzhalter",
-      "role": "Mitgründer · Orga · DJ"
+      "role": "Mitgründer · Orga · DJ",
+      "i18n": {
+        "en": {
+          "role": "Co-founder · Organisation · DJ"
+        }
+      }
     },
     {
       "slug": "mik",
       "initials": "MI",
       "name": "Mik · Blaulicht",
-      "role": "Lichttechnik · DMX · DJ"
+      "role": "Lichttechnik · DMX · DJ",
+      "i18n": {
+        "en": {
+          "role": "Lighting · DMX · DJ"
+        }
+      }
     },
     {
       "slug": "jojo",
@@ -1376,31 +1841,60 @@
       "slug": "cyonic",
       "initials": "CY",
       "name": "Cyonic",
-      "role": "DJ · seit Tag 1"
+      "role": "DJ · seit Tag 1",
+      "i18n": {
+        "en": {
+          "role": "DJ · since day one"
+        }
+      }
     },
     {
       "slug": "awareness-team",
       "icon": "heart",
       "name": "Awareness-Team",
-      "role": "Lila Westen · ansprechbar"
+      "role": "Lila Westen · ansprechbar",
+      "i18n": {
+        "en": {
+          "name": "Awareness team",
+          "role": "Purple vests · always approachable"
+        }
+      }
     },
     {
       "slug": "sani-team",
       "icon": "cross",
       "name": "Sani-Team",
-      "role": "Ersthelfer*innen · im Umlauf"
+      "role": "Ersthelfer*innen · im Umlauf",
+      "i18n": {
+        "en": {
+          "name": "First-aid team",
+          "role": "First aiders · out and about"
+        }
+      }
     },
     {
       "slug": "deko-bau",
       "icon": "bolt",
       "name": "Deko & Bau",
-      "role": "Requisiten · Motto-Welten"
+      "role": "Requisiten · Motto-Welten",
+      "i18n": {
+        "en": {
+          "name": "Decor & build",
+          "role": "Props · themed worlds"
+        }
+      }
     },
     {
       "slug": "bar-einlass",
       "icon": "heart",
       "name": "Bar & Einlass",
-      "role": "Schicht-Crews · jede Nacht"
+      "role": "Schicht-Crews · jede Nacht",
+      "i18n": {
+        "en": {
+          "name": "Bar & door",
+          "role": "Shift crews · every night"
+        }
+      }
     }
   ],
   "news": [
@@ -1411,7 +1905,13 @@
       "date": "2026-08-23",
       "title": "Genehmigung ist da — Open Air „Freiräume“ am 12.09.! 🎉",
       "text": "Die Stadt hat die Fläche an der Bastion am Schillerplatz bestätigt. 16–22 Uhr, free, mit Schranzverbot & Stadtjugendring.",
-      "instaUrl": "https://www.instagram.com/takeoff.potsdam/"
+      "instaUrl": "https://www.instagram.com/takeoff.potsdam/",
+      "i18n": {
+        "en": {
+          "title": "The permit is here — Open Air “Freiräume” on 12.09.! 🎉",
+          "text": "The city has confirmed the green at the Bastion am Schillerplatz. 16:00–22:00, free, with Schranzverbot & Stadtjugendring."
+        }
+      }
     },
     {
       "id": "n4",
@@ -1419,7 +1919,14 @@
       "accentRgb": "232 90 52",
       "date": "2026-08-13",
       "title": "Der Mars nimmt Form an",
-      "text": "Hühnerdraht, Kleister, Schwarzlichtfarbe: Unser Planet für die Marsmission ist im Bau. Materialkosten: ~20 €. Künstlerische Freiheit: unbezahlbar."
+      "text": "Hühnerdraht, Kleister, Schwarzlichtfarbe: Unser Planet für die Marsmission ist im Bau. Materialkosten: ~20 €. Künstlerische Freiheit: unbezahlbar.",
+      "i18n": {
+        "en": {
+          "badge": "Build log",
+          "title": "Mars is taking shape",
+          "text": "Chicken wire, paste, blacklight paint: our planet for the Mars Mission is under construction. Materials: ~€20. Artistic freedom: priceless."
+        }
+      }
     },
     {
       "id": "n3",
@@ -1428,7 +1935,13 @@
       "date": "2026-06-28",
       "title": "Pride-Party: 40 °C, Sturm — und trotzdem die beste Nacht",
       "text": "Demo abgesagt, Party nicht. Drei Floors im KuZe, Sonnensegel-Krimi inklusive. Danke an alle, die da waren und aufeinander aufgepasst haben. ♥",
-      "instaUrl": "https://www.instagram.com/takeoff.potsdam/"
+      "instaUrl": "https://www.instagram.com/takeoff.potsdam/",
+      "i18n": {
+        "en": {
+          "title": "Pride Party: 40 °C, a storm — and still the best night",
+          "text": "Demo called off, party not. Three floors at KuZe, sun-sail drama included. Thanks to everyone who was there and looked after each other. ♥"
+        }
+      }
     },
     {
       "id": "n2",
@@ -1436,7 +1949,13 @@
       "accentRgb": "161 143 224",
       "date": "2025-08-05",
       "title": "„JOJO | takeoff“ — Folge 1 ist draußen",
-      "text": "Unsere Podcast-Serie startet: für alle, die ihre Ohren in exquisitem Trance baden wollen. Auf YouTube & SoundCloud."
+      "text": "Unsere Podcast-Serie startet: für alle, die ihre Ohren in exquisitem Trance baden wollen. Auf YouTube & SoundCloud.",
+      "i18n": {
+        "en": {
+          "title": "“JOJO | takeoff” — episode 1 is out",
+          "text": "Our podcast series kicks off: for everyone who wants to bathe their ears in exquisite trance. On YouTube & SoundCloud."
+        }
+      }
     },
     {
       "id": "n1",
@@ -1444,7 +1963,14 @@
       "accentRgb": "229 194 92",
       "date": "2025-01-01",
       "title": "Vom ersten Subwoofer zur eigenen Anlage",
-      "text": "Erst ein Sub, dann zwei Hörner, dann noch ein Sub — Stück für Stück selbst gebaut, bis der Keller wackelte."
+      "text": "Erst ein Sub, dann zwei Hörner, dann noch ein Sub — Stück für Stück selbst gebaut, bis der Keller wackelte.",
+      "i18n": {
+        "en": {
+          "badge": "Build log",
+          "title": "From the first subwoofer to our own sound system",
+          "text": "First one sub, then two horns, then another sub — built piece by piece until the cellar shook."
+        }
+      }
     }
   ],
   "history": [
@@ -1453,42 +1979,84 @@
       "date": "2024",
       "name": "Die Gründung",
       "venue": "Potsdam",
-      "note": "Eine kleine Gruppe um Nico — heute besser bekannt als DJ Platzhalter — beschließt: Wir machen das selbst."
+      "note": "Eine kleine Gruppe um Nico — heute besser bekannt als DJ Platzhalter — beschließt: Wir machen das selbst.",
+      "i18n": {
+        "en": {
+          "name": "The founding",
+          "note": "A small group around Nico — better known today as DJ Platzhalter — decides: we'll do this ourselves."
+        }
+      }
     },
     {
       "patch": "S1",
       "date": "2024",
       "name": "Der erste Subwoofer",
       "venue": "Werkstatt",
-      "note": "Selbst gesägt, selbst verleimt, selbst verkabelt."
+      "note": "Selbst gesägt, selbst verleimt, selbst verkabelt.",
+      "i18n": {
+        "en": {
+          "name": "The first subwoofer",
+          "venue": "Workshop",
+          "note": "Sawn, glued and wired by hand."
+        }
+      }
     },
     {
       "patch": "S2",
       "date": "2024/25",
       "name": "Zwei Hörner obendrauf",
       "venue": "Werkstatt",
-      "note": "Die magentafarbenen Tops komplettieren den ersten Stack."
+      "note": "Die magentafarbenen Tops komplettieren den ersten Stack.",
+      "i18n": {
+        "en": {
+          "name": "Two horns on top",
+          "venue": "Workshop",
+          "note": "The magenta tops complete the first stack."
+        }
+      }
     },
     {
       "patch": "S3",
       "date": "2025",
       "name": "Noch ein Subwoofer",
       "venue": "Werkstatt",
-      "note": "Mehr Fläche, mehr Menschen, mehr Bass."
+      "note": "Mehr Fläche, mehr Menschen, mehr Bass.",
+      "i18n": {
+        "en": {
+          "name": "Another subwoofer",
+          "venue": "Workshop",
+          "note": "More space, more people, more bass."
+        }
+      }
     },
     {
       "patch": "L1",
       "date": "2025",
       "name": "Eigenes Licht",
       "venue": "DMX-Pult",
-      "note": "Mik — als „Blaulicht“ unterwegs — baut die Lichttechnik auf."
+      "note": "Mik — als „Blaulicht“ unterwegs — baut die Lichttechnik auf.",
+      "i18n": {
+        "en": {
+          "name": "Our own lighting",
+          "venue": "DMX desk",
+          "note": "Mik — who goes by “Blaulicht” — builds up the lighting rig."
+        }
+      }
     },
     {
       "patch": "▲",
       "date": "Heute",
       "name": "Themen-Welten",
       "venue": "Potsdam & Umgebung",
-      "note": "Jedes Event bekommt sein eigenes Universum."
+      "note": "Jedes Event bekommt sein eigenes Universum.",
+      "i18n": {
+        "en": {
+          "date": "Today",
+          "name": "Themed worlds",
+          "venue": "Potsdam & around",
+          "note": "Every event gets its own universe."
+        }
+      }
     }
   ],
   "pages": {},
@@ -1502,7 +2070,12 @@
         "caption": "Wie wir alles selbst bauen — mit Dank an den Stadtjugendring",
         "ton": true,
         "orientation": "hoch",
-        "dauer": 77
+        "dauer": 77,
+        "i18n": {
+          "en": {
+            "caption": "How we build everything ourselves — with thanks to the Stadtjugendring"
+          }
+        }
       },
       {
         "kind": "video",
@@ -1512,7 +2085,12 @@
         "caption": "Der zweite Subwoofer entsteht — drei Tage vor dem Event",
         "ton": true,
         "orientation": "hoch",
-        "dauer": 8
+        "dauer": 8,
+        "i18n": {
+          "en": {
+            "caption": "The second subwoofer takes shape — three days before the event"
+          }
+        }
       }
     ],
     "start": [
@@ -1524,7 +2102,12 @@
         "caption": "Aus der Menge aufs Pult — Mario-Kart-Rave",
         "ton": false,
         "orientation": "quer",
-        "dauer": 18
+        "dauer": 18,
+        "i18n": {
+          "en": {
+            "caption": "From the crowd towards the booth — Mario Kart rave"
+          }
+        }
       },
       {
         "kind": "video",
@@ -1534,7 +2117,12 @@
         "caption": "Aus der Menge aufs Pult — Mario-Kart-Rave (Hochformat)",
         "ton": false,
         "orientation": "hoch",
-        "dauer": 18
+        "dauer": 18,
+        "i18n": {
+          "en": {
+            "caption": "From the crowd towards the booth — Mario Kart rave (portrait)"
+          }
+        }
       }
     ]
   }

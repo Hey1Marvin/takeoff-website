@@ -123,5 +123,114 @@
     "foundTemplate": "✨ Versteck gefunden — {found}/{total} Themes",
     "allFound": "🦄 Alle 3 Verstecke gefunden — Crew-Material!",
     "alreadyFound": "Schon entdeckt 🤫 — wechsel mal das Theme …"
+  },
+
+  "i18n": {
+    "en": {
+      "hero": {
+        "taglineHtml": "Our own sound system. Our own lights. Our own nights.<br><b>Trance · Hard Trance · Bounce</b> — volunteer-run, for everyone.",
+        "tminusAria": "Countdown to the next event",
+        "ctaMissionLabel": "To the mission →",
+        "mobileKicker": "Next mission",
+        "ctaMissionMobileLabel": "All about the mission →",
+        "ctaTelegramLabel": "Telegram · presale & info",
+        "scrollHint": "Scroll to board"
+      },
+      "missions": {
+        "eyebrow": "Flight plan",
+        "titleHtml": "Upcoming <span class=\"glow\">missions</span>",
+        "intro": "Every takeoff event has a theme — and the whole site dresses to match. Tap a card for the briefing.",
+        "headLinkLabel": "All events & flight log",
+        "statusLabels": {
+          "prep": "In preparation"
+        },
+        "rowLabels": {
+          "landing": "Landing site",
+          "entry": "Entry",
+          "motto": "Theme"
+        },
+        "ctaMissionPage": "To the mission page",
+        "ctaTelegram": "Telegram · updates",
+        "emptyText": "No mission announced right now — on Telegram you'll hear it first."
+      },
+      "sound": {
+        "eyebrow": "Frequencies",
+        "titleHtml": "Our <span class=\"glow\">sound</span>",
+        "intro": "From hypnotic to hard: this is what we play — and these are the people behind the decks. Sets & podcasts live on SoundCloud and YouTube.",
+        "headLinkLabel": "All artists & sets",
+        "playAriaTemplate": "Play set: {title}",
+        "consentNote": "Demo: the SoundCloud player would load here (two-click, GDPR-friendly). No click = no tracking."
+      },
+      "crew": {
+        "titleHtml": "Who's <span class=\"glow\">on air</span>",
+        "intro": "Residents, lights, sound, awareness, decor — takeoff is collective work. (Prototype: placeholder avatars, real profiles will follow with consent.)",
+        "headLinkLabel": "More about the collective"
+      },
+      "stats": {
+        "founded": {
+          "label": "founded"
+        },
+        "missions": {
+          "label": "missions"
+        },
+        "systemsBuilt": {
+          "label": "sound systems self-built"
+        },
+        "volunteerPercent": {
+          "label": "volunteer-run"
+        }
+      },
+      "awareness": {
+        "titleHtml": "Partying you<br>can count on.",
+        "tiles": [
+          {
+            "icon": "heart",
+            "title": "Awareness team",
+            "text": "There to talk to all night — you'll spot us by the purple vest."
+          },
+          {
+            "icon": "cross",
+            "title": "First aiders",
+            "text": "At every event. Getting help never has consequences."
+          },
+          {
+            "icon": "water",
+            "title": "Free Water",
+            "text": "Free water, always. Look out for each other."
+          },
+          {
+            "icon": "camera",
+            "title": "No photos",
+            "text": "No photo without asking — what happens in the dark stays there."
+          }
+        ],
+        "note": {
+          "text": "Everyone is welcome. Discrimination, assault and boundary violations are not — cross that line and you're out. More on this:",
+          "links": [
+            {
+              "label": "Awareness policy",
+              "href": "/awareness"
+            },
+            {
+              "label": "Help & drug emergencies",
+              "href": "/awareness#hilfe"
+            },
+            {
+              "label": "House rules",
+              "href": "/awareness#regeln"
+            }
+          ]
+        }
+      },
+      "flightlog": {
+        "titleHtml": "Past <span class=\"glow\">missions</span>"
+      },
+      "secrets": {
+        "ariaLabel": "Hidden item",
+        "foundTemplate": "✨ Hideout found — {found}/{total} themes",
+        "allFound": "🦄 Found all 3 hideouts — you're crew material!",
+        "alreadyFound": "Already found 🤫 — try switching the theme …"
+      }
+    }
   }
 }

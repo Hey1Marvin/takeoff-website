@@ -5,7 +5,11 @@
   "labelPlural": "News",
   "icon": "megaphone",
   "description": "Kurzmeldungen für die News-Seite — Ankündigungen, Baulog-Updates, Recaps.",
-  "storage": { "scope": "db", "collection": "news", "key": "id" },
+  "storage": {
+    "scope": "db",
+    "collection": "news",
+    "key": "id"
+  },
   "fields": [
     {
       "key": "id",
@@ -55,8 +59,28 @@
     }
   ],
   "list": {
-    "columns": ["title", "badge", "date"],
+    "columns": [
+      "title",
+      "badge",
+      "date"
+    ],
     "sort": "date"
   },
-  "actions": ["create", "edit", "delete"]
+  "actions": [
+    "create",
+    "edit",
+    "delete"
+  ],
+  "i18n": {
+    "_hinweis": "Uebersetzungen liegen als duennes Overlay am Datensatz: \"i18n\": { \"en\": { … } }. Der Formular-Generator MUSS diesen Schluessel kennen und beim Speichern durchreichen — sonst loescht er beim ersten Speichern alle Uebersetzungen. Aufgeloest wird das Overlay im Gateway (src/lib/i18n/overlay.ts).",
+    "locales": [
+      "en"
+    ],
+    "felder": [
+      "badge",
+      "title",
+      "text",
+      "instaUrl"
+    ]
+  }
 }

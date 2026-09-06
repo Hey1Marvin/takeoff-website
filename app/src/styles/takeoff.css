@@ -1010,7 +1010,7 @@ html { scroll-padding-top: calc(var(--topbar-h) + 14px); }
   .nav-status::before { width: 5px; height: 5px; }
   .nav-day { min-width: 28px; }
   .nav-day svg { width: 15px; height: 15px; }
-  .nav-lang button { padding: 0 3px; }
+  .nav-lang :is(a, button) { padding: 0 3px; }
 }
 /* Unter 345px passt die Zeile nicht mehr, ohne dass etwas unleserlich klein
    wird. Die Statusmarke geht — und zwar als Einzige ohne Verlust: dieselbe
@@ -2210,8 +2210,12 @@ details.faq .faq-body { padding: 0 18px 16px; color: var(--ink-dim); font-size: 
   border: 1px solid rgb(var(--acc-2-rgb) / .3);
   border-radius: 999px;
 }
-.nav-lang button,
-.menu-lang button,
+/* Seit It. 18 sind die Sprach-Schalter LINKS, keine Knoepfe mehr — die
+   Sprache steckt in der Adresse, der Wechsel ist eine Navigation. Beide
+   Elementarten stehen hier, damit auch aelteres Markup (und der
+   Tag/Nacht-Knopf, der ein Knopf BLEIBT) dieselbe Form behaelt. */
+.nav-lang :is(a, button),
+.menu-lang :is(a, button),
 .nav-day {
   font-family: var(--font-mono);
   font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase;
@@ -2224,9 +2228,12 @@ details.faq .faq-body { padding: 0 18px 16px; color: var(--ink-dim); font-size: 
   display: inline-flex; align-items: center; justify-content: center;
   transition: color .2s, background .2s, border-color .2s;
 }
-.nav-lang button:hover,
-.menu-lang button:hover,
+.nav-lang :is(a, button):hover,
+.menu-lang :is(a, button):hover,
 .nav-day:hover { color: var(--ink); border-color: rgb(var(--acc-2-rgb) / .7); }
+/* Textdekoration abschalten: als Link braeuchte er sonst eine
+   Unterstreichung, die im Segment fehl am Platz waere. */
+.nav-lang a, .menu-lang a { text-decoration: none; }
 
 /* ---- Tag/Nacht: EIN Knopf, nicht zwei ----
    Ein zweites Segment nach Vorbild des Sprachumschalters kostet 64 statt 32px
@@ -2267,15 +2274,15 @@ details.faq .faq-body { padding: 0 18px 16px; color: var(--ink-dim); font-size: 
 
 @media (max-width: 900px) {
   .nav { gap: 12px; }
-  .nav-lang button { min-width: 34px; padding: 0 2px; position: relative; }
-  .nav-lang button::after {
+  .nav-lang :is(a, button) { min-width: 34px; padding: 0 2px; position: relative; }
+  .nav-lang :is(a, button)::after {
     content: ""; position: absolute; left: 50%; top: 50%;
     width: 44px; height: 44px; transform: translate(-50%, -50%);
   }
 }
 @media (max-width: 560px) {
   .nav { gap: 9px; }
-  .nav-lang button { font-size: 10px; letter-spacing: .04em; }
+  .nav-lang :is(a, button) { font-size: 10px; letter-spacing: .04em; }
 }
 /* Sehr schmale Geraete (320px): der Umschalter nimmt sich zurueck, bis die
    Kopfleiste wieder in die Zeile passt. Die 44px Trefferflaeche bleiben,
@@ -2283,7 +2290,7 @@ details.faq .faq-body { padding: 0 18px 16px; color: var(--ink-dim); font-size: 
 @media (max-width: 360px) {
   .nav { gap: 6px; padding-inline: 10px; }
   .nav-lang { padding: 1px; }
-  .nav-lang button { min-width: 26px; padding: 0; }
+  .nav-lang :is(a, button) { min-width: 26px; padding: 0; }
 }
 
 

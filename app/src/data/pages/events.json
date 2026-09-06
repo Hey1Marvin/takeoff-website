@@ -154,5 +154,113 @@
   "transmission": {
     "label": "Transmission incoming",
     "text": "Fotos, Aftermovies und Sets der vergangenen Missionen werden gerade gesichtet — die Galerien landen hier, sobald alle Abgebildeten gefragt wurden. Kein Foto ohne Frage, auch im Archiv."
+  },
+
+  "i18n": {
+    "en": {
+      "hero": {
+        "eyebrow": "Flight plan",
+        "titleHtml": "Events &amp; <span class=\"glow\">missions</span>",
+        "intro": "Everything coming up — and everything that's been. Tap a row on the board and the briefing opens."
+      },
+      "board": {
+        "title": "Departure board",
+        "columns": {
+          "date": "Date",
+          "place": "Venue"
+        },
+        "footNoteOne": "1 departure announced",
+        "footNoteMany": "{count} departures announced",
+        "footNoteNone": "No departure announced"
+      },
+      "briefing": {
+        "boardingEnd": "End",
+        "venue": "Landing site",
+        "entry": "Entry",
+        "detailCta": "To the mission page",
+        "telegramTbaCta": "Telegram · hear it first",
+        "icsDemoTitle": "Demo — the real download comes with the backend"
+      },
+      "emptyState": {
+        "title": "Next launch in preparation",
+        "text": "No event announced — but we're ready to go. Telegram hears it first.",
+        "ctaLabel": "Join us on Telegram"
+      },
+      "sections": {
+        "upcomingEyebrow": "Upcoming missions",
+        "flightlogTitleHtml": "Past <span class=\"glow\">missions</span>",
+        "flightlogNote": {
+          "before": "Galleries & sets follow as soon as everyone in them has been asked — ",
+          "linkLabel": "no photo without asking"
+        }
+      },
+      "eventExtras": {
+        "freiraeume": {
+          "transit": "Tram to Schillerplatz · bikes very welcome",
+          "weatherNote": "If there's a storm: an update on Telegram and here",
+          "shareText": "Open Air “Freiräume” · Sat 12.09. · Bastion am Schillerplatz · Free"
+        },
+        "marsmission": {
+          "transit": "5 min walk from Potsdam main station",
+          "capacityNote": "We may have to stop letting people in — come early",
+          "shareText": "takeoff: Mars Mission · Sat 19.09. · Spartacus · Free Entry"
+        },
+        "strandparty": {
+          "transit": "5 min walk from Potsdam main station",
+          "shareText": "takeoff: Beach Party · Sat 14.11. · Spartacus · TBA"
+        }
+      },
+      "faqSection": {
+        "eyebrow": "Before you ask",
+        "titleHtml": "Frequently asked <span class=\"glow\">questions</span>"
+      },
+      "faq": [
+        {
+          "q": "Do I need to buy a ticket in advance?",
+          "a": "Not for free-entry events — just come by. If there ever is an entry fee, it's at the top of that date's card."
+        },
+        {
+          "q": "When is it worth turning up?",
+          "a": "Right at doors if you want to be sure you get in — at smaller venues we've had to stop at 200 people. Line-up and timetable updates go out on Telegram beforehand."
+        },
+        {
+          "q": "Is there a cloakroom?",
+          "a": "Not everywhere — we're a DIY collective, not a club with permanent staff. It's noted on the event card; otherwise: dress light, dance warm."
+        },
+        {
+          "q": "Can I take photos?",
+          "a": "No photo without asking — see Awareness."
+        },
+        {
+          "q": "I'm under 18 — can I get in?",
+          "a": "Depends on the event: open airs like “Freiräume” are for all ages, club nights and late nights are usually 18+. It's always on the event card."
+        },
+        {
+          "q": "I want to help out!",
+          "a": "Yes please — build-up, awareness, bar, decor. Message us on Telegram or drop by kollektiv.html#mitmachen, we'll get back to you."
+        }
+      ],
+      "tapTempo": {
+        "eyebrow": "Sound check",
+        "title": "Find your rave rhythm",
+        "titleHtml": "Find your <span class=\"glow\">rave rhythm</span>",
+        "intro": "Tap along — we'll tell you which genre your tempo fits."
+      },
+      "patchLog": {
+        "toggleLabel": "I was there",
+        "toastTemplate": "Patch saved — {count}/{total} missions",
+        "resetLabel": "Reset"
+      },
+      "share": {
+        "copiedToast": "Link copied ✓"
+      },
+      "calendar": {
+        "ctaLabel": "+ Add to calendar (.ics)",
+        "subscribeLabel": "Subscribe to all dates →"
+      },
+      "transmission": {
+        "text": "Photos, aftermovies and sets from past missions are being sorted through — the galleries land here as soon as everyone in them has been asked. No photo without asking, in the archive too."
+      }
+    }
   }
 }

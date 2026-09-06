@@ -97,5 +97,163 @@
   "transmission": {
     "label": "Transmission incoming",
     "text": "Echte 30-Sekunden-Hörproben pro Genre — sobald die Rechte mit den DJs geklärt sind."
+  },
+  "i18n": {
+    "en": {
+      "hero": {
+        "eyebrow": "Frequency school",
+        "titleHtml": "So what <span class=\"glow\">actually</span> plays here?",
+        "intro": "Never heard of hard bounce? Doesn't matter — that's what this page is for. Three minutes of reading and you'll know what's waiting on the floor."
+      },
+      "scale": {
+        "label": "Tempo scale",
+        "caption": "That's how close our core tempos sit together — and how clearly you hear the difference anyway.",
+        "coreLabel": "Core tempos",
+        "youLabel": "You"
+      },
+      "genres": [
+        {
+          "id": "trance",
+          "text": "Hypnotic melodies, long build-ups, goosebump moments. ~{bpm} BPM · the heart of takeoff."
+        },
+        {
+          "id": "hard-trance",
+          "text": "Trance with a push behind it: harder kicks, more driving, more euphoric. ~{bpm} BPM."
+        },
+        {
+          "id": "bounce",
+          "text": "Springy offbeat bass, good mood with some weight behind it. ~{bpm} BPM."
+        },
+        {
+          "id": "techno",
+          "text": "The straight, dark pulse — with us it comes as a gift from collectives we're friends with."
+        },
+        {
+          "id": "psytrance",
+          "text": "For when it gets late and the patterns start dancing. Now and then, with love."
+        }
+      ],
+      "wayfind": {
+        "artistsLabel": "Played live by",
+        "eventsLabel": "Upcoming dates"
+      },
+      "guests": {
+        "label": "Guests now and then",
+        "note": "No fixed tempo, no fixed slot in the night — that's why they're down here and not on the scale."
+      },
+      "tapTempo": {
+        "label": "Tap along",
+        "instruction": "Tap your own tempo — at least 4 times, then we'll do the maths. Click, tap or spacebar.",
+        "button": "Tap along!",
+        "reset": "Reset",
+        "againText": "Again — on the second tap we can read the tempo.",
+        "resultTemplate": "You're tapping ~{bpm} BPM — that's almost {genre}.",
+        "nearTemplate": "Close to {genre} ({bpm} BPM) — a touch {richtung}.",
+        "fasterWord": "faster",
+        "slowerWord": "slower",
+        "tooFastText": "Serious pace — faster than anything we play.",
+        "tooSlowText": "Fairly relaxed — things usually move quicker with us.",
+        "flavor": {
+          "trance": "exactly our heartbeat.",
+          "hard-trance": "with a proper push.",
+          "bounce": "with weight and spring."
+        }
+      },
+      "listen": {
+        "eyebrow": "Have a listen",
+        "intro": "Every set and podcast episode in one place — from real takeoff nights.",
+        "consentNote": "Demo: the SoundCloud/YouTube player would load here (two clicks, GDPR-friendly).",
+        "emptyText": "No sets on file yet — the current list lives on the Artists page.",
+        "teaser": "Want a listen? The Artists page has sets from real takeoff nights — and the \"| takeoff\" podcast keeps them coming."
+      },
+      "nightGuide": {
+        "eyebrow": "For newcomers",
+        "titleHtml": "The shape of <span class=\"glow\">a night</span>",
+        "phases": [
+          {
+            "time": "Doors – midnight",
+            "label": "Warm-up",
+            "genreIds": [
+              "trance"
+            ],
+            "text": "A calm start, time to arrive."
+          },
+          {
+            "time": "Midnight – 3 am",
+            "label": "Peak time",
+            "genreIds": [
+              "hard-trance",
+              "bounce"
+            ],
+            "text": "The floor is full, the tempo picks up."
+          },
+          {
+            "time": "from 3 am",
+            "label": "Afterhour",
+            "genreIds": [
+              "psytrance",
+              "techno"
+            ],
+            "text": "For everyone who stays — now and then, with love."
+          }
+        ]
+      },
+      "glossary": {
+        "eyebrow": "Vocabulary",
+        "titleHtml": "Scene <span class=\"glow\">jargon</span>",
+        "terms": [
+          {
+            "term": "B2B",
+            "def": "\"Back to back\" — two DJs take turns inside the same set."
+          },
+          {
+            "term": "Warm-up",
+            "def": "The calmer musical start to the evening."
+          },
+          {
+            "term": "Peak time",
+            "def": "The high point of the night, when the floor is at its fullest."
+          },
+          {
+            "term": "Live set",
+            "def": "A recording of a real gig, not something produced for the studio."
+          }
+        ]
+      },
+      "trackId": {
+        "eyebrow": "Earworm without a name?",
+        "title": "Track ID wanted",
+        "text": "Heard a track, forgot the name? Send us the event, roughly what time it was and whatever else you remember.",
+        "buttonLabel": "Ask for a track ID",
+        "mailSubject": "Track ID wanted",
+        "mailBody": "Event:\nRough time:\nWhat I still remember (lyrics, melody, drop):"
+      },
+      "faq": {
+        "eyebrow": "Before you head out",
+        "titleHtml": "Quickly <span class=\"glow\">asked</span>",
+        "items": [
+          {
+            "q": "Do I need to know how to dance?",
+            "a": "No. Here everyone dances however it feels good."
+          },
+          {
+            "q": "Is it loud?",
+            "a": "Yes, like at any rave — earplugs are there for you at the awareness point."
+          },
+          {
+            "q": "Is there techno too?",
+            "a": "Now and then, mostly as a gift from collectives we're friends with — the core stays trance."
+          }
+        ]
+      },
+      "share": {
+        "label": "Share the genre guide",
+        "text": "What plays at takeoff: trance, hard trance and bounce explained.",
+        "copiedToast": "Link copied ✓"
+      },
+      "transmission": {
+        "text": "Real 30-second samples for every genre — as soon as the rights are sorted out with the DJs."
+      }
+    }
   }
 }

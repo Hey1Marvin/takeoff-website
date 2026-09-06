@@ -5,7 +5,11 @@
   "labelPlural": "Team",
   "icon": "users",
   "description": "Die Crew hinter takeoff — Personen und Funktions-Teams (z. B. Awareness, Sani). Karte entsteht automatisch auf der Team-Seite.",
-  "storage": { "scope": "db", "collection": "team", "key": "slug" },
+  "storage": {
+    "scope": "db",
+    "collection": "team",
+    "key": "slug"
+  },
   "fields": [
     {
       "key": "slug",
@@ -45,10 +49,22 @@
       "type": "select",
       "label": "Symbol (statt Initialen)",
       "options": [
-        { "value": "heart", "label": "Herz" },
-        { "value": "cross", "label": "Kreuz (Erste Hilfe)" },
-        { "value": "bolt", "label": "Blitz" },
-        { "value": "star", "label": "Stern" }
+        {
+          "value": "heart",
+          "label": "Herz"
+        },
+        {
+          "value": "cross",
+          "label": "Kreuz (Erste Hilfe)"
+        },
+        {
+          "value": "bolt",
+          "label": "Blitz"
+        },
+        {
+          "value": "star",
+          "label": "Stern"
+        }
       ],
       "help": "Für Funktions-Teams statt einer Einzelperson, z. B. „Herz“ fürs Awareness-Team. Nur eins von Initialen/Symbol wird gebraucht."
     },
@@ -61,8 +77,28 @@
     }
   ],
   "list": {
-    "columns": ["name", "role", "visible"],
+    "columns": [
+      "name",
+      "role",
+      "visible"
+    ],
     "sort": "name"
   },
-  "actions": ["create", "edit", "toggleVisible", "delete"]
+  "actions": [
+    "create",
+    "edit",
+    "toggleVisible",
+    "delete"
+  ],
+  "i18n": {
+    "_hinweis": "Uebersetzungen liegen als duennes Overlay am Datensatz: \"i18n\": { \"en\": { … } }. Der Formular-Generator MUSS diesen Schluessel kennen und beim Speichern durchreichen — sonst loescht er beim ersten Speichern alle Uebersetzungen. Aufgeloest wird das Overlay im Gateway (src/lib/i18n/overlay.ts).",
+    "locales": [
+      "en"
+    ],
+    "felder": [
+      "name",
+      "role",
+      "initials"
+    ]
+  }
 }

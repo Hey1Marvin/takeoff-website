@@ -5,7 +5,10 @@
   "labelPlural": "Einstellungen",
   "icon": "sliders",
   "description": "Globale Website-Einstellungen: Kontakt- & Social-Links, HUD-Ticker, nächstes Event und Standard-Animationsverhalten. Ein Formular, keine Liste.",
-  "storage": { "scope": "db", "collection": "settings" },
+  "storage": {
+    "scope": "db",
+    "collection": "settings"
+  },
   "fields": [
     {
       "key": "siteName",
@@ -67,7 +70,13 @@
       "type": "list",
       "label": "Lauftext (HUD-Ticker)",
       "of": [
-        { "key": "value", "type": "text", "label": "Text", "required": true, "help": "z. B.: SA 12.09. OPEN AIR „FREIRÄUME“ · BASTION AM SCHILLERPLATZ · 16:00 · FREE" }
+        {
+          "key": "value",
+          "type": "text",
+          "label": "Text",
+          "required": true,
+          "help": "z. B.: SA 12.09. OPEN AIR „FREIRÄUME“ · BASTION AM SCHILLERPLATZ · 16:00 · FREE"
+        }
       ],
       "help": "Kurzmeldungen für das laufende Band im Kopfbereich — ein Eintrag pro Meldung, Reihenfolge = Laufreihenfolge."
     },
@@ -77,9 +86,18 @@
       "label": "Animations-Standard",
       "default": "m",
       "options": [
-        { "value": "s", "label": "Ruhig — keine Animationen/kein Canvas" },
-        { "value": "m", "label": "Dezent (Standard)" },
-        { "value": "l", "label": "Volle Show" }
+        {
+          "value": "s",
+          "label": "Ruhig — keine Animationen/kein Canvas"
+        },
+        {
+          "value": "m",
+          "label": "Dezent (Standard)"
+        },
+        {
+          "value": "l",
+          "label": "Volle Show"
+        }
       ],
       "help": "Standard-Animationsstufe für neue Besucher:innen bzw. wenn die Geräteleistung nicht automatisch erkannt wird."
     },
@@ -91,5 +109,18 @@
       "help": "Deko-Bodenebene (z. B. Mars-Oberfläche bei Themen-Events) global an- oder ausschalten."
     }
   ],
-  "actions": ["edit"]
+  "actions": [
+    "edit"
+  ],
+  "i18n": {
+    "_hinweis": "Uebersetzungen liegen als duennes Overlay am Datensatz: \"i18n\": { \"en\": { … } }. Der Formular-Generator MUSS diesen Schluessel kennen und beim Speichern durchreichen — sonst loescht er beim ersten Speichern alle Uebersetzungen. Aufgeloest wird das Overlay im Gateway (src/lib/i18n/overlay.ts).",
+    "locales": [
+      "en"
+    ],
+    "felder": [
+      "siteName",
+      "claim",
+      "hudTicker"
+    ]
+  }
 }

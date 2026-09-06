@@ -270,5 +270,255 @@
       "q": "Bucht ihr auch andere Partys?",
       "a": "Ja, wir unterstützen mit Technik, Licht und eingespielten Crews — schreib uns."
     }
-  ]
+  ],
+
+  "i18n": {
+    "en": {
+      "hero": {
+        "eyebrow": "About us",
+        "h1": "We build our nights ourselves.",
+        "intro": "takeoff is a volunteer-run rave collective from Potsdam — founded in 2024, grown out of friendship, workshop dust and one question: why not just do it ourselves?"
+      },
+      "ethos": {
+        "text1": "We built our sound system ourselves — subwoofers, horns, all of it. Our lighting is DMX we wired by hand, our decor is made from scratch for every theme.",
+        "text2": "We're not out for profit — more like “not out for loss”. That's why our events are often free and the drinks priced in solidarity.",
+        "imageAlt": "Workshop illustration: soldering iron, chicken wire, paint tins"
+      },
+      "sheet": {
+        "rows": [
+          {
+            "label": "Project",
+            "value": "takeoff · Potsdam"
+          },
+          {
+            "label": "Sheet",
+            "value": "00 · Cover sheet"
+          },
+          {
+            "label": "Drawn by",
+            "value": "The collective, all volunteers"
+          },
+          {
+            "label": "As of",
+            "value": "since {year}"
+          },
+          {
+            "label": "Scale",
+            "value": "1:1"
+          }
+        ]
+      },
+      "sections": {
+        "cover": {
+          "name": "Cover sheet",
+          "scale": "1:1"
+        },
+        "werte": {
+          "name": "Attitude",
+          "eyebrow": "Attitude",
+          "title": "Why we do this",
+          "intro": "No business plan — five principles we measure every mission against."
+        },
+        "finanzen": {
+          "name": "Cash book",
+          "eyebrow": "Cash book",
+          "title": "Where the money flies",
+          "intro": "“Not out for loss” isn't a slogan — here's what the income goes on."
+        },
+        "history": {
+          "name": "Logbook",
+          "scale": "1:1",
+          "eyebrow": "Logbook",
+          "title": "How it all started",
+          "intro": "No master plan — just a small group, a soldering iron and the idea that Potsdam deserves more trance.",
+          "tail": "It carries on in the {link}."
+        },
+        "fotowand": {
+          "name": "Photo wall",
+          "eyebrow": "Photo wall",
+          "title": "Moments"
+        },
+        "crew": {
+          "name": "Crew",
+          "title": "Who's on air"
+        },
+        "familie": {
+          "name": "Network",
+          "eyebrow": "Family",
+          "title": "Who we fly with",
+          "intro": "Collectives, venues and people without whom our nights wouldn't happen."
+        },
+        "faq": {
+          "name": "Onboard questions",
+          "eyebrow": "Onboard questions",
+          "title": "Frequently asked"
+        },
+        "funkspruch": {
+          "name": "Transmission"
+        }
+      },
+      "values": [
+        {
+          "icon": "hand",
+          "title": "Volunteer-run",
+          "text": "100% unpaid, purely out of love for it."
+        },
+        {
+          "icon": "scale",
+          "title": "Not out for loss",
+          "text": "No profit, but no paying out of our own pockets either."
+        },
+        {
+          "icon": "shield",
+          "title": "Awareness first",
+          "text": "Safety is the basis, not a footnote."
+        },
+        {
+          "icon": "wrench",
+          "title": "DIY",
+          "text": "Sound system, lights, decor — all of it by our own hands."
+        },
+        {
+          "icon": "door",
+          "title": "Open door",
+          "text": "Free entry wherever we can manage it."
+        }
+      ],
+      "spendChart": {
+        "note": "Illustrative figures, as of 09/2026 — they'll be replaced by real accounts as soon as we keep proper books.",
+        "sumLabel": "Total",
+        "items": [
+          {
+            "label": "Rent & permits",
+            "percent": 35
+          },
+          {
+            "label": "Decor & materials",
+            "percent": 25
+          },
+          {
+            "label": "Gear upkeep",
+            "percent": 20
+          },
+          {
+            "label": "Awareness & first aid",
+            "percent": 15
+          },
+          {
+            "label": "Reserve",
+            "percent": 5
+          }
+        ]
+      },
+      "stats": {
+        "founded": {
+          "label": "founded"
+        },
+        "missions": {
+          "label": "missions"
+        },
+        "systemsBuilt": {
+          "label": "sound systems self-built"
+        },
+        "volunteerPercent": {
+          "label": "volunteer-run"
+        }
+      },
+      "fotowand": {
+        "mediaIntro": "Moving pictures are here already — how we build, and how three days' notice turns into a second subwoofer.",
+        "mediaLabel": "Videos from the collective",
+        "placeholderLabel": "Empty fields",
+        "placeholders": [
+          {
+            "fig": "FIG. 01",
+            "text": "Photo to follow\nonce approved"
+          },
+          {
+            "fig": "FIG. 02",
+            "text": "Photo to follow\nonce approved"
+          },
+          {
+            "fig": "FIG. 03",
+            "text": "Photo to follow\nonce approved"
+          },
+          {
+            "fig": "FIG. 04",
+            "text": "Photo to follow\nonce approved"
+          }
+        ],
+        "note": "No photo without asking — the wall fills up as soon as everyone in the pictures has agreed. The whole team: {link}",
+        "noteLink": "Team board →"
+      },
+      "joinRoles": [
+        {
+          "label": "Bar",
+          "mailSubject": "Join in – Bar"
+        },
+        {
+          "label": "Door",
+          "mailSubject": "Join in – Door"
+        },
+        {
+          "label": "Awareness",
+          "mailSubject": "Join in – Awareness"
+        },
+        {
+          "label": "Decor build",
+          "mailSubject": "Join in – Decor & build"
+        },
+        {
+          "label": "First aid",
+          "mailSubject": "Join in – First aid"
+        }
+      ],
+      "mitmachen": {
+        "label": "New crew wanted",
+        "text": "Bar, door, awareness, building decor or first aid — click your role and we'll write back. takeoff grows with every mission.",
+        "rolesLabel": "Roles you can take on",
+        "direct": "Rather talk to us directly? {telegram} or {mail}.",
+        "mailLabel": "Email"
+      },
+      "booking": {
+        "label": "Booking & partners",
+        "text": "Our own sound system, our own lighting, well-drilled shift crews and experience with permits — we support other events too.",
+        "presskit": "Press kit to follow: {mail}"
+      },
+      "bookingFacts": [
+        {
+          "label": "Gear",
+          "value": "2 subwoofers + 2 tops, self-built"
+        },
+        {
+          "label": "Lighting",
+          "value": "Our own DMX setup, blacklight, tubes"
+        },
+        {
+          "label": "Experience",
+          "value": "6 missions since 2024"
+        },
+        {
+          "label": "Permits",
+          "value": "Used to dealing with the city and its licensing office"
+        }
+      ],
+      "faq": [
+        {
+          "q": "Are you a registered association?",
+          "a": "Not yet — for now we organise without a formal legal form; founding an association is on the table."
+        },
+        {
+          "q": "How do you fund yourselves?",
+          "a": "Through donations, solidarity prices at the bar and the occasional door takings — never for profit."
+        },
+        {
+          "q": "Can I join without any experience?",
+          "a": "Yes. Bar, door, awareness, building decor — we'll show you everything."
+        },
+        {
+          "q": "Do you work other parties too?",
+          "a": "Yes, we help out with gear, lighting and well-drilled crews — write to us."
+        }
+      ]
+    }
+  }
 }
