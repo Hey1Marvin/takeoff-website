@@ -138,9 +138,19 @@ export default function HeroVideo() {
       v.parentNode?.removeChild(v);
     }
 
+    /* PRIORITÄT 1 der Sparleiter (src/lib/sky/qualitaet.ts): bei Knappheit
+       hält als erstes das Video an — vor den Sternen, vor allem anderen. Ab
+       Stufe 2 wird es nur PAUSIERT, nicht abgeräumt: ein pausiertes Video
+       zeigt sein letztes Bild, kostet aber keinen Decoder mehr. Damit steht
+       ein Standbild statt eines Lochs, und der Weg zurück ist ein einziger
+       play()-Aufruf ohne neuen Download. Abgeräumt wird weiterhin nur, wenn
+       es gar nicht laufen darf (Stufe "s", reduzierte Bewegung, Sparmodus). */
+    const sparStufe = () => Number(html.dataset.spar || 0);
+
     /* Ein Video, das unsichtbar weiterläuft, kostet Akku ohne Gegenwert. */
     function resume() {
       if (!video || !inView || document.hidden || !wanted()) return;
+      if (sparStufe() >= 2) return;
       const p = video.play();
       /* play() lehnt ab, wenn der Browser den Autostart verweigert —
          unbehandelt steht das als Fehler in jeder Konsole. */
@@ -221,12 +231,17 @@ export default function HeroVideo() {
     document.addEventListener("click", onClick);
 
     /* Die FX-Stufe kann sich ohne unser Zutun ändern (Mission Control oder
-       FPS-Wächter). Das Attribut auf <html> ist die gemeinsame Schnittstelle. */
-    const fxObserver = new MutationObserver(() => {
+       Qualitätsregler). Das Attribut auf <html> ist die gemeinsame
+       Schnittstelle — und seit der Sparleiter auch `data-spar`, das feiner
+       greift: es hält das Video an, statt die ganze Stufe fallen zu lassen. */
+    const fxObserver = new MutationObserver(records => {
+      if (records.some(r => r.attributeName === "data-spar")) {
+        if (sparStufe() >= 2) halt(); else resume();
+      }
       if (wanted() !== (html.dataset.video === "on")) apply();
       else syncButtons();
     });
-    fxObserver.observe(html, { attributes: true, attributeFilter: ["data-fx"] });
+    fxObserver.observe(html, { attributes: true, attributeFilter: ["data-fx", "data-spar"] });
 
     const onMotionChange = () => apply();
     motionQuery.addEventListener("change", onMotionChange);

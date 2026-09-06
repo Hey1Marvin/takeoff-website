@@ -283,3 +283,26 @@
    sinnlos dasteht — hero-video.js entfernt das Attribut nie, es setzt es
    nur; ohne JS steht kein data-video auf <html>. */
 :root:not(.js) .mctrl .row-video { display: none; }
+
+/* ============================================================
+   Sparleiter — Stufe 1: die Blends ueber dem Video
+
+   Warum das die BILLIGSTE Stufe ist und deshalb ganz vorn steht: hier
+   faellt nichts weg, was man als Inhalt vermisst. Der `filter` liegt auf
+   einem laufenden <video> und wird damit fuer JEDES Videobild neu
+   gerechnet (24 Bilder je Sekunde), die Farbangleichung darueber ist eine
+   Vollbildflaeche mit `mix-blend-mode: color`. Beides zusammen ist
+   mehrfaches Vollbild-Kompositing je Videobild — und das Video selbst
+   laeuft danach unveraendert weiter.
+
+   Die Abdunkelung (::after) BLEIBT stehen: sie ist ein reiner Verlauf ohne
+   Blendmodus, und ohne sie traegt die Wortmarke ueber hellen Stellen des
+   Clips nicht mehr. Lesbarkeit wird hier nicht gespart.
+   Steuernde Stelle: src/lib/sky/qualitaet.ts, Konstante SPAR_RUNTER.
+   ============================================================ */
+/* `[data-spar]:not([data-spar="0"])` heisst "Sparstufe 1 oder hoeher". Das
+   Attribut steht nur auf <html>, solange der Regler ueberhaupt laeuft —
+   fehlt es (Stufe "s", reduzierte Bewegung, Messbetrieb), greift keine
+   dieser Regeln, und das ist richtig so. */
+:root[data-spar]:not([data-spar="0"]) .hero-video video { filter: none; }
+:root[data-spar]:not([data-spar="0"]) .hero-video::before { display: none; }

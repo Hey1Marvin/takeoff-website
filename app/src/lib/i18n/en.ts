@@ -403,6 +403,8 @@ export const en: Record<Key, string> = {
   "player.fullscreen": "Fullscreen",
   "mctrl.auto": "Auto",
   "mctrl.auto.hint": "The scene adapts to your device as you go — 100 % is the full show.",
+  "mctrl.auto.spar": "Saving level",
+  "mctrl.auto.ueber": "Automatic stepped it up — your device has headroom.",
   "mctrl.embeds": "Players",
   "event.page.gallery.h3": "Gallery",
   "event.page.gallery.consent_note": "We ask everyone in a photo before it goes online. You're in a picture and would rather not be? {link}",

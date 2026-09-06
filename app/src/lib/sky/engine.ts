@@ -40,7 +40,7 @@ import { taktAnmelden } from "@/lib/frame";
 /* Der stufenlose Qualitaetsfaktor. Er greift an genau zwei Stellen in
    dieser Datei: an der Aufloesung (DPR, groesster Hebel — die Pixelzahl
    geht quadratisch ein) und an der Zahl der bewegten Sterne. */
-import { qualitaet, dprFaktor } from "./qualitaet";
+import { qualitaet, dprFaktor, sparStufe } from "./qualitaet";
 
 export function initStars(env, canvas) {
     if (!canvas) return;
@@ -61,7 +61,7 @@ export function initStars(env, canvas) {
        Aufloesung den groessten Einzelhebel ueberhaupt — er lag brach.
        Wird in resize() neu bestimmt, sonst nirgends. */
     const dprBasis = () => Math.min(devicePixelRatio || 1, 2);
-    let DPR = dprBasis() * dprFaktor(qualitaet());
+    let DPR = dprBasis() * dprFaktor();
     let w = 0, h = 0, live = [], running = false;
     /* Wird in der LESE-Phase des Takts gefuellt und in der Zeichenphase
        nur noch verwendet. `scrollY` mitten im Zeichnen zu lesen war die
@@ -3431,7 +3431,10 @@ export function initStars(env, canvas) {
        bleibt alles stehen. */
     function fxAmt() {
       const t = html.dataset.fx;
-      return reduced() || t === "s" ? 0 : t === "m" ? .55 : 1;
+      if (reduced() || t === "s") return 0;
+      /* Theme-Zugaben, PRIORITAET 3: ab Sparstufe 4 keine Partikel mehr. */
+      if (sparStufe() >= 4) return 0;
+      return t === "m" ? .55 : 1;
     }
 
     /* Zwei Schatten je Objekt: ein kurzer harter Kontaktschatten an der
@@ -4490,7 +4493,10 @@ export function initStars(env, canvas) {
     let surf = null;
     function buildSurf(P, waterY, SH, wetH, span) {
       surf = null;
-      const full = html.dataset.fx === "l";
+      /* Theme-Zugabe, PRIORITAET 3: ab Sparstufe 4 zaehlt auch die volle
+         Stufe nur noch wie die normale — halb so viele Schaumebenen und
+         Glitzerpunkte. */
+      const full = html.dataset.fx === "l" && sparStufe() < 4;
       const nLayer = full ? 2 : 1;
       const fh = Math.max(6 * DPR, Math.round(SH * .052));
       const layers = [];
@@ -4605,7 +4611,10 @@ export function initStars(env, canvas) {
       /* Wellenstriche und Glitzer sind das EINZIGE, was pro Frame laeuft.
          Deshalb nach FX-Stufe gestaffelt — in "Voll" die volle Dichte, in
          "Normal" gut die Haelfte. */
-      const full = html.dataset.fx === "l";
+      /* Theme-Zugabe, PRIORITAET 3: ab Sparstufe 4 zaehlt auch die volle
+         Stufe nur noch wie die normale — halb so viele Schaumebenen und
+         Glitzerpunkte. */
+      const full = html.dataset.fx === "l" && sparStufe() < 4;
       const nGlint = full ? 300 : 190;
       const nWave = full ? 46 : 28;
 
@@ -5114,7 +5123,7 @@ export function initStars(env, canvas) {
     }
 
     function resize() {
-      DPR = dprBasis() * dprFaktor(qualitaet());
+      DPR = dprBasis() * dprFaktor();
       w = canvas.width = Math.max(1, Math.floor(innerWidth * DPR));
       h = canvas.height = Math.max(1, Math.floor(innerHeight * DPR));
       canvas.style.width = innerWidth + "px";
@@ -5138,9 +5147,16 @@ export function initStars(env, canvas) {
          als Nachthimmel. Wenige heisst auch: der teure Teil (das
          Rueckweisungsverfahren zieht bei 2600 Sternen bis zu 36.000
          Stichproben) faellt praktisch weg. */
+      /* PRIORITAET 3 der Sparleiter: ab Stufe 4 duennt der Himmel aus.
+         Erst hier, nicht frueher — die Zahl der Sterne kostet einmalig beim
+         Saeen und dann nur noch Flaeche in der gebackenen Ebene, waehrend
+         die BEWEGUNG (Stufe 3) jedes Bild kostet. Deshalb steht die
+         Bewegung in der Leiter vor der Anzahl. Zusammen mit dem
+         Aufloesungsschritt derselben Stufe faellt beides in EIN resize(). */
+      const sparZahl = sparStufe() >= 5 ? .45 : sparStufe() >= 4 ? .65 : 1;
       const total = (dayMode() && !spaceDay())
-        ? Math.round((full ? 110 : still ? 70 : 90) * scale)
-        : Math.round((full ? 2600 : still ? 2100 : 1700) * scale);
+        ? Math.round((full ? 110 : still ? 70 : 90) * scale * sparZahl)
+        : Math.round((full ? 2600 : still ? 2100 : 1700) * scale * sparZahl);
 
       /* Weniger Sterne wuerden den Himmel leer wirken lassen. Deshalb werden
          die verbliebenen etwas groesser und heller — die Gesamthelligkeit
@@ -5228,11 +5244,15 @@ export function initStars(env, canvas) {
       seedGlints();
 
       all.sort((a, b) => b.norm - a.norm);
-      /* Der Qualitaetsfaktor greift hier als zweiter Hebel nach der
-         Aufloesung. Nie unter 40 % der Sterne: darunter wird der Himmel
-         sichtbar leer, und dann hat man Qualitaet gegen nichts getauscht. */
-      const qNow = 0.4 + 0.6 * qualitaet();
-      const liveCount = still ? 0
+      /* PRIORITAET 2 der Sparleiter: ab Stufe 3 stehen die bewegten Sterne
+         still. Der gebackene Himmel bleibt vollstaendig stehen — man sieht
+         denselben Himmel, er bewegt sich nur nicht mehr mit dem Scrollen.
+         Der Sockel von 40 % ist damit weg: er stammt aus der Zeit, als es
+         zwischen "bewegt" und "gar nichts" nichts gab. Jetzt gibt es die
+         Leiter, und sie sagt ausdruecklich, wann Schluss ist. */
+      const spar = sparStufe();
+      const qNow = spar >= 3 ? 0 : 0.4 + 0.6 * qualitaet();
+      const liveCount = still || spar >= 3 ? 0
         : (dayMode() && !spaceDay()) ? all.length
         : Math.min(Math.round((full ? 620 : 300) * qNow), all.length);
       live = all.slice(0, liveCount);
@@ -5405,8 +5425,10 @@ export function initStars(env, canvas) {
         }
       }
 
-      /* Meteore pausieren tagsueber — man sieht sie am Taghimmel nicht. */
-      if (html.dataset.fx === "l" && !dayMode()) paintMeteors(ctx, dt);
+      /* Meteore pausieren tagsueber — man sieht sie am Taghimmel nicht.
+         Und sie sind eine Theme-Zugabe: ab Sparstufe 4 fallen sie weg
+         (PRIORITAET 3). */
+      if (html.dataset.fx === "l" && !dayMode() && sparStufe() < 4) paintMeteors(ctx, dt);
     }
 
     function ensureSize() {

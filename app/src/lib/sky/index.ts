@@ -33,7 +33,7 @@
    ------------------------------------------------------------ */
 import { initStars } from "./engine";
 import { createEnv, startScrollTracking, watchSky } from "./state";
-import { startQualitaet, qualitaet, dprFaktor, Q_ATTR } from "./qualitaet";
+import { startQualitaet, dprFaktor, SPAR_ATTR } from "./qualitaet";
 import type { SkyApi } from "./types";
 
 /* Die Ebenen, die `initStars()` selbst neben das Canvas haengt. Der
@@ -82,17 +82,21 @@ export function mountSky(canvas: HTMLCanvasElement): () => void {
      Stern). Das darf NICHT bei jedem Zehntel passieren, sonst bringt sich
      die Regelung selbst zum Ruckeln.
      Deshalb zwei Bremsen: nur wenn sich die AUFLOESUNGSSTUFE tatsaechlich
-     aendert (dprFaktor kennt nur wenige Werte), und dann entprellt. */
-  let letzterDpr = dprFaktor(qualitaet());
+     aendert (dprFaktor kennt nur wenige Werte), und dann entprellt.
+     Beobachtet wird die SPARSTUFE, nicht mehr `data-q`: die Aufloesung
+     haengt seit der Sparleiter an ihr, und nur sie hat ein Totband. An `q`
+     zu horchen hiesse, viermal je Sekunde nachzufragen, ob sich etwas
+     geaendert hat, das sich nur an fuenf Stellen aendern kann. */
+  let letzterDpr = dprFaktor();
   let dprTimer = 0;
   const qObs = new MutationObserver(() => {
-    const jetzt = dprFaktor(qualitaet());
+    const jetzt = dprFaktor();
     if (jetzt === letzterDpr) return;
     letzterDpr = jetzt;
     clearTimeout(dprTimer);
     dprTimer = window.setTimeout(() => api?.resize(), 350);
   });
-  qObs.observe(document.documentElement, { attributes: true, attributeFilter: [Q_ATTR] });
+  qObs.observe(document.documentElement, { attributes: true, attributeFilter: [SPAR_ATTR] });
 
   /* Zuordnung woertlich aus main.js (Mission-Control-Handler, Z. 6088-6166):
      · Boden an/aus  -> paintHorizon() + seedGlints()
@@ -136,5 +140,5 @@ export function mountSky(canvas: HTMLCanvasElement): () => void {
 }
 
 export { createEnv, watchSky, startScrollTracking, scrollProgress } from "./state";
-export { startQualitaet, qualitaet, Q_ATTR } from "./qualitaet";
+export { startQualitaet, qualitaet, sparStufe, Q_ATTR, SPAR_ATTR } from "./qualitaet";
 export type { FxTier, ScenePreset, SkyEnv, SkyApi } from "./types";

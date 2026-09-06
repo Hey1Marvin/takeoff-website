@@ -32,7 +32,7 @@ const save = (k: string, v: string) => { try { localStorage.setItem(k, v); } cat
    er erzeugt Kaskaden-Renders und ginge an Aenderungen von aussen vorbei. */
 function subscribe(cb: () => void) {
   const mo = new MutationObserver(cb);
-  mo.observe(document.documentElement, { attributes: true, attributeFilter: ["data-fx", "data-theme", "data-video", "data-embeds", "data-q", "class"] });
+  mo.observe(document.documentElement, { attributes: true, attributeFilter: ["data-fx", "data-theme", "data-video", "data-embeds", "data-q", "data-spar", "class"] });
   const mq = matchMedia("(prefers-reduced-motion: reduce)");
   mq.addEventListener("change", cb);
   return () => { mo.disconnect(); mq.removeEventListener("change", cb); };
@@ -52,12 +52,18 @@ function snapshot(): string {
     h.dataset.embeds === "on" ? "1" : "0",
     matchMedia("(prefers-reduced-motion: reduce)").matches ? "1" : "0",
     h.dataset.q ?? "",
+    /* Sparstufe und der zuletzt VON HAND gewaehlte Wunsch. Beide neu
+       hinten angehaengt — die Reihenfolge weiter oben darf sich nicht
+       verschieben, sonst passt die Destrukturierung nicht mehr (siehe die
+       Warnung dort). */
+    h.dataset.spar ?? "",
+    (() => { try { return localStorage.getItem("takeoff-fx") ?? ""; } catch { return ""; } })(),
   ].join("|");
 }
 
 /* Serverseitig gibt es weder <html>-Dataset noch Storage. Der Wert muss zum
    ersten Client-Render passen, sonst gibt es einen Hydration-Mismatch. */
-const SERVER_SNAPSHOT = "m|space|1|0|1|0|0|";
+const SERVER_SNAPSHOT = "m|space|1|0|1|0|0|||";
 
 /* ---------- Auf/zu — der einzige Zustand, der NICHT auf <html> lebt ----------
    Eingeklappt als Standard. Das Panel ist `position: fixed` in der
@@ -108,7 +114,7 @@ export default function MissionControl() {
      Player-Zustimmung als "reduzierte Bewegung" gelesen wurde und die
      FX-Stufen Normal/Voll sperrte. Wer snapshot() aendert, aendert
      diese Zeile mit. */
-  const [fx, theme, groundS, dayS, videoS, embedsS, reducedS, qS] = snap.split("|");
+  const [fx, theme, groundS, dayS, videoS, embedsS, reducedS, qS, sparS, wunschS] = snap.split("|");
   const ground = groundS === "1", day = dayS === "1";
   const video = videoS === "1", reduced = reducedS === "1";
   const embeds = embedsS === "1";
@@ -209,13 +215,15 @@ export default function MissionControl() {
       </div>
 
       {/* ABLESUNG, kein Schalter. Die Automatik regelt die Darstellung
-          stufenlos nach (Aufloesung zuerst, dann die bewegten Sterne) — hier
-          steht, wo sie gerade steht. Sie erscheint nur, wenn sie auch
-          arbeitet: in Stufe "Aus" und bei reduzierter Bewegung laeuft keine
-          Regelung, dann waere eine Zahl eine Behauptung.
+          stufenlos nach — hier steht, wo sie gerade steht. Sie erscheint nur,
+          wenn sie auch arbeitet: bei reduzierter Bewegung laeuft keine
+          Regelung, dann waere eine Zahl eine Behauptung. Die frueher hier
+          stehende Bedingung `fx !== "s"` ist weg — seit It. 17b regelt die
+          Automatik auch aus der untersten Stufe wieder heraus, und gerade
+          DORT will man ablesen koennen, dass sie noch da ist.
           Dieselbe Handschrift wie die uebrigen Ablesungen im Projekt:
           Mono, versal, Wert rechts. */}
-      {qS !== "" && fx !== "s" && !reduced && (
+      {qS !== "" && !reduced && (
         <div className="row row-mess">
           <span className="lbl">{t("mctrl.auto")}</span>
           <span className="mctrl-mess" title={t("mctrl.auto.hint")}>
@@ -223,6 +231,25 @@ export default function MissionControl() {
             {qS} %
           </span>
         </div>
+      )}
+
+      {/* Die Sparstufe ist die zweite Haelfte derselben Wahrheit: der
+          Prozentwert sagt WIEVIEL Luft fehlt, die Stufe sagt, WAS dafuer
+          gerade ausgeschaltet ist. Ohne sie steht im Panel eine Zahl, waehrend
+          sichtbar das Video steht — und niemand kann die beiden verbinden. */}
+      {sparS !== "" && sparS !== "0" && !reduced && (
+        <div className="row row-mess">
+          <span className="lbl">{t("mctrl.auto.spar")}</span>
+          <span className="mctrl-mess"><i aria-hidden="true" data-voll="0" />{sparS} / 5</span>
+        </div>
+      )}
+
+      {/* Und die ehrliche Zeile: die Automatik darf die Wahl von Hand
+          ueberstimmen, sobald wieder Leistung da ist. Ohne diesen Hinweis
+          wirkt der FX-Schalter kaputt — man waehlt "Aus", und die Seite
+          schaltet sich eine Minute spaeter von selbst wieder ein. */}
+      {wunschS !== "" && wunschS !== fx && !reduced && (
+        <p className="mctrl-hinweis">{t("mctrl.auto.ueber")}</p>
       )}
 
       <div className="row">

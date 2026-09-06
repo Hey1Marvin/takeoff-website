@@ -400,6 +400,8 @@ export const de = {
   "player.fullscreen": "Vollbild",
   "mctrl.auto": "Auto",
   "mctrl.auto.hint": "Die Darstellung passt sich laufend an dein Gerät an — 100 % ist die volle Show.",
+  "mctrl.auto.spar": "Sparstufe",
+  "mctrl.auto.ueber": "Automatik hat hochgeregelt — dein Gerät hat Luft.",
   "mctrl.embeds": "Player",
   "event.page.gallery.h3": "Galerie",
   "event.page.gallery.consent_note": "Wir fragen jede abgebildete Person, bevor ein Foto online geht. Du bist auf einem Bild und willst das nicht? {link}",

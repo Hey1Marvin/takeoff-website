@@ -467,7 +467,13 @@ body::before {
   background-repeat: repeat;
   background-size: 900px 900px;
 }
-:root.js body::before { opacity: 0; }   /* Canvas uebernimmt, sobald JS laeuft */
+/* Canvas uebernimmt, sobald JS laeuft. `display: none` und nicht `opacity: 0`:
+   eine unsichtbare Ebene bleibt trotzdem eine Compositor-Textur in
+   Viewportgroesse. Die Engine begruendet an anderer Stelle selbst, warum das
+   zaehlt — sie schaltet ungenutzte Canvas-Ebenen aus demselben Grund per
+   `display: none` ab (engine.ts, paintHorizon). Hier standen acht gekachelte
+   Radialverlaeufe ueber die volle Flaeche. */
+:root.js body::before { display: none; }
 
 /* Grain-Layer (alle Tiers, statisch & billig) */
 /* Der Grain lag mit z-index:90 UEBER allem — auch ueber der Wortmarke, deren
@@ -1976,6 +1982,15 @@ footer a { color: var(--ink-dim); }
   background: rgb(var(--acc-2-rgb) / .55);
 }
 .mctrl-mess i[data-voll="1"] { background: var(--acc-1); }
+/* Ein Satz, keine Ablesung: er erklaert, warum der FX-Schalter gerade nicht
+   auf dem steht, was zuletzt gewaehlt wurde. Deshalb Fliesstext-Groesse und
+   die stumpfere Textfarbe — er soll gelesen, nicht abgelesen werden. */
+.mctrl-hinweis {
+  margin: 2px 0 0;
+  font-size: 11px; line-height: 1.45;
+  color: var(--ink-faint);
+  max-width: 30ch;
+}
 .mctrl button {
   font-size: 10.5px; letter-spacing: .1em;
   padding: 6px 11px; border-radius: 999px;
@@ -2366,4 +2381,29 @@ body.has-sticky .mctrl { bottom: 72px; }
 @media (max-width: 560px) {
   .nav > .nav-lang,
   .nav > .nav-day { display: none; }
+}
+
+/* ============================================================
+   Sparleiter — Stufe 5: die letzten Vollbild-Ebenen
+
+   Die unterste Stufe vor der Notbremse. Was hier faellt, faellt zuletzt,
+   weil es die Gestalt traegt und nicht die Show: Korn und Vignette sind
+   der Grund, warum die Seite nach Objektiv aussieht und nicht nach
+   Bildschirm. Sie kosten aber je eine Compositor-Textur in Viewportgroesse,
+   und die Unschaerfe der Kopfleiste kostet obendrein bei jedem Bild der
+   Szene darunter eine neue Blur-Passe.
+
+   Steuernde Stelle: src/lib/sky/qualitaet.ts, Konstante SPAR_RUNTER.
+   ============================================================ */
+:root[data-spar="5"] body::after,
+:root[data-spar="5"] html::after { display: none; }
+
+/* Ohne Unschaerfe braucht die Leiste einen deckenden Grund — sonst liest
+   man den Sternenhimmel durch die Navigation hindurch. Denselben Griff
+   macht scene-day.css an anderer Stelle bereits. */
+:root[data-spar="5"] .topbar,
+:root[data-spar="5"] .sticky-cta {
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  background: var(--bg-base);
 }

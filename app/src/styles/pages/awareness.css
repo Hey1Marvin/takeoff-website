@@ -668,3 +668,11 @@
   .aw-hero-intro { margin-top: var(--sp-4); }
   .aw-hero .aw-aid { margin-top: var(--sp-6); max-width: var(--aw-measure); }
 }
+
+/* Sparleiter Stufe 5: der SVG-Warp ist die teuerste einzelne Zeile dieser
+   Seite — ein feDisplacementMap ueber rund 125 % der Viewportflaeche plus
+   22 px Gauss, und SVG-Filter laufen in Chrome haeufig nicht auf der GPU.
+   Er faellt zusammen mit den uebrigen Vollbild-Ebenen. Der Schleier selbst
+   bleibt, nur ungewarpt — die Aurora ist dann ruhiger, aber da.
+   Steuernde Stelle: src/lib/sky/qualitaet.ts, Konstante SPAR_RUNTER. */
+:root[data-spar="5"] .aw-sky-veil { filter: none; }

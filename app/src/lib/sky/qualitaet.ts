@@ -26,9 +26,14 @@
       -> Jetzt steigt der Faktor wieder, wenn Luft da ist. Runter schnell,
          hoch zoegerlich — sichtbares Pendeln waere schlimmer als beides.
 
-   Uebernommen wird die Sticky-Mechanik des Vorgaengers (drei Ruecknahmen in
-   vierzehn Tagen machen die niedrigere Stufe zum Standard) — sie war
-   richtig, nur der Ausloeser war falsch.
+   Punkt 3 blieb dabei allerdings HALB geloest, und das ist der Grund fuer
+   den zweiten Umbau (It. 17b): der Faktor kam zurueck, die STUFE nicht.
+   `stufeRunter()` hatte kein Gegenstueck, in Stufe "s" lief der Regler gar
+   nicht erst an, und die uebernommene Sticky-Mechanik des Vorgaengers
+   (drei Ruecknahmen in vierzehn Tagen machen die niedrigere Stufe zum
+   Standard) schrieb das Ergebnis sogar ueber Sitzungen hinweg fest. Einmal
+   unten hiess in der Praxis: fuer immer unten. Die Sticky-Mechanik ist
+   deshalb ersatzlos raus, und der Weg nach oben steht weiter unten.
 
    Muster nach research/31-performance-adaptiv-a11y.md §2.2 (drei
    `PerformanceMonitor`), das die Notiz ausdruecklich als Goldstandard nennt.
@@ -36,29 +41,72 @@
 import { taktMithoeren } from "@/lib/frame";
 import type { SkyEnv } from "./types";
 
-const store = {
-  get(k: string): string | null { try { return localStorage.getItem(k); } catch { return null; } },
-  set(k: string, v: string): void { try { localStorage.setItem(k, v); } catch { /* egal */ } },
-};
-
 /** Attribut auf <html>, damit Mission Control den Wert ablesen kann. */
 export const Q_ATTR = "data-q";
 
-/* Die Aufloesung wird in vier groben Stufen gefahren, nicht stufenlos: jede
+/** Attribut auf <html>: die Sparstufe, an der die teuren Effekte haengen. */
+export const SPAR_ATTR = "data-spar";
+
+/* ============================================================
+   DIE SPARLEITER
+
+   `q` ist der gemessene Spielraum, sonst nichts. Was bei Knappheit
+   ZUERST faellt, ist eine gestalterische Entscheidung und keine
+   Messgroesse — deshalb steht sie hier an einer Stelle und nicht als
+   verstreute Schwelle in fuenf Dateien. Die Reihenfolge hat Marvin
+   festgelegt:
+
+     1. das Hero-Video      2. die Sternen-Animation      3. Sternenzahl
+                                                             und Themes
+
+   Daraus die Leiter. Jede Stufe nimmt genau eine Sache weg, und zwar
+   die naechstteure, die noch da ist:
+
+     0  volle Show
+     1  die Vollbild-Blends UEBER dem Video (Farbangleichung, Filter auf
+        dem laufenden <video>). Billigste Vorstufe von Prioritaet 1 —
+        das Video laeuft weiter, nur ohne die Ebenen darueber.
+     2  das Video haelt an, das Standbild bleibt stehen.   PRIORITAET 1
+     3  die bewegten Sterne stehen still, der gebackene
+        Himmel bleibt.                                     PRIORITAET 2
+     4  Sternenzahl und Aufloesung runter, Theme-Zugaben
+        weg (Meteore, Wolkendrift, Wasserglitzer, Mars-
+        Partikel).                                         PRIORITAET 3
+     5  die letzten Vollbild-Ebenen: Korn, Vignette, die
+        Unschaerfe der Kopfleiste, der Awareness-Warp.
+
+   Faellt danach immer noch nichts ins Lot, geht eine ganze FX-Stufe
+   verloren — das ist die Notbremse weiter unten und hat ihre eigene
+   Geduld von acht Fenstern.
+
+   TOTBAND: hoch wird an anderen Werten geschaltet als runter, sonst
+   flattert die Leiter an jeder Grenze — `q` bewegt sich in Schritten
+   von 0,1, und eine Grenze genau auf einem Schritt waere ein Wackler
+   je Fenster. */
+const SPAR_RUNTER = [0.85, 0.70, 0.55, 0.40, 0.25] as const;
+const SPAR_HOCH   = [0.95, 0.80, 0.65, 0.50, 0.35] as const;
+
+/* Die Aufloesung wird in groben Stufen gefahren, nicht stufenlos: jede
    Aenderung loest `resize()` aus und damit ein Neu-Setzen des Sternenfelds.
    Stufenlos durchgereicht wuerde die Regelung sich selbst zum Ruckeln
-   bringen — sie wuerde bei jedem Zehntel neu saeen. */
-const DPR_STUFEN = [0.7, 0.85, 1, 1] as const;
+   bringen — sie wuerde bei jedem Zehntel neu saeen. Deshalb haengt sie an
+   der Leiter und nicht an `q`: die Leiter hat ein Totband, `q` nicht.
+   Tiefer als frueher (Boden 0,55 statt 0,7) — die Pixelersparnis ist
+   quadratisch und damit der groesste Einzelhebel, den es hier gibt. */
+const DPR_STUFEN = [1, 1, 1, 1, 0.75, 0.55] as const;
 
-/** Der Aufloesungs-Multiplikator zum aktuellen Faktor. */
-export function dprFaktor(q: number): number {
-  const i = Math.min(DPR_STUFEN.length - 1, Math.max(0, Math.round(q * (DPR_STUFEN.length - 1))));
-  return DPR_STUFEN[i];
+/** Der Aufloesungs-Multiplikator zur aktuellen Sparstufe. */
+export function dprFaktor(): number {
+  return DPR_STUFEN[Math.min(DPR_STUFEN.length - 1, Math.max(0, spar))];
 }
 
 let q = 1;
 /** Aktueller Qualitaetsfaktor 0…1 — von der Engine je Bild gelesen. */
 export function qualitaet(): number { return q; }
+
+let spar = 0;
+/** Aktuelle Sparstufe 0…5 — von der Engine und von HeroVideo gelesen. */
+export function sparStufe(): number { return spar; }
 
 export function startQualitaet(env: SkyEnv): () => void {
   const html = document.documentElement;
@@ -106,6 +154,23 @@ export function startQualitaet(env: SkyEnv): () => void {
   let flipflops = 0;
   let zuletztRichtung = 0;
 
+  /* Die Leiter aus `q` ableiten. Erst so weit hinunter, wie die
+     Runter-Schwellen es verlangen, dann so weit hinauf, wie die
+     Hoch-Schwellen es erlauben — dazwischen liegt das Totband, in dem sich
+     nichts bewegt. */
+  const stufeAus = (wert: number, jetzt: number): number => {
+    let s = jetzt;
+    while (s < SPAR_RUNTER.length && wert < SPAR_RUNTER[s]) s++;
+    while (s > 0 && wert > SPAR_HOCH[s - 1]) s--;
+    return s;
+  };
+
+  const setzeSpar = (neu: number) => {
+    if (neu === spar) return;
+    spar = neu;
+    html.setAttribute(SPAR_ATTR, String(spar));
+  };
+
   const setzeQ = (neu: number) => {
     const g = Math.max(0, Math.min(1, Math.round(neu * 100) / 100));
     if (g === q) return;
@@ -117,27 +182,96 @@ export function startQualitaet(env: SkyEnv): () => void {
        auf <html> wie alles andere Darstellungsrelevante — kein zweiter
        Zustand daneben. */
     html.setAttribute(Q_ATTR, String(Math.round(q * 100)));
+    setzeSpar(stufeAus(q, spar));
+  };
+
+  /* ============================================================
+     DER WEG ZURUECK
+
+     Bis hierher gab es `stufeRunter()` ohne Gegenstueck. Die Stufe konnte
+     l -> m -> s nur fallen, und nach drei Herunterstufungen in vierzehn
+     Tagen schrieb der Regler die niedrigere Stufe als Dauerstand ins
+     localStorage. In Stufe "s" lief er zudem gar nicht erst an (der Guard
+     unten stieg sofort aus) — er konnte sich also nicht einmal melden,
+     wenn wieder Luft da war. Einmal unten hiess: fuer immer unten, ueber
+     Sitzungen hinweg, und das Hero-Video hing daran mit.
+
+     Drei Aenderungen daran, alle drei bewusst:
+
+     · Der Regler laeuft auch in Stufe "s" (siehe Guard).
+     · Es wird NICHTS mehr dauerhaft gemerkt. `takeoff-fx` ist der
+       Startwert beim Laden, keine Decke und kein Ziel. Eine Fehlmessung
+       ueberlebt damit keine Sitzung. Der Preis ist, dass ein schwaches
+       Geraet nach jedem harten Neuladen ein paar Sekunden braucht, bis
+       sich die Stufe wieder gesetzt hat — das ist der richtige Preis
+       dafuer, dass es sich ueberhaupt wieder erholen kann.
+     · Hoch geht es nur als VERSUCH, nie als Schlussfolgerung. In Stufe
+       "s" ist die Seite leer, also sind alle Bilder schnell — "viel Luft"
+       beweist dort ueber Stufe "m" genau nichts. Also: Stufe anheben, acht
+       Fenster lang zusehen, und beim ersten schlechten Fenster zurueck.
+       Die Wartezeit bis zum naechsten Versuch verdoppelt sich mit jedem
+       Fehlschlag (20 s, 40 s, 80 s … bis 10 min) und halbiert sich mit
+       jedem Erfolg. Ohne diese Bremse pendelt ein Geraet, das knapp zu
+       schwach ist, im Sekundentakt zwischen zwei Stufen — sichtbares
+       Pendeln waere schlimmer als die niedrigere Stufe.
+     ============================================================ */
+  const VERSUCH_MIN = 20000, VERSUCH_MAX = 600000, VERSUCH_FENSTER = 8;
+  let wartezeit = VERSUCH_MIN;
+  let naechsterVersuch = 0;
+  let versuchLaeuft = 0;
+  /* Trennt eigene Schreibzugriffe auf `data-fx` von fremden (Mission
+     Control, Boot). Ohne das loeste jeder eigene Stufenwechsel den eigenen
+     MutationObserver aus und setzte den gerade laufenden Versuch zurueck. */
+  let eigenerWechsel = false;
+  /* Schonfrist nach einer Wahl von Hand: sonst springt die Automatik zurueck,
+     waehrend der Finger noch auf dem Knopf liegt. */
+  let manuellBis = 0;
+
+  const setzeStufe = (naechste: string): void => {
+    eigenerWechsel = true;
+    html.dataset.fx = naechste;
+    q = 1; html.setAttribute(Q_ATTR, "100");   // in der neuen Stufe frisch anfangen
+    setzeSpar(0);
+    flipflops = 0; amBoden = 0; zuletztRichtung = 0; gutInFolge = 0;
+    fensterStart = 0; fensterBilder = 0; fensterLangsam = 0;
   };
 
   function stufeRunter(): void {
     const jetzt = html.dataset.fx;
     const naechste = jetzt === "l" ? "m" : jetzt === "m" ? "s" : null;
     if (!naechste) return;
-    html.dataset.fx = naechste;
-    q = 1; html.setAttribute(Q_ATTR, "100");   // in der neuen Stufe frisch anfangen
-    flipflops = 0; amBoden = 0; zuletztRichtung = 0;
-    try {
-      const hist = (JSON.parse(store.get("takeoff-fx-downgrades") || "[]") as number[])
-        .filter(ts => Date.now() - ts < 14 * 864e5);
-      hist.push(Date.now());
-      store.set("takeoff-fx-downgrades", JSON.stringify(hist));
-      if (hist.length >= 3) store.set("takeoff-fx", naechste);
-    } catch { /* egal */ }
+    setzeStufe(naechste);
+    wartezeit = Math.min(VERSUCH_MAX, wartezeit * 2);
+    naechsterVersuch = performance.now() + wartezeit;
   }
+
+  function stufeHoch(): void {
+    const jetzt = html.dataset.fx;
+    const naechste = jetzt === "s" ? "m" : jetzt === "m" ? "l" : null;
+    if (!naechste) return;
+    setzeStufe(naechste);
+    versuchLaeuft = VERSUCH_FENSTER;
+  }
+
+  /* Zwei Sperren, die die Automatik NICHT ueberstimmt. Beide sind keine
+     Leistungsfragen, deshalb stehen sie ausserhalb der Regelung:
+     · reduzierte Bewegung ist eine Zugaenglichkeitseinstellung;
+     · der Datensparmodus kostet den Besucher Geld, nicht Bildrate. */
+  const darfHoch = (): boolean => {
+    if (env.reduced) return false;
+    const c = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection;
+    if (c?.saveData === true) return false;
+    return performance.now() >= manuellBis;
+  };
 
   const bild = (dt: number) => {
     if (gestoppt || document.hidden) return;
-    if (html.dataset.fx === "s" || env.reduced || env.perf) return;
+    /* `data-fx === "s"` stand hier frueher mit in der Bedingung. Genau das
+       machte die unterste Stufe zur Sackgasse: dort mass niemand mehr, also
+       konnte auch niemand melden, dass wieder Luft da ist. Jetzt laeuft der
+       Regler weiter — die Engine zeichnet in "s" ohnehin nichts, der Takt
+       kostet also fast nichts. `reduced` und `perf` bleiben harte Ausstiege. */
+    if (env.reduced || env.perf) return;
 
     /* Jedes brauchbare Bild wandert in den Ringpuffer, aus dem die Rate
        kommt. Ausgewertet wird er nur beim Fensterwechsel (viermal je
@@ -191,6 +325,15 @@ export function startQualitaet(env: SkyEnv): () => void {
     const anteil = fensterLangsam / Math.max(1, fensterBilder);
     fensterStart = 0; fensterBilder = 0; fensterLangsam = 0;
 
+    /* Laeuft gerade ein Versuch, gilt nur eine Frage: haelt die hoehere
+       Stufe? Waehrenddessen wird nicht zusaetzlich an `q` gedreht — sonst
+       misst man am Ende die Regelung und nicht die Stufe. */
+    if (versuchLaeuft > 0) {
+      if (anteil > 0.25) { versuchLaeuft = 0; stufeRunter(); return; }
+      if (--versuchLaeuft === 0) wartezeit = Math.max(VERSUCH_MIN, wartezeit / 2);
+      return;
+    }
+
     if (anteil > 0.25) {
       gutInFolge = 0;
       if (q > 0) { setzeQ(q - 0.1); amBoden = 0; }
@@ -214,22 +357,44 @@ export function startQualitaet(env: SkyEnv): () => void {
          volle Qualitaet sechzehn Sekunden; das ist keine Vorsicht mehr,
          sondern fuehlt sich an wie "kommt nicht wieder hoch". */
       if (++gutInFolge >= 4 && q < 1) { setzeQ(q + 0.1); gutInFolge = 0; }
+
+      /* Volle Qualitaet erreicht und immer noch Luft: dann ist nicht der
+         Faktor zu niedrig, sondern die STUFE. Frueher endete der Weg hier —
+         `q` war wieder bei 1, und mehr ging nicht. Jetzt beginnt hier der
+         Versuch, eine Stufe hoeher zu kommen. */
+      if (q >= 1 && gutInFolge >= 4 && performance.now() >= naechsterVersuch && darfHoch()) {
+        gutInFolge = 0;
+        stufeHoch();
+      }
     } else {
       gutInFolge = 0;
     }
   };
 
   html.setAttribute(Q_ATTR, String(Math.round(q * 100)));
+  html.setAttribute(SPAR_ATTR, String(spar));
   const ab = taktMithoeren(bild);
 
   /* Stufenwechsel von aussen (Mission Control, Boot-Script): frisch
-     anfangen, sonst traegt die neue Stufe den Faktor der alten. */
+     anfangen, sonst traegt die neue Stufe den Faktor der alten — und die
+     Automatik haelt danach dreissig Sekunden still, damit eine Wahl von Hand
+     nicht unter dem Finger zurueckspringt.
+     Eigene Wechsel laufen daran vorbei: `setzeStufe()` hat schon aufgeraeumt,
+     ein zweites Zuruecksetzen wuerde einen laufenden Versuch abwuergen. */
   const obs = new MutationObserver(() => {
+    if (eigenerWechsel) { eigenerWechsel = false; return; }
+    manuellBis = performance.now() + 30000;
+    naechsterVersuch = Math.max(naechsterVersuch, manuellBis);
+    versuchLaeuft = 0;
     q = 1; html.setAttribute(Q_ATTR, "100");
+    spar = 0; html.setAttribute(SPAR_ATTR, "0");
     gutInFolge = 0; flipflops = 0; zuletztRichtung = 0; amBoden = 0;
     fensterStart = 0; fensterBilder = 0; fensterLangsam = 0;
   });
   obs.observe(html, { attributes: true, attributeFilter: ["data-fx"] });
 
-  return () => { gestoppt = true; obs.disconnect(); ab(); html.removeAttribute(Q_ATTR); };
+  return () => {
+    gestoppt = true; obs.disconnect(); ab();
+    html.removeAttribute(Q_ATTR); html.removeAttribute(SPAR_ATTR);
+  };
 }
