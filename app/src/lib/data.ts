@@ -13,6 +13,8 @@ import { promises as fs } from "fs";
 import path from "path";
 import rawDb from "@/data/db.json";
 import type { Db, TakeoffEvent, EventTheme } from "./types";
+import { loeseOverlay } from "./i18n/overlay";
+import { DEFAULT_LOCALE, type Locale } from "./i18n";
 
 interface Adapter {
   loadDb(): Promise<Db>;
@@ -52,11 +54,43 @@ const SupabaseAdapter: Adapter = {
 
 const adapter: Adapter = LocalJsonAdapter;
 
-/* Pro Request genau EIN Ladevorgang. Heute (JSON) kostet das wenig; mit dem
-   Supabase-Adapter wäre jede Gateway-Funktion sonst ein eigener Roundtrip —
-   Topbar allein ruft settings() und nextEvent() auf. Muss VOR dem Umzug
-   stehen, sonst wird der Adapter-Tausch teuer statt neutral. */
-const db = cache(() => adapter.loadDb());
+/* ---------- Welche Sprache gilt gerade? ----------
+   Die oeffentlichen Seiten liegen unter `app/[lang]/`, damit rendert der
+   Server je Sprache. `next/root-params` gibt den Wert dieses Segments in
+   JEDER Server-Komponente heraus — ohne ihn durch neunzehn
+   Gateway-Funktionen und rund fuenfzig Aufrufstellen durchzureichen.
+
+   Der Zugriff ist bewusst abgesichert: der Crew-Bereich unter
+   `app/(intern)/` liegt NICHT unter `[lang]` (er ist deutsch und bleibt
+   es), dort gibt es das Wurzel-Segment also nicht. Statt eines Fehlers
+   gilt dann schlicht Deutsch.
+
+   Der dynamische Import mit weicher Typisierung ist noetig, weil Next die
+   Typen fuer `next/root-params` erst aus dem Ordnernamen erzeugt — ein
+   statischer Import waere in genau dem Moment rot, in dem man den Ordner
+   anlegt oder umbenennt. */
+type RootParams = { lang?: () => Promise<string | undefined> };
+
+const aktuelleSprache = cache(async (): Promise<Locale> => {
+  try {
+    const rp = (await import("next/root-params")) as RootParams;
+    return (await rp.lang?.()) === "en" ? "en" : DEFAULT_LOCALE;
+  } catch {
+    return DEFAULT_LOCALE;
+  }
+});
+
+/* Pro Request genau EIN Ladevorgang UND eine Overlay-Aufloesung. Heute
+   (JSON) kostet das Laden wenig; mit dem Supabase-Adapter waere jede
+   Gateway-Funktion sonst ein eigener Roundtrip — die Topbar allein ruft
+   settings() und nextEvent() auf. Muss VOR dem Umzug stehen, sonst wird
+   der Adapter-Tausch teuer statt neutral.
+
+   Das Rohladen bleibt von der Aufloesung getrennt, damit der spaetere
+   Adapter nichts von Sprachen wissen muss: er liefert den Datensatz samt
+   `i18n`-Feld, uebersetzt wird hier. */
+const rohDb = cache(() => adapter.loadDb());
+const db = cache(async () => loeseOverlay(await rohDb(), await aktuelleSprache()));
 const today = () => new Date().toISOString().slice(0, 10);
 
 export async function settings() {
@@ -139,7 +173,8 @@ export async function pageMedia(slug: string) {
 
 export async function pageContent<T = Record<string, unknown>>(slug: string): Promise<T | null> {
   const extra = await adapter.loadPage(slug);
-  if (extra) return extra as T;
+  if (extra) return loeseOverlay(extra, await aktuelleSprache()) as T;
+  /* Aus db() kommt es bereits aufgeloest. */
   return (((await db()).pages ?? {})[slug] as T) ?? null;
 }
 

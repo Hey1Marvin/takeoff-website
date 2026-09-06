@@ -5,10 +5,28 @@
     "intro": "takeoff ist Kollektivarbeit: Jede Nacht entsteht aus vielen Händen. Fotos folgen, sobald alle einverstanden sind — bis dahin: Karten antippen zeigt Rollen & Aufgaben."
   },
   "stats": [
-    { "key": "crewSize", "mode": "auto", "label": "Rollen im Board" },
-    { "key": "missions", "mode": "auto", "label": "begleitete Missionen" },
-    { "key": "activeSince", "mode": "manual", "value": "2024", "label": "aktiv seit" },
-    { "key": "volunteerPercent", "mode": "manual", "value": "100%", "label": "ehrenamtlich" }
+    {
+      "key": "crewSize",
+      "mode": "auto",
+      "label": "Rollen im Board"
+    },
+    {
+      "key": "missions",
+      "mode": "auto",
+      "label": "begleitete Missionen"
+    },
+    {
+      "key": "activeSince",
+      "mode": "manual",
+      "value": "2024",
+      "label": "aktiv seit"
+    },
+    {
+      "key": "volunteerPercent",
+      "mode": "manual",
+      "value": "100%",
+      "label": "ehrenamtlich"
+    }
   ],
   "crew": {
     "eyebrow": "Stationsplan",
@@ -25,44 +43,114 @@
     "reserveLabel": "Platz für neue Rollen"
   },
   "departments": [
-    { "id": "flugdeck", "title": "Flugdeck", "subtitle": "Sound & Licht", "intro": "Wer an Pult und Pulten steht.", "match": ["Nico", "Mik", "JOJO", "Cyonic"] },
-    { "id": "boden", "title": "Bodencrew", "subtitle": "Sicherheit & Fürsorge", "intro": "Wer aufpasst, wenn's drauf ankommt.", "match": ["Awareness", "Sani"] },
-    { "id": "bau", "title": "Bau & Gastgeber", "subtitle": "Deko, Bar, Einlass", "intro": "Wer die Location baut und die Tür offen hält.", "match": ["Deko", "Bar"] }
+    {
+      "id": "flugdeck",
+      "title": "Flugdeck",
+      "subtitle": "Sound & Licht",
+      "intro": "Wer an Pult und Pulten steht.",
+      "match": [
+        "Nico",
+        "Mik",
+        "JOJO",
+        "Cyonic"
+      ]
+    },
+    {
+      "id": "boden",
+      "title": "Bodencrew",
+      "subtitle": "Sicherheit & Fürsorge",
+      "intro": "Wer aufpasst, wenn's drauf ankommt.",
+      "match": [
+        "Awareness",
+        "Sani"
+      ]
+    },
+    {
+      "id": "bau",
+      "title": "Bau & Gastgeber",
+      "subtitle": "Deko, Bar, Einlass",
+      "intro": "Wer die Location baut und die Tür offen hält.",
+      "match": [
+        "Deko",
+        "Bar"
+      ]
+    }
   ],
   "departmentFallbackTitle": "Weitere Crew",
   "members": {
     "Nico · DJ Platzhalter": {
-      "tasks": ["Bookings & Genehmigungen", "Timetable", "Auflegen: Trance"]
+      "tasks": [
+        "Bookings & Genehmigungen",
+        "Timetable",
+        "Auflegen: Trance"
+      ]
     },
     "Mik · Blaulicht": {
-      "tasks": ["Lichtdesign & DMX-Programmierung", "Technik-Aufbau", "Auflegen: Hard Trance"]
+      "tasks": [
+        "Lichtdesign & DMX-Programmierung",
+        "Technik-Aufbau",
+        "Auflegen: Hard Trance"
+      ]
     },
     "JOJO": {
-      "tasks": ["Auflegen: Hard Trance & Bounce", "Podcast-Serie"]
+      "tasks": [
+        "Auflegen: Hard Trance & Bounce",
+        "Podcast-Serie"
+      ]
     },
     "Cyonic": {
-      "tasks": ["Auflegen: Trance & Techno", "B2B-Sets", "Dabei seit Mission 1"]
+      "tasks": [
+        "Auflegen: Trance & Techno",
+        "B2B-Sets",
+        "Dabei seit Mission 1"
+      ]
     },
     "Awareness-Team": {
-      "tasks": ["Die ganze Nacht ansprechbar", "Ruheraum betreuen", "Deeskalation"],
+      "tasks": [
+        "Die ganze Nacht ansprechbar",
+        "Ruheraum betreuen",
+        "Deeskalation"
+      ],
       "contact": "Lila Weste — jederzeit ansprechbar, ohne Konsequenzen."
     },
     "Sani-Team": {
-      "tasks": ["Erste Hilfe im Umlauf", "Verbandszeug & Ruheraum", "Wasser verteilen"]
+      "tasks": [
+        "Erste Hilfe im Umlauf",
+        "Verbandszeug & Ruheraum",
+        "Wasser verteilen"
+      ]
     },
     "Deko & Bau": {
-      "tasks": ["Motto-Deko bauen", "Location herrichten", "Auf- & Abbau"]
+      "tasks": [
+        "Motto-Deko bauen",
+        "Location herrichten",
+        "Auf- & Abbau"
+      ]
     },
     "Bar & Einlass": {
-      "tasks": ["Ausschank & Kasse", "Einlass & Taschenkontrolle", "Solipreise erklären"]
+      "tasks": [
+        "Ausschank & Kasse",
+        "Einlass & Taschenkontrolle",
+        "Solipreise erklären"
+      ]
     }
   },
-  "tasksFallback": ["Aufgaben folgen"],
+  "tasksFallback": [
+    "Aufgaben folgen"
+  ],
   "roleLinks": {
-    "Awareness-Team": { "href": "/awareness", "linkText": "Awareness-Konzept →" },
-    "Sani-Team": { "href": "/awareness#hilfe", "linkText": "Erste Hilfe & Regeln →" }
+    "Awareness-Team": {
+      "href": "/awareness",
+      "linkText": "Awareness-Konzept →"
+    },
+    "Sani-Team": {
+      "href": "/awareness#hilfe",
+      "linkText": "Erste Hilfe & Regeln →"
+    }
   },
-  "artistLink": { "linkText": "Profil & Sets →" },
+  "artistLink": {
+    "linkText": "Profil & Sets →"
+  },
   "nextMission": {
     "label": "Nächste Mission",
     "introTemplate": "Beim Launch am {date} live an Bord: {lineup} — dazu wie jede Nacht Awareness, Sani, Bar & Einlass.",
@@ -78,5 +166,14 @@
   },
   "easterEgg": {
     "toastText": "Du kennst jetzt die ganze Crew"
+  },
+  "i18n": {
+    "en": {
+      "hero": {
+        "eyebrow": "Team board",
+        "h1": "The <span class=\"glow\">crew</span>",
+        "intro": "takeoff is collective work: every night is made by many hands. Photos will follow once everyone has agreed — until then, tap a card to see roles and tasks."
+      }
+    }
   }
 }
