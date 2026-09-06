@@ -79,6 +79,27 @@
   :root[data-fx="l"] .hero .scroll-hint {
     animation: hero-in-fade .5s var(--ease-out) 1.55s both;
   }
+
+  /* Telefon-Hero (.hero-m, It. 18): dieselbe Staffel, fortgesetzt. Die
+     sechs Zeilen (Kicker, Datum, Titel, Ort, Knopf, Telegram) setzen ab
+     0.4s im Zehntel-Takt nacheinander auf — direkt nach der Vorzeile, so
+     dass Wortmarke und Datum als ein Zug ankommen. Ueber 560px ist der
+     Block `display: none`, dort laeuft davon nichts; die .next-card
+     behaelt ihre eigene Zeile oben. */
+  :root[data-fx="m"] .hero .hero-m > *,
+  :root[data-fx="l"] .hero .hero-m > * {
+    animation: hero-in-up-14 .6s var(--ease-out) .4s both;
+  }
+  :root[data-fx="m"] .hero .hero-m > :nth-child(2),
+  :root[data-fx="l"] .hero .hero-m > :nth-child(2) { animation-delay: .5s; }
+  :root[data-fx="m"] .hero .hero-m > :nth-child(3),
+  :root[data-fx="l"] .hero .hero-m > :nth-child(3) { animation-delay: .6s; }
+  :root[data-fx="m"] .hero .hero-m > :nth-child(4),
+  :root[data-fx="l"] .hero .hero-m > :nth-child(4) { animation-delay: .7s; }
+  :root[data-fx="m"] .hero .hero-m > :nth-child(5),
+  :root[data-fx="l"] .hero .hero-m > :nth-child(5) { animation-delay: .8s; }
+  :root[data-fx="m"] .hero .hero-m > :nth-child(6),
+  :root[data-fx="l"] .hero .hero-m > :nth-child(6) { animation-delay: .9s; }
 }
 
 @keyframes hero-in-mark  { from { opacity: 0; transform: translateY(60px); } to { opacity: 1; transform: none; } }
@@ -255,4 +276,180 @@
 .hm-sec .mcard:not(.open) .m-more-inner {
   border-top-color: transparent;
   padding-top: 0;
+}
+
+/* ============================================================
+   Telefon-Hero (It. 18) — Datum zuerst
+
+   Zwei Fassungen des naechsten Events stehen im Markup (page.tsx): die
+   .next-card fuer breite Schirme und .hero-m fuers Telefon. Welche zu
+   sehen ist, entscheidet allein die Breite; Screenreader bekommen so
+   immer genau eine. Die Basisregel steht AUSSERHALB jeder Media Query,
+   damit der Desktop pixelgleich bleibt (design-diff.mjs bei 1210/1440):
+   ueber 560px existiert der Block schlicht nicht.
+
+   Spezifitaet: alles unter `.hero`, weil takeoff.css seine Hero-Regeln
+   mit einer Klasse schreibt (.pretitle, .tagline, .tminus, .next-card,
+   .scroll-hint) und Media Queries nichts an der Spezifitaet aendern —
+   die Buendel-Reihenfolge von Seiten- gegen Layout-CSS ist keine
+   Verlassbasis (AGENTS.md).
+   ============================================================ */
+.hero .hero-m { display: none; }
+
+@media (max-width: 560px) {
+  /* Der Hero rueckt nach oben: takeoff.css polstert clamp(22px, 4vh, 90px),
+     auf 780px Hoehe sind das 31px — Luft, die das Datum unten braucht.
+     `section.hero` (0,1,1) schlaegt `.hero` (0,1,0). */
+  section.hero { padding-top: var(--sp-4); }
+
+  /* Eine Zeile, kein Umbruch: mit .35em Sperrung brach „rave kollektiv ·
+     potsdam · est. 2024" bei 390px nach „est." um (nachgesehen am
+     Screenshot). 31 Zeichen x (11px x .6 + .2em) ~ 273px passen ab 320px. */
+  .hero .pretitle {
+    font-size: var(--fs-micro);
+    letter-spacing: .2em;
+    white-space: nowrap;
+    margin-bottom: var(--sp-2);
+  }
+  /* .wordmark liest --fs-wordmark bereits in takeoff.css; mobile.css setzt
+     das Token auf 30–40px. Hier bewusst KEINE zweite Regel. */
+
+  /* ---- Der Block ----
+     Fuellt den ersten Bildschirm bis zur Unterkante aus und schiebt seinen
+     Inhalt ans Ende (`align-content: end`): oben bleibt das Video frei
+     (Publikum, Licht), unten steht der Text im Daumenbereich.
+
+     --hm-offset = alles, was im ersten Bildschirm UEBER dem Block steht.
+     Rechnung fuer 360x780 (100svh = 780, --topbar-h = 60, also 720px
+     Bildflaeche unter der Kopfleiste):
+       Hero-Polster oben     --sp-4 = clamp(16, 2vw, 22)          16px
+       Vorzeile              11px mono x 1.55 (body) = 17
+                             + margin-bottom --sp-2 = 8           25px
+       Wortmarken-Kasten     38,4px (clamp(30, .6rem+8vw, 40) bei 360)
+                             x 1.05 Zeile = 40,3
+                             + Polster .22em + .14em = 13,8
+                             - Rand .04em + .1em = 5,4            49px
+                             (bei 390: 40px -> 51px)
+       Summe                                                      90–92px
+     Dazu ein paar Pixel Unterlaenge: die Marke ist inline-block auf der
+     Grundlinie eines 17px/1.55-Strebs. Gesetzt sind 96px; die Messung
+     per Screenshot (mobile-audit.mjs) korrigiert die Zahl, nicht das Auge.
+
+     Ergebnis bei 780px: der Block endet auf 720px, also exakt am unteren
+     Bildrand. Der Knopf steht 82px darueber (30 Polster + 44 Telegram-
+     Zeile + 8 Luecke), seine Oberkante also bei ~594px = 82 % der
+     Bildhoehe — unteres Drittel. Die Tagline faellt unter die Kante. */
+  .hero .hero-m {
+    --hm-offset: 96px;
+    display: grid;
+    justify-items: start;
+    text-align: left;
+    gap: var(--sp-2);
+    align-content: end;
+    min-height: calc(100svh - var(--topbar-h) - var(--hm-offset));
+    padding-bottom: var(--sp-6);
+  }
+
+  .hero .hm-kicker {
+    font-family: var(--font-mono);
+    font-size: var(--fs-micro);
+    font-weight: 700;
+    letter-spacing: var(--track-label);
+    text-transform: uppercase;
+    color: var(--acc-3);
+    margin: 0;
+  }
+  /* Wochentag als eigene Zeile ueber dem Datum — Mono-HUD, in der
+     Leitfarbe, damit das grosse Datum darunter nicht allein steht. */
+  .hero .hm-wd {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: var(--fs-label);
+    font-weight: 700;
+    letter-spacing: var(--track-label);
+    text-transform: uppercase;
+    color: var(--acc-1-tint);
+    margin-bottom: 6px;
+  }
+  /* Das groesste Element im Bild (44–64px, mobile.css). Zwei Schatten
+     statt einem Neon-Kegel: der erste zieht eine harte Kante nach unten
+     (die Ziffern stehen ueber laufendem Video), der zweite ist ein weiter,
+     schwacher Hof in der Stuetzfarbe — Licht, nicht Leuchtreklame. */
+  .hero .hm-date {
+    font-family: var(--font-display);
+    font-weight: var(--w-display);
+    font-size: var(--fs-hero-date);
+    line-height: .95;
+    letter-spacing: -.02em;
+    color: var(--ink);
+    margin: 0;
+    text-shadow:
+      0 1px 0 rgb(var(--bg-void-rgb) / .6),
+      0 0 28px rgb(var(--acc-2-rgb) / .35);
+    font-variant-numeric: tabular-nums;
+  }
+  .hero .hm-title {
+    font-family: var(--font-display);
+    font-weight: var(--w-head);
+    font-size: var(--fs-title);
+    line-height: 1.15;
+    color: var(--ink);
+    margin: 0;
+  }
+  .hero .hm-meta {
+    font-family: var(--font-mono);
+    font-size: var(--fs-small);
+    line-height: 1.4;
+    color: var(--ink-dim);
+    margin: 0;
+  }
+  .hero .hm-cta {
+    width: 100%;
+    justify-content: center;
+    margin-top: var(--sp-3);
+  }
+  /* Zweite Aktion als Textzeile, NICHT als zweiter Knopf: zwei gleich
+     schwere Knoepfe uebereinander heben einander auf. 44px Hoehe bleibt
+     das Beruehrziel. */
+  .hero .hm-tg {
+    justify-self: center;
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    font-family: var(--font-mono);
+    font-size: var(--fs-label);
+    letter-spacing: var(--track-label);
+    text-transform: uppercase;
+    color: var(--ink-dim);
+    border-bottom: 1px dotted var(--ink-faint);
+  }
+
+  /* Die Desktop-Karte und der Scroll-Hinweis fallen weg — der Block oben
+     ist ihre Telefon-Fassung, der Hinweis zeigte auf etwas, das jetzt
+     ohnehin unter der Bildkante beginnt. */
+  .hero .next-card,
+  .hero .scroll-hint { display: none; }
+
+  /* Tagline und Countdown stehen jetzt unter der Falte, als zweiter
+     Schirm: mehr Abstand nach oben, Lesebreite begrenzt. */
+  .hero .tagline {
+    margin-top: var(--sp-7);
+    font-size: var(--fs-lead);
+    max-width: 34ch;
+    margin-inline: auto;
+  }
+  .hero .tminus { margin-top: var(--sp-4); }
+
+  /* ---- Raster der Sektionen ----
+     takeoff.css: .crewgrid minmax(180px) ergibt auf 324px Innenbreite
+     EINE Spalte (2 x 180 + 16 > 324) — sechs Karten untereinander, jede
+     mit einem Avatar in der Mitte einer leeren Zeile. Zwei Spalten.
+     .setgrid (minmax(300px)) ist auf dem Telefon ohnehin einspaltig;
+     die Regel steht explizit, damit es bei einer Aenderung des
+     Desktop-Wertes so bleibt. .stats haengt an `.stats-band` (Klasse nur
+     auf der Startseite), nicht an .hm-sec — dort auf 2x2 festgelegt,
+     statt auto-fit bei 320px in eine Spalte kippen zu lassen. */
+  .hm-sec .crewgrid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .hm-sec .setgrid { grid-template-columns: minmax(0, 1fr); }
+  .stats-band .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }

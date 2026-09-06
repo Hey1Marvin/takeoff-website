@@ -31,6 +31,9 @@ interface HomePageContent {
     ctaMissionLabel: string;
     ctaTelegramLabel: string;
     scrollHint: string;
+    /* Nur im Telefon-Hero (.hero-m) sichtbar, siehe unten. */
+    mobileKicker: string;
+    ctaMissionMobileLabel: string;
   };
   missions: {
     eyebrow: string; titleHtml: string; intro: string;
@@ -135,6 +138,14 @@ function timeRange(ev: TakeoffEvent): string {
   return `${short(doors)}–${short(ev.end)} Uhr`;
 }
 
+/* „19.09." statt „19.09.26" — im Telefon-Hero ist das Datum das groesste
+   Element im Bild (44–64px); die Jahreszahl traegt dort nichts bei und
+   kostet auf 360px die Luft, die die Ziffern brauchen. Dieselbe Quelle wie
+   fmtDate, nur ohne die letzten zwei Stellen. */
+function fmtDateShort(iso: string): string {
+  return fmtDate(iso).replace(/\d\d$/, "");
+}
+
 export default async function Home() {
   const [s, page, up, gone, next, arts, crew, heroMedien] = await Promise.all([
     settings(), pageContent<HomePageContent>("home"),
@@ -185,6 +196,33 @@ export default async function Home() {
         <div className="hero-inner">
           <p className="pretitle">{s.claim}</p>
           <div className="hero-mark"><h1 className="wordmark" translate="no">takeoff</h1></div>
+
+          {/* Telefon-Hero (It. 18): ein EIGENER Geschwisterblock statt einer
+              umgebauten .next-card. Grund: das Telefon hat eine andere
+              Reihenfolge — Datum zuerst, dann Titel, Ort, Knopf — und die
+              Karte steht im Baum erst hinter Tagline und Countdown. Sie mit
+              `display: contents` aufzuloesen und ihre Kinder per `order`
+              umzusortieren haette zwei Nachteile: die Hero-Intro
+              (home.css, Keyframe auf .next-card) liefe auf einem Element
+              ohne Box ins Leere, und `display: contents` nimmt dem <article>
+              in mehreren Screenreadern die Rolle — eine bekannte a11y-Falle.
+              Also zwei Blöcke, je einer pro Breite: home.css blendet
+              .hero-m ueber 560px aus und .next-card darunter. Screenreader
+              sehen dadurch immer genau EINE Fassung des naechsten Events. */}
+          {next && (
+            <article className="hero-m" aria-labelledby="hero-m-title">
+              <p className="hm-kicker">{page.hero.mobileKicker}</p>
+              <p className="hm-date">
+                <span className="hm-wd">{next.weekday}</span>{" "}
+                <time dateTime={next.date}>{fmtDateShort(next.date)}</time>
+              </p>
+              <h2 className="hm-title" id="hero-m-title">{next.title.replace(/^takeoff:\s*/i, "")}</h2>
+              <p className="hm-meta">{[next.venue.name, timeRange(next), next.pricing.label].filter(Boolean).join(" · ")}</p>
+              <Link className="btn btn-primary hm-cta" href={eventHref(next.slug)}>{page.hero.ctaMissionMobileLabel}</Link>
+              <a className="hm-tg" href={s.telegram} target="_blank" rel="noopener">{page.hero.ctaTelegramLabel}</a>
+            </article>
+          )}
+
           <p className="tagline" dangerouslySetInnerHTML={{ __html: page.hero.taglineHtml }} />
 
           <div className="tminus" role="timer" aria-label={page.hero.tminusAria}>

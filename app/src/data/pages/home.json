@@ -2,6 +2,8 @@
   "_labels": {
     "hero": "Hero (erster Bildschirm)",
     "hero.taglineHtml": "Tagline (HTML: <br> und <b> erlaubt)",
+    "hero.mobileKicker": "Hero: Kicker (nur Telefon)",
+    "hero.ctaMissionMobileLabel": "Hero: Knopf-Text (nur Telefon)",
     "missions": "Abschnitt „Nächste Missionen“",
     "missions.rowLabels": "Zeilen-Beschriftungen im Briefing",
     "band": "Genre-Laufband",
@@ -15,10 +17,12 @@
   },
 
   "hero": {
-    "taglineHtml": "Wir bauen unsere Anlage selbst, unsere Deko selbst und unsere Nächte selbst.<br><b>Trance · Hard Trance · Bounce</b> — ehrenamtlich, DIY, für alle.",
+    "taglineHtml": "Eigene Anlage. Eigenes Licht. Eigene Nächte.<br><b>Trance · Hard Trance · Bounce</b> — ehrenamtlich, für alle.",
     "tminusLabel": "T-Minus",
     "tminusAria": "Countdown zum nächsten Event",
-    "ctaMissionLabel": "Nächste Missionen →",
+    "ctaMissionLabel": "Zur Mission →",
+    "mobileKicker": "Nächste Mission",
+    "ctaMissionMobileLabel": "Alles zur Mission →",
     "ctaTelegramLabel": "Telegram · Presale & Infos",
     "scrollHint": "Scroll für Boarding"
   },

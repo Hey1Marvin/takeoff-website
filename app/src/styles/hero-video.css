@@ -217,7 +217,13 @@
   background: var(--hero-tint);
 }
 
-:root.day-mode[data-video="on"] .hero :is(.pretitle, .tagline, .tminus, .scroll-hint) {
+/* .hero-m ist der Telefon-Block (home.css) — lose Typografie direkt auf
+   dem Video, also derselbe Fall wie Vorzeile und Tagline. Der KNOPF darin
+   bleibt draussen: tags ist .btn-primary ein Tintenblock (Grund --ink,
+   Schrift --bg-void, scene-day.css). Mit zurueckgesetzten Tokens wurde er
+   zur hellen Pille mit heller Schrift — nachgesehen am 390px-Screenshot,
+   die Beschriftung war praktisch unsichtbar. */
+:root.day-mode[data-video="on"] .hero :is(.pretitle, .tagline, .tminus, .scroll-hint, .hero-m > :not(.hm-cta)) {
   --ink:       var(--nite-ink);
   --ink-dim:   var(--nite-ink-dim);
   --ink-faint: var(--nite-ink-faint);
@@ -233,18 +239,40 @@
 :root[data-theme="mars"] .hero-video   { --hv-tint: .40; }
 :root[data-theme="strand"] .hero-video { --hv-tint: .26; --hv-scrim: .32; }
 
-/* ---------- Schmale Schirme ----------
-   Auf dem Handy steht die Wortmarke relativ groesser im Bild und der
-   Hero ist hoch und schmal — der Ausschnitt zeigt dadurch mehr Publikum
-   und weniger Buehne. Etwas dunkler und etwas frueher auslaufend, sonst
-   wird es unruhig hinter dem Text. */
-@media (max-width: 700px) {
+/* ---------- Telefon (It. 18) ----------
+   Bis It. 17 machte dieser Block das Telefon absichtlich DUNKLER als den
+   Schreibtisch (.62 Helligkeit, .34 Schleier): die Wortmarke stand gross
+   in der Bildmitte, und dahinter sollte Ruhe sein. Nachgemessen am Geraet
+   war das Ergebnis „zu dunkel, man sieht nichts" — vom Rave blieb ein
+   grauer Schleier, und die Marke ist inzwischen klein (30–40px).
+
+   Jetzt ist der Text unten (.hero-m, home.css): das obere Drittel ist
+   frei, dort darf das Publikum leuchten. Das Video wird also HELLER als
+   auf dem Schreibtisch (.82 statt .74) und die Abdunkelung wandert in
+   die untere Haelfte: oben nur ein Hauch gegen die Kopfleiste, ab der
+   Mitte steigend, unten deckend genug, dass --ink (Datum, Titel) und
+   --ink-dim (Ort, Zeit) ueber jedem Videobild >= 4,5:1 halten — die
+   Zahl misst mobile-audit.mjs nach, nicht dieser Kommentar. Der radiale
+   Anteil entfaellt auf dem Telefon: seine Lichtinsel sass dort, wo jetzt
+   der Text steht, und sein Rand dort, wo das Bild frei sein soll.
+   Der Auslauf endet etwas frueher als auf dem Schreibtisch (62 statt
+   70 %), weil der Hero hoch und schmal ist und unter dem Block ohnehin
+   nur noch Tagline und Countdown folgen. */
+@media (max-width: 560px) {
   .hero-video {
-    --hv-bright: .62;
-    --hv-scrim:  .34;
+    --hv-bright: .82;
+    --hv-sat:    .58;
+    --hv-scrim:  .14;
     --hv-mask: linear-gradient(180deg,
-        #000 0%, #000 58%, rgb(0 0 0 / .78) 74%,
-        rgb(0 0 0 / .34) 88%, rgb(0 0 0 / 0) 100%);
+        #000 0%, #000 62%, rgb(0 0 0 / .8) 78%,
+        rgb(0 0 0 / .35) 90%, rgb(0 0 0 / 0) 100%);
+  }
+  .hero-video::after {
+    background: linear-gradient(180deg,
+        rgb(var(--bg-void-rgb) / .28) 0%,
+        rgb(var(--bg-void-rgb) / .06) 26%,
+        rgb(var(--bg-void-rgb) / .34) 58%,
+        rgb(var(--bg-void-rgb) / .72) 100%);
   }
 }
 
